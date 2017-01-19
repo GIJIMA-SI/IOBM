@@ -33,8 +33,6 @@ namespace Gijima.IOBM.MobileManager
 
         #region Methods
 
-        // tst
-
         /// <summary>
         /// Constructor
         /// </summary>
