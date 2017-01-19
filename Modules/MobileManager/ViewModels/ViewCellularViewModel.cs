@@ -1481,7 +1481,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             // Subscribe to this event to be notified when the device and simcard data was saved
             _eventAggregator.GetEvent<ActionCompletedEvent>().Subscribe(ActionCompleted_Event, true);
 
-            // Initialise the data activity log info entity
+            // Initialise the data activity log info entity test
             _activityLogInfo = new DataActivityLog();
             _activityLogInfo.ActivityProcess = ActivityProcess.Administration.Value();
 
