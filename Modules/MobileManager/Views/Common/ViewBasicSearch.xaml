@@ -1,0 +1,40 @@
+﻿<UserControl x:Class="Gijima.IOBM.MobileManager.Views.ViewBasicSearch"
+             xmlns:local="clr-namespace:Gijima.IOBM.MobileManager.Views"                     
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:mm="clr-namespace:Gijima.IOBM.MobileManager.Common;assembly=Gijima.IOBM.MobileManager.Common"           
+             prism:ViewModelLocator.AutoWireViewModel="True"             
+             mc:Ignorable="d" MinWidth="250" MinHeight="23">
+    
+    <Grid x:Name="LayoutControl">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="90" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="3" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="3" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Column="0" Text="Search criteria:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <ComboBox Grid.Column="1" IsEditable="True" MinWidth="200" Text="{Binding SearchCriteria, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding  ClientResults}"
+            DisplayMemberPath="ClientName" SelectedItem="{Binding SelectedClient}" IsDropDownOpen="{Binding MultipleResults}">
+            <ComboBox.InputBindings>
+                <KeyBinding Key="Enter" Command="{Binding SearchKeyDownCommand}"/>
+            </ComboBox.InputBindings>
+        </ComboBox>
+        <Button x:Name="ButtonCancel" Grid.Column="3" ToolTip="clear the search criteria." TabIndex="2" 
+            Style="{StaticResource UXImageButtonStyle}" Command="{Binding CancelCommand}">
+            <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico" />
+        </Button>        
+        <Button x:Name="ButtonSearch" Grid.Column="5" ToolTip="Search for the entered criteria." TabIndex="3" 
+            Style="{StaticResource UXImageButtonStyle}" Command="{Binding SearchCommand}">
+            <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/search_32.ico" />
+        </Button>
+    </Grid>
+</UserControl>

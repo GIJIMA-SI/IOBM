@@ -1,0 +1,120 @@
+﻿<UserControl x:Class="Gijima.IOBM.MobileManager.Views.ViewCompany"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mm="clr-namespace:Gijima.IOBM.MobileManager.Common.Helpers;assembly=Gijima.IOBM.MobileManager.Common"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"             
+             mc:Ignorable="d" 
+             Height="269" Width="600">
+
+    <UserControl.Resources>
+        <mm:UIDataConvertionHelper x:Key="UIDataConvertionHelper"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="65" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="65" />
+            <ColumnDefinition Width="50" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="75" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <TextBox x:Name="TextBoxCompanyName" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="4" TabIndex="1" Style="{StaticResource UXTextBoxStyle}"
+            ToolTip="Enter the company name." Text="{Binding SelectedCompanyName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidCompanyName}">
+        </TextBox>
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Group:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <Border Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="4" BorderThickness="1" BorderBrush="{Binding ValidGroup}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="31*" />
+                    <ColumnDefinition Width="72*"/>
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ComboBox x:Name="ComboBoxGroups" Grid.Column="0" ToolTip="Select the group that the company is linked to." TabIndex="2" IsSynchronizedWithCurrentItem="True"
+                    ItemsSource="{Binding GroupCollection}" DisplayMemberPath="GroupName" 
+                    SelectedItem="{Binding SelectedGroup, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidGroup}" Grid.ColumnSpan="2"/>
+                <Button x:Name="ButtonGroupCrud" Grid.Column="2" Margin="2,0,0,0" ToolTip="Add, edit or delete a company group." TabIndex="3" 
+                    Style="{StaticResource UXImageButtonStyle}" Command="{Binding GroupCommand}">
+                    <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/edit_32.png" />
+                </Button>
+            </Grid>
+        </Border>
+        <StackPanel Grid.Row="0" Grid.Column="7" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="ButtonCancel" TabIndex="12" Style="{StaticResource UXImageButtonStyle}"
+                ToolTip="Cancel the current operation." Command="{Binding CancelCommand}">
+                <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico"  />
+            </Button>
+
+            <Button x:Name="ButtonAdd" TabIndex="13" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
+                ToolTip="Add a new company." Command="{Binding AddCommand}">
+                <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/508.png"  />
+            </Button>
+            <Button x:Name="ButtonSave" TabIndex="14" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
+                ToolTip="Save the company data." Command="{Binding SaveCommand}">
+                <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/save_32.ico"  />
+            </Button>
+        </StackPanel>
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="WBS no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <TextBox x:Name="TextBoxWBSNumber" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="4" TabIndex="4" ToolTip="Enter the WBS number linked to the company." Style="{StaticResource UXTextBoxStyle}"
+            Text="{Binding SelectedWBSNumber, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidWBSNumber}">
+        </TextBox>
+        <TextBlock Grid.Row="0" Grid.Column="6" Text="Billing levels:" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
+        <ListBox x:Name="ListBoxBillingLevels" Grid.Row="2" Grid.Column="6" Grid.ColumnSpan="2" Grid.RowSpan="7" TabIndex="9"
+            ItemsSource="{Binding CompanyBillingLevelCollection, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock Grid.Row="6" Grid.Column="0" Text="Cost code:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <TextBox x:Name="TextBoxCostCode" Grid.Row="6" Grid.Column="1" TabIndex="5" ToolTip="Enter the cost code linked to the company." Style="{StaticResource UXTextBoxStyle}"
+            Text="{Binding SelectedCostCode, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidCostCode}">
+        </TextBox>
+        <TextBlock Grid.Row="6" Grid.Column="3" Text="Split billing:" Style="{StaticResource UXLabelTextStyle}"/>
+        <CheckBox x:Name="CkeckBoxSplitBilling" Grid.Row="6" Grid.Column="4" TabIndex="6" VerticalAlignment="Center"
+              IsChecked="{Binding HasSplitBilling, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Row="8" Grid.Column="0" Text="IP address:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <TextBox x:Name="TextBoxIPAddress" Grid.Row="8" Grid.Column="1" TabIndex="7" ToolTip="Enter the IP adrress linked to the company." Style="{StaticResource UXTextBoxStyle}"
+            Text="{Binding SelectedCompany.IPAddress}">
+        </TextBox>
+        <TextBlock Grid.Row="8" Grid.Column="3" Text="Admin fee:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <TextBox x:Name="TextBoxAdminFee" Grid.Row="8" Grid.Column="4" TabIndex="8" ToolTip="Enter the IP adrress linked to the company." Style="{StaticResource UXTextBoxStyle}"
+            Text="{Binding SelectedCompany.AdminFee}">
+        </TextBox>
+        <StackPanel Grid.Row="9" Grid.Column="7" Orientation="Horizontal" HorizontalAlignment="Right">
+            <TextBlock Text="Active" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom" Margin="0,0,5,0"></TextBlock>
+            <CheckBox x:Name="CkeckBoxIsActive" TabIndex="10" VerticalAlignment="Bottom" IsChecked="{Binding CompanyState, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+        <TextBlock Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Text="Available Companies" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
+        <DataGrid x:Name="DataGridCompanies" Grid.Row="10" Grid.ColumnSpan="8" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True" 
+            IsReadOnly="True" TabIndex="11" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" 
+            ItemsSource="{Binding CompanyCollection}" SelectedItem="{Binding SelectedCompany, UpdateSourceTrigger=PropertyChanged}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Company Name" Binding="{Binding CompanyName}" Width="Auto" />
+                <DataGridTextColumn Header="Group Name" Binding="{Binding CompanyGroup.GroupName}" Width="Auto" />
+                <DataGridTextColumn Header="WBS Number" Binding="{Binding WBSNumber}" Width="Auto" />
+                <DataGridTextColumn Header="Cost Code" Binding="{Binding CostCode}" Width="Auto" />
+                <DataGridTextColumn Header="IP Address" Binding="{Binding IPAddress}" Width="Auto" />
+                <DataGridTextColumn Header="Admin Fee" Binding="{Binding AdminFee}" Width="80" />
+                <DataGridTextColumn Header="Split Billing" Width="80" Binding="{Binding HasSpitBilling, Converter={StaticResource UIDataConvertionHelper}, ConverterParameter=BoolToYesNo}"/>
+                <DataGridTextColumn Header="Empl Cnt" Binding="{Binding EmployeeCount}" Width="70" />
+                <DataGridTextColumn Header="State" Binding="{Binding IsActive, Converter={StaticResource UIDataConvertionHelper},  ConverterParameter='State'}" Width="60" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>
+

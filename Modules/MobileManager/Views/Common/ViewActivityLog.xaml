@@ -1,0 +1,86 @@
+﻿<UserControl x:Class="Gijima.IOBM.MobileManager.Views.ViewActivityLog"
+             xmlns:local="clr-namespace:Gijima.IOBM.MobileManager.Views"             
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:mm="clr-namespace:Gijima.IOBM.MobileManager.Common;assembly=Gijima.IOBM.MobileManager.Common"            
+             prism:ViewModelLocator.AutoWireViewModel="True"             
+             mc:Ignorable="d" 
+             d:DesignHeight="200" d:DesignWidth="1000">
+
+    <Grid x:Name="LayoutControl">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource UXHeaderStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="45" />
+                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="2" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Activity Log View" Style="{StaticResource UXHeaderTextStyle}"></TextBlock>
+                <TextBlock Text="Filter:" Grid.Column="1" Style="{StaticResource UXLabelTextStyle}" Foreground="White" FontWeight="Medium" FontSize="14"></TextBlock>
+                <ComboBox Grid.Column="2" ToolTip="Select a filter criteria." TabIndex="1" Height="20" Margin="0,3,0,2" IsSynchronizedWithCurrentItem="True"
+                    ItemsSource="{Binding ActivityLogFilterCollection}" SelectedItem="{Binding SelectedActivityLogFilter}">
+                </ComboBox>
+                <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,1,10,0">
+                    <Button x:Name="ButtonInstrumentCancel" ToolTip="Cancel the current operation." TabIndex="4" Margin="0,0,2,0" 
+                        Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding CancelCommand}">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico" Margin="2"/>
+                    </Button>
+                    <Button x:Name="ButtonInstrumentSave" ToolTip="Save the activity comment." TabIndex="5" Margin="0"
+                        Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding SaveCommand}" >
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/save_32.ico" Margin="2"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+        <GroupBox Grid.Row="1" Grid.Column="0" Header="Existing Logs" Style="{StaticResource UXGroupBoxStyle}" Margin="5,0,5,5" >
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,10" Visibility="{Binding ShowComment}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="65" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Comment:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                    <TextBox Grid.Row="0" Grid.Column="1" TabIndex="3" ToolTip="Enter activity comment." Style="{StaticResource UXTextBoxStyle}"
+                        Text="{Binding SelectedComment, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
+                    </TextBox>
+                </Grid>
+                <DataGrid Grid.Row="2" Grid.ColumnSpan="2" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True" 
+                    IsReadOnly="True" TabIndex="2" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" 
+                    ItemsSource="{Binding ActivityLogCollection}" SelectedItem="{Binding SelectedActivityLog}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Activity Description" Binding="{Binding ActivityDescription}" Width="*" />
+                        <DataGridTextColumn Header="Activity Comment" Binding="{Binding ActivityComment}" Width="Auto" />
+                        <DataGridTextColumn Header="Modified By" Binding="{Binding ModifiedBy}" Width="Auto" />
+                        <DataGridTextColumn Header="Modified Date" Binding="{Binding ModifiedDate}" Width="Auto" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>

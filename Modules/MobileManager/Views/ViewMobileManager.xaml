@@ -1,0 +1,82 @@
+﻿<UserControl xmlns:Views="clr-namespace:Gijima.IOBM.MobileManager.Views"  x:Class="Gijima.IOBM.MobileManager.Views.ViewMobileManager"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"    
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:Custom="http://schemas.microsoft.com/winfx/2006/xaml/presentation/ribbon" 
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        mc:Ignorable="d"
+        d:DesignHeight="600" d:DesignWidth="1200">
+
+
+    <Border x:Name="ContainerMainWindow" Grid.Row="0" Grid.Column="0" Margin="0" CornerRadius="0" Background="#66F2E9C1" BorderBrush="Black" BorderThickness="0,1,0,0">
+        <Grid x:Name="LayoutMainWindow">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid x:Name="LayoutMainWindowHeader" Grid.Row="0" Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="35" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Row="1" Grid.Column="0" Background="#FFF2E9C1" BorderBrush="#FF004C5B" BorderThickness="0,0,0,1" >
+                    <Grid Margin="10,5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="5" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Billing Period - " Style="{StaticResource ClientHeaderTextStyle}" VerticalAlignment="Bottom" Margin="0,0,0,2" FontStyle="Italic" Visibility="Visible" />
+                        <TextBlock x:Name="TextBoxBillingPeriod" Grid.Column="1" Text="{Binding BillingPeriod, UpdateSourceTrigger=PropertyChanged}" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TextBoxBillingPeriodOpen" Grid.Column="3" Text="{Binding BillingPeriodOpen, UpdateSourceTrigger=PropertyChanged}" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <Views:ViewBasicSearch Grid.Column="5"/>
+                    </Grid>
+                </Border>
+            </Grid>
+            <Border Grid.Row="1" Grid.Column="0" Background="#FF004C5B">
+                <TabControl x:Name="TabControlMainWindowMenu" Background="GhostWhite" BorderBrush="GhostWhite" TabIndex="4" 
+                    ItemsSource="{Binding TabCollection}" SelectedItem="{Binding SelectedTab, UpdateSourceTrigger=PropertyChanged}" >
+                    <TabControl.Resources>
+                        <Style TargetType="TabItem">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="TabItem">
+                                        <Border Name="Border" BorderThickness="1,1,1,0" BorderBrush="Black" CornerRadius="5,5,0,0" Margin="0,3,0,0" Height="25" Padding="10,0,10,0">
+                                            <ContentPresenter x:Name="ContentSite" VerticalAlignment="Center" HorizontalAlignment="Center" ContentSource="Header" TextElement.FontSize="13" TextElement.FontWeight="Medium" Margin="10,2" />
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter TargetName="Border" Property="Background" Value="GhostWhite" />
+                                            </Trigger>
+                                            <Trigger Property="IsSelected" Value="False">
+                                                <Setter TargetName="Border" Property="Background" Value="#FF5C919B" />
+                                                <Setter TargetName="Border" Property="TextElement.Foreground" Value="White" />
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <!--<Setter TargetName="Border" Property="Background" Value="LightGray"/>-->
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </TabControl.Resources>
+                </TabControl>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

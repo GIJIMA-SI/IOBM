@@ -1,0 +1,325 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="IOBMModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2005" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Application">
+          <Key>
+            <PropertyRef Name="pkApplicationID" />
+          </Key>
+          <Property Name="pkApplicationID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ApplicationName" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="Description" Type="varchar" MaxLength="500" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Role">
+          <Key>
+            <PropertyRef Name="pkRoleID" />
+          </Key>
+          <Property Name="pkRoleID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RoleName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Description" Type="varchar" MaxLength="100" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="pkUserID" />
+          </Key>
+          <Property Name="pkUserID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="UserFullName" Type="varchar" MaxLength="100" />
+          <Property Name="LastActivityDate" Type="datetime" Nullable="false" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="UserInApplication">
+          <Key>
+            <PropertyRef Name="pkUserInApplicationID" />
+          </Key>
+          <Property Name="pkUserInApplicationID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="fkUserID" Type="int" Nullable="false" />
+          <Property Name="fkApplicationID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="UserInRole">
+          <Key>
+            <PropertyRef Name="pkUserInRoleID" />
+          </Key>
+          <Property Name="pkUserInRoleID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="fkUserID" Type="int" Nullable="false" />
+          <Property Name="fkRoleID" Type="int" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_UserInApplication_Application">
+          <End Role="Application" Type="Self.Application" Multiplicity="1" />
+          <End Role="UserInApplication" Type="Self.UserInApplication" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Application">
+              <PropertyRef Name="pkApplicationID" />
+            </Principal>
+            <Dependent Role="UserInApplication">
+              <PropertyRef Name="fkApplicationID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UserInApplication_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="UserInApplication" Type="Self.UserInApplication" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="pkUserID" />
+            </Principal>
+            <Dependent Role="UserInApplication">
+              <PropertyRef Name="fkUserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UserInRole_Role">
+          <End Role="Role" Type="Self.Role" Multiplicity="1" />
+          <End Role="UserInRole" Type="Self.UserInRole" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Role">
+              <PropertyRef Name="pkRoleID" />
+            </Principal>
+            <Dependent Role="UserInRole">
+              <PropertyRef Name="fkRoleID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UserInRole_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="UserInRole" Type="Self.UserInRole" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="pkUserID" />
+            </Principal>
+            <Dependent Role="UserInRole">
+              <PropertyRef Name="fkUserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="IOBMModelStoreContainer">
+          <EntitySet Name="Application" EntityType="Self.Application" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Role" EntityType="Self.Role" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="UserInApplication" EntityType="Self.UserInApplication" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="UserInRole" EntityType="Self.UserInRole" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_UserInApplication_Application" Association="Self.FK_UserInApplication_Application">
+            <End Role="Application" EntitySet="Application" />
+            <End Role="UserInApplication" EntitySet="UserInApplication" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UserInApplication_User" Association="Self.FK_UserInApplication_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="UserInApplication" EntitySet="UserInApplication" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UserInRole_Role" Association="Self.FK_UserInRole_Role">
+            <End Role="Role" EntitySet="Role" />
+            <End Role="UserInRole" EntitySet="UserInRole" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UserInRole_User" Association="Self.FK_UserInRole_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="UserInRole" EntitySet="UserInRole" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="IOBMModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Application">
+          <Key>
+            <PropertyRef Name="pkApplicationID" />
+          </Key>
+          <Property Name="pkApplicationID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ApplicationName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="UserInApplications" Relationship="Self.FK_UserInApplication_Application" FromRole="Application" ToRole="UserInApplication" />
+        </EntityType>
+        <EntityType Name="Role">
+          <Key>
+            <PropertyRef Name="pkRoleID" />
+          </Key>
+          <Property Name="pkRoleID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RoleName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Description" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="UserInRoles" Relationship="Self.FK_UserInRole_Role" FromRole="Role" ToRole="UserInRole" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="pkUserID" />
+          </Key>
+          <Property Name="pkUserID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="UserFullName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="LastActivityDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="UserInApplications" Relationship="Self.FK_UserInApplication_User" FromRole="User" ToRole="UserInApplication" />
+          <NavigationProperty Name="UserInRoles" Relationship="Self.FK_UserInRole_User" FromRole="User" ToRole="UserInRole" />
+        </EntityType>
+        <EntityType Name="UserInApplication">
+          <Key>
+            <PropertyRef Name="pkUserInApplicationID" />
+          </Key>
+          <Property Name="pkUserInApplicationID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="fkUserID" Type="Int32" Nullable="false" />
+          <Property Name="fkApplicationID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Application" Relationship="Self.FK_UserInApplication_Application" FromRole="UserInApplication" ToRole="Application" />
+          <NavigationProperty Name="User" Relationship="Self.FK_UserInApplication_User" FromRole="UserInApplication" ToRole="User" />
+        </EntityType>
+        <EntityType Name="UserInRole">
+          <Key>
+            <PropertyRef Name="pkUserInRoleID" />
+          </Key>
+          <Property Name="pkUserInRoleID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="fkUserID" Type="Int32" Nullable="false" />
+          <Property Name="fkRoleID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Role" Relationship="Self.FK_UserInRole_Role" FromRole="UserInRole" ToRole="Role" />
+          <NavigationProperty Name="User" Relationship="Self.FK_UserInRole_User" FromRole="UserInRole" ToRole="User" />
+        </EntityType>
+        <Association Name="FK_UserInApplication_Application">
+          <End Role="Application" Type="Self.Application" Multiplicity="1" />
+          <End Role="UserInApplication" Type="Self.UserInApplication" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Application">
+              <PropertyRef Name="pkApplicationID" />
+            </Principal>
+            <Dependent Role="UserInApplication">
+              <PropertyRef Name="fkApplicationID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UserInRole_Role">
+          <End Role="Role" Type="Self.Role" Multiplicity="1" />
+          <End Role="UserInRole" Type="Self.UserInRole" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Role">
+              <PropertyRef Name="pkRoleID" />
+            </Principal>
+            <Dependent Role="UserInRole">
+              <PropertyRef Name="fkRoleID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UserInApplication_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="UserInApplication" Type="Self.UserInApplication" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="pkUserID" />
+            </Principal>
+            <Dependent Role="UserInApplication">
+              <PropertyRef Name="fkUserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UserInRole_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="UserInRole" Type="Self.UserInRole" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="pkUserID" />
+            </Principal>
+            <Dependent Role="UserInRole">
+              <PropertyRef Name="fkUserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="IOBMEntites" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Applications" EntityType="Self.Application" />
+          <EntitySet Name="Roles" EntityType="Self.Role" />
+          <EntitySet Name="Users" EntityType="Self.User" />
+          <EntitySet Name="UserInApplications" EntityType="Self.UserInApplication" />
+          <EntitySet Name="UserInRoles" EntityType="Self.UserInRole" />
+          <AssociationSet Name="FK_UserInApplication_Application" Association="Self.FK_UserInApplication_Application">
+            <End Role="Application" EntitySet="Applications" />
+            <End Role="UserInApplication" EntitySet="UserInApplications" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UserInRole_Role" Association="Self.FK_UserInRole_Role">
+            <End Role="Role" EntitySet="Roles" />
+            <End Role="UserInRole" EntitySet="UserInRoles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UserInApplication_User" Association="Self.FK_UserInApplication_User">
+            <End Role="User" EntitySet="Users" />
+            <End Role="UserInApplication" EntitySet="UserInApplications" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UserInRole_User" Association="Self.FK_UserInRole_User">
+            <End Role="User" EntitySet="Users" />
+            <End Role="UserInRole" EntitySet="UserInRoles" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="IOBMModelStoreContainer" CdmEntityContainer="IOBMEntites">
+          <EntitySetMapping Name="Applications">
+            <EntityTypeMapping TypeName="IOBMModel.Application">
+              <MappingFragment StoreEntitySet="Application">
+                <ScalarProperty Name="pkApplicationID" ColumnName="pkApplicationID" />
+                <ScalarProperty Name="ApplicationName" ColumnName="ApplicationName" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Roles">
+            <EntityTypeMapping TypeName="IOBMModel.Role">
+              <MappingFragment StoreEntitySet="Role">
+                <ScalarProperty Name="pkRoleID" ColumnName="pkRoleID" />
+                <ScalarProperty Name="RoleName" ColumnName="RoleName" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="IOBMModel.User">
+              <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="pkUserID" ColumnName="pkUserID" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="UserFullName" ColumnName="UserFullName" />
+                <ScalarProperty Name="LastActivityDate" ColumnName="LastActivityDate" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="UserInApplications">
+            <EntityTypeMapping TypeName="IOBMModel.UserInApplication">
+              <MappingFragment StoreEntitySet="UserInApplication">
+                <ScalarProperty Name="pkUserInApplicationID" ColumnName="pkUserInApplicationID" />
+                <ScalarProperty Name="fkUserID" ColumnName="fkUserID" />
+                <ScalarProperty Name="fkApplicationID" ColumnName="fkApplicationID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="UserInRoles">
+            <EntityTypeMapping TypeName="IOBMModel.UserInRole">
+              <MappingFragment StoreEntitySet="UserInRole">
+                <ScalarProperty Name="pkUserInRoleID" ColumnName="pkUserInRoleID" />
+                <ScalarProperty Name="fkUserID" ColumnName="fkUserID" />
+                <ScalarProperty Name="fkRoleID" ColumnName="fkRoleID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

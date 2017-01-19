@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<actions>
+  <action id="Gijima.Controls.WPF.CommandWindowAction" text="Open command window" />
+  <action id="Gijima.Controls.WPF.AboutAction" text="About Gijima.Controls.WPF..." />
+
+  <insert group-id="DotPeek.File" position="before" anchor-id="AssemblyExplorerAddItem">
+    <action-group id="Gijima.Controls.WPF.File" text="Gijima.Controls.WPF">
+        <action-ref id="Gijima.Controls.WPF.CommandWindowAction" />
+        <action-ref id="Gijima.Controls.WPF.AboutAction" />
+    </action-group>
+    <action-ref id="Gijima.Controls.WPF.CommandWindowAction" />
+    <separator />
+  </insert>
+</actions>

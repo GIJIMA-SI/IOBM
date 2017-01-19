@@ -1,0 +1,40 @@
+﻿<UserControl x:Class="Gijima.IOBM.MobileManager.Views.ViewDataImport"
+             xmlns:local="clr-namespace:Gijima.IOBM.MobileManager.Views"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="1200">
+
+    <Grid x:Name="LayoutControl">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource UXHeaderStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Data Import View" Margin="10,3,0,0" Style="{StaticResource UXHeaderTextStyle}"></TextBlock>
+            </Grid>
+        </Border>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5,5,0,0">
+            <RadioButton Content="System Data" Margin="0,0,10,0" GroupName="DataSource" IsChecked="{Binding SystemData, UpdateSourceTrigger=PropertyChanged}"/>
+            <RadioButton Content="External Data" GroupName="DataSource" IsChecked="{Binding ExternalData, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+        <ContentControl Grid.Row="2" Content="{Binding ImportContent, UpdateSourceTrigger=PropertyChanged}"/>
+    </Grid>
+</UserControl>

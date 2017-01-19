@@ -1,0 +1,540 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F39C77BA-7511-4F5A-8153-C0B5EA7A59C5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Gijima.IOBM.MobileManager</RootNamespace>
+    <AssemblyName>Gijima.IOBM.MobileManager</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CrystalDecisions.ReportSource">
+      <HintPath>..\..\..\PEIS\bin\Debug\CrystalDecisions.ReportSource.dll</HintPath>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.0.5022.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\DocumentFormat.OpenXml.1.0\lib\DocumentFormat.OpenXml.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Gijima.Controls.WPF\bin\Debug\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Gijima.IOBM.MobileManager.Security">
+      <HintPath>..\..\..\Gijima\IOBM\Modules\MobileManager\Common\Gijima.IOBM.MobileManager.Security\bin\Debug\Gijima.IOBM.MobileManager.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Unity.4.0.1\lib\net45\Microsoft.Practices.Unity.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WinForms, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Microsoft.ReportViewer.VS2015.WinForms.12.0.2.2402\lib\net40\Microsoft.ReportViewer.WinForms.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Windows.Shell, Version=3.5.41019.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="PresentationFramework.Aero" />
+    <Reference Include="PresentationUI, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Prism, Version=6.1.0.0, Culture=neutral, PublicKeyToken=91a96d2a154366d8, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Assemblies\Prism\Prism.dll</HintPath>
+    </Reference>
+    <Reference Include="Prism.Unity.Wpf">
+      <HintPath>..\..\Assemblies\Prism\Prism.Unity.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="Prism.Wpf, Version=6.1.0.0, Culture=neutral, PublicKeyToken=91a96d2a154366d8, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Assemblies\Prism\Prism.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="RibbonControlsLibrary, Version=3.5.41019.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Windows.Controls.DataVisualization.Toolkit, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Windows.Controls.DataVisualization.Toolkit.4.0.0.0\lib\net40-Client\System.Windows.Controls.DataVisualization.Toolkit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Windows.Controls.Layout.Toolkit, Version=3.5.40128.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Assemblies\Common\System.Windows.Controls.Layout.Toolkit.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="UIAutomationProvider" />
+    <Reference Include="UIAutomationTypes" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsFormsIntegration" />
+    <Reference Include="WPFDeveloperTools.Controls">
+      <HintPath>..\..\..\Gijima\IOBM\Assemblies\Common\WPFDeveloperTools.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="WPFToolkit, Version=3.5.40128.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Xceed.Wpf.DataGrid">
+      <HintPath>..\..\packages\Extended.Wpf.Toolkit.2.9\lib\net40\Xceed.Wpf.DataGrid.dll</HintPath>
+    </Reference>
+    <Reference Include="Xceed.Wpf.Toolkit, Version=2.9.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Assemblies\Common\Xceed.Wpf.Toolkit.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MobileManagerController.cs" />
+    <Compile Include="MobileManagerModule.cs" />
+    <Compile Include="ViewModels\ViewAccountViewModel.cs" />
+    <Compile Include="ViewModels\ViewAuditLogViewModel.cs" />
+    <Compile Include="ViewModels\ViewBasicSearchViewModel.cs" />
+    <Compile Include="ViewModels\ViewBillingLevelViewModel.cs" />
+    <Compile Include="ViewModels\ViewBillingViewModel.cs" />
+    <Compile Include="ViewModels\ViewCityViewModel.cs" />
+    <Compile Include="ViewModels\ViewClientSiteViewModel.cs" />
+    <Compile Include="ViewModels\ViewCompanyBillingLevelViewModel.cs" />
+    <Compile Include="ViewModels\ViewCompanyGroupViewModel.cs" />
+    <Compile Include="ViewModels\ViewDataImportExtViewModel.cs" />
+    <Compile Include="ViewModels\ViewDataImportIntViewModel.cs" />
+    <Compile Include="ViewModels\ViewDataImportViewModel.cs" />
+    <Compile Include="ViewModels\ViewDataUpdateViewModel.cs" />
+    <Compile Include="ViewModels\ViewDataValidationCFViewModel.cs" />
+    <Compile Include="ViewModels\ViewCompanyViewModel.cs" />
+    <Compile Include="ViewModels\ViewConfigViewModel.cs" />
+    <Compile Include="ViewModels\ViewDataValidationViewModel.cs" />
+    <Compile Include="ViewModels\ViewDeviceMakeViewModel.cs" />
+    <Compile Include="ViewModels\ViewDeviceModelViewModel.cs" />
+    <Compile Include="ViewModels\ViewExtDataValidationViewModel.cs" />
+    <Compile Include="ViewModels\ViewMobileManagerViewModel.cs" />
+    <Compile Include="ViewModels\ViewCellularViewModel.cs" />
+    <Compile Include="ViewModels\ViewDeviceViewModel.cs" />
+    <Compile Include="ViewModels\ViewReportsViewModel.cs" />
+    <Compile Include="Views\Common\ViewReports.xaml.cs">
+      <DependentUpon>ViewReports.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PopupWindow.xaml.cs">
+      <DependentUpon>PopupWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModels\ViewPackageViewModel.cs" />
+    <Compile Include="ViewModels\ViewProvinceViewModel.cs" />
+    <Compile Include="ViewModels\ViewSecurityCFViewModel.cs" />
+    <Compile Include="ViewModels\ViewServiceProviderViewModel.cs" />
+    <Compile Include="ViewModels\ViewSimCardViewModel.cs" />
+    <Compile Include="ViewModels\ViewStatusViewModel.cs" />
+    <Compile Include="ViewModels\ViewSuburbViewModel.cs" />
+    <Compile Include="ViewModels\ViewSystemToolsViewModel.cs" />
+    <Compile Include="Views\Billing\ViewBilling.xaml.cs">
+      <DependentUpon>ViewBilling.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SystemTools\ViewDataImport.xaml.cs">
+      <DependentUpon>ViewDataImport.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SystemTools\ViewDataImportInt.xaml.cs">
+      <DependentUpon>ViewDataImportInt.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SystemTools\ViewDataImportExt.xaml.cs">
+      <DependentUpon>ViewDataImportExt.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SystemTools\ViewDataValidation.xaml.cs">
+      <DependentUpon>ViewDataValidation.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Billing\ViewExtDataValidation.xaml.cs">
+      <DependentUpon>ViewExtDataValidation.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Common\ViewAuditLog.xaml.cs">
+      <DependentUpon>ViewAuditLog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Configuration\ViewDataValidationCF.xaml.cs">
+      <DependentUpon>ViewDataValidationCF.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Configuration\ViewDataImportCF.xaml.cs">
+      <DependentUpon>ViewDataImportCF.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Maintenance\ViewCity.xaml.cs">
+      <DependentUpon>ViewCity.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Maintenance\ViewCompanyGroup.xaml.cs">
+      <DependentUpon>ViewCompanyGroup.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Maintenance\ViewDeviceModel.xaml.cs">
+      <DependentUpon>ViewDeviceModel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Maintenance\ViewDeviceMake.xaml.cs">
+      <DependentUpon>ViewDeviceMake.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Maintenance\ViewProvince.xaml.cs">
+      <DependentUpon>ViewProvince.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Common\ViewBasicSearch.xaml.cs">
+      <DependentUpon>ViewBasicSearch.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Configuration\ViewConfig.xaml.cs">
+      <DependentUpon>ViewConfig.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Administration\ViewAccount.xaml.cs">
+      <DependentUpon>ViewAccount.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Configuration\ViewSecurityCF.xaml.cs">
+      <DependentUpon>ViewSecurityCF.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Administration\ViewSimCard.xaml.cs">
+      <DependentUpon>ViewSimCard.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Maintenance\ViewBillingLevel.xaml.cs">
+      <DependentUpon>ViewBillingLevel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Maintenance\ViewClientSite.xaml.cs">
+      <DependentUpon>ViewClientSite.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Maintenance\ViewCompany.xaml.cs">
+      <DependentUpon>ViewCompany.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Maintenance\ViewCompanyBillingLevel.xaml.cs">
+      <DependentUpon>ViewCompanyBillingLevel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SystemTools\ViewSystemTools.xaml.cs">
+      <DependentUpon>ViewSystemTools.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SystemTools\ViewDataUpdate.xaml.cs">
+      <DependentUpon>ViewDataUpdate.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ViewMobileManager.xaml.cs">
+      <DependentUpon>ViewMobileManager.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Administration\ViewCellular.xaml.cs">
+      <DependentUpon>ViewCellular.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Administration\ViewDevice.xaml.cs">
+      <DependentUpon>ViewDevice.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Administration\ViewMobileAdmin.xaml.cs">
+      <DependentUpon>ViewMobileAdmin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Maintenance\ViewPackage.xaml.cs">
+      <DependentUpon>ViewPackage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Maintenance\ViewServiceProvider.xaml.cs">
+      <DependentUpon>ViewServiceProvider.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Maintenance\ViewStatus.xaml.cs">
+      <DependentUpon>ViewStatus.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Maintenance\ViewSuburb.xaml.cs">
+      <DependentUpon>ViewSuburb.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Views\Common\ViewReports.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PopupWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Billing\ViewBilling.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SystemTools\ViewDataImport.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SystemTools\ViewDataImportInt.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SystemTools\ViewDataImportExt.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SystemTools\ViewDataValidation.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Billing\ViewExtDataValidation.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Common\ViewAuditLog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Configuration\ViewDataValidationCF.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Configuration\ViewDataImportCF.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Maintenance\ViewCity.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Maintenance\ViewCompanyGroup.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Maintenance\ViewDeviceModel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Maintenance\ViewDeviceMake.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Maintenance\ViewProvince.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Common\ViewBasicSearch.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Configuration\ViewConfig.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Administration\ViewAccount.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Configuration\ViewSecurityCF.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Administration\ViewSimCard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Maintenance\ViewBillingLevel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Maintenance\ViewClientSite.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Maintenance\ViewCompany.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Maintenance\ViewCompanyBillingLevel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SystemTools\ViewSystemTools.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\SystemTools\ViewDataUpdate.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ViewMobileManager.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Administration\ViewCellular.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Administration\ViewDevice.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Administration\ViewMobileAdmin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Maintenance\ViewPackage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Maintenance\ViewServiceProvider.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Maintenance\ViewStatus.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Maintenance\ViewSuburb.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reports\Invoice.rdlc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\edit_32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\Gijima-Dots.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\Gijima.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\save_32.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\stop_32.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\508.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\IOBM.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\448.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\T %28222%29.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\278.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\search_32.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Gijima.Controls.WPF\Gijima.Controls.WPF.csproj">
+      <Project>{b0a5bfe3-ec00-490c-a6a7-8691c9d5af1b}</Project>
+      <Name>Gijima.Controls.WPF</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Gijima.DataImport.MSOffice\Gijima.DataImport.MSOffice.csproj">
+      <Project>{757a257e-1e48-431b-b0c9-f5f0a93a2b07}</Project>
+      <Name>Gijima.DataImport.MSOffice</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Gijima.IOBM.Infrastructure\Gijima.IOBM.Infrastructure.csproj">
+      <Project>{55b7d4d2-9f8d-4c92-9fea-97f5f58ded4a}</Project>
+      <Name>Gijima.IOBM.Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Gijima.IOBM.Model\Gijima.IOBM.Model.csproj">
+      <Project>{68f8a3c2-fa68-4f34-8b8f-3dcf6f04a136}</Project>
+      <Name>Gijima.IOBM.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="Common\Gijima.IOBM.MobileManager.Common\Gijima.IOBM.MobileManager.Common.csproj">
+      <Project>{c8918bb0-9efb-4158-809b-4b374509f66b}</Project>
+      <Name>Gijima.IOBM.MobileManager.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="Model\Gijima.IOBM.MobileManager.Model\Gijima.IOBM.MobileManager.Model.csproj">
+      <Project>{81bd54b6-c1a3-417e-b8ab-51451197717a}</Project>
+      <Name>Gijima.IOBM.MobileManager.Model</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assets\Styles\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\arrow-next.png" />
+    <Resource Include="Assets\Images\arrow-previous.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\277.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\289.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\062.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\T %28263%29.ico" />
+    <Resource Include="Assets\Images\T %28264%29.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\374.png" />
+    <Resource Include="Assets\Images\FI %28145%29.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\Excel-icon.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

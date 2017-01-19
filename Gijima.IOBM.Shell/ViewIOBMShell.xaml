@@ -1,0 +1,88 @@
+﻿<Window x:Class="Gijima.IOBM.Shell.ViewIOBMShell"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"    
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:prism="http://prismlibrary.com/"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        mc:Ignorable="d" 
+        d:DesignHeight="600" d:DesignWidth="1200" WindowState="Maximized" WindowStartupLocation="CenterScreen" Icon="Assets/Images/iomb_mm.ico">
+
+    <Border x:Name="ContainerMainWindow" Grid.Row="0" Grid.Column="0" Background="#66F2E9C1" BorderBrush="Gray" BorderThickness="0,1,0,0">
+        <Grid x:Name="LayoutMainWindow">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid x:Name="LayoutMainWindowHeader" Grid.Row="0" Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="25" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Source="Assets/Images/Gijima-Dots.png" Stretch="None" Margin="10,0,0,0" />
+                <Image Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Source="Assets/Images/iobm-mm.png" Stretch="Fill" HorizontalAlignment="Left" Margin="10,0,0,0" Height="40" Width="200"/>
+                <Image Grid.Row="0" Grid.Column="2" Grid.RowSpan="1" Source="Assets/Images/Gijima.png" Stretch="Fill" HorizontalAlignment="Left" Margin="0,2,10,2" Height="40" />
+                <TextBlock x:Name="TextBlockLoggedInUser" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding LoggedInUser}" Margin="0,4,20,0" HorizontalAlignment="Right" Style="{StaticResource WelcomeTextStyle}" />
+            </Grid>
+            <ContentControl x:Name="MainContent" Grid.Row="1" Grid.Column="0" prism:RegionManager.RegionName="MainRegion"/>
+            <ContentControl x:Name="ModelContent" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Background="#00000000" prism:RegionManager.RegionName="ModelRegion" d:IsHidden="True"/>
+            <Border Grid.Row="2" Grid.Column="0" Background="#FF004C5B" >
+                <Grid x:Name="LayoutSolutionFooterContent" Margin="10,7,10,5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Grid x:Name="LayoutApplicationFooterContent" Grid.Column="0" Visibility="{Binding ShowApplicationFooter}" >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Logged in with role:" Margin="0,0,2,0" Style="{StaticResource FooterTextStyle}" />
+                        <TextBlock x:Name="TextBlockLoggedInRole" Grid.Column="1" Text="{Binding UserRole}" Style="{StaticResource FooterTextStyle}" />
+                        <Border Grid.Column="2" Width="1" Margin="10,0,10,0" Background="White" />
+                        <TextBlock Grid.Column="3" Text="Server:" Margin="0,0,2,0"  Style="{StaticResource FooterTextStyle}" />
+                        <TextBlock x:Name="TextBlockServer" Grid.Column="4" Text="{Binding ServerName}" Style="{StaticResource FooterTextStyle}" />
+                        <Border Grid.Column="5" Width="1" Margin="10,0,10,0" Background="White" />
+                        <TextBlock Grid.Column="6" Text="Database:" Margin="0,0,2,0" Style="{StaticResource FooterTextStyle}" />
+                        <TextBlock x:Name="TextBlockDatabase" Grid.Column="7" Text="{Binding DataBaseName}" Style="{StaticResource FooterTextStyle}" />
+                        <Border Grid.Column="8" Width="1" Margin="10,0,10,0" Background="White" />
+                        <Border Grid.Column="10" Width="1" Margin="10,0,10,0" Background="White" />
+                        <TextBlock Grid.Column="11" Text="Application version:" Margin="0,0,2,0" Style="{StaticResource FooterTextStyle}" />
+                        <TextBlock x:Name="TextBlockAppVersion" Grid.Column="12" Text="{Binding PublishedAppVersion}" Style="{StaticResource FooterTextStyle}" />
+                    </Grid>
+                    <Border Grid.Column="1" Width="1" Margin="10,0,10,0" Background="White" />
+                    <TextBlock Grid.Column="2" Text="Solution version:" Margin="0,0,2,0" Style="{StaticResource FooterTextStyle}" />
+                    <TextBlock x:Name="TextBlockSolutionVersion" Grid.Column="3" Text="{Binding PublishedIOBMVersion}" Style="{StaticResource FooterTextStyle}" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

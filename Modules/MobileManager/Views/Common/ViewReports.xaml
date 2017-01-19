@@ -1,0 +1,120 @@
+﻿<UserControl
+            xmlns:ToolKit="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Layout.Toolkit" 
+            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+            xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+            xmlns:prism="http://prismlibrary.com/"
+            xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"  x:Class="Gijima.IOBM.MobileManager.Views.ViewReports"
+            prism:ViewModelLocator.AutoWireViewModel="True"      
+            mc:Ignorable="d" 
+            d:DesignHeight="600" d:DesignWidth="1200">
+
+    <Grid x:Name="LayoutPage">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource UXHeaderStyle}" >
+            <Grid VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Report View" Margin="10,0,0,2" Style="{StaticResource UXHeaderTextStyle}"/>
+            </Grid>
+        </Border>
+        <Grid Grid.Row="1" Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="70" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="100" />
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Category:" Style="{StaticResource UXLabelTextStyle}"/>
+            <Border Grid.Row="0" Grid.Column="1" BorderThickness="1" BorderBrush="{Binding ValidReportCategory}">
+                <ComboBox x:Name="ComboBoxReportCategories" TabIndex ="0" ItemsSource="{Binding ReportCategoryCollection}" 
+                    SelectedItem="{Binding SelectedReportCategory, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
+            </Border>
+            <TextBlock Grid.Row="0" Grid.Column="3" Text="Available reports:" Style="{StaticResource UXLabelTextStyle}"/>
+            <Border Grid.Row="0" Grid.Column="4" BorderThickness="1" BorderBrush="{Binding ValidReport}">
+                <ComboBox x:Name="ComboBoxReports" TabIndex ="1" DisplayMemberPath="ReportName" ItemsSource="{Binding ReportCollection}" 
+                    SelectedItem="{Binding SelectedReport, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
+            </Border>
+            <Button x:Name="ButtonViewReport" Grid.Row="0" Grid.Column="6" ToolTip="View the selected report." TabIndex="1" IsDefault="True"
+                Style="{StaticResource UXImageButtonStyle}" >
+                <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/save_32.ico"/>
+            </Button>
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Description:" Style="{StaticResource UXLabelTextStyle}"/>
+            <TextBox x:Name="TextBoxDescription" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="6" IsTabStop="False" IsReadOnly="True" Style="{StaticResource UXTextBoxStyle}"
+                Text="{Binding SelectedReportDescription, UpdateSourceTrigger=PropertyChanged}"/>
+            <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="7" Height="1" Background="Gray" Margin="0,10,0,10"/>
+            <ToolKit:Accordion x:Name="AccordionReporting" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" BorderBrush="Gray" >
+                <ToolKit:AccordionItem x:Name="AccordionItemReportParameters" Background="Goldenrod" BorderThickness="1,1,1,0" BorderBrush="Gray" TabIndex="2" IsSelected="{Binding ParamaterViewSelected, UpdateSourceTrigger=PropertyChanged}">
+                    <ToolKit:AccordionItem.Header>
+                        <TextBlock Text="Report Parameters" Style="{StaticResource UXHeaderTextStyle}" Foreground="Maroon" Margin="10,0,0,3"/>
+                    </ToolKit:AccordionItem.Header>
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="White" 
+                        Width="{Binding ActualWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ToolKit:AccordionItem}}}"
+                        Height="{Binding ActualHeight, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ToolKit:AccordionItem}}}">
+                        <Grid x:Name="GridParameters" HorizontalAlignment="Center" Margin="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="5" Height="22" Visibility="{Binding BillingPeriodVisible}">
+                                <TextBlock Text="Billing period:" Style="{StaticResource UXLabelTextStyle}" Margin="0,0,5,0"/>
+                                <ComboBox TabIndex ="0" ItemsSource="{Binding BillingPeriodCollection}" SelectedItem="{Binding SelectedBillingPeriod, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="5" Height="22" Visibility="{Binding InvoiceNumberVisible}">
+                                <TextBlock Text="Invoice number:" Style="{StaticResource UXLabelTextStyle}" Margin="0,0,5,0"/>
+                                <ComboBox TabIndex ="0"  ItemsSource="{Binding InvoiceNumberCollection}" SelectedItem="{Binding SelectedInvoiceNumber, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="5" Height="22" Visibility="{Binding CompanyVisible}">
+                                <TextBlock Text="Client company:" Style="{StaticResource UXLabelTextStyle}" Margin="0,0,5,0"/>
+                                <ComboBox TabIndex ="0" DisplayMemberPath="CompanyName" ItemsSource="{Binding CompanyCollection}" SelectedItem="{Binding SelectedCompany, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="5" Height="22" Visibility="{Binding UsageLimitVisible}">
+                                <TextBlock Text="Usage GB limit:" Style="{StaticResource UXLabelTextStyle}" Margin="0,0,5,0"/>
+                                <xctk:IntegerUpDown Value="{Binding SelectedUsageLimit, UpdateSourceTrigger=PropertyChanged}" Minimum="1" TextAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </ToolKit:AccordionItem>
+                <ToolKit:AccordionItem x:Name="AccordionItemReportResults" Background="Goldenrod" BorderThickness="1,1,1,1" BorderBrush="Gray" TabIndex="3" IsSelected="{Binding ReportViewSelected, UpdateSourceTrigger=PropertyChanged}" >
+                    <ToolKit:AccordionItem.Header>
+                        <TextBlock Text="Report Results" Style="{StaticResource UXHeaderTextStyle}" Foreground="Maroon" Margin="10,0,0,3"/>
+                    </ToolKit:AccordionItem.Header>
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="White" 
+                        Width="{Binding ActualWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}}"
+                        Height="{Binding ActualHeight, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <ScrollViewer x:Name="ScrollViewerReportViewer"/>
+                    </Grid>
+                </ToolKit:AccordionItem>
+            </ToolKit:Accordion>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,166 @@
+﻿<UserControl x:Class="Gijima.IOBM.MobileManager.Views.ViewDataValidationCF"
+             xmlns:local="clr-namespace:Gijima.IOBM.MobileManager.Views"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"    
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:mm="clr-namespace:Gijima.IOBM.MobileManager.Common.Helpers;assembly=Gijima.IOBM.MobileManager.Common"            
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="1000">
+    
+    <UserControl.Resources>
+        <mm:UIDataConvertionHelper x:Key="UIDataConvertionHelper"/>
+    </UserControl.Resources>
+    
+    <Grid x:Name="LayouControlView" Grid.Row="1" Grid.Column="0" >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource UXHeaderStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="60" />
+                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="2" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Data Validation Configuration View" Style="{StaticResource UXHeaderTextStyle}"></TextBlock>
+                <TextBlock Text="Process:" Grid.Column="1" Style="{StaticResource UXLabelTextStyle}" Foreground="White" FontWeight="Medium" FontSize="14"></TextBlock>
+                <ComboBox Grid.Column="2" ToolTip="Select a data validation process to configure." TabIndex="1" Height="22" Margin="0,0,0,0" IsSynchronizedWithCurrentItem="True"
+                    ItemsSource="{Binding ProcessCollection}" SelectedItem="{Binding SelectedProcess, UpdateSourceTrigger=PropertyChanged}">
+                </ComboBox>                
+                <StackPanel Grid.Row="0" Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,1,10,0">
+                    <Button x:Name="ButtonCancel" ToolTip="Cancel the current operation." TabIndex="9" Margin="0,0,2,0" 
+                        Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding CancelCommand}">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico" Margin="2"/>
+                    </Button>
+                    <Button x:Name="ButtonAdd" ToolTip="Add a new data validation rule." TabIndex="10" Margin="0,0,2,0"
+                        Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding AddCommand}">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/508.png" Margin="2,2,2,2"/>
+                    </Button>
+                    <Button x:Name="ButtonDelete" ToolTip="Delete the selected data validation rule." TabIndex="11" Margin="0,0,2,0"
+                        Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding DeleteCommand}">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/278.png" Margin="2,2,2,2"/>
+                    </Button>
+                    <Button x:Name="ButtonSave" ToolTip="Save the data validation rule." TabIndex="12" Margin="0"
+                        Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding SaveCommand}">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/save_32.ico" Margin="2"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,5,5,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Row="1" Grid.Column="0" IsEnabled="{Binding ValidDataFile}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="45" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition Width="60" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition Width="85" />
+                    <ColumnDefinition Width="120" />
+                    <ColumnDefinition Width="1" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Group:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <Border Grid.Row="0" Grid.Column="1" BorderThickness="1" BorderBrush="{Binding ValidEntityGroup}">
+                    <ComboBox x:Name="ComboBoxValidationGroup" ToolTip="Select the data validation group." TabIndex="2" IsSynchronizedWithCurrentItem="True"
+                        ItemsSource="{Binding EntityGroupCollection}" SelectedItem="{Binding SelectedEntityGroup, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Height="22" >
+                    </ComboBox>
+                </Border>
+                <TextBlock Grid.Row="0" Grid.Column="3" Text="Data entity:" Style="{StaticResource UXLabelTextStyle}" Margin="0,0,5,0"></TextBlock>
+                <Border Grid.Row="0" Grid.Column="4" BorderThickness="1" BorderBrush="{Binding ValidDataEntity}">
+                    <ComboBox x:Name="ComboBoxDataEntity" ToolTip="{Binding DataItemTooltip, UpdateSourceTrigger=PropertyChanged}" TabIndex="3" IsSynchronizedWithCurrentItem="True"
+                        ItemsSource="{Binding DataEntityCollection}" DisplayMemberPath="{Binding DataEntityDisplayName}" Height="22"
+                        SelectedItem="{Binding SelectedDataEntity, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
+                    </ComboBox>
+                </Border>
+                <TextBlock Grid.Row="0" Grid.Column="6" Text="Data field:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <Border Grid.Row="0" Grid.Column="7" BorderThickness="1" BorderBrush="{Binding ValidDataProperty}">
+                    <ComboBox x:Name="ComboBoxDataProperties" ToolTip="Select the data field to base the rule on." TabIndex="4" IsSynchronizedWithCurrentItem="True"
+                    ItemsSource="{Binding DataPropertyCollection}" DisplayMemberPath="{Binding DataPropertyDisplayName, UpdateSourceTrigger=PropertyChanged}" Height="22"
+                    SelectedItem="{Binding SelectedDataProperty, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
+                    </ComboBox>
+                </Border>
+                <TextBlock Grid.Row="0" Grid.Column="9" Text="Operator type:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <Border Grid.Row="0" Grid.Column="10" BorderThickness="1" BorderBrush="{Binding ValidOperatorType}">
+                    <ComboBox x:Name="ComboBoxOperatorType" ToolTip="Select the operator type based on the data type." TabIndex="5" IsSynchronizedWithCurrentItem="True"
+                        ItemsSource="{Binding OperatorTypeCollection}" Height="22"
+                        SelectedItem="{Binding SelectedOperatorType, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
+                    </ComboBox>
+                </Border>                
+                <Border Grid.Row="0" Grid.Column="12" BorderThickness="1" BorderBrush="{Binding ValidOperator}">
+                    <ComboBox x:Name="ComboBoxOperator" ToolTip="Select the operator." TabIndex="6" IsSynchronizedWithCurrentItem="True"
+                        ItemsSource="{Binding OperatorCollection}" SelectedItem="{Binding SelectedOperator, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Height="22">
+                    </ComboBox>
+                </Border>
+                <TextBlock Grid.Row="0" Grid.Column="14" Text="Expected value:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <TextBox x:Name="TextBoxValidationValue" Grid.Row="0" Grid.Column="15" TabIndex="7" Style="{StaticResource UXTextBoxStyle}" ToolTip="Enter the value to validate against."
+                    Text="{Binding SelectedValidationValue, UpdateSourceTrigger=PropertyChanged}" Margin="0,1">
+                </TextBox>
+            </Grid>
+        </Grid>
+        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Data Validation Rules" VerticalAlignment="Bottom" Margin="5,0,5,0"/>
+        <DataGrid x:Name="DataGridValidationRules" Grid.Row="3" Grid.ColumnSpan="12" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True" MinHeight="52"
+            IsReadOnly="True" TabIndex="8" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"  Margin="5,0,5,5"
+            ItemsSource="{Binding ValidationRuleCollection}" SelectedItem="{Binding SelectedValidationRule}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Group" Binding="{Binding GroupDescription}" Width="*" />
+                <DataGridTextColumn Header="Entity" Binding="{Binding EntityDescription}" Width="*" />
+                <DataGridTextColumn Header="Data Field" Binding="{Binding PropertyDescription}" Width="*" />
+                <DataGridTextColumn Header="Data Type" Binding="{Binding DataTypeDescription}" Width="Auto">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Operator Type" Binding="{Binding OperatorTypeDescription}" Width="Auto">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>                
+                <DataGridTextColumn Header="Operator" Binding="{Binding OperatorDescription}" Width="Auto">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Validation Value" Binding="{Binding DataValidationValue}" Width="Auto" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>
+

@@ -1,0 +1,124 @@
+﻿<UserControl x:Class="Gijima.IOBM.MobileManager.Views.ViewSimCard"
+             xmlns:local="clr-namespace:Gijima.IOBM.MobileManager.Views"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:mm="clr-namespace:Gijima.IOBM.MobileManager.Common.Helpers;assembly=Gijima.IOBM.MobileManager.Common"                       
+             prism:ViewModelLocator.AutoWireViewModel="True"             
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="600">
+
+    <UserControl.Resources>
+        <mm:UIDataConvertionHelper x:Key="UIDataConvertionHelper"/>
+    </UserControl.Resources>
+    
+    <Grid x:Name="LayoutControl">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource UXHeaderStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Sim Card View" Style="{StaticResource UXHeaderTextStyle}"></TextBlock>
+                <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,1,10,0">
+                    <Button x:Name="ButtonSimCardCancel" ToolTip="Cancel the current operation." TabIndex="88" Margin="0,0,2,0"
+                        Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding CancelCommand}" >
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico" Margin="2"/>
+                    </Button>
+                    <Button x:Name="ButtonSimCardAdd" ToolTip="Add new sim card data." TabIndex="89"
+                        Style="{StaticResource UXHeaderImageButtonStyle}" Margin="0,0,2,0" Command="{Binding AddCommand}">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/508.png" Margin="2"/>
+                    </Button>
+                    <Button x:Name="ButtonSimCardSave" ToolTip="Save the Sim card data." TabIndex="90"
+                        Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding SaveCommand}">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/save_32.ico" Margin="2"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+        <GroupBox Grid.Row="1" Grid.Column="0" Header="Sim Card Detail" Style="{StaticResource UXGroupBoxStyle}" Margin="5,0,5,5" >
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition Width="55" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition Width="55" />
+                    <ColumnDefinition Width="*" />                
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Cell no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <TextBox x:Name="TextBoxSimCellNumber" Grid.Row="0" Grid.Column="1" TabIndex="80" ToolTip="Enter the sim card cell number." Style="{StaticResource UXTextBoxStyle}"
+                    Text="{Binding SelectedCellNumber, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidCellNumber}">
+                </TextBox>
+                <TextBlock Grid.Row="0" Grid.Column="3" Text="Status:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <Border Grid.Row="0" Grid.Column="4" Grid.ColumnSpan="4" BorderThickness="1" BorderBrush="{Binding ValidStatus}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox x:Name="ComboBoxSimStatus" Grid.Column="0" ToolTip="Select the sim card status." TabIndex="81" Height="22"
+                            ItemsSource="{Binding StatusCollection}" DisplayMemberPath="StatusDescription" IsSynchronizedWithCurrentItem="True"
+                            SelectedItem="{Binding SelectedStatus, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
+                        </ComboBox>
+                        <Button x:Name="ButtonSimStatusCrud" Grid.Column="2" Margin="2,0,0,0" ToolTip="Add, edit or delete a sim card status." TabIndex="82" Height="22"
+                            Style="{StaticResource UXImageButtonStyle}" Command="{Binding SimCardStatusCommand}" >
+                            <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/edit_32.png" />
+                        </Button>
+                    </Grid>
+                </Border>
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Card no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <TextBox x:Name="TextBoxSimCardNumber" Grid.Row="2" Grid.Column="1" TabIndex="83" ToolTip="Enter the sim card number." Style="{StaticResource UXTextBoxStyle}"
+                    Text="{Binding SelectedCardNumber, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidCardNumber}">
+                </TextBox>
+                <TextBlock Grid.Row="2" Grid.Column="3" Text="Pin no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <TextBox x:Name="TextBoxSimPinNumber" Grid.Row="2" Grid.Column="4" TabIndex="84" ToolTip="Enter the sim card PIN number." Style="{StaticResource UXTextBoxStyle}"
+                    Text="{Binding SelectedPinNumber, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidPinNumber}">
+                </TextBox>
+                <TextBlock Grid.Row="2" Grid.Column="6" Text="PUK no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <TextBox x:Name="TextBoxDeviceSerialNumber" Grid.Row="2" Grid.Column="7" TabIndex="85" ToolTip="Enter the sim card PUK number." Style="{StaticResource UXTextBoxStyle}"
+                    Text="{Binding SelectedPUKNumber, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidPUKNumber}">
+                </TextBox>
+                <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Text="Linked Sim Cards" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
+                <StackPanel Grid.Row="3" Grid.Column="7" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <TextBlock Text="Active" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Top" Margin="0,6,5,0"></TextBlock>
+                    <CheckBox x:Name="CkeckBoxIsActive" TabIndex="86" VerticalAlignment="Bottom" IsChecked="{Binding SimCardState, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <DataGrid x:Name="DataGridSimCards" Grid.Row="4" Grid.ColumnSpan="8" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True"
+                    IsReadOnly="True" TabIndex="87" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" 
+                    ItemsSource="{Binding SimCardCollection}" SelectedItem="{Binding SelectedSimCard, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" 
+                    SelectedIndex="{Binding SelectedSimCardIndex, UpdateSourceTrigger=PropertyChanged}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status.StatusDescription}" Width="Auto" />
+                        <DataGridTextColumn Header="State" Binding="{Binding IsActive, Converter={StaticResource UIDataConvertionHelper}, ConverterParameter='State'}" Width="Auto" />
+                        <DataGridTextColumn Header="Cell Number" Binding="{Binding CellNumber}" Width="Auto" />
+                        <DataGridTextColumn Header="Card Number" Binding="{Binding CardNumber}" Width="Auto" />
+                        <DataGridTextColumn Header="Pin Number" Binding="{Binding PinNumber}" Width="Auto" />
+                        <DataGridTextColumn Header="PUK Number" Binding="{Binding PUKNumber}" Width="Auto" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>

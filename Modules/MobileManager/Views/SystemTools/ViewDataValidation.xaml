@@ -1,0 +1,184 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"   
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:local="clr-namespace:Gijima.IOBM.MobileManager.Views"
+             xmlns:CheckedListBox="clr-namespace:WPFDeveloperTools.Controls.CheckedListBox;assembly=WPFDeveloperTools.Controls"  
+             xmlns:mm="clr-namespace:Gijima.IOBM.MobileManager.Common.Helpers;assembly=Gijima.IOBM.MobileManager.Common"            
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:xcdg="http://schemas.xceed.com/wpf/xaml/datagrid" x:Class="Gijima.IOBM.MobileManager.Views.ViewDataValidation"
+             prism:ViewModelLocator.AutoWireViewModel="True"                   
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <mm:UIDataConvertionHelper x:Key="UIDataConvertionHelper"/>
+    </UserControl.Resources>
+
+    <Grid x:Name="LayoutControl">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource UXHeaderStyle}" Visibility="{Binding ShowDataValidationHeader, UpdateSourceTrigger=PropertyChanged}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="5" />
+                    <ColumnDefinition Width="200" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Data Validation View" Margin="10,3,0,0"  Style="{StaticResource UXHeaderTextStyle}"/>
+            </Grid>
+        </Border>
+        <Grid Grid.Row="1" Grid.Column="0" Margin="5,5,5,5" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="165" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Row="1" Grid.Column="0" Grid.RowSpan="10">
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="ButtonStart" ToolTip="Start the billing data validation process." TabIndex="1" Margin="0,0,3,10" 
+                        Style="{StaticResource UXImageTextButtonStyle}" Width="80" Command="{Binding StartValidationCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/062.png" Margin="0,1,10,1"/>
+                            <TextBlock Text="Start" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="ButtonStop" ToolTip="Stop the billing data validation process." TabIndex="1" Margin="2,0,0,10" 
+                        Style="{StaticResource UXImageTextButtonStyle}" Width="80" Command="{Binding StopValidationCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico" Margin="0,1,10,1"/>
+                            <TextBlock Text="Stop" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <TextBox BorderThickness="0" FontStyle="Italic" FontFamily="Arial" FontSize="14" FontWeight="Bold" TextWrapping="Wrap"
+                    Text="{Binding ValidationPageInstruction}"/>
+            </StackPanel>
+            <StackPanel Grid.Row="0" Grid.Column="0" Grid.RowSpan="10" VerticalAlignment="Bottom">
+                <Button x:Name="ButtonExport" ToolTip="Export the exceptions to Excel." TabIndex="5" Margin="0,0,0,10" 
+                    Style="{StaticResource UXImageTextButtonStyle}" Width="Auto" Command="{Binding ExportCommand}">
+                    <StackPanel Orientation="Horizontal" Width="118">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/Excel-icon.png" Margin="0,1,10,1"/>
+                        <TextBlock Text="Export to Excel" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="ButtonApplyRule" ToolTip="Apply the data rule to fix the exceptions." TabIndex="6" Margin="0,0,0,10" 
+                    Style="{StaticResource UXImageTextButtonStyle}" Width="Auto" Command="{Binding ApplyRuleFixCommand}">
+                    <StackPanel Orientation="Horizontal" Width="118">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/T (263).ico" Margin="0,1,10,1"/>
+                        <TextBlock Text="Apply Data Rule" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="ButtonFixManually" ToolTip="Fix the selected exception manually." TabIndex="7" 
+                    Style="{StaticResource UXImageTextButtonStyle}" Width="Auto" Command="{Binding ManualFixCommand}">
+                    <StackPanel Orientation="Horizontal" Width="118">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/T (264).ico" Margin="0,1,10,1"/>
+                        <TextBlock Text="Fix Manually" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+            <TextBlock x:Name="TextBlockGroupProgress" Grid.Row="0" Grid.Column="2" Style="{StaticResource UXLabelTextStyle}"                
+                Text="{Binding ValidationGroupDescription, UpdateSourceTrigger=PropertyChanged}"/>
+            <ProgressBar x:Name="ProgressBarGroups" Grid.Row="1" Grid.Column="2" Height="20" BorderBrush="DarkGray" BorderThickness="1"
+                Value="{Binding ValidationGroupProgress, UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding ValidationGroupCount, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBlock x:Name="TextBlockentityProgress" Grid.Row="2" Grid.Column="2" VerticalAlignment="Bottom" Style="{StaticResource UXLabelTextStyle}"                
+                Text="{Binding ValidationEntityDescription, UpdateSourceTrigger=PropertyChanged}"/>
+            <ProgressBar x:Name="ProgressBarEntities" Grid.Row="3" Grid.Column="2" Height="20" BorderBrush="DarkGray" BorderThickness="1"
+                Value="{Binding ValidationEntityProgress, UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding ValidationEntityCount, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBlock x:Name="TextBlockDataRuleProgress" Grid.Row="4" Grid.Column="2" VerticalAlignment="Bottom" Style="{StaticResource UXLabelTextStyle}"                
+                Text="{Binding ValidationDataRuleDescription, UpdateSourceTrigger=PropertyChanged}"/>
+            <ProgressBar x:Name="ProgressBarDataRule" Grid.Row="5" Grid.Column="2" Height="20" BorderBrush="DarkGray" BorderThickness="1"
+                Value="{Binding ValidationDataRuleProgress, UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding ValidationDataRuleCount, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBlock x:Name="TextBlockRuleEntityProgress" Grid.Row="6" Grid.Column="2" VerticalAlignment="Bottom" Style="{StaticResource UXLabelTextStyle}"                
+                Text="{Binding ValidationRuleEntityDescription, UpdateSourceTrigger=PropertyChanged}"/>
+            <ProgressBar x:Name="ProgressBarRuleEntity" Grid.Row="7" Grid.Column="2" Height="20" BorderBrush="DarkGray" BorderThickness="1"
+                Value="{Binding ValidationRuleEntityProgress, UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding ValidationRuleEntityCount, UpdateSourceTrigger=PropertyChanged}"/>
+            <Grid Grid.Row="1" Grid.Column="4" Grid.RowSpan="7">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="100" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Height="1" Background="Gray" VerticalAlignment="Top"/>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Totals" Style="{StaticResource UXLabelTextStyle}" FontWeight="Bold" Margin="0,3,0,3"/>
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="Passed" Style="{StaticResource UXLabelTextStyle}" FontWeight="Bold" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="Failed" Style="{StaticResource UXLabelTextStyle}" FontWeight="Bold" HorizontalAlignment="Center"/>
+                <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Height="1" Background="Gray" VerticalAlignment="Bottom" />
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Groups" Style="{StaticResource UXLabelTextStyle}"/>
+                <TextBlock x:Name="TextBlockGroupPassed" Grid.Row="1" Grid.Column="1" Style="{StaticResource UXLabelTextStyle}" HorizontalAlignment="Center"
+                    Text="{Binding ValidationGroupsPassed, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock x:Name="TextBlockGroupFailed" Grid.Row="1" Grid.Column="2" Style="{StaticResource UXLabelTextStyle}" HorizontalAlignment="Center"
+                    Text="{Binding ValidationGroupsFailed, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Group entities" Style="{StaticResource UXLabelTextStyle}"/>
+                <TextBlock x:Name="TextBlockGroupEntitiesPassed" Grid.Row="2" Grid.Column="1" Style="{StaticResource UXLabelTextStyle}" HorizontalAlignment="Center"
+                    Text="{Binding ValidationEntitiesPassed, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock x:Name="TextBlockGroupEntitiesFailed" Grid.Row="2" Grid.Column="2" Style="{StaticResource UXLabelTextStyle}" HorizontalAlignment="Center"
+                    Text="{Binding ValidationEntitiesFailed, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="Data Rules" Style="{StaticResource UXLabelTextStyle}"/>
+                <TextBlock x:Name="TextBlockDataRulesPassed" Grid.Row="3" Grid.Column="1" Style="{StaticResource UXLabelTextStyle}" HorizontalAlignment="Center"
+                    Text="{Binding ValidationDataRulesPassed, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock x:Name="TextBlockDataRulesFailed" Grid.Row="3" Grid.Column="2" Style="{StaticResource UXLabelTextStyle}" HorizontalAlignment="Center"
+                    Text="{Binding ValidationDataRulesFailed, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="Data rule entities" Style="{StaticResource UXLabelTextStyle}"/>
+                <TextBlock x:Name="TextBlockRuleEntitiesPassed" Grid.Row="4" Grid.Column="1" Style="{StaticResource UXLabelTextStyle}" HorizontalAlignment="Center"
+                    Text="{Binding ValidationRuleEntitiesPassed, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock x:Name="TextBlockRuleEntitiesFailed" Grid.Row="4" Grid.Column="2" Style="{StaticResource UXLabelTextStyle}" HorizontalAlignment="Center"
+                    Text="{Binding ValidationRuleEntitiesFailed, UpdateSourceTrigger=PropertyChanged}"/>
+                <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Height="1" VerticalAlignment="Bottom" Background="Gray" Margin="0,5,0,0"/>
+            </Grid>
+            <CheckBox Grid.Row="8" Grid.Column="2" Content="Data Validation Exceptions" VerticalAlignment="Bottom" Margin="1,0,5,1" TabIndex="3" IsChecked="{Binding SelectAllExceptions, UpdateSourceTrigger=PropertyChanged}" />
+            <xctk:CheckListBox x:Name="ListBoxExceptions" Grid.Row="9" Grid.Column="2" Grid.ColumnSpan="3" Background="WhiteSmoke" TabIndex="4" ValueMemberPath="Message"
+                ItemsSource="{Binding ValidationErrorCollection, UpdateSourceTrigger=PropertyChanged}" SelectedValue="{Binding SelectedExceptions, UpdateSourceTrigger=PropertyChanged}">
+                <xctk:CheckListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Message, UpdateSourceTrigger=PropertyChanged}" Foreground="{Binding CanApplyRule, Converter={StaticResource UIDataConvertionHelper},  ConverterParameter='Foreground'}"/>
+                    </DataTemplate>
+                </xctk:CheckListBox.ItemTemplate>
+            </xctk:CheckListBox>
+            <!--<xcdg:DataGridControl x:Name="DataGridExceptions" Grid.Row="9" Grid.Column="2" Grid.ColumnSpan="3"  
+                TabIndex="4" ItemsSource="{Binding ValidationErrorCollection, UpdateSourceTrigger=PropertyChanged}" AutoCreateColumns="False">
+                --><!--<xcdg:Column FieldName="ckb1"  >
+                    <xcdg:Column.CellContentTemplate>
+                        <DataTemplate>
+
+                            <CheckBox IsChecked="{Binding IsChecked}" />
+                        </DataTemplate>
+                    </xcdg:Column.CellContentTemplate>
+                </xcdg:Column>--><!--
+            </xcdg:DataGridControl>-->
+        </Grid>
+    </Grid>
+</UserControl>

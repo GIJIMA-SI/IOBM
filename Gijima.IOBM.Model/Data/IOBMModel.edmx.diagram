@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="5228d599d4e846d4bd8d1de2cbc5046f" Name="Diagram1">
+        <EntityTypeShape EntityType="IOBMModel.Application" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="IOBMModel.Role" Width="1.5" PointX="0.75" PointY="7.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="IOBMModel.User" Width="1.5" PointX="0.75" PointY="3.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="IOBMModel.UserInApplication" Width="1.5" PointX="3" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="IOBMModel.UserInRole" Width="1.5" PointX="3" PointY="0.75" IsExpanded="true" />
+        <AssociationConnector Association="IOBMModel.FK_UserInApplication_Application" ManuallyRouted="false" />
+        <AssociationConnector Association="IOBMModel.FK_UserInRole_Role" ManuallyRouted="false" />
+        <AssociationConnector Association="IOBMModel.FK_UserInApplication_User" ManuallyRouted="false" />
+        <AssociationConnector Association="IOBMModel.FK_UserInRole_User" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

@@ -1,0 +1,181 @@
+﻿<UserControl x:Class="Gijima.IOBM.MobileManager.Views.ViewDevice"
+             xmlns:local="clr-namespace:Gijima.IOBM.MobileManager.Views"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:mm="clr-namespace:Gijima.IOBM.MobileManager.Common.Helpers;assembly=Gijima.IOBM.MobileManager.Common"            
+             prism:ViewModelLocator.AutoWireViewModel="True"             
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="600">
+
+    <UserControl.Resources>
+        <mm:UIDataConvertionHelper x:Key="UIDataConvertionHelper"/>
+    </UserControl.Resources>
+
+    <Grid x:Name="LayoutControl">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="17*" />
+            <ColumnDefinition Width="133*"/>
+        </Grid.ColumnDefinitions>
+        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource UXHeaderStyle}" Grid.ColumnSpan="2">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Device View" Style="{StaticResource UXHeaderTextStyle}"></TextBlock>
+                <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,1,10,0">
+                    <Button x:Name="ButtonInstrumentCancel" ToolTip="Cancel the current operation." TabIndex="76" Margin="0,0,2,0"
+                        Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding CancelCommand}">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico" Margin="2"/>
+                    </Button>
+                    <Button x:Name="ButtonInstrumentAdd" ToolTip="Add a new instrument." TabIndex="77"
+                        Style="{StaticResource UXHeaderImageButtonStyle}" Margin="0,0,2,0" Command="{Binding AddCommand}">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/508.png" Margin="2"/>
+                    </Button>
+                    <Button x:Name="ButtonInstrumentSave" ToolTip="Save the instrument data." TabIndex="78" Margin="0"
+                        Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding SaveCommand}" >
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/save_32.ico" Margin="2"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+        <GroupBox Grid.Row="1" Grid.Column="0" Header="Device Detail" Style="{StaticResource UXGroupBoxStyle}" Margin="5,0,5,5" Grid.ColumnSpan="2" >
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="60" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition Width="60" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Make:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <Border Grid.Row="0" Grid.Column="1" BorderThickness="1" BorderBrush="{Binding ValidDeviceMake}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox x:Name="ComboBoxDeviceMake" Grid.Column="0" ToolTip="Select the device make." TabIndex="60" IsSynchronizedWithCurrentItem="True"
+                            ItemsSource="{Binding DeviceMakeCollection}" DisplayMemberPath="MakeDescription" Height="20"
+                            SelectedItem="{Binding SelectedDeviceMake, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
+                        </ComboBox>
+                        <Button x:Name="ButtonDeviceMakeCrud" Grid.Column="2" Margin="2,0,0,0" ToolTip="Add, edit or delete a device make." TabIndex="61" Height="20"
+                            Style="{StaticResource UXImageButtonStyle}" Command="{Binding DeviceMakeCommand}">
+                            <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/edit_32.png" />
+                        </Button>
+                    </Grid>
+                </Border>
+                <TextBlock Grid.Row="0" Grid.Column="3" Text="Status:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <Border Grid.Row="0" Grid.Column="4" BorderThickness="1" BorderBrush="{Binding ValidStatus}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox x:Name="ComboBoxDeviceStatus" Grid.Column="0" ToolTip="Select the device status." TabIndex="62"
+                            ItemsSource="{Binding StatusCollection}" DisplayMemberPath="StatusDescription" Height="20" IsSynchronizedWithCurrentItem="True"
+                            SelectedItem="{Binding SelectedStatus, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
+                        </ComboBox>
+                        <Button x:Name="ButtonDeviceStatusCrud" Grid.Column="2" Margin="2,0,0,0" ToolTip="Add, edit or delete a device status." TabIndex="63" 
+                            Style="{StaticResource UXImageButtonStyle}" Command="{Binding DeviceStatusCommand}" Height="20">
+                            <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/edit_32.png" />
+                        </Button>
+                    </Grid>
+                </Border>
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Model:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <Border Grid.Row="2" Grid.Column="1" BorderThickness="1" BorderBrush="{Binding ValidDeviceModel}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox x:Name="ComboBoxDeviceModel" ToolTip="Select the device model." TabIndex="64" IsSynchronizedWithCurrentItem="True"
+                            ItemsSource="{Binding DeviceModelCollection}" DisplayMemberPath="ModelDescription" Height="22" 
+                            SelectedItem="{Binding SelectedDeviceModel, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
+                        </ComboBox>
+                        <Button x:Name="ButtonDeviceModelCrud" Grid.Column="2" Margin="2,0,0,0" ToolTip="Add, edit or delete a device model." TabIndex="65" Height="22"
+                            Style="{StaticResource UXImageButtonStyle}" Command="{Binding DeviceModelCommand}">
+                            <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/edit_32.png" />
+                        </Button>
+                    </Grid>
+                </Border>
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="IME no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <TextBox x:Name="TextBoxDeiceIMENumber" Grid.Row="4" Grid.Column="1" TabIndex="67" ToolTip="Enter the device IME number." Style="{StaticResource UXTextBoxStyle}"
+                    Text="{Binding SelectedIMENumber, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidIMENumber}">
+                </TextBox>
+                <TextBlock Grid.Row="4" Grid.Column="3" Text="Serial no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <TextBox x:Name="TextBoxDeviceSerialNumber" Grid.Row="4" Grid.Column="4" TabIndex="68" ToolTip="Enter the device serial number." Style="{StaticResource UXTextBoxStyle}"
+                    Text="{Binding SelectedDevice.SerialNumber, UpdateSourceTrigger=PropertyChanged}">
+                </TextBox>
+                <TextBlock Grid.Row="6" Grid.Column="0" Text="Received:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <DatePicker x:Name="DatePickerReceivedDate" Grid.Row="6" Grid.Column="1" TabIndex="69" ToolTip="Select the device received date."
+                    SelectedDate="{Binding SelectedReceivedDate, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidReceivedDate}">
+                </DatePicker>
+                <TextBlock Grid.Row="6" Grid.Column="3" Text="Insured:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <StackPanel Grid.Row="6" Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                    <RadioButton x:Name="RadioButtonInsuranceYes" Content="Yes" Margin="0,0,5,0" TabIndex="70" GroupName="Insurance" 
+                        IsChecked="{Binding DeviceInsuranceYes, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidInsurance}"/>
+                    <RadioButton x:Name="RadioButtonInsuranceNo" Content="No" TabIndex="71" GroupName="Insurance" 
+                        IsChecked="{Binding DeviceInsuranceNo, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidInsurance}"/>
+                </StackPanel>
+                <TextBlock Grid.Row="2" Grid.Column="3" Text="Sim crd:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <ComboBox x:Name="ComboBoxSimCards" Grid.Row="2" Grid.Column="4" ToolTip="Select the sim card linked to the device." TabIndex="66"
+                    ItemsSource="{Binding SimCardCollection}" DisplayMemberPath="CellNumber" SelectedItem="{Binding SelectedSimCard}">
+                </ComboBox>
+                <TextBlock Grid.Row="8" Grid.Column="0" Text="Insr value:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <TextBox x:Name="TextBoxInsuranceValue" Grid.Row="8" Grid.Column="1" TabIndex="72" ToolTip="Enter the insurance value." Style="{StaticResource UXTextBoxStyle}"
+                    IsEnabled="{Binding DeviceInsuranceYes}" Text="{Binding SelectedInsuranceValue, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidInsuranceValue}">
+                </TextBox>
+                <TextBlock Grid.Row="8" Grid.Column="3" Text="Insr cost:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <TextBox x:Name="TextBoxInsuranceCost" Grid.Row="8" Grid.Column="4" TabIndex="73" ToolTip="Enter the insurance cost." Style="{StaticResource UXTextBoxStyle}"
+                    IsEnabled="{Binding DeviceInsuranceYes}" Text="{Binding SelectedInsuranceCost, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidInsuranceCost}">
+                </TextBox>
+                <TextBlock Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Text="Linked Devices" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
+                <StackPanel Grid.Row="9" Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <TextBlock Text="Active" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Top" Margin="0,6,5,0"></TextBlock>
+                    <CheckBox x:Name="CkeckBoxIsActive" TabIndex="74" VerticalAlignment="Bottom" IsChecked="{Binding DeviceState, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <DataGrid x:Name="DataGridInstruments" Grid.Row="10" Grid.ColumnSpan="5" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True"
+                    IsReadOnly="True" TabIndex="75" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" 
+                    ItemsSource="{Binding DeviceCollection}" SelectedItem="{Binding SelectedDevice, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" 
+                    SelectedIndex="{Binding SelectedDeviceIndex, UpdateSourceTrigger=PropertyChanged}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status.StatusDescription}" Width="Auto" />
+                        <DataGridTextColumn Header="State" Binding="{Binding IsActive, Converter={StaticResource UIDataConvertionHelper}, ConverterParameter='State'}" Width="Auto" />
+                        <DataGridTextColumn Header="Make" Binding="{Binding DeviceMake.MakeDescription}" Width="Auto" />
+                        <DataGridTextColumn Header="Model" Binding="{Binding DeviceModel.ModelDescription}" Width="Auto" />
+                        <DataGridTextColumn Header="Cell Number" Binding="{Binding SimCard.CellNumber}" Width="Auto" />
+                        <DataGridTextColumn Header="IME Number" Binding="{Binding IMENumber}" Width="Auto" />
+                        <DataGridTextColumn Header="Serial Number" Binding="{Binding SerialNumber}" Width="Auto" />
+                        <DataGridTextColumn Header="Insr Value" Binding="{Binding InsuranceValue}" Width="Auto" />
+                        <DataGridTextColumn Header="Insr Cost" Binding="{Binding InsuranceCost}" Width="Auto" />
+                        <DataGridTextColumn Header="Received" Binding="{Binding ReceiveDate, StringFormat={}{0:dd/MM/yyyy}}" Width="Auto" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>

@@ -1,0 +1,52 @@
+﻿<UserControl x:Class="Gijima.Controls.WPF.ADUserSearchUX"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="175" d:DesignWidth="400">
+    
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Assets/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    
+    <StackPanel>
+        <Grid x:Name="GridADUserSearch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="23" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="45" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="60" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+            <TextBox x:Name="TextBoxUserName" Grid.Row="0" Grid.Column="1" TabIndex="1" Style="{StaticResource UXTextBoxStyle}"></TextBox>
+            <TextBlock Grid.Row="0" Grid.Column="3" Text="Surname:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+            <TextBox x:Name="TextBoxSurname" Grid.Row="0" Grid.Column="4" TabIndex="2" Style="{StaticResource UXTextBoxStyle}"></TextBox>
+            <Button x:Name="ButtonSeach" Grid.Row="0" Grid.Column="7" TabIndex="3" Tag="Verify" Style="{StaticResource UXImageButtonStyle}" Click="ButtonSeach_Click">
+                <Image Source="/Gijima.Controls.WPF;component/Assets/Images/search_32.ico" />
+            </Button>
+            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Search Results" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
+            <DataGrid x:Name="DataGridADUsers" Grid.Row="2" Grid.ColumnSpan="7" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True" MaxHeight="195" MinHeight="52"
+                IsReadOnly="True" TabIndex="4" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" SelectionChanged="DataGridADUsers_SelectionChanged">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Domain Name" Binding="{Binding Username}" Width="*" />
+                    <DataGridTextColumn Header="Fistname" Binding="{Binding Firstname}" Width="*" />
+                    <DataGridTextColumn Header="Surname" Binding="{Binding Surname}" Width="*" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </StackPanel>
+</UserControl>
+

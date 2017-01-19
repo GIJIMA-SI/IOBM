@@ -1,0 +1,293 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{81BD54B6-C1A3-417E-B8AB-51451197717A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Gijima.IOBM.MobileManager.Model</RootNamespace>
+    <AssemblyName>Gijima.IOBM.MobileManager.Model</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework.Aero" />
+    <Reference Include="PresentationUI, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Prism">
+      <HintPath>..\..\..\..\Assemblies\Prism\Prism.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Data\AppSetting.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\AuditLog.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\BillingLevel.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\BillingProcess.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\BillingProcessHistory.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\City.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\Client.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\ClientBilling.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\ClientLocation.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\Company.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\CompanyBillingLevel.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\CompanyGroup.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\Contract.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\DataImportRule.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\DataUpdateRule.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\DataValidationException.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\DataValidationProperty.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\DataValidationRule.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\Device.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\DeviceMake.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\DeviceModel.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\Extentions\CompanyExt.cs" />
+    <Compile Include="Data\Extentions\DataValidationPropertyExt.cs" />
+    <Compile Include="Data\Extentions\DataValidationRuleExt.cs" />
+    <Compile Include="Data\Extentions\Suburb.cs" />
+    <Compile Include="Data\ExternalBillingData.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\Invoice.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\InvoiceDetail.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\MobileManagerContext.cs" />
+    <Compile Include="Data\MobileManagerEntities.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MobileManagerEntities.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\MobileManagerEntities.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\MobileManagerEntities.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MobileManagerEntities.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Data\Package.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\PackageSetup.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\Province.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\Report.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\Role.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\Service.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\ServiceProvider.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\SimCard.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\sp_report_Invoice_Result.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\Status.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\Suburb.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\User.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\UserInCompany.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\UserInRole.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\EDMHelper.cs" />
+    <Compile Include="Models\AppSettingModel.cs" />
+    <Compile Include="Models\AuditLogModel.cs" />
+    <Compile Include="Models\BillingLevelModel.cs" />
+    <Compile Include="Models\BillingProcessModel.cs" />
+    <Compile Include="Models\CityModel.cs" />
+    <Compile Include="Models\ClientBillingModel.cs" />
+    <Compile Include="Models\ClientLocationModel.cs" />
+    <Compile Include="Models\ClientModel.cs" />
+    <Compile Include="Models\CompanyBillingLevelModel.cs" />
+    <Compile Include="Models\CompanyGroupModel.cs" />
+    <Compile Include="Models\CompanyModel.cs" />
+    <Compile Include="Models\ContractModel.cs" />
+    <Compile Include="Models\DataImportRuleModel.cs" />
+    <Compile Include="Models\DevicesMakeModel.cs" />
+    <Compile Include="Models\DevicesModel.cs" />
+    <Compile Include="Models\DevicesModelModel.cs" />
+    <Compile Include="Models\ExternalBillingDataModel.cs" />
+    <Compile Include="Models\PackageSetupModel.cs" />
+    <Compile Include="Models\DataUpdateRuleModel.cs" />
+    <Compile Include="Models\InvoiceModel.cs" />
+    <Compile Include="Models\PackageModel.cs" />
+    <Compile Include="Models\ProvinceModel.cs" />
+    <Compile Include="Models\ReportModel.cs" />
+    <Compile Include="Models\SearchEngineModel.cs" />
+    <Compile Include="Models\SecurityModel.cs" />
+    <Compile Include="Models\ServiceProviderModel.cs" />
+    <Compile Include="Models\SimCardModel.cs" />
+    <Compile Include="Models\StatusModel.cs" />
+    <Compile Include="Models\SuburbModel.cs" />
+    <Compile Include="Models\DataValidationExceptionModel.cs" />
+    <Compile Include="Models\DataValidationPropertyModel.cs" />
+    <Compile Include="Models\DataValidationRuleModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Gijima.DataImport.MSOffice\Gijima.DataImport.MSOffice.csproj">
+      <Project>{757A257E-1E48-431B-B0C9-F5F0A93A2B07}</Project>
+      <Name>Gijima.DataImport.MSOffice</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Gijima.IOBM.Infrastructure\Gijima.IOBM.Infrastructure.csproj">
+      <Project>{55b7d4d2-9f8d-4c92-9fea-97f5f58ded4a}</Project>
+      <Name>Gijima.IOBM.Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Gijima.IOBM.Security\Gijima.IOBM.Security.csproj">
+      <Project>{0423C0AE-6F7C-491F-B918-E46E9AEC6FC6}</Project>
+      <Name>Gijima.IOBM.Security</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Common\Gijima.IOBM.MobileManager.Common\Gijima.IOBM.MobileManager.Common.csproj">
+      <Project>{c8918bb0-9efb-4158-809b-4b374509f66b}</Project>
+      <Name>Gijima.IOBM.MobileManager.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.Config" />
+    <EntityDeploy Include="Data\MobileManagerEntities.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>MobileManagerEntities.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="Data\MobileManagerEntities.edmx.diagram">
+      <DependentUpon>MobileManagerEntities.edmx</DependentUpon>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Data\MobileManagerEntities.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>MobileManagerEntities.edmx</DependentUpon>
+      <LastGenOutput>MobileManagerEntities.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="Data\MobileManagerEntities.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>MobileManagerEntities.edmx</DependentUpon>
+      <LastGenOutput>MobileManagerEntities.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

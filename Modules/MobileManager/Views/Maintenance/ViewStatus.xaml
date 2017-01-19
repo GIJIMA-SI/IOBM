@@ -1,0 +1,71 @@
+﻿<UserControl x:Class="Gijima.IOBM.MobileManager.Views.ViewStatus"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mm="clr-namespace:Gijima.IOBM.MobileManager.Common.Helpers;assembly=Gijima.IOBM.MobileManager.Common"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"             
+             mc:Ignorable="d" 
+             Height="255" Width="600">
+
+    <UserControl.Resources>
+        <mm:UIDataConvertionHelper x:Key="UIDataConvertionHelper"/>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="70" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="60" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Description:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <TextBox x:Name="TextBoxDescription" Grid.Row="0" Grid.Column="1" TabIndex="1" ToolTip="Enter the status description." Style="{StaticResource UXTextBoxStyle}"
+            Text="{Binding SelectedStatusDescription, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidStatusDescription}">
+        </TextBox>
+        <TextBlock Grid.Row="0" Grid.Column="3" Text="Linked to:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <Border Grid.Row="0" Grid.Column="4" BorderThickness="1" BorderBrush="{Binding ValidStatusLink}">
+            <ComboBox x:Name="ComboBoxStatus" TabIndex="2" ToolTip="Select the entity linked to the status." Height="22"
+                ItemsSource="{Binding StatusLinkCollection}" SelectedItem="{Binding SelectedStatusLink, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
+            </ComboBox>
+        </Border>
+        <StackPanel Grid.Row="0" Grid.Column="7" Orientation="Horizontal">
+            <Button x:Name="ButtonCancel" TabIndex="5" Style="{StaticResource UXImageButtonStyle}"
+                ToolTip="Cancel the current operation." Command="{Binding CancelCommand}">
+                <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico"  />
+            </Button>
+            <Button x:Name="ButtonAdd" TabIndex="6" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
+                ToolTip="Add a new status." Command="{Binding AddCommand}">
+                <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/508.png"  />
+            </Button>
+            <Button x:Name="ButtonSave" TabIndex="7" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
+                ToolTip="Save the status data." Command="{Binding SaveCommand}">
+                <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/save_32.ico"  />
+            </Button>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="5" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <TextBlock Text="Active" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom" Margin="0,0,5,0"></TextBlock>
+            <CheckBox x:Name="CkeckBoxIsActive" TabIndex="3" VerticalAlignment="Bottom" IsChecked="{Binding StatusState, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+        <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Available Statuses" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
+        <DataGrid x:Name="DataGridStatuses" Grid.Row="2" Grid.ColumnSpan="7" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True" 
+            IsReadOnly="True" TabIndex="4" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" 
+            ItemsSource="{Binding StatusCollection}" SelectedItem="{Binding SelectedStatus}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Description" Binding="{Binding StatusDescription}" Width="*" />
+                <DataGridTextColumn Header="Linked To" Binding="{Binding enStatusLink, Converter={StaticResource UIDataConvertionHelper},  ConverterParameter='StatusLink'}" Width="100" />
+                <DataGridTextColumn Header="State" Binding="{Binding IsActive, Converter={StaticResource UIDataConvertionHelper},  ConverterParameter='State'}" Width="100" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>
+
