@@ -245,6 +245,14 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         }
                         else
                         {
+                            // If the client is in-active then make all 
+                            // devices and simcards for client in-active
+                            if (!client.IsActive)
+                            {
+                                new DevicesModel(_eventAggregator).DeleteDevicesForClient(client.fkContractID, db);
+                                new SimCardModel(_eventAggregator).DeleteSimcardsForClient(client.fkContractID, db);
+                            }
+
                             // Prevent primary key confilcts when using attach property
                             if (existingClient != null)
                                 db.Entry(existingClient).State = System.Data.Entity.EntityState.Detached;
@@ -255,6 +263,9 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                             db.Contracts.Attach(client.Contract);
                             db.Entry(client.Contract).State = System.Data.Entity.EntityState.Modified;
 
+                            db.ClientBillings.Attach(client.ClientBilling);
+                            db.Entry(client.ClientBilling).State = System.Data.Entity.EntityState.Modified;
+
                             db.PackageSetups.Attach(client.Contract.PackageSetup);
                             db.Entry(client.Contract.PackageSetup).State = System.Data.Entity.EntityState.Modified;
 
@@ -262,14 +273,6 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                             db.Entry(client.ClientBilling).State = System.Data.Entity.EntityState.Modified;
 
                             db.SaveChanges();
-
-                            // If the client is in-active then make all 
-                            // devices and simcards for client in-active
-                            if (!client.IsActive)
-                            {
-                                new DevicesModel(_eventAggregator).DeleteDevicesForClient(client.fkContractID, db);
-                                new SimCardModel(_eventAggregator).DeleteSimcardsForClient(client.fkContractID);
-                            }
 
                             _activityLogger.CreateDataChangeAudits<Client>(_dataActivityHelper.GetDataChangeActivities<Client>(existingClient, client, client.fkContractID, db));
                             _activityLogger.CreateDataChangeAudits<Contract>(_dataActivityHelper.GetDataChangeActivities<Contract>(existingClient.Contract, client.Contract, client.fkContractID, db));

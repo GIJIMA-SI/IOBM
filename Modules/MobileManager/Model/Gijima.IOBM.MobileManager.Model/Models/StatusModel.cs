@@ -73,7 +73,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 short allID = StatusLink.All.Value();
                 short contractID = StatusLink.Contract.Value();
                 short deviceID = StatusLink.Device.Value();
-                short SimID = StatusLink.Contract.Value();
+                short simID = StatusLink.Sim.Value();
                 short contractDeviceID = StatusLink.ContractDevice.Value();
                 short contractSimID = StatusLink.ContractSim.Value();
                 short deviceSimID = StatusLink.DeviceSim.Value();
@@ -95,7 +95,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                        p.enStatusLink == contractDeviceID || p.enStatusLink == deviceSimID);
 
                     if (enLinkedTo == StatusLink.Sim)
-                        statuses = statuses.Where(p => p.enStatusLink == allID || p.enStatusLink == SimID || 
+                        statuses = statuses.Where(p => p.enStatusLink == allID || p.enStatusLink == simID || 
                                                        p.enStatusLink == contractSimID || p.enStatusLink == deviceSimID);
 
                     return new ObservableCollection<Status>(statuses);

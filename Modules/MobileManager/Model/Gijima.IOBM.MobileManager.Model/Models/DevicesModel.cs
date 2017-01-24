@@ -1,6 +1,7 @@
 ﻿using Gijima.IOBM.Infrastructure.Events;
 using Gijima.IOBM.Infrastructure.Helpers;
 using Gijima.IOBM.Infrastructure.Structs;
+using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Prism.Events;
 using System;
@@ -232,24 +233,24 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// <summary>
         /// Sets the linked devices inactive
         /// </summary>
-        /// <param name="contractID"></param>
+        /// <param name="contractID">The contract linked to the devices</param>
+        /// <param name="context">The context inside the transaction</param>
         public void DeleteDevicesForClient(int contractID, MobileManagerEntities context)
         {
             try
             {
-                IEnumerable<Device> devices = null;
-                
-                //using (var db = MobileManagerEntities.GetContext())
-                //{
-                    devices = context.Devices.Where(p => p.fkContractID == contractID);
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    IEnumerable<Device> devices = context.Devices.Where(p => p.fkContractID == contractID);
 
                     foreach (Device device in devices)
                     {
+                        device.fkStatusID = Statuses.INACTIVE.Value();
                         device.IsActive = false;
                     }
 
-                    context.SaveChanges();
-                //}
+                    db.SaveChanges();
+                }
             }
             catch (Exception ex)
             {

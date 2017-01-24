@@ -57,7 +57,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     SelectedCardNumber = value.CardNumber;
                     SelectedPinNumber = value.PinNumber;
                     SelectedPUKNumber = value.PUKNumber;
-                    SimCardState = value.IsActive;
+                    //SimCardState = value.IsActive;
 
                     // Link the Simcard to its device on the device view
                     LinkSimCardToDevice();
@@ -76,15 +76,15 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
         private int _selectedSimCardIndex;
 
-        /// <summary>
-        /// The selected Sim card state
-        /// </summary>
-        public bool SimCardState
-        {
-            get { return _simCardState; }
-            set { SetProperty(ref _simCardState, value); }
-        }
-        private bool _simCardState;
+        ///// <summary>
+        ///// The selected Sim card state
+        ///// </summary>
+        //public bool SimCardState
+        //{
+        //    get { return _simCardState; }
+        //    set { SetProperty(ref _simCardState, value); }
+        //}
+        //private bool _simCardState;
 
         /// <summary>
         /// The collection of Sim cards from the database
@@ -350,7 +350,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedSimCardIndex = -1;
             SelectedStatus = StatusCollection != null ? StatusCollection.Where(p => p.pkStatusID == 0).FirstOrDefault() : null;
             SelectedCellNumber = SelectedCardNumber = SelectedPinNumber = SelectedPUKNumber = string.Empty;
-            SimCardState = true; 
+            //SimCardState = true; 
         }
 
         /// <summary>
@@ -527,11 +527,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedSimCard.PUKNumber = SelectedPUKNumber.ToUpper().Trim();
             SelectedSimCard.ModifiedBy = SecurityHelper.LoggedInDomainName;
             SelectedSimCard.ModifiedDate = DateTime.Now;
-            SelectedSimCard.IsActive = SimCardState;
-
-            // Ensure a sim card that gets re-allocated is in-active
-            if (SelectedStatus.StatusDescription == "REALLOCATED")
-                SelectedSimCard.IsActive = false;
+            SelectedSimCard.IsActive = SelectedStatus.StatusDescription == Statuses.ISSUED.ToString() ? true : false; 
 
             if (SelectedSimCard.pkSimCardID == 0)
                 result = _model.CreateSimCard(SelectedSimCard);

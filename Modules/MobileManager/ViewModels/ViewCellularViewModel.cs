@@ -2065,10 +2065,18 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     result = _model.UpdateClient(SelectedClient);
 
                 // Auto save the device and sim card data
-                if (result)
+                if (result && SelectedClientState)
                 {
                     _eventAggregator.GetEvent<SaveDeviceEvent>().Publish(SelectedContract.pkContractID);
                     _eventAggregator.GetEvent<SaveSimCardEvent>().Publish(SelectedContract.pkContractID);
+                }
+                else if (result)
+                {
+                    InitialiseViewControls();
+                }
+                else
+                {
+                    //display message to user
                 }
 
                 // Publish the event to read the administration activity logs

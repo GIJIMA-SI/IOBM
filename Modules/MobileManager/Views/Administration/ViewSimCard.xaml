@@ -101,10 +101,10 @@
                     Text="{Binding SelectedPUKNumber, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidPUKNumber}">
                 </TextBox>
                 <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Text="Linked Sim Cards" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
-                <StackPanel Grid.Row="3" Grid.Column="7" Orientation="Horizontal" HorizontalAlignment="Right">
+                <!--<StackPanel Grid.Row="3" Grid.Column="7" Orientation="Horizontal" HorizontalAlignment="Right">
                     <TextBlock Text="Active" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Top" Margin="0,6,5,0"></TextBlock>
                     <CheckBox x:Name="CkeckBoxIsActive" TabIndex="86" VerticalAlignment="Bottom" IsChecked="{Binding SimCardState, UpdateSourceTrigger=PropertyChanged}"/>
-                </StackPanel>
+                </StackPanel>-->
                 <DataGrid x:Name="DataGridSimCards" Grid.Row="4" Grid.ColumnSpan="8" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True"
                     IsReadOnly="True" TabIndex="87" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" 
                     ItemsSource="{Binding SimCardCollection}" SelectedItem="{Binding SelectedSimCard, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" 

@@ -91,23 +91,24 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
     /// </summary>
     public enum Statuses
     {
-        CANCELLED,
-        UPGRADED,
-        LOAN,
-        STOLEN,
-        TRANSFERED,
-        REPLACED,
-        ISSUED,
-        EQUIPMENT,
-        SUSPENDED,
-        ACTIVE,
-        BER,
-        REALLOCATED,
-        PREPAID,
-        REPAIRED,
-        XLOAN
+        CANCELLED = 156,
+        UPGRADED = 157,
+        LOAN = 158,
+        STOLEN = 159,
+        TRANSFERED = 160,
+        REPLACED = 161,
+        ISSUED = 162,
+        EQUIPMENT = 164,
+        SUSPENDED = 165,
+        ACTIVE = 167,
+        BER = 168,
+        REALLOCATED = 169,
+        PREPAID = 171,
+        REPAIRED = 1181,
+        XLOAN = 1182,
+        INACTIVE = 1211
     }
-
+    
     /// <summary>
     /// The <see cref="StatusLink"/> enumeration lists of
     /// option status entites can be linked to.
@@ -559,6 +560,10 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
         public static short Value(this ReportType type)
         {
             return Convert.ToInt16(type);
+        }
+        public static int Value(this Statuses type)
+        {
+            return Convert.ToInt32(type);
         }
     }
 }

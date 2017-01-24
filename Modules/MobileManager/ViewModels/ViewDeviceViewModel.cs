@@ -65,7 +65,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     SelectedStatus = StatusCollection != null ? StatusCollection.Where(p => p.pkStatusID == value.fkStatusID).FirstOrDefault() : null;
                     SelectedReceivedDate = value.ReceiveDate != null ? value.ReceiveDate : DateTime.MinValue;
                     SelectedIMENumber = value.IMENumber;
-                    DeviceState = value.IsActive;
 
                     // Insurance required fields
                     if (value.InsuranceCost != null && value.InsuranceValue != null)
@@ -98,15 +97,15 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
         private SimCard _selectedSimCard;
 
-        /// <summary>
-        /// The selected device state
-        /// </summary>
-        public bool DeviceState
-        {
-            get { return _deviceState; }
-            set { SetProperty(ref _deviceState, value); }
-        }
-        private bool _deviceState;
+        ///// <summary>
+        ///// The selected device state
+        ///// </summary>
+        //public bool DeviceState
+        //{
+        //    get { return _deviceState; }
+        //    set { SetProperty(ref _deviceState, value); }
+        //}
+        //private bool _deviceState;
 
         /// <summary>
         /// The collection of devices from the database
@@ -530,7 +529,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedReceivedDate = DateTime.Now;
             SelectedIMENumber = string.Empty;
             DeviceInsuranceYes = DeviceInsuranceNo = false;
-            DeviceState = true;
+            //DeviceState = true;
         }
 
         /// <summary>
@@ -767,15 +766,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedDevice.InsuranceValue = SelectedInsuranceValue;
             SelectedDevice.ModifiedBy = SecurityHelper.LoggedInUserFullName;
             SelectedDevice.ModifiedDate = DateTime.Now;
-            SelectedDevice.IsActive = DeviceState;
+            SelectedDevice.IsActive = SelectedStatus.StatusDescription == Statuses.ISSUED.ToString() ? true : false;
 
-            // Ensure a device that gets re-allocated is in-active
-            // and un-linked from any simcards
-            if (SelectedStatus.StatusDescription == "REALLOCATED")
-            {
+            // Ensure a device that is in-active
+            // gets un-linked from any simcards
+            if (!SelectedDevice.IsActive)
                 SelectedDevice.fkSimCardID = (Int32?)null;
-                SelectedDevice.IsActive = false;
-            }
             
             if (SelectedDevice.pkDeviceID == 0)
                 result = _model.CreateDevice(SelectedDevice);
@@ -790,7 +786,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     await ReadContractDevicesAsync();
             }
 
-            // Publish the event to read the administartion activity logs
+            // Publish the event to read the administration activity logs
             _activityLogInfo.EntityID = MobileManagerEnvironment.ClientContractID;
             _eventAggregator.GetEvent<SetActivityLogProcessEvent>().Publish(_activityLogInfo);
         }

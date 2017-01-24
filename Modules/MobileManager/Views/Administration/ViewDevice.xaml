@@ -154,10 +154,10 @@
                     IsEnabled="{Binding DeviceInsuranceYes}" Text="{Binding SelectedInsuranceCost, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidInsuranceCost}">
                 </TextBox>
                 <TextBlock Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Text="Linked Devices" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
-                <StackPanel Grid.Row="9" Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right">
+                <!--<StackPanel Grid.Row="9" Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right">
                     <TextBlock Text="Active" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Top" Margin="0,6,5,0"></TextBlock>
                     <CheckBox x:Name="CkeckBoxIsActive" TabIndex="74" VerticalAlignment="Bottom" IsChecked="{Binding DeviceState, UpdateSourceTrigger=PropertyChanged}"/>
-                </StackPanel>
+                </StackPanel>-->
                 <DataGrid x:Name="DataGridInstruments" Grid.Row="10" Grid.ColumnSpan="5" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True"
                     IsReadOnly="True" TabIndex="75" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" 
                     ItemsSource="{Binding DeviceCollection}" SelectedItem="{Binding SelectedDevice, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" 

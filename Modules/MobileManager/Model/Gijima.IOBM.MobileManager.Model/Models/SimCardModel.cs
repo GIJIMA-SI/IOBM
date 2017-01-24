@@ -468,8 +468,9 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// <summary>
         /// Sets the linked simcards inactive
         /// </summary>
-        /// <param name="contractID"></param>
-        public void DeleteSimcardsForClient(int contractID)
+        /// <param name="contractID">The contract linked to the simcards</param>
+        /// <param name="context">The context inside the transaction</param>
+        public void DeleteSimcardsForClient(int contractID, MobileManagerEntities context)
         {
             try
             {
@@ -479,6 +480,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                     foreach (SimCard simCard in simCards)
                     {
+                        simCard.fkStatusID = Statuses.INACTIVE.Value();
                         simCard.IsActive = false;
                     }
 
