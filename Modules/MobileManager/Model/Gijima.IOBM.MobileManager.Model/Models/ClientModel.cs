@@ -263,10 +263,12 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                             db.SaveChanges();
 
-
+                            // If the client is in-active then make all 
+                            // devices and simcards for client in-active
                             if (!client.IsActive)
                             {
-                                // ONLY IF CLIENT ISIN-AVTIVE Call method in decivemodel and simcardmodel to make all devices and simcards for client in-active
+                                new DevicesModel(_eventAggregator).DeleteDevicesForClient(client.fkContractID, db);
+                                new SimCardModel(_eventAggregator).DeleteSimcardsForClient(client.fkContractID);
                             }
 
                             _activityLogger.CreateDataChangeAudits<Client>(_dataActivityHelper.GetDataChangeActivities<Client>(existingClient, client, client.fkContractID, db));

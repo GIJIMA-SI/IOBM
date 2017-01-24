@@ -464,5 +464,36 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 return false;
             }
         }
+
+        /// <summary>
+        /// Sets the linked simcards inactive
+        /// </summary>
+        /// <param name="contractID"></param>
+        public void DeleteSimcardsForClient(int contractID)
+        {
+            try
+            {
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    IEnumerable<SimCard> simCards = db.SimCards.Where(p => p.fkContractID == contractID);
+
+                    foreach (SimCard simCard in simCards)
+                    {
+                        simCard.IsActive = false;
+                    }
+
+                    db.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("SimCardModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "DeleteSimcardsForClient",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
     }
 }

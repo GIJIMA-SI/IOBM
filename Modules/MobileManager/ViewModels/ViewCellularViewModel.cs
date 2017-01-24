@@ -16,6 +16,7 @@ using Gijima.IOBM.MobileManager.Security;
 using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.MobileManager.Common.Events;
 using System.Collections.Generic;
+using System.Windows;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
 {
@@ -1980,6 +1981,18 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
             try
             {
+                // If the client is set to in-active then
+                // warn the user that devices and simcards 
+                // will be set to in-active
+                if (!SelectedClientState)
+                {
+                    MessageBoxResult msgResult = MessageBox.Show("Warning! Please note that all the active\ndevices and simcards will be set to in-acitve.\nDo you want to continue?",
+                                                                 "Client Save", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                    if (msgResult == MessageBoxResult.No)
+                        return;
+                }
+
                 // Client Data
                 SelectedClient.PrimaryCellNumber = SelectedCellNumber.Trim();
                 SelectedClient.ClientName = SelectedClientName.ToUpper().Trim();

@@ -1,0 +1,53 @@
+﻿<UserControl x:Class="Gijima.IOBM.MobileManager.Views.ViewDataValidation"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Gijima.IOBM.MobileManager.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    
+    <Grid x:Name="LayoutControl">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="100" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition Width="100" />
+        </Grid.ColumnDefinitions>
+        <TextBlock x:Name="TextBlockGroupProgress" Grid.Row="0" Grid.Column="0" Text="Validating data group - 0 of 0" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <ProgressBar x:Name="ProgressBarGroups" Grid.Row="1" Grid.Column="0" Height="25" BorderBrush="DarkGray" BorderThickness="1" />
+        <TextBlock x:Name="TextBlockentityProgress" Grid.Row="2" Grid.Column="0" Text="Validating entity - 0 of 0" VerticalAlignment="Bottom" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <ProgressBar x:Name="ProgressBarEntities" Grid.Row="3" Grid.Column="0" Height="25" BorderBrush="DarkGray" BorderThickness="1"/>
+        <TextBlock x:Name="TextBlockDataRuleProgress" Grid.Row="4" Grid.Column="0" Text="Validating data rule - 0 of 0" VerticalAlignment="Bottom" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <ProgressBar x:Name="ProgressBarDataRule" Grid.Row="5" Grid.Column="0" Height="25" BorderBrush="DarkGray" BorderThickness="1"/>
+        <Border Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="4" Height="1" Background="Gray" VerticalAlignment="Top"></Border>
+        <TextBlock Grid.Row="1" Grid.Column="2" Text="Totals" Style="{StaticResource UXLabelTextStyle}" FontWeight="Bold"></TextBlock>
+        <TextBlock Grid.Row="1" Grid.Column="3" Text="Passed" Style="{StaticResource UXLabelTextStyle}" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
+        <TextBlock Grid.Row="1" Grid.Column="5" Text="Failed" Style="{StaticResource UXLabelTextStyle}" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
+        <Border Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="4" Height="1" Background="Gray" VerticalAlignment="Bottom" ></Border>
+        <TextBlock Grid.Row="2" Grid.Column="2" Text="Groups" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <TextBlock x:Name="TextBlockVolumesPassed" Grid.Row="2" Grid.Column="3" Text="0" Style="{StaticResource UXLabelTextStyle}" HorizontalAlignment="Center"></TextBlock>
+        <TextBlock x:Name="TextBlockVolumesFailed" Grid.Row="2" Grid.Column="5" Text="0" Style="{StaticResource UXLabelTextStyle}" HorizontalAlignment="Center"></TextBlock>
+        <TextBlock Grid.Row="3" Grid.Column="2" Text="Companies" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <TextBlock x:Name="TextBlockDocumentsPassed" Grid.Row="3" Grid.Column="3" Text="0" Style="{StaticResource UXLabelTextStyle}" HorizontalAlignment="Center"></TextBlock>
+        <TextBlock x:Name="TextBlockDocumentsFailed" Grid.Row="3" Grid.Column="5" Text="0" Style="{StaticResource UXLabelTextStyle}" HorizontalAlignment="Center"></TextBlock>
+        <TextBlock Grid.Row="4" Grid.Column="2" Text="Data Rules" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <TextBlock x:Name="TextBlockImagesPassed" Grid.Row="4" Grid.Column="3" Text="0" Style="{StaticResource UXLabelTextStyle}" HorizontalAlignment="Center"></TextBlock>
+        <TextBlock x:Name="TextBlockImagesFailed" Grid.Row="4" Grid.Column="5" Text="0" Style="{StaticResource UXLabelTextStyle}" HorizontalAlignment="Center"></TextBlock>
+        <Border Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="4" Height="1" VerticalAlignment="Bottom" Background="Gray" Margin="0,5,0,0"></Border>
+        <TextBlock Grid.Row="6" Text="Data Validation Exceptions" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom" ></TextBlock>
+        <ListView x:Name="ListBoxExceptions" Grid.Row="7" Grid.ColumnSpan="6" Background="WhiteSmoke"></ListView>
+    </Grid>
+</UserControl>

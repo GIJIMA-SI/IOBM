@@ -6,6 +6,7 @@ using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 
@@ -51,7 +52,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     if (db.Devices.Any(p => p.IMENumber.ToUpper().Trim() == device.IMENumber.ToUpper().Trim() &&
                                             p.fkStatusID != reAllocatedStatusID &&
                                             p.IsActive == true))
-                    {                       
+                    {
                         _eventAggregator.GetEvent<ApplicationMessageEvent>()
                                         .Publish(new ApplicationMessage("DevicesModel",
                                                                         "The device is still allocated to another client.",
@@ -60,7 +61,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         return false;
                     }
 
-                    if (!db.Devices.Any(p => p.fkDeviceMakeID == device.fkDeviceMakeID && 
+                    if (!db.Devices.Any(p => p.fkDeviceMakeID == device.fkDeviceMakeID &&
                                              p.fkDeviceModelID == device.fkDeviceModelID &&
                                              p.fkContractID == device.fkContractID &&
                                              p.fkStatusID != reAllocatedStatusID))
@@ -85,7 +86,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
                                 .Publish(new ApplicationMessage("DevicesModel",
                                                                 string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException !=null ? ex.InnerException.Message : string.Empty),
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
                                                                 "CreateDevice",
                                                                 ApplicationMessage.MessageTypes.SystemError));
                 return false;
@@ -107,9 +108,9 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 using (var db = MobileManagerEntities.GetContext())
                 {
                     devices = ((DbQuery<Device>)(from device in db.Devices
-                                                  where activeOnly ? device.IsActive : true &&
-                                                        excludeDefault ? device.pkDeviceID > 0 : true
-                                                  select device)).OrderBy(p => p.DeviceMake.MakeDescription).ToList();
+                                                 where activeOnly ? device.IsActive : true &&
+                                                       excludeDefault ? device.pkDeviceID > 0 : true
+                                                 select device)).OrderBy(p => p.DeviceMake.MakeDescription).ToList();
 
                     return new ObservableCollection<Device>(devices);
                 }
@@ -181,7 +182,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     Device existingDevice = db.Devices.Where(p => p.pkDeviceID == device.pkDeviceID).FirstOrDefault();
 
                     // Check to see if the device description already exist for another entity 
-                    if (existingDevice != null && existingDevice.pkDeviceID != device.pkDeviceID && 
+                    if (existingDevice != null && existingDevice.pkDeviceID != device.pkDeviceID &&
                         existingDevice.fkDeviceMakeID == device.fkDeviceMakeID && existingDevice.fkDeviceModelID == device.fkDeviceModelID)
                     {
                         _eventAggregator.GetEvent<ApplicationMessageEvent>()
@@ -228,6 +229,37 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             }
         }
 
+        /// <summary>
+        /// Sets the linked devices inactive
+        /// </summary>
+        /// <param name="contractID"></param>
+        public void DeleteDevicesForClient(int contractID, MobileManagerEntities context)
+        {
+            try
+            {
+                IEnumerable<Device> devices = null;
+                
+                //using (var db = MobileManagerEntities.GetContext())
+                //{
+                    devices = context.Devices.Where(p => p.fkContractID == contractID);
 
+                    foreach (Device device in devices)
+                    {
+                        device.IsActive = false;
+                    }
+
+                    context.SaveChanges();
+                //}
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("DevicesModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "DeleteDevicesForClient",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
     }
 }
