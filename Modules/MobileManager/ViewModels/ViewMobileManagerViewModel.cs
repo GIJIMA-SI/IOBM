@@ -332,6 +332,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 _securityHelper.IsUserInRole(SecurityRole.BillingUser.Value()))
                 TabCollection.Add(new TabItem() { Header = "Billing" });
             TabCollection.Add(new TabItem() { Header = "Activity Log" });
+            TabCollection.Add(new TabItem() { Header = "Advanced Search" });
             TabCollection.Add(new TabItem() { Header = "Reports" });
             if (_securityHelper.IsUserInRole(SecurityRole.Administrator.Value()) ||
                 _securityHelper.IsUserInRole(SecurityRole.DataManager.Value()))
@@ -374,6 +375,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 case "Activity Log":
                     if (tabItem.Content == null)
                         SelectedTab.Content = new ViewAuditLog();
+                    break;
+                case "Advanced Search":
+                    if (tabItem.Content == null)
+                        SelectedTab.Content = new ViewAdvancedSearch();
                     break;
                 case "Reports":
                     if (tabItem.Content == null)

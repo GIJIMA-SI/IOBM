@@ -152,6 +152,9 @@
     <Compile Include="ViewModels\ViewCellularViewModel.cs" />
     <Compile Include="ViewModels\ViewDeviceViewModel.cs" />
     <Compile Include="ViewModels\ViewReportsViewModel.cs" />
+    <Compile Include="Views\Common\ViewAdvancedSearch.xaml.cs">
+      <DependentUpon>ViewAdvancedSearch.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Common\ViewReports.xaml.cs">
       <DependentUpon>ViewReports.xaml</DependentUpon>
     </Compile>
@@ -265,6 +268,10 @@
     <Compile Include="Views\Maintenance\ViewSuburb.xaml.cs">
       <DependentUpon>ViewSuburb.xaml</DependentUpon>
     </Compile>
+    <Page Include="Views\Common\ViewAdvancedSearch.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Common\ViewReports.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
