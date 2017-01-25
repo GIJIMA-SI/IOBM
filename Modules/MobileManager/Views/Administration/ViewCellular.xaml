@@ -305,8 +305,25 @@
                 <TextBox x:Name="TextBoxPackageType1" Grid.Row="4" Grid.Column="4" IsTabStop="False" ToolTip="The package type." Style="{StaticResource UXTextBoxStyle}"
                     IsReadOnly="True" Text="{Binding SelectedPackageType}">
                 </TextBox>
-                <TextBlock Grid.Row="6" Grid.Column="0" Text="Acc no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxSPAccount" Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="4" TabIndex="27" ToolTip="Enter the service provider account number." Style="{StaticResource UXTextBoxStyle}"
+                <TextBlock Grid.Row="6" Grid.Column="0" Text="Service:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <Border Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="1" BorderThickness="1" BorderBrush="{Binding ValidContractService}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox x:Name="ComboBoxContractService" Grid.Column="0" ToolTip="Select the contract services." TabIndex="24" IsSynchronizedWithCurrentItem="True" Height="20"
+                            ItemsSource="{Binding ContractServiceCollection}" DisplayMemberPath="ServiceDescription" 
+                            SelectedItem="{Binding SelectedContractService, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding RequiredFieldColour}" >
+                        </ComboBox>
+                        <Button x:Name="ButtonContractSeviceCrud" Grid.Column="1" Margin="2,0,0,0" ToolTip="Add, edit or delete contract service." TabIndex="25" Height="20"
+                            Style="{StaticResource UXImageButtonStyle}" Command="{Binding ContractServiceCommand}">
+                            <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/edit_32.png" />
+                        </Button>
+                    </Grid>
+                </Border>
+                <TextBlock Grid.Row="6" Grid.Column="3" Text="Acc no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <TextBox x:Name="TextBoxSPAccount" Grid.Row="6" Grid.Column="4" Grid.ColumnSpan="1" TabIndex="27" ToolTip="Enter the service provider account number." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedContractAccNumber, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidAccountNumber}">
                 </TextBox>
                 <TextBlock Grid.Row="8" Grid.Column="0" Text="Cost:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
@@ -451,5 +468,6 @@
                     SelectedDate="{Binding SelectedClientBilling.StopBillingToDate, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding SplitBilling}"/>
             </Grid>
         </GroupBox>
+        <xctk:CheckComboBox Grid.Column="1" HorizontalAlignment="Left" Height="100" Margin="842,140,-466,0" Grid.Row="1" VerticalAlignment="Top" Width="100"/>
     </Grid>
 </UserControl>

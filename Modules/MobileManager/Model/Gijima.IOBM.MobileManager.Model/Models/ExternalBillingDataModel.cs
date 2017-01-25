@@ -120,7 +120,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     if (billingPeriod != null)
                     {
                         externalData = externalData.Where(p => (p.pkExternalBillingDataID == 0 || p.BillingPeriod == billingPeriod) &&
-                                                                p.ValidationPassed == state);
+                                                                p.PropertyValidationPassed == state);
                     }
 
                     return new ObservableCollection<ExternalBillingData>(externalData);

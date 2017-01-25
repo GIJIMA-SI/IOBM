@@ -17,7 +17,8 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public int pkExternalBillingDataID { get; set; }
         public string TableName { get; set; }
         public string BillingPeriod { get; set; }
-        public bool ValidationPassed { get; set; }
+        public bool PropertyValidationPassed { get; set; }
+        public bool DataValidationPassed { get; set; }
         public string DataFileName { get; set; }
         public string ModifiedBy { get; set; }
         public System.DateTime DateModified { get; set; }

@@ -45,7 +45,6 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public virtual DbSet<DataValidationRule> DataValidationRules { get; set; }
         public virtual DbSet<DeviceMake> DeviceMakes { get; set; }
         public virtual DbSet<DeviceModel> DeviceModels { get; set; }
-        public virtual DbSet<ExternalBillingData> ExternalBillingDatas { get; set; }
         public virtual DbSet<Invoice> Invoices { get; set; }
         public virtual DbSet<InvoiceDetail> InvoiceDetails { get; set; }
         public virtual DbSet<Package> Packages { get; set; }
@@ -64,6 +63,7 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public virtual DbSet<Device> Devices { get; set; }
         public virtual DbSet<DataValidationException> DataValidationExceptions { get; set; }
         public virtual DbSet<Contract> Contracts { get; set; }
+        public virtual DbSet<ExternalBillingData> ExternalBillingDatas { get; set; }
     
         public virtual ObjectResult<sp_report_Invoice_Result> sp_report_Invoice(Nullable<int> invoiceID)
         {

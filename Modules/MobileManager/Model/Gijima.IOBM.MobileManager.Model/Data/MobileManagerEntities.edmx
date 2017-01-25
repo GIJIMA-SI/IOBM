@@ -309,7 +309,8 @@
           <Property Name="pkExternalBillingDataID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TableName" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="BillingPeriod" Type="varchar" MaxLength="7" Nullable="false" />
-          <Property Name="ValidationPassed" Type="bit" Nullable="false" />
+          <Property Name="PropertyValidationPassed" Type="bit" Nullable="false" />
+          <Property Name="DataValidationPassed" Type="bit" Nullable="false" />
           <Property Name="DataFileName" Type="varchar" MaxLength="100" />
           <Property Name="ModifiedBy" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="DateModified" Type="smalldatetime" Nullable="false" />
@@ -1380,18 +1381,6 @@
           <NavigationProperty Name="DeviceMake" Relationship="Self.FK_DeviceModel_DeviceMake" FromRole="DeviceModel" ToRole="DeviceMake" />
           <NavigationProperty Name="Devices" Relationship="MobileManagerModel.FK_Device_DeviceModel" FromRole="DeviceModel" ToRole="Device" />
         </EntityType>
-        <EntityType Name="ExternalBillingData">
-          <Key>
-            <PropertyRef Name="pkExternalBillingDataID" />
-          </Key>
-          <Property Name="pkExternalBillingDataID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TableName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="BillingPeriod" Type="String" MaxLength="7" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="ValidationPassed" Type="Boolean" Nullable="false" />
-          <Property Name="DataFileName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="ModifiedBy" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="DateModified" Type="DateTime" Nullable="false" Precision="0" />
-        </EntityType>
         <EntityType Name="Invoice">
           <Key>
             <PropertyRef Name="pkInvoiceID" />
@@ -1900,7 +1889,6 @@
           <EntitySet Name="DataValidationRules" EntityType="Self.DataValidationRule" />
           <EntitySet Name="DeviceMakes" EntityType="Self.DeviceMake" />
           <EntitySet Name="DeviceModels" EntityType="Self.DeviceModel" />
-          <EntitySet Name="ExternalBillingDatas" EntityType="Self.ExternalBillingData" />
           <EntitySet Name="Invoices" EntityType="Self.Invoice" />
           <EntitySet Name="InvoiceDetails" EntityType="Self.InvoiceDetail" />
           <EntitySet Name="Packages" EntityType="Self.Package" />
@@ -2062,6 +2050,7 @@
             <End Role="Contract" EntitySet="Contracts" />
             <End Role="SimCard" EntitySet="SimCards" />
           </AssociationSet>
+          <EntitySet Name="ExternalBillingDatas" EntityType="MobileManagerModel.ExternalBillingData" />
           </EntityContainer>
         <ComplexType Name="sp_report_Invoice_Result">
           <Property Type="String" Name="ClientName" Nullable="false" MaxLength="100" />
@@ -2291,6 +2280,19 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="ExternalBillingData">
+          <Key>
+            <PropertyRef Name="pkExternalBillingDataID" />
+          </Key>
+          <Property Name="pkExternalBillingDataID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TableName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="BillingPeriod" Type="String" Nullable="false" MaxLength="7" FixedLength="false" Unicode="false" />
+          <Property Name="PropertyValidationPassed" Type="Boolean" Nullable="false" />
+          <Property Name="DataValidationPassed" Type="Boolean" Nullable="false" />
+          <Property Name="DataFileName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedBy" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DateModified" Type="DateTime" Nullable="false" Precision="0" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2556,19 +2558,6 @@
                 <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
                 <ScalarProperty Name="ModfiedDate" ColumnName="ModfiedDate" />
                 <ScalarProperty Name="IsActive" ColumnName="IsActive" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="ExternalBillingDatas">
-            <EntityTypeMapping TypeName="MobileManagerModel.ExternalBillingData">
-              <MappingFragment StoreEntitySet="ExternalBillingData">
-                <ScalarProperty Name="pkExternalBillingDataID" ColumnName="pkExternalBillingDataID" />
-                <ScalarProperty Name="TableName" ColumnName="TableName" />
-                <ScalarProperty Name="BillingPeriod" ColumnName="BillingPeriod" />
-                <ScalarProperty Name="ValidationPassed" ColumnName="ValidationPassed" />
-                <ScalarProperty Name="DataFileName" ColumnName="DataFileName" />
-                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
-                <ScalarProperty Name="DateModified" ColumnName="DateModified" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -2848,6 +2837,20 @@
                 <ScalarProperty Name="CellNumber" ColumnName="CellNumber" />
                 <ScalarProperty Name="enCostType" ColumnName="enCostType" />
                 <ScalarProperty Name="pkContractID" ColumnName="pkContractID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ExternalBillingDatas">
+            <EntityTypeMapping TypeName="MobileManagerModel.ExternalBillingData">
+              <MappingFragment StoreEntitySet="ExternalBillingData">
+                <ScalarProperty Name="DateModified" ColumnName="DateModified" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="DataFileName" ColumnName="DataFileName" />
+                <ScalarProperty Name="DataValidationPassed" ColumnName="DataValidationPassed" />
+                <ScalarProperty Name="PropertyValidationPassed" ColumnName="PropertyValidationPassed" />
+                <ScalarProperty Name="BillingPeriod" ColumnName="BillingPeriod" />
+                <ScalarProperty Name="TableName" ColumnName="TableName" />
+                <ScalarProperty Name="pkExternalBillingDataID" ColumnName="pkExternalBillingDataID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

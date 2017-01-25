@@ -2,6 +2,7 @@
 using Gijima.IOBM.Infrastructure.Structs;
 using Prism.Events;
 using System;
+using System.Globalization;
 
 namespace Gijima.IOBM.Infrastructure.Helpers
 {
@@ -106,31 +107,46 @@ namespace Gijima.IOBM.Infrastructure.Helpers
                 decimal decimalValueToCompareTo = 0;
                 float floatValueToCompare = 0;
                 float floatValueToCompareTo = 0 ;
+                double doubleValueToCompare = 0;
+                double doubleValueToCompareTo = 0;
                 string[] compareToValues = valueToCompareTo.Split(';');
+
+                // Convert the decimal symbol in the string to the computers
+                // configured decimal symbol to ensure the correct parsing
+                char decimalSymbol = Convert.ToChar(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
+                if (decimalSymbol == ',')
+                    valueToCompare = valueToCompare.Replace('.', decimalSymbol);
+                else
+                    valueToCompare = valueToCompare.Replace(',', decimalSymbol);
 
                 foreach (string value in compareToValues)
                 {
-                    if (short.TryParse(valueToCompareTo, out shortValueToCompare) && short.TryParse(value, out shortValueToCompareTo))
+                    if (short.TryParse(valueToCompare, out shortValueToCompare) && short.TryParse(value, out shortValueToCompareTo))
                     {
                         parsedValueToCompare = shortValueToCompare;
                         parsedValueToCompareTo = shortValueToCompareTo;
                     }
-                    else if (int.TryParse(valueToCompareTo, out intValueToCompare) && int.TryParse(value, out intValueToCompareTo))
+                    else if (int.TryParse(valueToCompare, out intValueToCompare) && int.TryParse(value, out intValueToCompareTo))
                     {
                         parsedValueToCompare = intValueToCompare;
                         parsedValueToCompareTo = intValueToCompareTo;
                     }
-                    else if (long.TryParse(valueToCompareTo, out longValueToCompare) && long.TryParse(value, out longValueToCompareTo))
+                    else if (long.TryParse(valueToCompare, out longValueToCompare) && long.TryParse(value, out longValueToCompareTo))
                     {
                         parsedValueToCompare = longValueToCompare;
                         parsedValueToCompareTo = longValueToCompareTo;
                     }
-                    else if (decimal.TryParse(valueToCompareTo, out decimalValueToCompare) && decimal.TryParse(value, out decimalValueToCompareTo))
+                    else if (decimal.TryParse(valueToCompare, out decimalValueToCompare) && decimal.TryParse(value, out decimalValueToCompareTo))
                     {
                         parsedValueToCompare = decimalValueToCompare;
                         parsedValueToCompareTo = decimalValueToCompareTo;
                     }
-                    else if (float.TryParse(valueToCompareTo, out floatValueToCompare) && float.TryParse(value, out floatValueToCompareTo))
+                    else if (float.TryParse(valueToCompare, out floatValueToCompare) && float.TryParse(value, out floatValueToCompareTo))
+                    {
+                        parsedValueToCompare = floatValueToCompare;
+                        parsedValueToCompareTo = floatValueToCompareTo;
+                    }
+                    else if (double.TryParse(valueToCompare, out doubleValueToCompare) && double.TryParse(value, out doubleValueToCompareTo))
                     {
                         parsedValueToCompare = floatValueToCompare;
                         parsedValueToCompareTo = floatValueToCompareTo;
