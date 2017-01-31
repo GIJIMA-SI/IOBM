@@ -1,0 +1,61 @@
+﻿<UserControl x:Class="Gijima.IOBM.MobileManager.Views.ViewContractService"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mm="clr-namespace:Gijima.IOBM.MobileManager.Common.Helpers;assembly=Gijima.IOBM.MobileManager.Common"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"             
+             mc:Ignorable="d" 
+             Height="255" Width="400">
+
+    <UserControl.Resources>
+        <mm:UIDataConvertionHelper x:Key="UIDataConvertionHelper"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="70" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Description:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <TextBox x:Name="TextBoxDescription" Grid.Row="0" Grid.Column="1" TabIndex="1" ToolTip="Enter the make description."  Style="{StaticResource UXTextBoxStyle}"
+            Text="{Binding SelectedContractServiceDescription, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidContractServiceDescription}">
+        </TextBox>
+        <StackPanel Grid.Row="0" Grid.Column="3" Orientation="Horizontal">
+            <Button x:Name="ButtonCancel" TabIndex="4" Style="{StaticResource UXImageButtonStyle}"
+                ToolTip="Cancel the current operation." Command="{Binding CancelCommand}">
+                <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico"  />
+            </Button>
+            <Button x:Name="ButtonAdd" TabIndex="5" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
+                ToolTip="Add a new device make." Command="{Binding AddCommand}">
+                <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/508.png"  />
+            </Button>
+            <Button x:Name="ButtonSave" TabIndex="6" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
+                ToolTip="Save the device make data." Command="{Binding SaveCommand}">
+                <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/save_32.ico"  />
+            </Button>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right">
+            <TextBlock Text="Active" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom" Margin="0,0,5,0"></TextBlock>
+            <CheckBox x:Name="CkeckBoxIsActive" TabIndex="2" VerticalAlignment="Bottom" IsChecked="{Binding ServiceState, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+        <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Available Makes" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
+        <DataGrid x:Name="DataGridContractService" Grid.Row="2" Grid.ColumnSpan="4" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True" 
+            IsReadOnly="True" TabIndex="3" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" 
+            ItemsSource="{Binding ContractServiceCollection}" SelectedItem="{Binding SelectedContractService}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Description" Binding="{Binding ServiceDescription}" Width="*" />
+                <DataGridTextColumn Header="State" Binding="{Binding IsActive, Converter={StaticResource UIDataConvertionHelper},  ConverterParameter='State'}" Width="100" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>
+
