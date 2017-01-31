@@ -139,6 +139,7 @@
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Extentions\CompanyExt.cs" />
+    <Compile Include="Data\Extentions\ContractServiceExt.cs" />
     <Compile Include="Data\Extentions\DataValidationPropertyExt.cs" />
     <Compile Include="Data\Extentions\DataValidationRuleExt.cs" />
     <Compile Include="Data\Extentions\Suburb.cs" />

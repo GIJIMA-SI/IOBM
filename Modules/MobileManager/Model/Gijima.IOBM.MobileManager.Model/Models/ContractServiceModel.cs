@@ -1,4 +1,5 @@
 ﻿using Gijima.IOBM.Infrastructure.Events;
+using Gijima.IOBM.Infrastructure.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Prism.Events;
 using System;
@@ -27,42 +28,51 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         }
 
         /// <summary>
-        /// Create a new device make entity in the database
+        /// Create a new contract service entity in the database
         /// </summary>
-        /// <param name="serviceModel">The device make entity to add.</param>
+        /// <param name="contractService">The contract service entity to add.</param>
         /// <returns>True if successfull</returns>
-        public bool CreateContractService(ContractService serviceModel)
+        public bool CreateContractService(ContractService contractService)
         {
             try
             {
                 using (var db = MobileManagerEntities.GetContext())
                 {
-                    if (!db.ContractServices.Any(p => p.ServiceDescription.ToUpper() == serviceModel.ServiceDescription))
+                    if (!db.ContractServices.Any(p => p.ServiceDescription.ToUpper() == contractService.ServiceDescription))
                     {
-                        db.ContractServices.Add(serviceModel);
+                        db.ContractServices.Add(contractService);
                         db.SaveChanges();
                         return true;
                     }
                     else
                     {
-                        //_eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(string.Format("The {0} devices make already exist.", deviceMake.MakeDescription));
+                        _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                        .Publish(new ApplicationMessage("ContractServiceModel",
+                                                                        "This contract service already exist.",
+                                                                        "CreateContractService",
+                                                                        ApplicationMessage.MessageTypes.Information));
                         return false;
                     }
                 }
             }
             catch (Exception ex)
             {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ContractServiceModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "CreateContractService",
+                                                                ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }
         }
 
         /// <summary>
-        /// Read all or active only device makes from the database
+        /// Read all or active only contract services from the database
         /// </summary>
         /// <param name="activeOnly">Flag to load all or active only entities.</param>
         /// <param name="excludeDefault">Flag to include or exclude the default entity.</param>
-        /// <returns>Collection of Device makes</returns>
+        /// <returns>Collection of contract services</returns>
         public ObservableCollection<ContractService> ReadContractService(bool activeOnly, bool excludeDefault = false)
         {
             try

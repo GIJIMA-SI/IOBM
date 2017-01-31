@@ -1,4 +1,5 @@
 ﻿using Gijima.IOBM.Infrastructure.Events;
+using Gijima.IOBM.Infrastructure.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Gijima.IOBM.MobileManager.Model.Models;
 using Gijima.IOBM.MobileManager.Security;
@@ -168,6 +169,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private void InitialiseViewControls()
         {
             SelectedContractService = new ContractService();
+            ServiceState = true;
         }
 
         /// <summary>
@@ -181,7 +183,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
             catch (Exception ex)
             {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ViewContractServiceViewModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ReadContractServicesAsync",
+                                                                ApplicationMessage.MessageTypes.SystemError));
             }
         }
 
@@ -221,21 +228,33 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// </summary>
         private async void ExecuteSave()
         {
-            bool result = false;
-            SelectedContractService.ServiceDescription = SelectedContractServiceDescription.ToUpper();
-            SelectedContractService.ModifiedBy = SecurityHelper.LoggedInDomainName;
-            SelectedContractService.ModifiedDate = DateTime.Now;
-            SelectedContractService.IsActive = ServiceState;
-
-            if (SelectedContractService.pkContractServiceID == 0)
-                result = _model.CreateContractService(SelectedContractService);
-            else
-                result = _model.UpdateContractService(SelectedContractService);
-
-            if (result)
+            try
             {
-                InitialiseViewControls();
-                await ReadContractServicesAsync();
+                bool result = false;
+                SelectedContractService.ServiceDescription = SelectedContractServiceDescription.ToUpper();
+                SelectedContractService.ModifiedBy = SecurityHelper.LoggedInDomainName;
+                SelectedContractService.ModifiedDate = DateTime.Now;
+                SelectedContractService.IsActive = ServiceState;
+
+                if (SelectedContractService.pkContractServiceID == 0)
+                    result = _model.CreateContractService(SelectedContractService);
+                else
+                    result = _model.UpdateContractService(SelectedContractService);
+
+                if (result)
+                {
+                    InitialiseViewControls();
+                    await ReadContractServicesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ViewContractServiceViewModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ExecuteSave",
+                                                                ApplicationMessage.MessageTypes.SystemError));
             }
         }
 

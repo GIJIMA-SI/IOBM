@@ -59,7 +59,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>DEE2B97C5920D07538C39AEC0B008BAA1743199D</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>0D5797BB93983CC7FC969B0BD9F3373555E850AA</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestKeyFile>Gijima.IOBM.Shell_1_TemporaryKey.pfx</ManifestKeyFile>

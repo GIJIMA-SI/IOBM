@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace Gijima.IOBM.MobileManager.Model.Models
 {
-    class ClientServiceModel
+    public class ClientServiceModel
     {
         #region Properties and Attributes
 

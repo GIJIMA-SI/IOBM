@@ -17,7 +17,6 @@ using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.MobileManager.Common.Events;
 using System.Collections.Generic;
 using System.Windows;
-using Prism.Common;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
 {
@@ -1851,7 +1850,13 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
+                IEnumerable<ClientService> clientServices = null;
                 ContractServiceCollection = await Task.Run(() => new ContractServiceModel(_eventAggregator).ReadContractService(true));
+
+                if (ContractServiceCollection != null && ContractServiceCollection.Count > 0)
+                {
+                    clientServices = await Task.Run(() => new ClientServiceModel(_eventAggregator).ReadClientService((true));
+                }
             }
             catch (Exception ex)
             {
