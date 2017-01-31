@@ -109,6 +109,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                                where client.pkClientID == clientID
                                                                select client)).Include("Contract")
                                                                               .Include("Contract.PackageSetup")
+                                                                              .Include("Contract.ClientServices")
                                                                               .Include("ClientBilling").FirstOrDefault();
 
                     return selectedClient;
@@ -263,11 +264,11 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                             db.Contracts.Attach(client.Contract);
                             db.Entry(client.Contract).State = System.Data.Entity.EntityState.Modified;
 
-                            db.ClientBillings.Attach(client.ClientBilling);
-                            db.Entry(client.ClientBilling).State = System.Data.Entity.EntityState.Modified;
-
                             db.PackageSetups.Attach(client.Contract.PackageSetup);
                             db.Entry(client.Contract.PackageSetup).State = System.Data.Entity.EntityState.Modified;
+
+                            db.ClientBillings.Attach(client.ClientBilling);
+                            db.Entry(client.ClientBilling).State = System.Data.Entity.EntityState.Modified;
 
                             db.ClientBillings.Attach(client.ClientBilling);
                             db.Entry(client.ClientBilling).State = System.Data.Entity.EntityState.Modified;

@@ -109,9 +109,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         SelectedContractStartDate = value.Contract != null && value.Contract.ContractStartDate != null ? value.Contract.ContractStartDate.Value : DateTime.MinValue;
                         SelectedContractEndDate = value.Contract != null && value.Contract.ContractEndDate != null ? value.Contract.ContractEndDate.Value : DateTime.MinValue;
                         string[] paymentCancelPeriod = null;
-                        if (value.Contract != null && value.Contract.PaymentCancelPeriod != null)
+                        if (SelectedContract != null && value.Contract.PaymentCancelPeriod != null)
                         {
-                            paymentCancelPeriod = value.Contract.PaymentCancelPeriod.Split('/');
+                            paymentCancelPeriod = SelectedContract.PaymentCancelPeriod.Split('/');
                             SelectedBillingYear = paymentCancelPeriod[0];
                             SelectedBillingMonth = paymentCancelPeriod[1];
                         }
@@ -119,14 +119,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         {
                             SelectedBillingYear = SelectedBillingMonth = string.Empty;
                         }
-                        Task.Run(() => ReadClientServicesAsync());
+                        if (SelectedContract != null)
+                            SetClientContractServices();
 
                         // Set billing properties
                         SetClientBilling(value.ClientBilling);
-
-                        // Set the delete button to delete or un-delete client
-                        DeleteButtonImage = value.IsActive ? "278.png" : "delete.png";
-                        DeleteButtonToolTip = value.IsActive ? "in-active" : "active";
 
                         // The the global application properties
                         MobileManagerEnvironment.ClientID = value.pkClientID;
@@ -369,6 +366,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         #region View Lookup Data Collections
 
         /// <summary>
+        /// The selected Contract Service
+        /// </summary>
+        public string SelectedServiceDescription
+        {
+            get { return _selectedServiceDescription; }
+            set { SetProperty(ref _selectedServiceDescription, value); }
+        }
+        private string _selectedServiceDescription = "";
+
+        /// <summary>
         /// The collection of companies from the database
         /// </summary>
         public ObservableCollection<Company> CompanyCollection
@@ -466,7 +473,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             get { return _paymentYearCollection; }
             set { SetProperty(ref _paymentYearCollection, value); }
         }
-        private List<string> _paymentYearCollection = null;
+        private List<string> _paymentYearCollection = null;      
 
         #endregion
 
@@ -682,19 +689,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
         }
         private Status _selectedStatus;
-
-        /// <summary>
-        /// The selected service
-        /// </summary>
-        public ClientService SelectedContractService
-        {
-            get { return _selectedClientService; }
-            set
-            {
-                SetProperty(ref _selectedClientService, value);
-            }
-        }
-        private ClientService _selectedClientService;
 
         /// <summary>
         /// The selected package
@@ -1544,7 +1538,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedClientLocation = ClientLocationCollection != null ? ClientLocationCollection.Where(p => p.pkClientLocationID == 0).FirstOrDefault() : null;
             SelectedSuburb = SuburbCollection != null ? SuburbCollection.Where(p => p.pkSuburbID == 0).FirstOrDefault() : null;
             SelectedStatus = StatusCollection != null ? StatusCollection.Where(p => p.pkStatusID == 0).FirstOrDefault() : null;
-            //SelectedContractService = ContractServiceCollection != null ? ContractServiceCollection.Where(p => p.pkContractServiceID == 0).FirstOrDefault() : null;
+            SelectedServiceDescription = ContractServiceCollection != null ? ContractServiceCollection.Where(p => p.pkContractServiceID == 0).FirstOrDefault().ServiceDescription : null;
             SelectedPackage = PackageCollection != null ? PackageCollection.Where(p => p.pkPackageID == 0).FirstOrDefault() : null;
             SetClientBilling(null);
             SelectedCellNumber = SelectedClientName = SelectedClientIDNumber = SelectedClientAddressLine = SelectedContractAccNumber = string.Empty;
@@ -1652,6 +1646,37 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
 
         /// <summary>
+        /// Set the clients selected contract services 
+        /// </summary>
+        private void SetClientContractServices()
+        {
+            try
+            {
+                if (SelectedContract.ClientServices != null && SelectedContract.ClientServices.Count() > 0)
+                {
+                    if (ContractServiceCollection != null && ContractServiceCollection.Count > 0)
+                    {
+                        foreach (ClientService service in SelectedContract.ClientServices)
+                        {
+                            ContractServiceCollection.First(p => p.pkContractServiceID == service.fkContractServiceID).IsSelected = true;
+                        }
+
+                        SelectedServiceDescription = ContractServiceCollection.First(p => p.IsSelected).ServiceDescription;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ViewCellularViewModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "SetClientContractServices",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
+
+        /// <summary>
         /// Set the options for client billing
         /// </summary>
         /// <param name="clientBilling">The client billing entity.</param>
@@ -1755,45 +1780,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                 string.Format("Error! {0}, {1}.",
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
                                                                 "ReadLastPaymentPeriods",
-                                                                ApplicationMessage.MessageTypes.SystemError));
-            }
-        }
-
-        /// <summary>
-        /// Read all the selected contract service from the database to set the  
-        /// checkbox value in the contract services combobox 
-        /// </summary>
-        private async void ReadClientServicesAsync()
-        {
-            try
-            {
-                if (SelectedClient != null && SelectedClient.pkClientID > 0)
-                {
-                    IEnumerable<ClientService> clientServices = null;
-
-                    // Read all the selected contract service to set the  
-                    // checkbox value isthe contract services combobox
-                    if (ContractServiceCollection != null && ContractServiceCollection.Count > 0)
-                    {
-                        clientServices = await Task.Run(() => new ClientServiceModel(_eventAggregator).ReadClientService(SelectedClient.fkContractID));
-
-                        if (clientServices != null && clientServices.Count() > 0)
-                        {
-                            foreach (ClientService service in clientServices)
-                            {
-                                ContractServiceCollection.First(p => p.pkContractServiceID == service.fkContractServiceID).IsSelected = true;
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("ViewCellularViewModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "ReadContractServicesAsync",
                                                                 ApplicationMessage.MessageTypes.SystemError));
             }
         }
@@ -2109,6 +2095,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 SelectedClient.Contract.ContractEndDate = SelectedContractEndDate > DateTime.MinValue ? SelectedContractEndDate : (DateTime?)null;
                 SelectedClient.Contract.ContractUpgradeDate = SelectedContract != null ? SelectedContract.ContractUpgradeDate : null;
                 SelectedClient.Contract.PaymentCancelPeriod = !string.IsNullOrEmpty(SelectedBillingYear) && !string.IsNullOrEmpty(SelectedBillingMonth) ? string.Format("{0}/{1}", SelectedBillingYear, SelectedBillingMonth) : null;
+
+                //if (SelectedClient.Contract.ClientServices == null)
+                //    SelectedClient.Contract.ClientServices = new 
+
                 SelectedClient.Contract.ModifiedBy = SecurityHelper.LoggedInUserFullName;
                 SelectedClient.Contract.ModifiedDate = DateTime.Now;
                 SelectedClient.Contract.IsActive = SelectedClientState;
