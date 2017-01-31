@@ -54,7 +54,7 @@
       <HintPath>..\..\Gijima.Controls.WPF\bin\Debug\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="Gijima.IOBM.MobileManager.Security">
-      <HintPath>..\..\..\Gijima\IOBM\Modules\MobileManager\Common\Gijima.IOBM.MobileManager.Security\bin\Debug\Gijima.IOBM.MobileManager.Security.dll</HintPath>
+      <HintPath>..\..\Gijima.IOBM.MobileManager.Security\bin\Debug\Gijima.IOBM.MobileManager.Security.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.Unity, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -114,7 +114,7 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="WindowsFormsIntegration" />
     <Reference Include="WPFDeveloperTools.Controls">
-      <HintPath>..\..\..\Gijima\IOBM\Assemblies\Common\WPFDeveloperTools.Controls.dll</HintPath>
+      <HintPath>..\..\Assemblies\Common\WPFDeveloperTools.Controls.dll</HintPath>
     </Reference>
     <Reference Include="WPFToolkit, Version=3.5.40128.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Xceed.Wpf.DataGrid">
@@ -137,6 +137,7 @@
     <Compile Include="ViewModels\ViewClientSiteViewModel.cs" />
     <Compile Include="ViewModels\ViewCompanyBillingLevelViewModel.cs" />
     <Compile Include="ViewModels\ViewCompanyGroupViewModel.cs" />
+    <Compile Include="ViewModels\ViewContractServiceViewModel.cs" />
     <Compile Include="ViewModels\ViewDataImportExtViewModel.cs" />
     <Compile Include="ViewModels\ViewDataImportIntViewModel.cs" />
     <Compile Include="ViewModels\ViewDataImportViewModel.cs" />
@@ -157,6 +158,9 @@
     </Compile>
     <Compile Include="Views\Common\ViewReports.xaml.cs">
       <DependentUpon>ViewReports.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Maintenance\ViewContractService.xaml.cs">
+      <DependentUpon>ViewContractService.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PopupWindow.xaml.cs">
       <DependentUpon>PopupWindow.xaml</DependentUpon>
@@ -275,6 +279,10 @@
     <Page Include="Views\Common\ViewReports.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Maintenance\ViewContractService.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\PopupWindow.xaml">
       <SubType>Designer</SubType>
@@ -496,6 +504,10 @@
     <ProjectReference Include="..\..\Gijima.IOBM.Model\Gijima.IOBM.Model.csproj">
       <Project>{68f8a3c2-fa68-4f34-8b8f-3dcf6f04a136}</Project>
       <Name>Gijima.IOBM.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Gijima.IOBM.Security\Gijima.IOBM.Security.csproj">
+      <Project>{0423c0ae-6f7c-491f-b918-e46e9aec6fc6}</Project>
+      <Name>Gijima.IOBM.Security</Name>
     </ProjectReference>
     <ProjectReference Include="Common\Gijima.IOBM.MobileManager.Common\Gijima.IOBM.MobileManager.Common.csproj">
       <Project>{c8918bb0-9efb-4158-809b-4b374509f66b}</Project>

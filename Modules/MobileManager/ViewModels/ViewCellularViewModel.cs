@@ -17,6 +17,7 @@ using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.MobileManager.Common.Events;
 using System.Collections.Generic;
 using System.Windows;
+using Prism.Common;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
 {
@@ -25,6 +26,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         #region Properties & Attributes
 
         private ClientModel _model = null;
+        public ClientService _modelClientService = null;
         private IEventAggregator _eventAggregator;
         private SecurityHelper _securityHelper = null;
         private DataActivityLog _activityLogInfo = null;
@@ -42,6 +44,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         public DelegateCommand ClientSuburbCommand { get; set; }
         public DelegateCommand ClientUserSiteCommand { get; set; }
         public DelegateCommand ContractStatusCommand { get; set; }
+        public DelegateCommand ContractServiceCommand { get; set; }
         public DelegateCommand ContractPackageCommand { get; set; }
         public DelegateCommand ContractSuburbCommand { get; set; }
 
@@ -92,6 +95,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         if (StatusCollection != null)
                             SelectedStatus = value.Contract != null ? StatusCollection.Where(p => p.pkStatusID == value.Contract.fkStatusID).FirstOrDefault()
                                                                     : StatusCollection.Where(p => p.pkStatusID == 0).FirstOrDefault();
+                        //if (ContractServiceCollection != null)
+                        //    SelectedContractService = value.Contract != null ? ContractServiceCollection.Where(p => p.pkContractServiceID == ).FirstOrDefault()
+                        //                                            : ContractServiceCollection.Where(p => p.pkContractServiceID == 0).FirstOrDefault();
                         if (PackageCollection != null)
                             SelectedPackage = value.Contract != null ? PackageCollection.Where(p => p.pkPackageID == value.Contract.fkPackageID).FirstOrDefault()
                                                                      : PackageCollection.Where(p => p.pkPackageID == 0).FirstOrDefault();
@@ -416,6 +422,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private ObservableCollection<Status> _statusCollection = null;
 
         /// <summary>
+        /// The collection of statuses from the database
+        /// </summary>
+        public ObservableCollection<ContractService> ContractServiceCollection
+        {
+            get { return _contractServiceCollection; }
+            set { SetProperty(ref _contractServiceCollection, value); }
+        }
+        private ObservableCollection<ContractService> _contractServiceCollection = null;
+
+        /// <summary>
         /// The collection of packages from the database
         /// </summary>
         public ObservableCollection<Package> PackageCollection
@@ -669,6 +685,19 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
         }
         private Status _selectedStatus;
+
+        /// <summary>
+        /// The selected service
+        /// </summary>
+        public ClientService SelectedContractService
+        {
+            get { return _selectedClientService; }
+            set
+            {
+                SetProperty(ref _selectedClientService, value);
+            }
+        }
+        private ClientService _selectedClientService;
 
         /// <summary>
         /// The selected package
@@ -1474,6 +1503,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             ClientUserSiteCommand = new DelegateCommand(ExecuteShowClientSiteView);
             ClientSuburbCommand = new DelegateCommand(ExecuteShowSuburbView);
             ContractStatusCommand = new DelegateCommand(ExecuteShowStatusView, CanExecuteMaintenace);
+            ContractServiceCommand = new DelegateCommand(ExecuteShowContractServiceView, CanExecuteMaintenace);
             ContractPackageCommand = new DelegateCommand(ExecuteShowPackageView, CanExecuteMaintenace);
 
             // Subscribe to this event to read the client data based on the search results
@@ -1500,6 +1530,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             await ReadClientLocationsAsync();
             await ReadSuburbsAsync();
             await ReadStatusesAsync();
+            await ReadContractServicesAsync();
             await ReadPackagesAsync();
             ReadCostTypes();
             ReadLastPaymentPeriods();
@@ -1516,6 +1547,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedClientLocation = ClientLocationCollection != null ? ClientLocationCollection.Where(p => p.pkClientLocationID == 0).FirstOrDefault() : null;
             SelectedSuburb = SuburbCollection != null ? SuburbCollection.Where(p => p.pkSuburbID == 0).FirstOrDefault() : null;
             SelectedStatus = StatusCollection != null ? StatusCollection.Where(p => p.pkStatusID == 0).FirstOrDefault() : null;
+            //SelectedContractService = ContractServiceCollection != null ? ContractServiceCollection.Where(p => p.pkContractServiceID == 0).FirstOrDefault() : null;
             SelectedPackage = PackageCollection != null ? PackageCollection.Where(p => p.pkPackageID == 0).FirstOrDefault() : null;
             SetClientBilling(null);
             SelectedCellNumber = SelectedClientName = SelectedClientIDNumber = SelectedClientAddressLine = SelectedContractAccNumber = string.Empty;
@@ -1808,6 +1840,26 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                 string.Format("Error! {0}, {1}.",
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
                                                                 "ReadStatusesAsync",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
+
+        /// <summary>
+        /// Load all the contract services from the database
+        /// </summary>
+        private async Task ReadContractServicesAsync()
+        {
+            try
+            {
+                ContractServiceCollection = await Task.Run(() => new ContractServiceModel(_eventAggregator).ReadContractService(true));
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ViewCellularViewModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ReadContractServicesAsync",
                                                                 ApplicationMessage.MessageTypes.SystemError));
             }
         }
@@ -2128,6 +2180,18 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             popupWindow.ShowDialog();
             await ReadStatusesAsync();
             SelectedStatus = StatusCollection.Where(p => p.pkStatusID == selectedStatusID).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Execute show service maintenace view
+        /// </summary>
+        private async void ExecuteShowContractServiceView()
+        {
+            //int selectedContractServiceID = SelectedContractService.pkStatusID;
+            PopupWindow popupWindow = new PopupWindow(new ViewContractService(), "Contract Service Maintenance", PopupWindow.PopupButtonType.Close);
+            popupWindow.ShowDialog();
+            await ReadContractServicesAsync();
+            //SelectedContractService = ContractServiceCollection.Where(p => p.pkContractServiceID == selectedContractServiceID).FirstOrDefault();
         }
 
         /// <summary>

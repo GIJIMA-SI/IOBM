@@ -312,54 +312,65 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <ComboBox x:Name="ComboBoxContractService" Grid.Column="0" ToolTip="Select the contract services." TabIndex="24" IsSynchronizedWithCurrentItem="True" Height="20"
+                        <!--<ComboBox x:Name="ComboBoxContractService" Grid.Column="0" ToolTip="Select the contract services." TabIndex="27" IsSynchronizedWithCurrentItem="True" Height="20"
                             ItemsSource="{Binding ContractServiceCollection}" DisplayMemberPath="ServiceDescription" 
                             SelectedItem="{Binding SelectedContractService, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding RequiredFieldColour}" >
+                        </ComboBox>-->
+                        <ComboBox x:Name="ComboBoxContractService"  Grid.Column="0" IsEditable="True" IsReadOnly="True" ItemsSource="{Binding ContractServiceCollection}" Text="{Binding ContractServiceCollection}"
+                                  ToolTip="Select the contract services." TabIndex="27">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <CheckBox Content="{Binding ContractServiceCollection}" IsChecked="{Binding IsSelected}" Width="20" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding ContractServiceCollection}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
                         </ComboBox>
-                        <Button x:Name="ButtonContractSeviceCrud" Grid.Column="1" Margin="2,0,0,0" ToolTip="Add, edit or delete contract service." TabIndex="25" Height="20"
+                        <Button x:Name="ButtonContractSeviceCrud" Grid.Column="1" Margin="2,0,0,0" ToolTip="Add, edit or delete contract service." TabIndex="28" Height="20"
                             Style="{StaticResource UXImageButtonStyle}" Command="{Binding ContractServiceCommand}">
                             <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/edit_32.png" />
                         </Button>
                     </Grid>
                 </Border>
                 <TextBlock Grid.Row="6" Grid.Column="3" Text="Acc no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxSPAccount" Grid.Row="6" Grid.Column="4" Grid.ColumnSpan="1" TabIndex="27" ToolTip="Enter the service provider account number." Style="{StaticResource UXTextBoxStyle}"
+                <TextBox x:Name="TextBoxSPAccount" Grid.Row="6" Grid.Column="4" Grid.ColumnSpan="1" TabIndex="29" ToolTip="Enter the service provider account number." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedContractAccNumber, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidAccountNumber}">
                 </TextBox>
                 <TextBlock Grid.Row="8" Grid.Column="0" Text="Cost:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxPackageCost" Grid.Row="8" Grid.Column="1" TabIndex="28" ToolTip="Package monthly package cost." Style="{StaticResource UXTextBoxStyle}"
+                <TextBox x:Name="TextBoxPackageCost" Grid.Row="8" Grid.Column="1" TabIndex="30" ToolTip="Package monthly package cost." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedPackageCost, UpdateSourceTrigger=PropertyChanged}">
                 </TextBox>
                 <TextBlock Grid.Row="8" Grid.Column="3" Text="Rand val:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxPackageRabndValue" Grid.Row="8" Grid.Column="4" TabIndex="29" ToolTip="Enter the rand value included in the package." Style="{StaticResource UXTextBoxStyle}"
+                <TextBox x:Name="TextBoxPackageRabndValue" Grid.Row="8" Grid.Column="4" TabIndex="31" ToolTip="Enter the rand value included in the package." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedPackageRandValue, UpdateSourceTrigger=PropertyChanged}">
                 </TextBox>
                 <TextBlock Grid.Row="10" Grid.Column="0" Text="MB data:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxMBData" Grid.Row="10" Grid.Column="1" TabIndex="30" ToolTip="Enter the MB data included in the package." Style="{StaticResource UXTextBoxStyle}"
+                <TextBox x:Name="TextBoxMBData" Grid.Row="10" Grid.Column="1" TabIndex="32" ToolTip="Enter the MB data included in the package." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedPackageMBData, UpdateSourceTrigger=PropertyChanged}">
                 </TextBox>
                 <TextBlock Grid.Row="10" Grid.Column="3" Text="SPUL val:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxPackageSPUL" Grid.Row="10" Grid.Column="4" TabIndex="31" ToolTip="Enter the SPUL value included in the package." Style="{StaticResource UXTextBoxStyle}"
+                <TextBox x:Name="TextBoxPackageSPUL" Grid.Row="10" Grid.Column="4" TabIndex="33" ToolTip="Enter the SPUL value included in the package." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedPackageSPULValue, UpdateSourceTrigger=PropertyChanged}">
                 </TextBox>
                 <TextBlock Grid.Row="12" Grid.Column="0" Text="Talk Time:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxTalkTime" Grid.Row="12" Grid.Column="1" TabIndex="32" ToolTip="Enter the talk time included in the package." Style="{StaticResource UXTextBoxStyle}"
+                <TextBox x:Name="TextBoxTalkTime" Grid.Row="12" Grid.Column="1" TabIndex="34" ToolTip="Enter the talk time included in the package." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedPackageTalkTime, UpdateSourceTrigger=PropertyChanged}">
                 </TextBox>
                 <TextBlock Grid.Row="12" Grid.Column="3" Text="SMS bndl:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxSMSCount" Grid.Row="12" Grid.Column="4" TabIndex="33" ToolTip="Enter the SMS bundle included in the package." Style="{StaticResource UXTextBoxStyle}"
+                <TextBox x:Name="TextBoxSMSCount" Grid.Row="12" Grid.Column="4" TabIndex="35" ToolTip="Enter the SMS bundle included in the package." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedPackageSMSNumber, UpdateSourceTrigger=PropertyChanged}">
                 </TextBox>
                 <TextBlock Grid.Row="14" Grid.Column="0" Text="Contr start:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <DatePicker x:Name="DatePickerContrStart" Grid.Row="14" Grid.Column="1" TabIndex="34" ToolTip="Select the contract start date."
+                <DatePicker x:Name="DatePickerContrStart" Grid.Row="14" Grid.Column="1" TabIndex="36" ToolTip="Select the contract start date."
                     SelectedDate="{Binding SelectedContractStartDate, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidContractStartDate}">
                 </DatePicker>
                 <TextBlock Grid.Row="14" Grid.Column="3" Text="Contr end:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <DatePicker x:Name="DatePickerContrExpiry" Grid.Row="14" Grid.Column="4" TabIndex="35" ToolTip="Select the contract expiry date."
+                <DatePicker x:Name="DatePickerContrExpiry" Grid.Row="14" Grid.Column="4" TabIndex="37" ToolTip="Select the contract expiry date."
                     SelectedDate="{Binding SelectedContractEndDate, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidContractEndDate}">
                 </DatePicker>
                 <TextBlock Grid.Row="16" Grid.Column="0" Text="Cntr upgrd:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <DatePicker x:Name="DatePickerContrUpgrade" Grid.Row="16" Grid.Column="1" TabIndex="36" ToolTip="Select the upgrade date."
+                <DatePicker x:Name="DatePickerContrUpgrade" Grid.Row="16" Grid.Column="1" TabIndex="38" ToolTip="Select the upgrade date."
                     SelectedDate="{Binding SelectedContract.ContractUpgradeDate}">
                 </DatePicker>
                 <TextBlock Grid.Row="16" Grid.Column="3" Text="Pmnt stop:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
@@ -369,12 +380,12 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Border Grid.Column="0"  BorderThickness="1" BorderBrush="{Binding ValidPaymentYear }">
-                        <ComboBox x:Name="ComboBoxYear" ToolTip="Select the last payment year." TabIndex="37" IsSynchronizedWithCurrentItem="True"
+                        <ComboBox x:Name="ComboBoxYear" ToolTip="Select the last payment year." TabIndex="39" IsSynchronizedWithCurrentItem="True"
                             ItemsSource="{Binding PaymentYearCollection}" SelectedItem="{Binding SelectedBillingYear, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" >
                         </ComboBox>
                     </Border>
                     <Border Grid.Column="1" BorderThickness="1" BorderBrush="{Binding ValidPaymentMonth}">
-                        <ComboBox x:Name="ComboBoxPeriod" ToolTip="Select the last payment month." TabIndex="38" IsSynchronizedWithCurrentItem="True"
+                        <ComboBox x:Name="ComboBoxPeriod" ToolTip="Select the last payment month." TabIndex="40" IsSynchronizedWithCurrentItem="True"
                             ItemsSource="{Binding PaymentMonthCollection}" SelectedItem="{Binding SelectedBillingMonth, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" >
                         </ComboBox>
                     </Border>
@@ -409,62 +420,62 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" Text="Split billing:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
                 <StackPanel Grid.Column="1" Grid.ColumnSpan="4" Orientation="Horizontal" IsEnabled="{Binding CanSetSplitBilling, UpdateSourceTrigger=PropertyChanged}">
-                    <RadioButton x:Name="RadioButtonSplitBillYes" Content="Yes" Margin="0,0,5,0" TabIndex="40"
+                    <RadioButton x:Name="RadioButtonSplitBillYes" Content="Yes" Margin="0,0,5,0" TabIndex="44"
                         IsChecked="{Binding SplitBilling, ValidatesOnDataErrors=true, UpdateSourceTrigger=PropertyChanged}"
-                        BorderBrush="{Binding ValidSplitBilling}"/>
-                    <RadioButton x:Name="RadioButtonSplitBillNo" Content="No" Margin="0,0,5,0" TabIndex="41"
+                        BorderBrush="{Binding ValidSplitBilling}" Height="15" VerticalAlignment="Bottom"/>
+                    <RadioButton x:Name="RadioButtonSplitBillNo" Content="No" Margin="0,0,5,0" TabIndex="45"
                         IsChecked="{Binding NoSplitBilling, ValidatesOnDataErrors=true, UpdateSourceTrigger=PropertyChanged}"
                         BorderBrush="{Binding ValidSplitBilling}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
                     <TextBlock Text="Split billing exception:" Style="{StaticResource UXLabelTextStyle}"/>
-                    <CheckBox x:Name="RadioButtonSplitBillException" TabIndex="42" Margin="10,0,0,0" IsChecked="{Binding SplitBillingException, UpdateSourceTrigger=PropertyChanged}"/>
+                    <CheckBox x:Name="RadioButtonSplitBillException" TabIndex="46" Margin="10,0,0,0" IsChecked="{Binding SplitBillingException, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="Billing level:" Style="{StaticResource UXLabelTextStyle}" ></TextBlock>
                 <Border Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="4" BorderThickness="1" BorderBrush="{Binding ValidBillingLevel}">
-                    <ComboBox x:Name="ComboBoxCompanyLevel" ToolTip="Select the company billing level." TabIndex="43" IsSynchronizedWithCurrentItem="True" 
+                    <ComboBox x:Name="ComboBoxCompanyLevel" ToolTip="Select the company billing level." TabIndex="47" IsSynchronizedWithCurrentItem="True" 
                         IsEnabled="{Binding AllowBillingLevels, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding BillingLevelCollection}" DisplayMemberPath="BillingLevel.LevelDescription" 
                         SelectedItem="{Binding SelectedBillingLevel, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
                     </ComboBox>
                 </Border>
                 <TextBlock Grid.Row="4" Grid.Column="0" Text="WDP allwnc:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxWDPAllowance" Grid.Row="4" Grid.Column="1" TabIndex="44" ToolTip="Enter the WDP allowance value." Style="{StaticResource UXTextBoxStyle}"
+                <TextBox x:Name="TextBoxWDPAllowance" Grid.Row="4" Grid.Column="1" TabIndex="48" ToolTip="Enter the WDP allowance value." Style="{StaticResource UXTextBoxStyle}"
                     IsEnabled="{Binding AllowWDPAllowance}" Text="{Binding SelectedWDPAllowance, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}" BorderBrush="{Binding ValidWDPAllowance}">
                 </TextBox>
                 <TextBlock Grid.Row="4" Grid.Column="3" Text="Voice allwnc:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxVoiceAllowance" Grid.Row="4" Grid.Column="4" TabIndex="45" ToolTip="Enter the voice allowance value." Style="{StaticResource UXTextBoxStyle}"
+                <TextBox x:Name="TextBoxVoiceAllowance" Grid.Row="4" Grid.Column="4" TabIndex="49" ToolTip="Enter the voice allowance value." Style="{StaticResource UXTextBoxStyle}"
                     IsEnabled="{Binding AllowVoiceAllowance}" Text="{Binding SelectedVoiceAllowance, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}" BorderBrush="{Binding ValidVoiceAllowance}">
                 </TextBox>
                 <TextBlock Grid.Row="6" Grid.Column="0" Text="Provider limit:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxSPAllowance" Grid.Row="6" Grid.Column="1" TabIndex="46" ToolTip="Enter the service provider limit." Style="{StaticResource UXTextBoxStyle}"
+                <TextBox x:Name="TextBoxSPAllowance" Grid.Row="6" Grid.Column="1" TabIndex="50" ToolTip="Enter the service provider limit." Style="{StaticResource UXTextBoxStyle}"
                     IsEnabled="{Binding SplitBilling}" Text="{Binding SelectedSPAllowance, UpdateSourceTrigger=PropertyChanged}">
                 </TextBox>
                 <TextBlock Grid.Row="6" Grid.Column="3" Text="Allwnc limit:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxAllowanceLimit" Grid.Row="6" Grid.Column="4" TabIndex="47" ToolTip="Enter the value to monitor voice allowance against." Style="{StaticResource UXTextBoxStyle}"
+                <TextBox x:Name="TextBoxAllowanceLimit" Grid.Row="6" Grid.Column="4" TabIndex="51" ToolTip="Enter the value to monitor voice allowance against." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedAllowanceLimit, UpdateSourceTrigger=PropertyChanged}">
                 </TextBox>
                 <TextBlock Grid.Row="8" Grid.Column="0" Text="International:" Margin="0,0,5,0" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
                 <StackPanel Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="4" Orientation="Horizontal" IsEnabled="{Binding SplitBilling}" >
-                    <CheckBox x:Name="CheckBoxIntDialing" Content="Dailing" VerticalAlignment="Center" Margin="0,0,5,0" TabIndex="48" IsChecked="{Binding SelectedIntDailing, UpdateSourceTrigger=PropertyChanged}" />
-                    <CheckBox x:Name="CheckBoxIntDialingPerm" Content="Prmnt" VerticalAlignment="Center" TabIndex="49" IsChecked="{Binding SelectedPermanentDailing, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding SelectedIntDailing}"/>
-                    <CheckBox x:Name="CheckBoxIntRoaming" Content="Roaming" VerticalAlignment="Center" Margin="30,0,5,0" TabIndex="50" IsChecked="{Binding SelectedIntRoaming, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
-                    <CheckBox x:Name="CheckBoxIntRoamingPerm" Content="Prmnt" VerticalAlignment="Center" TabIndex="51" IsChecked="{Binding SelectedPermanentRoaming, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding SelectedIntRoaming}"/>
+                    <CheckBox x:Name="CheckBoxIntDialing" Content="Dailing" VerticalAlignment="Center" Margin="0,0,5,0" TabIndex="52" IsChecked="{Binding SelectedIntDailing, UpdateSourceTrigger=PropertyChanged}" />
+                    <CheckBox x:Name="CheckBoxIntDialingPerm" Content="Prmnt" VerticalAlignment="Center" TabIndex="53" IsChecked="{Binding SelectedPermanentDailing, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding SelectedIntDailing}"/>
+                    <CheckBox x:Name="CheckBoxIntRoaming" Content="Roaming" VerticalAlignment="Center" Margin="30,0,5,0" TabIndex="54" IsChecked="{Binding SelectedIntRoaming, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
+                    <CheckBox x:Name="CheckBoxIntRoamingPerm" Content="Prmnt" VerticalAlignment="Center" TabIndex="55" IsChecked="{Binding SelectedPermanentRoaming, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding SelectedIntRoaming}"/>
                 </StackPanel>
                 <TextBlock Grid.Row="10" Grid.Column="0" Text="Country visiting:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxCountryVisiting" Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="4" TabIndex="52" ToolTip="Select the country for roaming." Style="{StaticResource UXTextBoxStyle}"
+                <TextBox x:Name="TextBoxCountryVisiting" Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="4" TabIndex="56" ToolTip="Select the country for roaming." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedRoamingCountry, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidRoamingCountry}" IsEnabled="{Binding ValidSelectedRoaming}">
                 </TextBox>
                 <TextBlock Grid.Row="12" Grid.Column="0" Text="Roaming from:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <DatePicker x:Name="DatePickerRoamingFrom" Grid.Row="12" Grid.Column="1" TabIndex="53" ToolTip="Select the date to start roaming from."
+                <DatePicker x:Name="DatePickerRoamingFrom" Grid.Row="12" Grid.Column="1" TabIndex="57" ToolTip="Select the date to start roaming from."
                     SelectedDate="{Binding SelectedRoamingFromDate, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidRoamingFromDate}" IsEnabled="{Binding ValidSelectedRoaming}"/>
                 <TextBlock Grid.Row="12" Grid.Column="3" Text="Roaming to:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <DatePicker x:Name="DatePickerRoamingTo" Grid.Row="12" Grid.Column="4" TabIndex="54" ToolTip="Select the date to stop roaming."
+                <DatePicker x:Name="DatePickerRoamingTo" Grid.Row="12" Grid.Column="4" TabIndex="58" ToolTip="Select the date to stop roaming."
                     SelectedDate="{Binding SelectedRoamingToDate, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidRoamingToDate}" IsEnabled="{Binding ValidSelectedRoaming}"/>
                 <TextBlock Grid.Row="14" Grid.Column="0" Text="Pause from:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <DatePicker x:Name="DatePickerStopBillingFrom" Grid.Row="14" Grid.Column="1" TabIndex="55" ToolTip="Select the date to pause billing from."
+                <DatePicker x:Name="DatePickerStopBillingFrom" Grid.Row="14" Grid.Column="1" TabIndex="59" ToolTip="Select the date to pause billing from."
                     SelectedDate="{Binding SelectedClientBilling.StopBillingFromDate, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding SplitBilling}"/>
                 <TextBlock Grid.Row="14" Grid.Column="3" Text="Pause to:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <DatePicker x:Name="DatePickerStopBillingTo" Grid.Row="14" Grid.Column="4" TabIndex="56" ToolTip="Select the date to pause billing to."
+                <DatePicker x:Name="DatePickerStopBillingTo" Grid.Row="14" Grid.Column="4" TabIndex="60" ToolTip="Select the date to pause billing to."
                     SelectedDate="{Binding SelectedClientBilling.StopBillingToDate, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding SplitBilling}"/>
             </Grid>
         </GroupBox>

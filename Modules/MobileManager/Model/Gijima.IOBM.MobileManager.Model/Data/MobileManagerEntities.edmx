@@ -138,6 +138,17 @@
           <Property Name="ModifiedDate" Type="datetime" Nullable="false" />
           <Property Name="IsActive" Type="bit" Nullable="false" />
         </EntityType>
+        <EntityType Name="ClientService">
+          <Key>
+            <PropertyRef Name="pkClientServiceID" />
+          </Key>
+          <Property Name="pkClientServiceID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="fkContractID" Type="int" Nullable="false" />
+          <Property Name="fkContractServiceID" Type="int" Nullable="false" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="ModifiedDate" Type="datetime" Nullable="false" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
+        </EntityType>
         <EntityType Name="Company">
           <Key>
             <PropertyRef Name="pkCompanyID" />
@@ -190,6 +201,16 @@
           <Property Name="ContractUpgradeDate" Type="datetime" />
           <Property Name="ContractEndDate" Type="datetime" />
           <Property Name="PaymentCancelPeriod" Type="varchar" MaxLength="7" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="ModifiedDate" Type="datetime" Nullable="false" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ContractService">
+          <Key>
+            <PropertyRef Name="pkContractServiceID" />
+          </Key>
+          <Property Name="pkContractServiceID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ServiceDescription" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="ModifiedBy" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="ModifiedDate" Type="datetime" Nullable="false" />
           <Property Name="IsActive" Type="bit" Nullable="false" />
@@ -934,10 +955,12 @@
           <EntitySet Name="Client" EntityType="Self.Client" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ClientBilling" EntityType="Self.ClientBilling" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ClientLocation" EntityType="Self.ClientLocation" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ClientService" EntityType="Self.ClientService" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Company" EntityType="Self.Company" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CompanyBillingLevel" EntityType="Self.CompanyBillingLevel" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CompanyGroup" EntityType="Self.CompanyGroup" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Contract" EntityType="Self.Contract" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ContractService" EntityType="Self.ContractService" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DataImportRule" EntityType="Self.DataImportRule" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DataUpdateRule" EntityType="Self.DataUpdateRule" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DataValidationException" EntityType="Self.DataValidationException" Schema="dbo" store:Type="Tables" />
@@ -2051,6 +2074,8 @@
             <End Role="SimCard" EntitySet="SimCards" />
           </AssociationSet>
           <EntitySet Name="ExternalBillingDatas" EntityType="MobileManagerModel.ExternalBillingData" />
+          <EntitySet Name="ContractServices" EntityType="MobileManagerModel.ContractService" />
+          <EntitySet Name="ClientServices" EntityType="MobileManagerModel.ClientService" />
           </EntityContainer>
         <ComplexType Name="sp_report_Invoice_Result">
           <Property Type="String" Name="ClientName" Nullable="false" MaxLength="100" />
@@ -2292,6 +2317,27 @@
           <Property Name="DataFileName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="ModifiedBy" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="DateModified" Type="DateTime" Nullable="false" Precision="0" />
+        </EntityType>
+        <EntityType Name="ContractService">
+          <Key>
+            <PropertyRef Name="pkContractServiceID" />
+          </Key>
+          <Property Name="pkContractServiceID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ServiceDescription" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedBy" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ClientService">
+          <Key>
+            <PropertyRef Name="pkClientServiceID" />
+          </Key>
+          <Property Name="pkClientServiceID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="fkContractID" Type="Int32" Nullable="false" />
+          <Property Name="fkContractServiceID" Type="Int32" Nullable="false" />
+          <Property Name="ModifiedBy" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -2854,7 +2900,30 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-        </EntityContainerMapping>
+          <EntitySetMapping Name="ContractServices">
+            <EntityTypeMapping TypeName="MobileManagerModel.ContractService">
+              <MappingFragment StoreEntitySet="ContractService">
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="ModifiedDate" ColumnName="ModifiedDate" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="ServiceDescription" ColumnName="ServiceDescription" />
+                <ScalarProperty Name="pkContractServiceID" ColumnName="pkContractServiceID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ClientServices">
+            <EntityTypeMapping TypeName="MobileManagerModel.ClientService">
+              <MappingFragment StoreEntitySet="ClientService">
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="ModifiedDate" ColumnName="ModifiedDate" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="fkContractServiceID" ColumnName="fkContractServiceID" />
+                <ScalarProperty Name="fkContractID" ColumnName="fkContractID" />
+                <ScalarProperty Name="pkClientServiceID" ColumnName="pkClientServiceID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
   </edmx:Runtime>
