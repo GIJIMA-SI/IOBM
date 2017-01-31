@@ -75,16 +75,16 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         {
             try
             {
-                IEnumerable<ContractService> contractService = null;
+                IEnumerable<ContractService> contractServices = null;
 
                 using (var db = MobileManagerEntities.GetContext())
                 {
-                    contractService = ((DbQuery<ContractService>)(from contractServices in db.ContractServices
-                                                         where activeOnly ? contractServices.IsActive : true &&
-                                                               excludeDefault ? contractServices.pkContractServiceID > 0 : true
-                                                         select contractService)).OrderBy(p => p.ServiceDescription).ToList();
+                    contractServices = ((DbQuery<ContractService>)(from service in db.ContractServices
+                                                                   where activeOnly ? service.IsActive : true &&
+                                                                         excludeDefault ? service.pkContractServiceID > 0 : true
+                                                                   select service)).OrderBy(p => p.ServiceDescription).ToList();
 
-                    return new ObservableCollection<ContractService>(contractService);
+                    return new ObservableCollection<ContractService>(contractServices);
                 }
             }
             catch (Exception ex)
@@ -96,7 +96,6 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                                 "ReadContractService",
                                                                 ApplicationMessage.MessageTypes.SystemError));
                 return null;
-
             }
         }
 
@@ -135,7 +134,12 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             }
             catch (Exception ex)
             {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ContractServiceModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "UpdateContractService",
+                                                                ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }
         }
