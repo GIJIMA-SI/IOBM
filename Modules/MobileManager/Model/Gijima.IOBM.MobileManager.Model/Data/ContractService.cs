@@ -14,10 +14,19 @@ namespace Gijima.IOBM.MobileManager.Model.Data
     
     public partial class ContractService
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public ContractService()
+        {
+            this.ClientServices = new HashSet<ClientService>();
+        }
+    
         public int pkContractServiceID { get; set; }
         public string ServiceDescription { get; set; }
         public string ModifiedBy { get; set; }
         public System.DateTime ModifiedDate { get; set; }
         public bool IsActive { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ClientService> ClientServices { get; set; }
     }
 }

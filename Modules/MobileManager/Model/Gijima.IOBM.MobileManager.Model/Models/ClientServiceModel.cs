@@ -69,9 +69,9 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// <summary>
         /// Read all client services from the database
         /// </summary>
-        /// <param name="excludeDefault">Flag to include or exclude the default entity.</param>
-        /// <returns>Collection of Device makes</returns>
-        public ObservableCollection<ClientService> ReadClientService(int contractID, bool excludeDefault = false)
+        /// <param name="contractID">The contract id linked to the contract services.</param>
+        /// <returns>Collection of client services</returns>
+        public ObservableCollection<ClientService> ReadClientService(int contractID)
         {
             try
             {
@@ -81,7 +81,6 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 {
                     clientService = ((DbQuery<ClientService>)(from clientServices in db.ClientServices
                                                               where contractID == clientServices.fkContractID
-                                                              where excludeDefault ? clientServices.pkClientServiceID > 0 : true
                                                               select clientServices)).ToList();
 
                     return new ObservableCollection<ClientService>(clientService);
@@ -111,10 +110,12 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 using (var db = MobileManagerEntities.GetContext())
                 {
                     ClientService existingClientService = db.ClientServices.Where(p => p.fkContractID == clientService.fkContractID && p.fkContractServiceID == clientService.fkContractServiceID).FirstOrDefault();
-                    
+
                     if (existingClientService != null)
+                    {
                         db.ClientServices.Remove(existingClientService);
-                    db.SaveChanges();
+                        db.SaveChanges();
+                    }
                     
                     return true;
                 }
@@ -125,7 +126,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                 .Publish(new ApplicationMessage("ClientServiceModel",
                                                                 string.Format("Error! {0}, {1}.",
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "UpdateClientService",
+                                                                "DeleteClientService",
                                                                 ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }

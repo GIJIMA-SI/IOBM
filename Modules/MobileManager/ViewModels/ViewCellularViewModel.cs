@@ -94,9 +94,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         if (StatusCollection != null)
                             SelectedStatus = value.Contract != null ? StatusCollection.Where(p => p.pkStatusID == value.Contract.fkStatusID).FirstOrDefault()
                                                                     : StatusCollection.Where(p => p.pkStatusID == 0).FirstOrDefault();
-                        //if (ContractServiceCollection != null)
-                        //    SelectedContractService = value.Contract != null ? ContractServiceCollection.Where(p => p.pkContractServiceID == ).FirstOrDefault()
-                        //                                            : ContractServiceCollection.Where(p => p.pkContractServiceID == 0).FirstOrDefault();
                         if (PackageCollection != null)
                             SelectedPackage = value.Contract != null ? PackageCollection.Where(p => p.pkPackageID == value.Contract.fkPackageID).FirstOrDefault()
                                                                      : PackageCollection.Where(p => p.pkPackageID == 0).FirstOrDefault();
@@ -122,6 +119,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         {
                             SelectedBillingYear = SelectedBillingMonth = string.Empty;
                         }
+                        Task.Run(() => ReadClientServicesAsync());
 
                         // Set billing properties
                         SetClientBilling(value.ClientBilling);
@@ -1761,6 +1759,45 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
         }
 
+        /// <summary>
+        /// Read all the selected contract service from the database to set the  
+        /// checkbox value in the contract services combobox 
+        /// </summary>
+        private async void ReadClientServicesAsync()
+        {
+            try
+            {
+                if (SelectedClient != null && SelectedClient.pkClientID > 0)
+                {
+                    IEnumerable<ClientService> clientServices = null;
+
+                    // Read all the selected contract service to set the  
+                    // checkbox value isthe contract services combobox
+                    if (ContractServiceCollection != null && ContractServiceCollection.Count > 0)
+                    {
+                        clientServices = await Task.Run(() => new ClientServiceModel(_eventAggregator).ReadClientService(SelectedClient.fkContractID));
+
+                        if (clientServices != null && clientServices.Count() > 0)
+                        {
+                            foreach (ClientService service in clientServices)
+                            {
+                                ContractServiceCollection.First(p => p.pkContractServiceID == service.fkContractServiceID).IsSelected = true;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ViewCellularViewModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ReadContractServicesAsync",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
+
         #region Lookup Data Loading
 
         /// <summary>
@@ -1850,13 +1887,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
-                IEnumerable<ClientService> clientServices = null;
                 ContractServiceCollection = await Task.Run(() => new ContractServiceModel(_eventAggregator).ReadContractService(true));
-
-                if (ContractServiceCollection != null && ContractServiceCollection.Count > 0)
-                {
-                    clientServices = await Task.Run(() => new ClientServiceModel(_eventAggregator).ReadClientService((true));
-                }
             }
             catch (Exception ex)
             {

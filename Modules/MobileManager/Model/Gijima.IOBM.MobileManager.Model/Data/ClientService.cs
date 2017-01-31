@@ -19,6 +19,8 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public int fkContractServiceID { get; set; }
         public string ModifiedBy { get; set; }
         public System.DateTime ModifiedDate { get; set; }
-        public bool IsActive { get; set; }
+    
+        public virtual Contract Contract { get; set; }
+        public virtual ContractService ContractService { get; set; }
     }
 }

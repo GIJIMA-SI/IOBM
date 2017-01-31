@@ -1,6 +1,6 @@
 ﻿namespace Gijima.IOBM.MobileManager.Model.Data
 {
-    public partial class ContarctService
+    public partial class ContractService
     {
         /// <summary>
         /// Returns if the contract service is selected

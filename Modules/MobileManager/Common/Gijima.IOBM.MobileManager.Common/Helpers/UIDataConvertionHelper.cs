@@ -2,6 +2,7 @@
 using Gijima.IOBM.Infrastructure.Structs;
 using Gijima.IOBM.MobileManager.Common.Structs;
 using System;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -90,6 +91,12 @@ namespace Gijima.IOBM.MobileManager.Common.Helpers
             {
                 if (val.Length > 0)
                     return val == "1" ? "Passed" : "Failed";
+            }
+
+            if (direction == "ContractServiceID")
+            {
+                if (val.Length > 0)
+                    return val == "0" ? Visibility.Collapsed : Visibility.Visible;
             }
 
             return null;
