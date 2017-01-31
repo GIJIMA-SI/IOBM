@@ -1,4 +1,5 @@
 ﻿using Gijima.IOBM.Infrastructure.Events;
+using Gijima.IOBM.Infrastructure.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Prism.Events;
 using System;
@@ -7,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Windows;
 
 namespace Gijima.IOBM.MobileManager.Model.Models
 {
@@ -46,13 +48,20 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     }
                     else
                     {
-                        return UpdateClientService(clientService);
+                        MessageBoxResult msgResult = MessageBox.Show("Error: The client service already exist!",
+                                                                 "Client Service Create", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return false;
                     }
                 }
             }
             catch (Exception ex)
             {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ClientServiceModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "CreateClientService",
+                                                                ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }
         }
@@ -80,38 +89,44 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             }
             catch (Exception ex)
             {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ClientServiceModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ReadClientService",
+                                                                ApplicationMessage.MessageTypes.SystemError));
                 return null;
             }
         }
 
         /// <summary>
-        /// Update an existing client service entity in the database
+        /// Delete an existing client service entity in the database
         /// </summary>
-        /// <param name="clientService">The client service entity to update.</param>
+        /// <param name="clientService">The client service entity to delete.</param>
         /// <returns>True if successfull</returns>
-        public bool UpdateClientService(ClientService clientService)
+        public bool DeleteClientService(ClientService clientService)
         {
             try
             {
                 using (var db = MobileManagerEntities.GetContext())
                 {
                     ClientService existingClientService = db.ClientServices.Where(p => p.fkContractID == clientService.fkContractID && p.fkContractServiceID == clientService.fkContractServiceID).FirstOrDefault();
-
-
-                    // Prevent primary key confilcts when using attach property
+                    
                     if (existingClientService != null)
-                        db.Entry(existingClientService).State = System.Data.Entity.EntityState.Detached;
-
-                    db.ClientServices.Attach(existingClientService);
-                    db.Entry(clientService).State = System.Data.Entity.EntityState.Modified;
+                        db.ClientServices.Remove(existingClientService);
                     db.SaveChanges();
+                    
                     return true;
                 }
             }
             catch (Exception ex)
             {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ClientServiceModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "UpdateClientService",
+                                                                ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }
         }

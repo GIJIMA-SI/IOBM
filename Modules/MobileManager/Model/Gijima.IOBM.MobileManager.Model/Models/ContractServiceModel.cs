@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Windows;
 
 namespace Gijima.IOBM.MobileManager.Model.Models
 {
@@ -30,27 +31,24 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// <summary>
         /// Create a new contract service entity in the database
         /// </summary>
-        /// <param name="contractService">The contract service entity to add.</param>
+        /// <param name="serviceModel">The contract service entity to add.</param>
         /// <returns>True if successfull</returns>
-        public bool CreateContractService(ContractService contractService)
+        public bool CreateContractService(ContractService serviceModel)
         {
             try
             {
                 using (var db = MobileManagerEntities.GetContext())
                 {
-                    if (!db.ContractServices.Any(p => p.ServiceDescription.ToUpper() == contractService.ServiceDescription))
+                    if (!db.ContractServices.Any(p => p.ServiceDescription.ToUpper() == serviceModel.ServiceDescription))
                     {
-                        db.ContractServices.Add(contractService);
+                        db.ContractServices.Add(serviceModel);
                         db.SaveChanges();
                         return true;
                     }
                     else
                     {
-                        _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                        .Publish(new ApplicationMessage("ContractServiceModel",
-                                                                        "This contract service already exist.",
-                                                                        "CreateContractService",
-                                                                        ApplicationMessage.MessageTypes.Information));
+                        MessageBoxResult msgResult = MessageBox.Show("Error: The contract service already exist!",
+                                                                 "Contract Service Save", MessageBoxButton.OK, MessageBoxImage.Error);
                         return false;
                     }
                 }
@@ -68,51 +66,58 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         }
 
         /// <summary>
-        /// Read all or active only contract services from the database
+        /// Read contract services from the database
         /// </summary>
         /// <param name="activeOnly">Flag to load all or active only entities.</param>
         /// <param name="excludeDefault">Flag to include or exclude the default entity.</param>
-        /// <returns>Collection of contract services</returns>
+        /// <returns>Collection of Contract Services</returns>
         public ObservableCollection<ContractService> ReadContractService(bool activeOnly, bool excludeDefault = false)
         {
             try
             {
-                IEnumerable<ContractService> deviceMakes = null;
+                IEnumerable<ContractService> contractService = null;
 
                 using (var db = MobileManagerEntities.GetContext())
                 {
-                    deviceMakes = ((DbQuery<ContractService>)(from contractService in db.ContractServices
-                                                         where activeOnly ? contractService.IsActive : true &&
-                                                               excludeDefault ? contractService.pkContractServiceID > 0 : true
+                    contractService = ((DbQuery<ContractService>)(from contractServices in db.ContractServices
+                                                         where activeOnly ? contractServices.IsActive : true &&
+                                                               excludeDefault ? contractServices.pkContractServiceID > 0 : true
                                                          select contractService)).OrderBy(p => p.ServiceDescription).ToList();
 
-                    return new ObservableCollection<ContractService>(deviceMakes);
+                    return new ObservableCollection<ContractService>(contractService);
                 }
             }
             catch (Exception ex)
             {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ContractServiceModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ReadContractService",
+                                                                ApplicationMessage.MessageTypes.SystemError));
                 return null;
+
             }
         }
 
         /// <summary>
-        /// Update an existing device make entity in the database
+        /// Update an existing cntract service entity in the database
         /// </summary>
-        /// <param name="deviceMake">The device make entity to update.</param>
+        /// <param name="contractService">The contract service entity to update.</param>
         /// <returns>True if successfull</returns>
-        public bool UpdateContractService(ContractService deviceMake)
+        public bool UpdateContractService(ContractService contractService)
         {
             try
             {
                 using (var db = MobileManagerEntities.GetContext())
                 {
-                    ContractService existingContractService = db.ContractServices.Where(p => p.ServiceDescription == deviceMake.ServiceDescription).FirstOrDefault();
+                    ContractService existingContractService = db.ContractServices.Where(p => p.ServiceDescription == contractService.ServiceDescription).FirstOrDefault();
 
-                    // Check to see if the device make description already exist for another entity 
-                    if (existingContractService != null && existingContractService.pkContractServiceID != deviceMake.pkContractServiceID)
+                    // Check to see if the contract service description already exist for another entity 
+                    if (existingContractService != null && existingContractService.pkContractServiceID != contractService.pkContractServiceID)
                     {
-                        //_eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(string.Format("The {0} device make already exist.", deviceMake.MakeDescription));
+                        MessageBoxResult msgResult = MessageBox.Show("Error: The contract service already exist!",
+                                                                                         "Contract Service Update", MessageBoxButton.OK, MessageBoxImage.Error);
                         return false;
                     }
                     else
@@ -121,8 +126,8 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         if (existingContractService != null)
                             db.Entry(existingContractService).State = System.Data.Entity.EntityState.Detached;
 
-                        db.ContractServices.Attach(deviceMake);
-                        db.Entry(deviceMake).State = System.Data.Entity.EntityState.Modified;
+                        db.ContractServices.Attach(contractService);
+                        db.Entry(contractService).State = System.Data.Entity.EntityState.Modified;
                         db.SaveChanges();
                         return true;
                     }
