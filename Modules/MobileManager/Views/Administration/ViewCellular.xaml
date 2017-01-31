@@ -312,13 +312,13 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <ComboBox x:Name="ComboBoxContractService"  Grid.Column="0" IsEditable="True" IsReadOnly="True" ItemsSource="{Binding ContractServiceCollection}" 
-                            ToolTip="Select the contract services." TabIndex="27">
+                        <ComboBox x:Name="ComboBoxContractService"  Grid.Column="0" IsEditable="True" IsReadOnly="True" ToolTip="Select the contract services." TabIndex="27"
+                            ItemsSource="{Binding ContractServiceCollection}" SelectedItem="{Binding SelectedContractService, UpdateSourceTrigger=PropertyChanged}" >
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <CheckBox IsChecked="{Binding IsSelected}" Margin="0,0,5,0" Visibility="{Binding pkContractServiceID, Converter={StaticResource UIDataConvertionHelper}, ConverterParameter='ContractServiceID'}" />
-                                        <TextBlock Text="{Binding ServiceDescription}" />
+                                        <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,5,0" Visibility="{Binding pkContractServiceID, Converter={StaticResource UIDataConvertionHelper}, ConverterParameter='ContractServiceID'}" />
+                                        <TextBlock Text="{Binding ServiceDescription, UpdateSourceTrigger=PropertyChanged}" />
                                     </StackPanel>
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
