@@ -112,7 +112,6 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 {
                     ClientService existingClientService = db.ClientServices.Where(p => p.fkContractID == clientService.fkContractID && p.fkContractServiceID == clientService.fkContractServiceID).FirstOrDefault();
                     
-                    // Prevent primary key confilcts when using attach property
                     if (existingClientService != null)
                         db.ClientServices.Remove(existingClientService);
                     db.SaveChanges();
