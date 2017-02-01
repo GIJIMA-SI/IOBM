@@ -106,7 +106,9 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     deviceModels = ((DbQuery<DeviceModel>)(from devicesModel in db.DeviceModels
                                                            where devicesModel.fkDeviceMakeID == deviceMakeID || 
                                                                  devicesModel.pkDeviceModelID == 0
-                                                           select devicesModel)).OrderBy(p => p.ModelDescription).ToList();
+                                                           select devicesModel)).Include("SimCard")
+                                                                                .Include("DeviceSimCard")
+                                                                                .OrderBy(p => p.ModelDescription).ToList();
 
                     if (activeOnly)
                         deviceModels = deviceModels.Where(p => p.IsActive);

@@ -12,7 +12,7 @@ using System.Windows;
 
 namespace Gijima.IOBM.MobileManager.Model.Models
 {
-    class DeviceSimCardModel
+    public class DeviceSimCardModel
     {
         #region Properties and Attributes
 

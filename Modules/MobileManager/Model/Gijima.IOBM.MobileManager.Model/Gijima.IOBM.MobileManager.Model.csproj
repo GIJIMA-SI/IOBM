@@ -146,6 +146,7 @@
     <Compile Include="Data\Extentions\ContractServiceExt.cs" />
     <Compile Include="Data\Extentions\DataValidationPropertyExt.cs" />
     <Compile Include="Data\Extentions\DataValidationRuleExt.cs" />
+    <Compile Include="Data\Extentions\DeviceSimCardExt.cs" />
     <Compile Include="Data\Extentions\Suburb.cs" />
     <Compile Include="Data\ExternalBillingData.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>

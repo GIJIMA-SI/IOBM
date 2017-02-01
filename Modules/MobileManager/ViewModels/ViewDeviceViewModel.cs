@@ -72,6 +72,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
                     // Link the device to its Simcard
                     //LinkDeviceToSimCard();
+                    if (SelectedDevice != null)
+                        SetSelectedDeviceSimCard();
                 }
             }
         }
@@ -96,6 +98,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _selectedSimCard, value); }
         }
         private SimCard _selectedSimCard;
+
+        /// <summary>
+        /// The selected sim card as a string
+        /// </summary>
+        public string SelectedSimCardCellNumber
+        {
+            get { return _selectedSimCardCellNumber; }
+            set { SetProperty(ref _selectedSimCardCellNumber, value); }
+        }
+        private string _selectedSimCardCellNumber = "";
 
         ///// <summary>
         ///// The selected device state
@@ -525,6 +537,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedDeviceMake = DeviceMakeCollection != null ? DeviceMakeCollection.Where(p => p.pkDeviceMakeID == 0).FirstOrDefault() : null;
             SelectedDeviceModel = DeviceModelCollection != null ? DeviceModelCollection.Where(p => p.pkDeviceModelID == 0).FirstOrDefault() : null;
             SelectedSimCard = SimCardCollection != null ? SimCardCollection.Where(p => p.pkSimCardID == 0).FirstOrDefault() : null;
+            SelectedSimCardCellNumber = SimCardCollection != null ? SimCardCollection.Where(p => p.pkSimCardID == 0).FirstOrDefault().CellNumber : null;
             SelectedStatus = StatusCollection != null ? StatusCollection.Where(p => p.pkStatusID == 0).FirstOrDefault() : null;
             SelectedReceivedDate = DateTime.Now;
             SelectedIMENumber = string.Empty;
@@ -592,6 +605,82 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 _eventAggregator.GetEvent<LinkDeviceSimCardEvent>().Publish(SelectedDevice.fkSimCardID.Value);
             else
                 _eventAggregator.GetEvent<LinkDeviceSimCardEvent>().Publish(0);
+        }
+
+        /// <summary>
+        /// Set the device selected simcards
+        /// </summary>
+        private void SetSelectedDeviceSimCard()
+        {
+            try
+            {
+                if (SelectedDevice != null)
+                {
+                    if (SimCardCollection != null && SimCardCollection.Count > 0)
+                    {
+                        foreach (DeviceSimCard deviceSimCard in SelectedDevice.DeviceSimCards)
+                        {
+                            SimCardCollection.First(p => p.pkSimCardID == deviceSimCard.fkSimCardID).IsSelected = true;
+                        }
+
+                        SelectedSimCardCellNumber = SimCardCollection.First(p => p.IsActive).CellNumber;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ViewCellularViewModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "SetSelectedDeviceSimCard",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
+
+        /// <summary>
+        /// Update the cellnumbers for the selected device
+        /// </summary>
+        private void UpdateDeviceSimCards()
+        {
+            try
+            {
+                if (SelectedDevice != null)
+                {
+                    if (SimCardCollection != null && SimCardCollection.Count > 0)
+                    {
+                        DeviceSimCardModel deviceSimCardModel = new DeviceSimCardModel(_eventAggregator);
+                        //Remove all the cellnumber entities for the device
+                        foreach (DeviceSimCard deviceSimCard in SelectedDevice.DeviceSimCards)
+                        {
+                            deviceSimCardModel.DeleteClientService(deviceSimCard);
+                        }
+                        //Create the newly selected cellnumber entities for the device
+                        foreach (SimCard simCard in SimCardCollection)
+                        {
+                            if (simCard.IsSelected == true)
+                            {
+                                DeviceSimCard deviceSimCard = new DeviceSimCard();
+                                deviceSimCard.fkDeviceID = SelectedDevice.pkDeviceID;
+                                deviceSimCard.fkSimCardID = simCard.pkSimCardID;
+                                deviceSimCard.ModifiedBy = SecurityHelper.LoggedInUserFullName;
+                                deviceSimCard.ModifiedDate = DateTime.Now;
+
+                                deviceSimCardModel.CreateClientService(deviceSimCard);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ViewCellularViewModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "UpdateDeviceSimCards",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+            }
         }
 
         #region Lookup Data Loading
@@ -767,7 +856,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedDevice.ModifiedBy = SecurityHelper.LoggedInUserFullName;
             SelectedDevice.ModifiedDate = DateTime.Now;
             SelectedDevice.IsActive = SelectedStatus.StatusDescription == Statuses.ISSUED.ToString() ? true : false;
-
+            UpdateDeviceSimCards();
             // Ensure a device that is in-active
             // gets un-linked from any simcards
             if (!SelectedDevice.IsActive)
