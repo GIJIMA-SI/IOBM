@@ -80,11 +80,8 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 using (var db = MobileManagerEntities.GetContext())
                 {
                     devicesSimCard = ((DbQuery<DeviceSimCard>)(from deviceSimcard in db.DeviceSimCards
-                                                              where deviceID == deviceSimcard.fkDeviceID
-                                                              select deviceSimcard)).Include("Devices")
-                                                                   .Include("Devices.DeviceMake")
-                                                                   .Include("Devices.DeviceModel")
-                                                                   .Include("Status").ToList();
+                                                               where deviceID == deviceSimcard.fkDeviceID
+                                                               select deviceSimcard)).Include("SimCard").ToList();
 
                     return new ObservableCollection<DeviceSimCard>(devicesSimCard);
                 }

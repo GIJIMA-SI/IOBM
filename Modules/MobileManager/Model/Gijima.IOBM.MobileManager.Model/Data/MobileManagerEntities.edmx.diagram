@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="a681782f449d481b91262e6c5a0d1ab6" Name="Diagram1" ZoomLevel="86">
+      <Diagram DiagramId="a681782f449d481b91262e6c5a0d1ab6" Name="Diagram1" ZoomLevel="117">
         <EntityTypeShape EntityType="MobileManagerModel.AppSetting" Width="1.5" PointX="9.625" PointY="4.5" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.AuditLog" Width="1.5" PointX="11.125" PointY="2.125" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.BillingLevel" Width="1.5" PointX="0.875" PointY="7.625" IsExpanded="false" />
@@ -81,7 +81,7 @@
         <EntityTypeShape EntityType="MobileManagerModel.ContractService" Width="1.5" PointX="0.625" PointY="9.25" IsExpanded="false" />
         <AssociationConnector Association="MobileManagerModel.FK_ClientService_ClientService" />
         <AssociationConnector Association="MobileManagerModel.FK_ClientService_Contract" />
-        <EntityTypeShape EntityType="MobileManagerModel.DeviceSimCard" Width="1.5" PointX="9" PointY="2.5" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.DeviceSimCard" Width="1.5" PointX="8.375" PointY="3.375" IsExpanded="false" />
         <AssociationConnector Association="MobileManagerModel.FK_DeviceSimCard_Device" />
         <AssociationConnector Association="MobileManagerModel.FK_DeviceSimCard_SimCard" />
         </Diagram>

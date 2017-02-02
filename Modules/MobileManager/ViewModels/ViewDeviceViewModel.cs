@@ -72,6 +72,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
                     // Link the device to its Simcard
                     //LinkDeviceToSimCard();
+
+                    //Set the selected sim cards for the selected device
                     if (SelectedDevice != null)
                         SetSelectedDeviceSimCard();
                 }
@@ -618,6 +620,21 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 {
                     if (SimCardCollection != null && SimCardCollection.Count > 0)
                     {
+                        //Set each sim card selected value to false since the second foreach
+                        //only set true and never false for sims not selected when switched
+                        foreach (SimCard simCard in SimCardCollection)
+                        {
+                            simCard.IsSelected = false;
+                        }
+
+                        //Create a tmp SimCard and set SimCardCollection to null collection 
+                        //else UI don't update 
+                        ObservableCollection<SimCard> tmpSimCard = new ObservableCollection<SimCard>();
+                        tmpSimCard = SimCardCollection;
+                        SimCardCollection = null;
+                        SimCardCollection = tmpSimCard;
+
+                        //Purpose of the method
                         foreach (DeviceSimCard deviceSimCard in SelectedDevice.DeviceSimCards)
                         {
                             SimCardCollection.First(p => p.pkSimCardID == deviceSimCard.fkSimCardID).IsSelected = true;
@@ -743,17 +760,17 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             {
                 if (MobileManagerEnvironment.ClientContractID > 0)
                     SimCardCollection = await Task.Run(() => new SimCardModel(_eventAggregator).ReadSimCardsForContract(MobileManagerEnvironment.ClientContractID));
-
+                
                 SimCard defaultItem = new SimCard();
                 defaultItem.pkSimCardID = 0;
                 defaultItem.CellNumber = "-- Please Select --";
                 SimCardCollection.Add(defaultItem);
-
+                
                 if (SimCardCollection.Count > 1)
                 {
                     // Get the primary simcard
                     SimCard primarySimcard = SimCardCollection.Where(p => p.CellNumber == MobileManagerEnvironment.ClientPrimaryCell).FirstOrDefault();
-
+                    
                     if (DeviceCollection != null && DeviceCollection.Count > 0)
                     {
                         // Set the selected device the one linked to the primary simcard

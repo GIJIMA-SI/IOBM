@@ -146,7 +146,7 @@
                     ItemsSource="{Binding SimCardCollection}" DisplayMemberPath="CellNumber" SelectedItem="{Binding SelectedSimCard}">
                 </ComboBox>-->
                 <ComboBox x:Name="ComboBoxContractService" Grid.Row="2" Grid.Column="4" IsEditable="True" IsReadOnly="True" ToolTip="Select the sim cards linked to the device." TabIndex="27"
-                            ItemsSource="{Binding SimCardCollection}" SelectedItem="{Binding SelectedSimCard, UpdateSourceTrigger=PropertyChanged}" >
+                            ItemsSource="{Binding SimCardCollection}" SelectedItem="{Binding SelectedSimCard, UpdateSourceTrigger=PropertyChanged}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
