@@ -228,7 +228,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             {
                 SetProperty(ref _otherIDNumber, value);
                 if (value == true)
-                    ValidClientIDNumber = Brushes.Silver;
+                    ValidClientIDNumber = SelectedClientIDNumber == null || SelectedClientIDNumber.Length != 13 ? Brushes.Red : Brushes.Silver;
             }
         }
         private bool _otherIDNumber;
@@ -2066,7 +2066,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 result = SelectedClient != null && SelectedClientLocation != null && SelectedClientLocation.pkClientLocationID > 0 &&
                          SelectedCompany != null && SelectedCompany.pkCompanyID > 0 && SelectedSuburb != null && SelectedSuburb.pkSuburbID > 0 &&
                          !string.IsNullOrEmpty(SelectedCellNumber) && SelectedCellNumber.Length == 10 && !string.IsNullOrEmpty(SelectedClientName) &&
-                         !string.IsNullOrEmpty(SelectedClientIDNumber) && (SaIDNumber ? SelectedClientIDNumber.Length == 13 : true) &&
+                         !string.IsNullOrEmpty(SelectedClientIDNumber) && (SaIDNumber || OtherIDNumber ? SelectedClientIDNumber.Length == 13 : true) &&
                          !string.IsNullOrEmpty(SelectedClientWBSNumber) &&
                          !string.IsNullOrEmpty(SelectedClientCostCode) && !string.IsNullOrEmpty(SelectedClientAddressLine) &&
                          !string.IsNullOrWhiteSpace(SelectedClientAdminFee) && (CompanyClient ? Convert.ToDecimal(SelectedClientAdminFee) > 0 : true);

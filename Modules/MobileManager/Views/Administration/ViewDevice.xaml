@@ -142,7 +142,7 @@
                         IsChecked="{Binding DeviceInsuranceNo, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidInsurance}"/>
                 </StackPanel>
                 <TextBlock Grid.Row="2" Grid.Column="3" Text="Sim crd:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <ComboBox x:Name="ComboBoxContractService" Grid.Row="2" Grid.Column="4" IsEditable="True" IsReadOnly="True" ToolTip="Select the sim cards linked to the device." TabIndex="27"
+                <ComboBox x:Name="ComboBoxContractService" Grid.Row="2" Grid.Column="4" IsEditable="True" IsReadOnly="True" ToolTip="Select the sim cards linked to the device." TabIndex="66"
                             ItemsSource="{Binding SimCardCollection}"  Text="{Binding SelectedSimCardCellNumber, UpdateSourceTrigger=PropertyChanged}"  SelectedItem="{Binding SelectedSimCardCellNumber, UpdateSourceTrigger=PropertyChanged}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate >
