@@ -1,4 +1,4 @@
-﻿<UserControl xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"  x:Class="Gijima.IOBM.MobileManager.Views.ViewCellular"
+﻿<UserControl xmlns:WPF="clr-namespace:Gijima.Controls.WPF;assembly=Gijima.Controls.WPF"  xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"  x:Class="Gijima.IOBM.MobileManager.Views.ViewCellular"
              xmlns:mmc="clr-namespace:Gijima.IOBM.MobileManager.Views"
              xmlns:local="clr-namespace:Gijima.IOBM.MobileManager.Views"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -312,17 +312,9 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <ComboBox x:Name="ComboBoxContractService"  Grid.Column="0" IsEditable="True" IsReadOnly="True" ToolTip="Select the contract services." TabIndex="27"
-                            ItemsSource="{Binding ContractServiceCollection}" SelectedItem="{Binding SelectedContractService, UpdateSourceTrigger=PropertyChanged}" >
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,5,0" Visibility="{Binding pkContractServiceID, Converter={StaticResource UIDataConvertionHelper}, ConverterParameter='ContractServiceID'}" />
-                                        <TextBlock Text="{Binding ServiceDescription, UpdateSourceTrigger=PropertyChanged}" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
+                        <WPF:MultiSelectComboBoxUX x:Name="ComboBoxContractService"  Grid.Column="0" ToolTip="Select the contract services." TabIndex="27" Height="22"
+                            DefaultText="-- Please Select --" ItemsSource="{Binding ContractServiceCollection, UpdateSourceTrigger=PropertyChanged}" SelectedItems="{Binding SelectedContractServiceCollection, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        </WPF:MultiSelectComboBoxUX>
                         <Button x:Name="ButtonContractSeviceCrud" Grid.Column="1" Margin="2,0,0,0" ToolTip="Add, edit or delete contract service." TabIndex="28" Height="22"
                             Style="{StaticResource UXImageButtonStyle}" Command="{Binding ContractServiceCommand}">
                             <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/edit_32.png" />

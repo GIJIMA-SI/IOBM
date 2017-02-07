@@ -97,39 +97,5 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 return null;
             }
         }
-
-        /// <summary>
-        /// Delete an existing client service entity in the database
-        /// </summary>
-        /// <param name="clientService">The client service entity to delete.</param>
-        /// <returns>True if successfull</returns>
-        public bool DeleteClientService(ClientService clientService)
-        {
-            try
-            {
-                using (var db = MobileManagerEntities.GetContext())
-                {
-                    ClientService existingClientService = db.ClientServices.Where(p => p.fkContractID == clientService.fkContractID && p.fkContractServiceID == clientService.fkContractServiceID).FirstOrDefault();
-
-                    if (existingClientService != null)
-                    {
-                        db.ClientServices.Remove(existingClientService);
-                        db.SaveChanges();
-                    }
-                    
-                    return true;
-                }
-            }
-            catch (Exception ex)
-            {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("ClientServiceModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "DeleteClientService",
-                                                                ApplicationMessage.MessageTypes.SystemError));
-                return false;
-            }
-        }
     }
 }

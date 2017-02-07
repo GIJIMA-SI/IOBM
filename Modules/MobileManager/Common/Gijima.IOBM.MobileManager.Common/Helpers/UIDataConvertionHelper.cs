@@ -93,12 +93,6 @@ namespace Gijima.IOBM.MobileManager.Common.Helpers
                     return val == "1" ? "Passed" : "Failed";
             }
 
-            if (direction == "ContractServiceID")
-            {
-                if (val.Length > 0)
-                    return val == "0" ? Visibility.Collapsed : Visibility.Visible;
-            }
-
             return null;
         }
 

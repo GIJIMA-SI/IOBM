@@ -152,6 +152,9 @@
     <Compile Include="DualListBoxUX.xaml.cs">
       <DependentUpon>DualListBoxUX.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MultiSelectComboBoxUX.xaml.cs">
+      <DependentUpon>MultiSelectComboBoxUX.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -194,6 +197,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="DualListBoxUX.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MultiSelectComboBoxUX.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

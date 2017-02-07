@@ -80,8 +80,8 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 using (var db = MobileManagerEntities.GetContext())
                 {
                         contractServices = ((DbQuery<ContractService>)(from service in db.ContractServices
-                                                                       where activeOnly ? service.IsActive : true &&
-                                                                             excludeDefault ? service.pkContractServiceID > 0 : true
+                                                                       where (activeOnly ? service.IsActive : true) &&
+                                                                             (excludeDefault ? service.pkContractServiceID > 0 : true)
                                                                        select service)).OrderBy(p => p.ServiceDescription).ToList();
 
                     return new ObservableCollection<ContractService>(contractServices);

@@ -403,5 +403,38 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 return false;
             }
         }
+
+        /// <summary>
+        /// Update the clients selected contract services in the database
+        /// </summary>
+        /// <param name="clientServices">The list of contract services for the client.</param>
+        /// <returns>True if successfull</returns>
+        public bool UpdateClientServices(Dictionary<string, object> clientServices)
+        {
+            try
+            {
+                bool result = false;
+
+                    using (var db = MobileManagerEntities.GetContext())
+                    {
+
+
+                            //_activityLogger.CreateDataChangeAudits<Client>(_dataActivityHelper.GetDataChangeActivities<Client>(existingClient, client, client.fkContractID, db));
+                            result = true;
+                    }
+
+                    return result;
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ClientModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "UpdateClientServices",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+                return false;
+            }
+        }
     }
 }
