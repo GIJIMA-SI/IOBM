@@ -417,10 +417,41 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                     using (var db = MobileManagerEntities.GetContext())
                     {
+                        if (ContractServiceCollection != null && ContractServiceCollection.Count > 0)
+                        {
+                            foreach (KeyValuePair<string, object> service in selectedContractServices)
+                            {
+                                //_nodeList.Add(new Node(keyValue.Key));
+                            }
 
+                            ClientServiceModel clientServiceModel = new ClientServiceModel(_eventAggregator);
+                            //Remove the selected client services.
+                            //foreach (ClientService service in SelectedContract.ClientServices)
+                            //{
+                            //    clientServiceModel.DeleteClientService(service);
+                            //}
+                            //Create the newly selected client services.
+                            foreach (KeyValuePair<string, object> service in selectedContractServices)
+                            {
+                                //_nodeList.Add(new Node(keyValue.Key));
+                            }
+                            //foreach (ContractService service in ContractServiceCollection)
+                            //{
+                            //    if (service.IsSelected == true)
+                            //    {
+                            //        ClientService clientService = new ClientService();
+                            //        clientService.fkContractID = SelectedClient.fkContractID;
+                            //        clientService.fkContractServiceID = service.pkContractServiceID;
+                            //        clientService.ModifiedBy = SecurityHelper.LoggedInUserFullName;
+                            //        clientService.ModifiedDate = DateTime.Now;
 
-                            //_activityLogger.CreateDataChangeAudits<Client>(_dataActivityHelper.GetDataChangeActivities<Client>(existingClient, client, client.fkContractID, db));
-                            result = true;
+                            //        clientServiceModel.CreateClientService(clientService);
+                            //    }
+                            //}
+                        }
+
+                    //_activityLogger.CreateDataChangeAudits<Client>(_dataActivityHelper.GetDataChangeActivities<Client>(existingClient, client, client.fkContractID, db));
+                    result = true;
                     }
 
                     return result;

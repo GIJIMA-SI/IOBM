@@ -467,6 +467,6 @@
                     SelectedDate="{Binding SelectedClientBilling.StopBillingToDate, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding SplitBilling}"/>
             </Grid>
         </GroupBox>
-        <xctk:CheckComboBox Grid.Column="1" HorizontalAlignment="Left" Height="100" Margin="842,140,-466,0" Grid.Row="1" VerticalAlignment="Top" Width="100"/>
+        <!--<xctk:CheckComboBox Grid.Column="1" HorizontalAlignment="Left" Height="100" Margin="842,140,-466,0" Grid.Row="1" VerticalAlignment="Top" Width="100"/>-->
     </Grid>
 </UserControl>

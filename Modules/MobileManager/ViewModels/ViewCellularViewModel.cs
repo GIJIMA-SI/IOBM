@@ -426,16 +426,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private ObservableCollection<Status> _statusCollection = null;
 
         /// <summary>
-        /// The collection of statuses from the database
-        /// </summary>
-        public ObservableCollection<ContractService> ContractServiceCollection
-        {
-            get { return _contractServiceCollection; }
-            set { SetProperty(ref _contractServiceCollection, value); }
-        }
-        private ObservableCollection<ContractService> _contractServiceCollection = null;
-
-        /// <summary>
         /// The collection of packages from the database
         /// </summary>
         public ObservableCollection<Package> PackageCollection
@@ -474,6 +464,26 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _paymentYearCollection, value); }
         }
         private List<string> _paymentYearCollection = null;
+
+        /// <summary>
+        /// The collection of contract services from the database
+        /// </summary>
+        public Dictionary<string, object> ContractServiceCollection
+        {
+            get { return _contractServiceCollection; }
+            set { SetProperty(ref _contractServiceCollection, value); }
+        }
+        private Dictionary<string, object> _contractServiceCollection = null;
+
+        /// <summary>
+        /// The collection of the selected contract services
+        /// </summary>
+        public Dictionary<string, object> SelectedContractServiceCollection
+        {
+            get { return _selectedContractServiceCollection; }
+            set { SetProperty(ref _selectedContractServiceCollection, value); }
+        }
+        private Dictionary<string, object> _selectedContractServiceCollection = null;
 
         #endregion
 
@@ -1538,7 +1548,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedClientLocation = ClientLocationCollection != null ? ClientLocationCollection.Where(p => p.pkClientLocationID == 0).FirstOrDefault() : null;
             SelectedSuburb = SuburbCollection != null ? SuburbCollection.Where(p => p.pkSuburbID == 0).FirstOrDefault() : null;
             SelectedStatus = StatusCollection != null ? StatusCollection.Where(p => p.pkStatusID == 0).FirstOrDefault() : null;
-            SelectedServiceDescription = ContractServiceCollection != null ? ContractServiceCollection.Where(p => p.pkContractServiceID == 0).FirstOrDefault().ServiceDescription : null;
             SelectedPackage = PackageCollection != null ? PackageCollection.Where(p => p.pkPackageID == 0).FirstOrDefault() : null;
             SetClientBilling(null);
             SelectedCellNumber = SelectedClientName = SelectedClientIDNumber = SelectedClientAddressLine = SelectedContractAccNumber = string.Empty;
@@ -1652,18 +1661,18 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
-                if (SelectedContract.ClientServices != null && SelectedContract.ClientServices.Count() > 0)
-                {
-                    if (ContractServiceCollection != null && ContractServiceCollection.Count > 0)
-                    {
-                        foreach (ClientService service in SelectedContract.ClientServices)
-                        {
-                            ContractServiceCollection.First(p => p.pkContractServiceID == service.fkContractServiceID).IsSelected = true;
-                        }
+                //if (SelectedContract.ClientServices != null && SelectedContract.ClientServices.Count() > 0)
+                //{
+                //    if (ContractServiceCollection != null && ContractServiceCollection.Count > 0)
+                //    {
+                //        foreach (ClientService service in SelectedContract.ClientServices)
+                //        {
+                //            ContractServiceCollection.First(p => p.pkContractServiceID == service.fkContractServiceID).IsSelected = true;
+                //        }
 
-                        SelectedServiceDescription = ContractServiceCollection.First(p => p.IsSelected).ServiceDescription;
-                    }
-                }
+                //        SelectedServiceDescription = ContractServiceCollection.First(p => p.IsSelected).ServiceDescription;
+                //    }
+                //}
             }
             catch (Exception ex)
             {
@@ -1672,51 +1681,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                 string.Format("Error! {0}, {1}.",
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
                                                                 "SetClientContractServices",
-                                                                ApplicationMessage.MessageTypes.SystemError));
-            }
-        }
-
-        /// <summary>
-        /// Update the selected client contract services
-        /// </summary>
-        private void UpdateClientContractService()
-        {
-            try
-            {
-                if (SelectedContract.ClientServices != null)
-                {
-                    if (ContractServiceCollection != null && ContractServiceCollection.Count > 0)
-                    {
-                        ClientServiceModel clientServiceModel = new ClientServiceModel(_eventAggregator);
-                        //Remove the selected client services.
-                        foreach (ClientService service in SelectedContract.ClientServices)
-                        {
-                            clientServiceModel.DeleteClientService(service);
-                        }
-                        //Create the newly selected client services.
-                        foreach (ContractService service in ContractServiceCollection)
-                        {
-                            if (service.IsSelected == true)
-                            {
-                                ClientService clientService = new ClientService();
-                                clientService.fkContractID = SelectedClient.fkContractID;
-                                clientService.fkContractServiceID = service.pkContractServiceID;
-                                clientService.ModifiedBy = SecurityHelper.LoggedInUserFullName;
-                                clientService.ModifiedDate = DateTime.Now;
-
-                                clientServiceModel.CreateClientService(clientService);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("ViewCellularViewModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "UpdateClientContractService",
                                                                 ApplicationMessage.MessageTypes.SystemError));
             }
         }
@@ -1793,7 +1757,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                 ApplicationMessage.MessageTypes.SystemError));
             }
         }
-
 
         #region Lookup Data Loading
 
@@ -1884,7 +1847,15 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
-                ContractServiceCollection = await Task.Run(() => new ContractServiceModel(_eventAggregator).ReadContractService(true));
+                IEnumerable<ContractService> services = await Task.Run(() => new ContractServiceModel(_eventAggregator).ReadContractService(true, true));
+                ContractServiceCollection = new Dictionary<string, object>();
+
+                foreach (ContractService service in services)
+                {
+                    ContractServiceCollection.Add(service.ServiceDescription, service.pkContractServiceID);
+                }
+
+                ContractServiceCollection = new Dictionary<string, object>(ContractServiceCollection);
             }
             catch (Exception ex)
             {
@@ -2142,10 +2113,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 SelectedClient.Contract.ContractUpgradeDate = SelectedContract != null ? SelectedContract.ContractUpgradeDate : null;
                 SelectedClient.Contract.PaymentCancelPeriod = !string.IsNullOrEmpty(SelectedBillingYear) && !string.IsNullOrEmpty(SelectedBillingMonth) ? string.Format("{0}/{1}", SelectedBillingYear, SelectedBillingMonth) : null;
 
-                //if (SelectedClient.Contract.ClientServices == null)
-                //    SelectedClient.Contract.ClientServices = new
-                UpdateClientContractService();
-
                 SelectedClient.Contract.ModifiedBy = SecurityHelper.LoggedInUserFullName;
                 SelectedClient.Contract.ModifiedDate = DateTime.Now;
                 SelectedClient.Contract.IsActive = SelectedClientState;
@@ -2189,9 +2156,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 else
                     result = _model.UpdateClient(SelectedClient);
 
-                // Auto save the device and sim card data
+                // Save other linked client data 
                 if (result && SelectedClientState)
                 {
+                    // Update the client's contract services if and were selected
+                    if (SelectedContractServiceCollection != null && SelectedContractServiceCollection.Count > 0)
+                    {
+                        _
+                    }
+
+                    // Raise the events to update the device and simcard data
                     _eventAggregator.GetEvent<SaveDeviceEvent>().Publish(SelectedContract.pkContractID);
                     _eventAggregator.GetEvent<SaveSimCardEvent>().Publish(SelectedContract.pkContractID);
                 }
