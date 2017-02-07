@@ -139,10 +139,14 @@
     <Compile Include="Data\DeviceModel.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Data\DeviceSimCard.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="Data\Extentions\CompanyExt.cs" />
     <Compile Include="Data\Extentions\ContractServiceExt.cs" />
     <Compile Include="Data\Extentions\DataValidationPropertyExt.cs" />
     <Compile Include="Data\Extentions\DataValidationRuleExt.cs" />
+    <Compile Include="Data\Extentions\DeviceSimCardExt.cs" />
     <Compile Include="Data\Extentions\Suburb.cs" />
     <Compile Include="Data\ExternalBillingData.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
@@ -227,6 +231,7 @@
     <Compile Include="Models\ContractModel.cs" />
     <Compile Include="Models\ContractServiceModel.cs" />
     <Compile Include="Models\DataImportRuleModel.cs" />
+    <Compile Include="Models\DeviceSimCardModel.cs" />
     <Compile Include="Models\DevicesMakeModel.cs" />
     <Compile Include="Models\DevicesModel.cs" />
     <Compile Include="Models\DevicesModelModel.cs" />

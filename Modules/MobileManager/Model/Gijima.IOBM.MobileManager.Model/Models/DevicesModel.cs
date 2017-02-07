@@ -111,7 +111,9 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     devices = ((DbQuery<Device>)(from device in db.Devices
                                                  where activeOnly ? device.IsActive : true &&
                                                        excludeDefault ? device.pkDeviceID > 0 : true
-                                                 select device)).OrderBy(p => p.DeviceMake.MakeDescription).ToList();
+                                                 select device)).OrderBy(p => p.DeviceMake.MakeDescription)
+                                                 .Include("DeviceSimCard")
+                                                 .Include("SimCard").ToList();
 
                     return new ObservableCollection<Device>(devices);
                 }
@@ -146,7 +148,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                  where device.fkContractID == contractID
                                                  select device)).Include("DeviceMake")
                                                                 .Include("DeviceModel")
-                                                                .Include("SimCard")
+                                                                .Include("DeviceSimCards")
                                                                 .Include("Status")
                                                                 .OrderByDescending(p => p.IsActive)
                                                                 .ThenBy(p => p.Status.StatusDescription).ToList();

@@ -79,10 +79,10 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                 using (var db = MobileManagerEntities.GetContext())
                 {
-                        contractServices = ((DbQuery<ContractService>)(from service in db.ContractServices
-                                                                       where (activeOnly ? service.IsActive : true) &&
-                                                                             (excludeDefault ? service.pkContractServiceID > 0 : true)
-                                                                       select service)).OrderBy(p => p.ServiceDescription).ToList();
+                    contractServices = ((DbQuery<ContractService>)(from service in db.ContractServices
+                                                                   where activeOnly ? service.IsActive : true &&
+                                                                         excludeDefault ? service.pkContractServiceID > 0 : true
+                                                                   select service)).OrderBy(p => p.ServiceDescription).ToList();
 
                     return new ObservableCollection<ContractService>(contractServices);
                 }
@@ -134,7 +134,12 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             }
             catch (Exception ex)
             {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ContractServiceModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "UpdateContractService",
+                                                                ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }
         }

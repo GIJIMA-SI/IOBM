@@ -142,8 +142,16 @@
                         IsChecked="{Binding DeviceInsuranceNo, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidInsurance}"/>
                 </StackPanel>
                 <TextBlock Grid.Row="2" Grid.Column="3" Text="Sim crd:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <ComboBox x:Name="ComboBoxSimCards" Grid.Row="2" Grid.Column="4" ToolTip="Select the sim card linked to the device." TabIndex="66"
-                    ItemsSource="{Binding SimCardCollection}" DisplayMemberPath="CellNumber" SelectedItem="{Binding SelectedSimCard}">
+                <ComboBox x:Name="ComboBoxContractService" Grid.Row="2" Grid.Column="4" IsEditable="True" IsReadOnly="True" ToolTip="Select the sim cards linked to the device." TabIndex="66"
+                            ItemsSource="{Binding SimCardCollection}"  Text="{Binding SelectedSimCardCellNumber, UpdateSourceTrigger=PropertyChanged}"  SelectedItem="{Binding SelectedSimCardCellNumber, UpdateSourceTrigger=PropertyChanged}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate >
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,5,0" Visibility="{Binding pkDeviceSimCardID, Converter={StaticResource UIDataConvertionHelper}, ConverterParameter='DeviceSimCardID'}" />
+                                <TextBlock Text="{Binding CellNumber, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
                 </ComboBox>
                 <TextBlock Grid.Row="8" Grid.Column="0" Text="Insr value:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
                 <TextBox x:Name="TextBoxInsuranceValue" Grid.Row="8" Grid.Column="1" TabIndex="72" ToolTip="Enter the insurance value." Style="{StaticResource UXTextBoxStyle}"

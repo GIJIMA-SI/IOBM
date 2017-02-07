@@ -12,15 +12,15 @@ namespace Gijima.IOBM.MobileManager.Model.Data
     using System;
     using System.Collections.Generic;
     
-    public partial class ClientService
+    public partial class DeviceSimCard
     {
-        public int pkClientServiceID { get; set; }
-        public int fkContractID { get; set; }
-        public int fkContractServiceID { get; set; }
+        public int pkDeviceSimCardD { get; set; }
+        public int fkDeviceID { get; set; }
+        public int fkSimCardID { get; set; }
         public string ModifiedBy { get; set; }
         public System.DateTime ModifiedDate { get; set; }
     
-        public virtual ContractService ContractService { get; set; }
-        public virtual Contract Contract { get; set; }
+        public virtual Device Device { get; set; }
+        public virtual SimCard SimCard { get; set; }
     }
 }

@@ -104,7 +104,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 using (var db = MobileManagerEntities.GetContext())
                 {
                     deviceModels = ((DbQuery<DeviceModel>)(from devicesModel in db.DeviceModels
-                                                           where devicesModel.fkDeviceMakeID == deviceMakeID || 
+                                                           where devicesModel.fkDeviceMakeID == deviceMakeID ||
                                                                  devicesModel.pkDeviceModelID == 0
                                                            select devicesModel)).OrderBy(p => p.ModelDescription).ToList();
 

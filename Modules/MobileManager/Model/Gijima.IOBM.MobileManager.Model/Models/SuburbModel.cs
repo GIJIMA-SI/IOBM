@@ -42,9 +42,9 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 {
                     //if (!db.Suburbs.Any(p => p.SuburbName.ToUpper() == suburb.SuburbName))
                     //{
-                        db.Suburbs.Add(suburb);
-                        db.SaveChanges();
-                        return true;
+                    db.Suburbs.Add(suburb);
+                    db.SaveChanges();
+                    return true;
                     //}
                     //else
                     //{
@@ -112,25 +112,21 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 using (var db = MobileManagerEntities.GetContext())
                 {
                     Suburb existingSuburb = db.Suburbs.Where(p => p.SuburbName == suburb.SuburbName).FirstOrDefault();
-
+                                        
                     // Check to see if the suburb description already exist for another entity 
                     if (existingSuburb != null && existingSuburb.pkSuburbID != suburb.pkSuburbID)
                     {
-                        _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                        .Publish(new ApplicationMessage("SuburbModel",
-                                                                        "This suburb already exist.",
-                                                                        "UpdateSuburb",
-                                                                        ApplicationMessage.MessageTypes.Information));
+                        //_eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(string.Format("The {0} province already exist.", province.ProvinceName));
                         return false;
                     }
                     else
                     {
-                        existingSuburb.fkCityID = suburb.fkCityID;
-                        existingSuburb.SuburbName = suburb.SuburbName;
-                        existingSuburb.PostalCode = suburb.PostalCode;
-                        existingSuburb.IsActive = suburb.IsActive;
-                        existingSuburb.ModifiedBy = suburb.ModifiedBy;
-                        existingSuburb.ModifiedDate = suburb.ModifiedDate;
+                        // Prevent primary key confilcts when using attach property
+                        if (existingSuburb != null)
+                            db.Entry(existingSuburb).State = System.Data.Entity.EntityState.Detached;
+
+                        db.Suburbs.Attach(suburb);
+                        db.Entry(suburb).State = System.Data.Entity.EntityState.Modified;
                         db.SaveChanges();
                         return true;
                     }
