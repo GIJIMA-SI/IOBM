@@ -1531,7 +1531,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Set default values to view properties
         /// </summary>
-        private void InitialiseViewControls()
+        private async void InitialiseViewControls()
         {
             SelectedClient = null;
             SelectedContract = null;
@@ -1548,13 +1548,13 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedClientAdminFee = "0";
             SelectedClientState = SaIDNumber = CompanyClient = CanSetSplitBilling = true;
             SelectedCostType = SelectedPackageType = "NONE";
-            SelectedContractServiceCollection = new Dictionary<string, object>();
             DeleteButtonImage = "278.png";
             DeleteButtonToolTip = "active";
             MobileManagerEnvironment.ClientID = 0;
             MobileManagerEnvironment.ClientCompanyID = 0;
             MobileManagerEnvironment.ClientContractID = 0;
             MobileManagerEnvironment.ClientPrimaryCell = string.Empty;
+            await ReadContractServicesAsync();
 
             // Publish the event to clear the device view
             _eventAggregator.GetEvent<ReadDevicesEvent>().Publish(0);
