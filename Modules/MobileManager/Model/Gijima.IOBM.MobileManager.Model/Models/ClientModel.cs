@@ -220,7 +220,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 return 0;
             }
         }
-        
+
         /// <summary>
         /// Update an existing client entity in the database
         /// </summary>
@@ -399,6 +399,56 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                                 string.Format("Error! {0}, {1}.",
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
                                                                 "UpdateClient",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Update the clients selected contract services in the database
+        /// </summary>
+        /// <param name="clientServices">The list of contract services for the client.</param>
+        /// <returns>True if successfull</returns>
+        public bool UpdateClientServices(Client client, string modifiedby, Dictionary<string, object> clientServices)
+        {
+            try
+            {
+                bool result = false;
+
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    if (clientServices != null && clientServices.Count > 0)
+                    {
+                        //Remove all previous entries
+                        db.ClientServices.RemoveRange(db.ClientServices.Where(x => x.fkContractID == client.fkContractID));
+                        
+                        //Create new entry for each selected service
+                        foreach (KeyValuePair<string, object> service in clientServices)
+                        {
+                            ClientService clientService = new ClientService();
+                            clientService.fkContractID = client.fkContractID;
+                            clientService.fkContractServiceID = Convert.ToInt32(service.Value.ToString());
+                            clientService.ModifiedBy = modifiedby;
+                            clientService.ModifiedDate = DateTime.Now;
+
+                            db.ClientServices.Add(clientService);
+                        }
+                        db.SaveChanges();
+                    }
+
+                    //_activityLogger.CreateDataChangeAudits<Client>(_dataActivityHelper.GetDataChangeActivities<Client>(existingClient, client, client.fkContractID, db));
+                    result = true;
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ClientModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "UpdateClientServices",
                                                                 ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }

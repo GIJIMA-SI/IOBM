@@ -313,7 +313,7 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <WPF:MultiSelectComboBoxUX x:Name="ComboBoxContractService"  Grid.Column="0" ToolTip="Select the contract services." TabIndex="27" Height="22"
-                            DefaultText="-- Please Select --" ItemsSource="{Binding ContractServiceCollection, UpdateSourceTrigger=PropertyChanged}" SelectedItems="{Binding SelectedContractServiceCollection, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                            DefaultText="-- Please Select --" ItemsSource="{Binding ContractServiceCollection, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" SelectedItems="{Binding SelectedContractServiceCollection, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                         </WPF:MultiSelectComboBoxUX>
                         <Button x:Name="ButtonContractSeviceCrud" Grid.Column="1" Margin="2,0,0,0" ToolTip="Add, edit or delete contract service." TabIndex="28" Height="22"
                             Style="{StaticResource UXImageButtonStyle}" Command="{Binding ContractServiceCommand}">

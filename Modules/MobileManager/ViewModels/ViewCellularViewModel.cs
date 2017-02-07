@@ -12,11 +12,11 @@ using Gijima.IOBM.Infrastructure.Events;
 using Gijima.IOBM.MobileManager.Model.Models;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Gijima.IOBM.Infrastructure.Structs;
-using Gijima.IOBM.MobileManager.Security;
 using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.MobileManager.Common.Events;
 using System.Collections.Generic;
 using System.Windows;
+using Gijima.IOBM.MobileManager.Security;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
 {
@@ -1548,6 +1548,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedClientAdminFee = "0";
             SelectedClientState = SaIDNumber = CompanyClient = CanSetSplitBilling = true;
             SelectedCostType = SelectedPackageType = "NONE";
+            SelectedContractServiceCollection = new Dictionary<string, object>();
             DeleteButtonImage = "278.png";
             DeleteButtonToolTip = "active";
             MobileManagerEnvironment.ClientID = 0;
@@ -1648,22 +1649,19 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Set the clients selected contract services 
         /// </summary>
-        private void SetClientContractServices()
+        private async Task SetClientContractServices()
         {
             try
             {
-                //if (SelectedContract.ClientServices != null && SelectedContract.ClientServices.Count() > 0)
-                //{
-                //    if (ContractServiceCollection != null && ContractServiceCollection.Count > 0)
-                //    {
-                //        foreach (ClientService service in SelectedContract.ClientServices)
-                //        {
-                //            ContractServiceCollection.First(p => p.pkContractServiceID == service.fkContractServiceID).IsSelected = true;
-                //        }
+                IEnumerable<ClientService> services = await Task.Run(() => new ClientServiceModel(_eventAggregator).ReadClientService(SelectedClient.fkContractID));
+                SelectedContractServiceCollection = new Dictionary<string, object>();
 
-                //        SelectedServiceDescription = ContractServiceCollection.First(p => p.IsSelected).ServiceDescription;
-                //    }
-                //}
+                foreach (ClientService service in services)
+                {
+                    SelectedContractServiceCollection.Add(service.ContractService.ServiceDescription , service.fkContractServiceID);
+                }
+
+                SelectedContractServiceCollection = new Dictionary<string, object>(SelectedContractServiceCollection);
             }
             catch (Exception ex)
             {
@@ -2157,7 +2155,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     // Update the client's contract services if and were selected
                     if (SelectedContractServiceCollection != null && SelectedContractServiceCollection.Count > 0)
                     {
-                        
+                        _model.UpdateClientServices(SelectedClient, SecurityHelper.LoggedInUserFullName, SelectedContractServiceCollection);
                     }
 
                     // Raise the events to update the device and simcard data
