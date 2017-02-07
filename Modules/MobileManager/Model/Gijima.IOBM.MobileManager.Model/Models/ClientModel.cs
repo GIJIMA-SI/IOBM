@@ -220,7 +220,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 return 0;
             }
         }
-        
+
         /// <summary>
         /// Update an existing client entity in the database
         /// </summary>
@@ -409,52 +409,38 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// </summary>
         /// <param name="clientServices">The list of contract services for the client.</param>
         /// <returns>True if successfull</returns>
-        public bool UpdateClientServices(Dictionary<string, object> clientServices)
+        public bool UpdateClientServices(Client client, string modifiedby, Dictionary<string, object> clientServices)
         {
             try
             {
                 bool result = false;
 
-                    using (var db = MobileManagerEntities.GetContext())
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    if (clientServices != null && clientServices.Count > 0)
                     {
-                        if (ContractServiceCollection != null && ContractServiceCollection.Count > 0)
+                        //Remove all previous entries
+                        db.ClientServices.RemoveRange(db.ClientServices.Where(x => x.fkContractID == client.fkContractID));
+                        
+                        //Create new entry for each selected service
+                        foreach (KeyValuePair<string, object> service in clientServices)
                         {
-                            foreach (KeyValuePair<string, object> service in selectedContractServices)
-                            {
-                                //_nodeList.Add(new Node(keyValue.Key));
-                            }
+                            ClientService clientService = new ClientService();
+                            clientService.fkContractID = client.fkContractID;
+                            clientService.fkContractServiceID = Convert.ToInt32(service.Value.ToString());
+                            clientService.ModifiedBy = modifiedby;
+                            clientService.ModifiedDate = DateTime.Now;
 
-                            ClientServiceModel clientServiceModel = new ClientServiceModel(_eventAggregator);
-                            //Remove the selected client services.
-                            //foreach (ClientService service in SelectedContract.ClientServices)
-                            //{
-                            //    clientServiceModel.DeleteClientService(service);
-                            //}
-                            //Create the newly selected client services.
-                            foreach (KeyValuePair<string, object> service in selectedContractServices)
-                            {
-                                //_nodeList.Add(new Node(keyValue.Key));
-                            }
-                            //foreach (ContractService service in ContractServiceCollection)
-                            //{
-                            //    if (service.IsSelected == true)
-                            //    {
-                            //        ClientService clientService = new ClientService();
-                            //        clientService.fkContractID = SelectedClient.fkContractID;
-                            //        clientService.fkContractServiceID = service.pkContractServiceID;
-                            //        clientService.ModifiedBy = SecurityHelper.LoggedInUserFullName;
-                            //        clientService.ModifiedDate = DateTime.Now;
-
-                            //        clientServiceModel.CreateClientService(clientService);
-                            //    }
-                            //}
+                            db.ClientServices.Add(clientService);
                         }
+                        db.SaveChanges();
+                    }
 
                     //_activityLogger.CreateDataChangeAudits<Client>(_dataActivityHelper.GetDataChangeActivities<Client>(existingClient, client, client.fkContractID, db));
                     result = true;
-                    }
+                }
 
-                    return result;
+                return result;
             }
             catch (Exception ex)
             {

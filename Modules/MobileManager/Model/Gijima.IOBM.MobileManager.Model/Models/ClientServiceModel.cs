@@ -81,7 +81,8 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 {
                     clientService = ((DbQuery<ClientService>)(from clientServices in db.ClientServices
                                                               where contractID == clientServices.fkContractID
-                                                              select clientServices)).ToList();
+                                                              select clientServices))
+                                                              .Include("ContractService").ToList();
 
                     return new ObservableCollection<ClientService>(clientService);
                 }
