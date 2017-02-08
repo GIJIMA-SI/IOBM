@@ -277,7 +277,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                           .ObservesProperty(() => SelectedGroup)
                                                                           .ObservesProperty(() => SelectedWBSNumber)
                                                                           .ObservesProperty(() => SelectedCostCode);
-            GroupCommand = new DelegateCommand(ExecuteShowCompanyGroupView, CanExecuteMaintenace).ObservesProperty(() => SelectedCompany);
+            GroupCommand = new DelegateCommand(ExecuteShowCompanyGroupView);
 
             // Load the view data
             await ReadCompanyGroupsAsync();
@@ -422,15 +422,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 InitialiseViewControls();
                 await ReadCompaniesAsync();
             }
-        }
-
-        /// <summary>
-        /// Set view command buttons enabled/disabled state
-        /// </summary>
-        /// <returns></returns>
-        private bool CanExecuteMaintenace()
-        {
-            return SelectedCompany != null && SelectedCompany.pkCompanyID > 0;
         }
 
         /// <summary>
