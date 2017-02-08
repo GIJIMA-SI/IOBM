@@ -543,6 +543,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedReceivedDate = DateTime.Now;
             SelectedIMENumber = string.Empty;
             DeviceInsuranceYes = DeviceInsuranceNo = false;
+            DeviceSimCardCollection = new Dictionary<string, object>();
             await ReadContractSimCardsAsync();
         }
 
@@ -723,8 +724,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
-                if (MobileManagerEnvironment.ClientContractID > 0)
-                    SimCardCollection = await Task.Run(() => new SimCardModel(_eventAggregator).ReadSimCardsForContract(MobileManagerEnvironment.ClientContractID));
+                //Clear the SimCollection when ExecuteCancel is called
+                SimCardCollection = MobileManagerEnvironment.ClientContractID > 0 ? await Task.Run(() => new SimCardModel(_eventAggregator).ReadSimCardsForContract(MobileManagerEnvironment.ClientContractID)) : null;
 
                 if (SimCardCollection != null)
                 {

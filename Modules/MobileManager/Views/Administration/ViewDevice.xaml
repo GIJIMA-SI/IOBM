@@ -143,7 +143,7 @@
                         IsChecked="{Binding DeviceInsuranceNo, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidInsurance}"/>
                 </StackPanel>
                 <TextBlock Grid.Row="2" Grid.Column="3" Text="Sim crd:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <WPF:MultiSelectComboBoxUX x:Name="ComboboxSimCard" Grid.Row="2" Grid.Column="4" ToolTip="Select the contract services." TabIndex="27" Height="22"
+                <WPF:MultiSelectComboBoxUX x:Name="ComboboxSimCard" Grid.Row="2" Grid.Column="4" ToolTip="Select the sim cards for the device." TabIndex="27" Height="22"
                     DefaultText="-- Please Select --" ItemsSource="{Binding DeviceSimCardCollection, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" SelectedItems="{Binding SelectedDeviceSimCardCollection, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                 </WPF:MultiSelectComboBoxUX>
                 <TextBlock Grid.Row="8" Grid.Column="0" Text="Insr value:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
