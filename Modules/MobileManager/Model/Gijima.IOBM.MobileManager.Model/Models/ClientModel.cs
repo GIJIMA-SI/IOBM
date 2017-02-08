@@ -417,7 +417,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                 using (var db = MobileManagerEntities.GetContext())
                 {
-                    if (clientServices != null && clientServices.Count > 0)
+                    if (clientServices != null)
                     {
                         //Remove all previous entries
                         db.ClientServices.RemoveRange(db.ClientServices.Where(x => x.fkContractID == client.fkContractID));
