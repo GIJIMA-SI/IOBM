@@ -103,22 +103,38 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// </summary>
         /// <param name="deviceSimCard">The device simcard entity to delete.</param>
         /// <returns>True if successfull</returns>
-        public bool DeleteClientService(DeviceSimCard deviceSimCard)
+        public bool UpdateDeviceSimCards(Device device, string modifiedby, Dictionary<string, object> deviceSims)
         {
             try
             {
+                bool result = false;
+
                 using (var db = MobileManagerEntities.GetContext())
                 {
-                    DeviceSimCard existingDeviceSimCard = db.DeviceSimCards.Where(p => p.fkDeviceID == deviceSimCard.fkDeviceID && p.fkSimCardID == deviceSimCard.fkSimCardID).FirstOrDefault();
-
-                    if (existingDeviceSimCard != null)
+                    if (deviceSims != null)
                     {
-                        db.DeviceSimCards.Remove(existingDeviceSimCard);
+                        //Remove all previous entries
+                        db.DeviceSimCards.RemoveRange(db.DeviceSimCards.Where(x => x.fkDeviceID == device.pkDeviceID));
+
+                        //Create new entry for each selected service
+                        foreach (KeyValuePair<string, object> sim in deviceSims)
+                        {
+                            DeviceSimCard deviceSimCard = new DeviceSimCard();
+                            deviceSimCard.fkDeviceID = device.pkDeviceID;
+                            deviceSimCard.fkSimCardID = Convert.ToInt32(sim.Value.ToString());
+                            deviceSimCard.ModifiedBy = modifiedby;
+                            deviceSimCard.ModifiedDate = DateTime.Now;
+
+                            db.DeviceSimCards.Add(deviceSimCard);
+                        }
                         db.SaveChanges();
                     }
 
-                    return true; 
+                    //_activityLogger.CreateDataChangeAudits<Client>(_dataActivityHelper.GetDataChangeActivities<Client>(existingClient, client, client.fkContractID, db));
+                    result = true;
                 }
+
+                return result;
             }
             catch (Exception ex)
             {

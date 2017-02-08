@@ -2153,7 +2153,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 if (result && SelectedClientState)
                 {
                     // Update the client's contract services if and were selected
-                    if (SelectedContractServiceCollection != null && SelectedContractServiceCollection.Count > 0)
+                    if (SelectedContractServiceCollection != null)
                     {
                         _model.UpdateClientServices(SelectedClient, SecurityHelper.LoggedInUserFullName, SelectedContractServiceCollection);
                     }
