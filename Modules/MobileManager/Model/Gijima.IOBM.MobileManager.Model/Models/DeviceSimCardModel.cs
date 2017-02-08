@@ -103,7 +103,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// </summary>
         /// <param name="deviceSimCard">The device simcard entity to delete.</param>
         /// <returns>True if successfull</returns>
-        public bool UpdateDeviceSimCards(Device device, string modifiedby, Dictionary<string, object> deviceSims)
+        public bool UpdateDeviceSimCards(Device device, Dictionary<string, object> deviceSims)
         {
             try
             {
@@ -122,7 +122,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                             DeviceSimCard deviceSimCard = new DeviceSimCard();
                             deviceSimCard.fkDeviceID = device.pkDeviceID;
                             deviceSimCard.fkSimCardID = Convert.ToInt32(sim.Value.ToString());
-                            deviceSimCard.ModifiedBy = modifiedby;
+                            deviceSimCard.ModifiedBy = device.ModifiedBy;
                             deviceSimCard.ModifiedDate = DateTime.Now;
 
                             db.DeviceSimCards.Add(deviceSimCard);

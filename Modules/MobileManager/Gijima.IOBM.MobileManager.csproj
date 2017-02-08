@@ -53,9 +53,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Gijima.Controls.WPF\bin\Debug\EntityFramework.dll</HintPath>
     </Reference>
-    <Reference Include="Gijima.IOBM.MobileManager.Security">
-      <HintPath>..\..\Gijima.IOBM.MobileManager.Security\bin\Debug\Gijima.IOBM.MobileManager.Security.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Practices.Unity, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Unity.4.0.1\lib\net45\Microsoft.Practices.Unity.dll</HintPath>
@@ -500,6 +497,10 @@
     <ProjectReference Include="..\..\Gijima.IOBM.Infrastructure\Gijima.IOBM.Infrastructure.csproj">
       <Project>{55b7d4d2-9f8d-4c92-9fea-97f5f58ded4a}</Project>
       <Name>Gijima.IOBM.Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Gijima.IOBM.MobileManager.Security\Gijima.IOBM.MobileManager.Security.csproj">
+      <Project>{7177e3e6-4ef6-4b78-a0c9-cd926ed0fe8b}</Project>
+      <Name>Gijima.IOBM.MobileManager.Security</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Gijima.IOBM.Model\Gijima.IOBM.Model.csproj">
       <Project>{68f8a3c2-fa68-4f34-8b8f-3dcf6f04a136}</Project>

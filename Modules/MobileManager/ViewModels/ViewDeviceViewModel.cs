@@ -74,10 +74,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     // Link the device to its Simcard
                     //LinkDeviceToSimCard();
 
-                    //Set the selected sim cards for the selected device
-                    if (SelectedDevice != null)                   
-                        SetSelectedDeviceSimCard();
-                        
+                    // Set the selected sim cards for the selected device
+                    SetSelectedDeviceSimCard();
                 }
             }
         }
@@ -103,16 +101,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
         private SimCard _selectedSimCard;
         
-        ///// <summary>
-        ///// The selected device state
-        ///// </summary>
-        //public bool DeviceState
-        //{
-        //    get { return _deviceState; }
-        //    set { SetProperty(ref _deviceState, value); }
-        //}
-        //private bool _deviceState;
-
         /// <summary>
         /// The collection of devices from the database
         /// </summary>
@@ -556,13 +544,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedIMENumber = string.Empty;
             DeviceInsuranceYes = DeviceInsuranceNo = false;
             await ReadContractSimCardsAsync();
-            //DeviceState = true;
         }
 
         /// <summary>
         /// Load all the device linked to the selected contract from the database
         /// </summary>
-        private async Task ReadContractDevicesAsync()
+        private async void ReadContractDevicesAsync()
         {
             try
             {
@@ -629,13 +616,22 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         ///  Set the device selected simcards
         /// </summary>
-        private async Task SetSelectedDeviceSimCard()
+        private async void SetSelectedDeviceSimCard()
         {
             try
             {
                 IEnumerable<DeviceSimCard> simCard = await Task.Run(() => new DeviceSimCardModel(_eventAggregator).ReadDeviceSimCard(SelectedDevice.pkDeviceID));
+                DeviceSimCardCollection = new Dictionary<string, object>();
                 SelectedDeviceSimCardCollection = new Dictionary<string, object>();
 
+                // Reset the simcards linked to the device
+                foreach (SimCard deviceSimCard in SimCardCollection)
+                {
+                    DeviceSimCardCollection.Add(deviceSimCard.CellNumber, deviceSimCard.pkSimCardID);
+                }
+                DeviceSimCardCollection = new Dictionary<string, object>(DeviceSimCardCollection);
+
+                // Set the selected device simcards
                 foreach (DeviceSimCard deviceSimCard in simCard)
                 {
                     SelectedDeviceSimCardCollection.Add(deviceSimCard.SimCard.CellNumber, deviceSimCard.fkSimCardID);
@@ -729,19 +725,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             {
                 if (MobileManagerEnvironment.ClientContractID > 0)
                     SimCardCollection = await Task.Run(() => new SimCardModel(_eventAggregator).ReadSimCardsForContract(MobileManagerEnvironment.ClientContractID));
-                
-                //Add the sim cards to the drop down collection 
-                DeviceSimCardCollection = new Dictionary<string, object>();
-
 
                 if (SimCardCollection != null)
                 {
-                    foreach (SimCard simCard in SimCardCollection)
-                    {
-                        DeviceSimCardCollection.Add(simCard.CellNumber, simCard.pkSimCardID);
-                    }
-                    DeviceSimCardCollection = new Dictionary<string, object>(DeviceSimCardCollection);
-
                     if (SimCardCollection.Count > 0)
                     {
                         // Get the primary simcard
@@ -772,7 +758,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
         }
 
-                #endregion
+        #endregion
 
         #region Command Execution
 
@@ -835,7 +821,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Execute when the save command button is clicked 
         /// </summary>
-        private async void ExecuteSave()
+        private void ExecuteSave()
         {
             bool result = false;
 
@@ -869,15 +855,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             if (result)
             {
                 if (SelectedDeviceSimCardCollection != null)
-                {
-                    DeviceSimCardModel deviceSimCard = new DeviceSimCardModel(_eventAggregator);
-                    deviceSimCard.UpdateDeviceSimCards(SelectedDevice, SecurityHelper.LoggedInUserFullName, SelectedDeviceSimCardCollection);
-                }
+                    new DeviceSimCardModel(_eventAggregator).UpdateDeviceSimCards(SelectedDevice, SelectedDeviceSimCardCollection);
 
                 if (_autoSave)
                     _eventAggregator.GetEvent<ActionCompletedEvent>().Publish(ActionCompleted.SaveContractDevices);
                 else
-                    await ReadContractDevicesAsync();
+                    ReadContractDevicesAsync();
             }
 
             // Publish the event to read the administration activity logs
