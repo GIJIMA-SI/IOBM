@@ -820,7 +820,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set
             {
                 SetProperty(ref _splitBillingException, value);
-                if (value && this.SelectedCompany != null)
+                if (value && SelectedCompany != null)
                 {
                     CanSetSplitBilling = false;
                     if (SelectedCompany.HasSpitBilling)

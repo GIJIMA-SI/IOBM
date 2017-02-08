@@ -202,12 +202,16 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     }
                     else
                     {
-                        // Prevent primary key confilcts when using attach property
-                        if (existingCompany != null)
-                            db.Entry(existingCompany).State = System.Data.Entity.EntityState.Detached;
-
-                        db.Companies.Attach(company);
-                        db.Entry(company).State = System.Data.Entity.EntityState.Modified;
+                        existingCompany.fkCompanyGroupID = company.fkCompanyGroupID;
+                        existingCompany.CompanyName = company.CompanyName;
+                        existingCompany.WBSNumber = company.WBSNumber;
+                        existingCompany.CostCode = company.CostCode;
+                        existingCompany.AdminFee = company.AdminFee;
+                        existingCompany.IPAddress = company.IPAddress;
+                        existingCompany.HasSpitBilling = company.HasSpitBilling;
+                        existingCompany.IsActive = company.IsActive;
+                        existingCompany.ModifiedDate = company.ModifiedDate;
+                        existingCompany.ModifiedBy = company.ModifiedBy;
                         db.SaveChanges();
                         return true;
                     }

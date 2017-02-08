@@ -169,7 +169,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     case "SelectedBillingLevel":
                         ValidBillingLevel = SelectedBillingLevel != null && SelectedBillingLevel.pkBillingLevelID < 1 ? Brushes.Red : Brushes.Silver; break;
                     case "BillingAmount":
-                        ValidBillingAmount = string.IsNullOrWhiteSpace(BillingAmount) || Convert.ToDecimal(BillingAmount) < 1 ? Brushes.Red : Brushes.Silver; break;
+                        ValidBillingAmount = string.IsNullOrWhiteSpace(BillingAmount) || Convert.ToDecimal(BillingAmount) < 0 ? Brushes.Red : Brushes.Silver; break;
                 }
                 return result;
             }
@@ -298,7 +298,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             return SelectedBillingLevel != null &&
                    SelectedBillingLevel.pkBillingLevelID > 0 && 
-                   !string.IsNullOrWhiteSpace(BillingAmount) && Convert.ToDecimal(BillingAmount) > 0;
+                   !string.IsNullOrWhiteSpace(BillingAmount) && Convert.ToDecimal(BillingAmount) >= 0;
         }
 
         /// <summary>
