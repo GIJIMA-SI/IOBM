@@ -32,7 +32,7 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="10" />
             <ColumnDefinition Width="65" />
-            <ColumnDefinition Width="50" />
+            <ColumnDefinition Width="*" />
             <ColumnDefinition Width="10" />
             <ColumnDefinition Width="75" />
             <ColumnDefinition Width="*" />
@@ -59,41 +59,44 @@
             </Grid>
         </Border>
         <StackPanel Grid.Row="0" Grid.Column="7" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button x:Name="ButtonCancel" TabIndex="12" Style="{StaticResource UXImageButtonStyle}"
+            <Button x:Name="ButtonCancel" TabIndex="13" Style="{StaticResource UXImageButtonStyle}"
                 ToolTip="Cancel the current operation." Command="{Binding CancelCommand}">
                 <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico"  />
             </Button>
-
-            <Button x:Name="ButtonAdd" TabIndex="13" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
+            <Button x:Name="ButtonAdd" TabIndex="14" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
                 ToolTip="Add a new company." Command="{Binding AddCommand}">
                 <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/508.png"  />
             </Button>
-            <Button x:Name="ButtonSave" TabIndex="14" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
+            <Button x:Name="ButtonSave" TabIndex="15" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
                 ToolTip="Save the company data." Command="{Binding SaveCommand}">
                 <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/save_32.ico"  />
             </Button>
         </StackPanel>
         <TextBlock Grid.Row="4" Grid.Column="0" Text="WBS no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-        <TextBox x:Name="TextBoxWBSNumber" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="4" TabIndex="4" ToolTip="Enter the WBS number linked to the company." Style="{StaticResource UXTextBoxStyle}"
+        <TextBox x:Name="TextBoxWBSNumber" Grid.Row="4" Grid.Column="1" TabIndex="4" ToolTip="Enter the WBS number linked to the company." Style="{StaticResource UXTextBoxStyle}"
             Text="{Binding SelectedWBSNumber, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidWBSNumber}">
         </TextBox>
+        <TextBlock Grid.Row="4" Grid.Column="3" Text="PO no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <TextBox x:Name="TextBoxPONumber" Grid.Row="4" Grid.Column="4" TabIndex="5" ToolTip="Enter the purchase order number linked to the company." Style="{StaticResource UXTextBoxStyle}"
+            Text="{Binding SelectedPONumber, UpdateSourceTrigger=PropertyChanged}">
+        </TextBox>
         <TextBlock Grid.Row="0" Grid.Column="6" Text="Billing levels:" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
-        <ListBox x:Name="ListBoxBillingLevels" Grid.Row="2" Grid.Column="6" Grid.ColumnSpan="2" Grid.RowSpan="7" TabIndex="9"
+        <ListBox x:Name="ListBoxBillingLevels" Grid.Row="2" Grid.Column="6" Grid.ColumnSpan="2" Grid.RowSpan="7" TabIndex="10"
             ItemsSource="{Binding CompanyBillingLevelCollection, UpdateSourceTrigger=PropertyChanged}" />
         <TextBlock Grid.Row="6" Grid.Column="0" Text="Cost code:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-        <TextBox x:Name="TextBoxCostCode" Grid.Row="6" Grid.Column="1" TabIndex="5" ToolTip="Enter the cost code linked to the company." Style="{StaticResource UXTextBoxStyle}"
+        <TextBox x:Name="TextBoxCostCode" Grid.Row="6" Grid.Column="1" TabIndex="6" ToolTip="Enter the cost code linked to the company." Style="{StaticResource UXTextBoxStyle}"
             Text="{Binding SelectedCostCode, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidCostCode}">
         </TextBox>
-        <TextBlock Grid.Row="6" Grid.Column="3" Text="Split billing:" Style="{StaticResource UXLabelTextStyle}"/>
-        <CheckBox x:Name="CkeckBoxSplitBilling" Grid.Row="6" Grid.Column="4" TabIndex="6" VerticalAlignment="Center"
+        <TextBlock Grid.Row="6" Grid.Column="3" Text="Admin fee:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <TextBox x:Name="TextBoxAdminFee" Grid.Row="6" Grid.Column="4" TabIndex="7" ToolTip="Enter the IP adrress linked to the company." Style="{StaticResource UXTextBoxStyle}"
+            Text="{Binding SelectedCompany.AdminFee}">
+        </TextBox>
+        <TextBlock Grid.Row="8" Grid.Column="3" Text="Split billing:" Style="{StaticResource UXLabelTextStyle}"/>
+        <CheckBox x:Name="CkeckBoxSplitBilling" Grid.Row="8" Grid.Column="4" TabIndex="9" VerticalAlignment="Center"
               IsChecked="{Binding HasSplitBilling, UpdateSourceTrigger=PropertyChanged}"/>
         <TextBlock Grid.Row="8" Grid.Column="0" Text="IP address:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-        <TextBox x:Name="TextBoxIPAddress" Grid.Row="8" Grid.Column="1" TabIndex="7" ToolTip="Enter the IP adrress linked to the company." Style="{StaticResource UXTextBoxStyle}"
+        <TextBox x:Name="TextBoxIPAddress" Grid.Row="8" Grid.Column="1" TabIndex="8" ToolTip="Enter the IP adrress linked to the company." Style="{StaticResource UXTextBoxStyle}"
             Text="{Binding SelectedCompany.IPAddress}">
-        </TextBox>
-        <TextBlock Grid.Row="8" Grid.Column="3" Text="Admin fee:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-        <TextBox x:Name="TextBoxAdminFee" Grid.Row="8" Grid.Column="4" TabIndex="8" ToolTip="Enter the IP adrress linked to the company." Style="{StaticResource UXTextBoxStyle}"
-            Text="{Binding SelectedCompany.AdminFee}">
         </TextBox>
         <StackPanel Grid.Row="9" Grid.Column="7" Orientation="Horizontal" HorizontalAlignment="Right">
             <TextBlock Text="Active" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom" Margin="0,0,5,0"></TextBlock>
@@ -101,17 +104,18 @@
         </StackPanel>
         <TextBlock Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Text="Available Companies" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
         <DataGrid x:Name="DataGridCompanies" Grid.Row="10" Grid.ColumnSpan="8" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True" 
-            IsReadOnly="True" TabIndex="11" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" 
+            IsReadOnly="True" TabIndex="12" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" 
             ItemsSource="{Binding CompanyCollection}" SelectedItem="{Binding SelectedCompany, UpdateSourceTrigger=PropertyChanged}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Company Name" Binding="{Binding CompanyName}" Width="Auto" />
                 <DataGridTextColumn Header="Group Name" Binding="{Binding CompanyGroup.GroupName}" Width="Auto" />
+                <DataGridTextColumn Header="Empl Cnt" Binding="{Binding EmployeeCount}" Width="65" />
                 <DataGridTextColumn Header="WBS Number" Binding="{Binding WBSNumber}" Width="Auto" />
                 <DataGridTextColumn Header="Cost Code" Binding="{Binding CostCode}" Width="Auto" />
                 <DataGridTextColumn Header="IP Address" Binding="{Binding IPAddress}" Width="Auto" />
+                <DataGridTextColumn Header="PO Number" Binding="{Binding PONumber}" Width="Auto" />
                 <DataGridTextColumn Header="Admin Fee" Binding="{Binding AdminFee}" Width="80" />
                 <DataGridTextColumn Header="Split Billing" Width="80" Binding="{Binding HasSpitBilling, Converter={StaticResource UIDataConvertionHelper}, ConverterParameter=BoolToYesNo}"/>
-                <DataGridTextColumn Header="Empl Cnt" Binding="{Binding EmployeeCount}" Width="70" />
                 <DataGridTextColumn Header="State" Binding="{Binding IsActive, Converter={StaticResource UIDataConvertionHelper},  ConverterParameter='State'}" Width="60" />
             </DataGrid.Columns>
         </DataGrid>

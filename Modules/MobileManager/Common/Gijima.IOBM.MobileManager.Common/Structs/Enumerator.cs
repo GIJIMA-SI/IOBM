@@ -208,6 +208,16 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
     }
 
     /// <summary>
+    /// The <see cref="BillingLevelType"/> enumeration lists of billing level types.
+    /// </summary>
+    public enum BillingLevelType
+    {
+        NONE = 0,
+        VOICE = 1,
+        DATA = 2
+    }
+
+    /// <summary>
     /// The <see cref="CostType"/> enumeration lists of package cost types.
     /// </summary>
     public enum CostType
