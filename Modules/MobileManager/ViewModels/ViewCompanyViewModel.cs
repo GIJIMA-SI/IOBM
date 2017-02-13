@@ -51,6 +51,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     SelectedGroup = GroupCollection != null && value.fkCompanyGroupID != null ? GroupCollection.First(p => p.pkCompanyGroupID == value.fkCompanyGroupID) : null;
                     SelectedWBSNumber = value.WBSNumber;
                     SelectedCostCode = value.CostCode;
+                    SelectedPONumber = value.PONumber != null ? value.PONumber : string.Empty;
                     HasSplitBilling = value.HasSpitBilling;
                     SelectedIPAddress = value.IPAddress;
                     CompanyState = value.IsActive;
@@ -417,6 +418,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedCompany.fkCompanyGroupID = SelectedGroup.pkCompanyGroupID;
             SelectedCompany.WBSNumber = SelectedWBSNumber.ToUpper();
             SelectedCompany.CostCode = SelectedCostCode.ToUpper();
+            SelectedCompany.PONumber = SelectedPONumber.ToUpper();
             SelectedCompany.HasSpitBilling = HasSplitBilling;
             SelectedCompany.ModifiedBy = SecurityHelper.LoggedInUserFullName;
             SelectedCompany.ModifiedDate = DateTime.Now;

@@ -206,6 +206,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         existingCompany.CompanyName = company.CompanyName;
                         existingCompany.WBSNumber = company.WBSNumber;
                         existingCompany.CostCode = company.CostCode;
+                        existingCompany.PONumber = company.PONumber;
                         existingCompany.AdminFee = company.AdminFee;
                         existingCompany.IPAddress = company.IPAddress;
                         existingCompany.HasSpitBilling = company.HasSpitBilling;

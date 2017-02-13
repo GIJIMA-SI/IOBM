@@ -29,20 +29,23 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="65" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="10" />
-            <ColumnDefinition Width="65" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="2*" />
             <ColumnDefinition Width="10" />
             <ColumnDefinition Width="75" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="65" />
+            <ColumnDefinition Width="15" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="75" />
+            <ColumnDefinition Width="90" />
         </Grid.ColumnDefinitions>
         <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-        <TextBox x:Name="TextBoxCompanyName" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="4" TabIndex="1" Style="{StaticResource UXTextBoxStyle}"
+        <TextBox x:Name="TextBoxCompanyName" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="7" TabIndex="1" Style="{StaticResource UXTextBoxStyle}"
             ToolTip="Enter the company name." Text="{Binding SelectedCompanyName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidCompanyName}">
         </TextBox>
         <TextBlock Grid.Row="2" Grid.Column="0" Text="Group:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-        <Border Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="4" BorderThickness="1" BorderBrush="{Binding ValidGroup}">
+        <Border Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="7" BorderThickness="1" BorderBrush="{Binding ValidGroup}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="31*" />
@@ -58,53 +61,56 @@
                 </Button>
             </Grid>
         </Border>
-        <StackPanel Grid.Row="0" Grid.Column="7" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button x:Name="ButtonCancel" TabIndex="13" Style="{StaticResource UXImageButtonStyle}"
+        <StackPanel Grid.Row="0" Grid.Column="10" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="ButtonCancel" TabIndex="14" Style="{StaticResource UXImageButtonStyle}"
                 ToolTip="Cancel the current operation." Command="{Binding CancelCommand}">
                 <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico"  />
             </Button>
-            <Button x:Name="ButtonAdd" TabIndex="14" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
+            <Button x:Name="ButtonAdd" TabIndex="15" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
                 ToolTip="Add a new company." Command="{Binding AddCommand}">
                 <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/508.png"  />
             </Button>
-            <Button x:Name="ButtonSave" TabIndex="15" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
+            <Button x:Name="ButtonSave" TabIndex="16" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
                 ToolTip="Save the company data." Command="{Binding SaveCommand}">
                 <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/save_32.ico"  />
             </Button>
         </StackPanel>
+        <TextBlock Grid.Row="0" Grid.Column="9" Text="Billing levels:" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
+        <ListBox x:Name="ListBoxBillingLevels" Grid.Row="2" Grid.Column="9" Grid.ColumnSpan="2" Grid.RowSpan="7" TabIndex="11"
+            ItemsSource="{Binding CompanyBillingLevelCollection, UpdateSourceTrigger=PropertyChanged}" />
         <TextBlock Grid.Row="4" Grid.Column="0" Text="WBS no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
         <TextBox x:Name="TextBoxWBSNumber" Grid.Row="4" Grid.Column="1" TabIndex="4" ToolTip="Enter the WBS number linked to the company." Style="{StaticResource UXTextBoxStyle}"
             Text="{Binding SelectedWBSNumber, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidWBSNumber}">
         </TextBox>
-        <TextBlock Grid.Row="4" Grid.Column="3" Text="PO no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-        <TextBox x:Name="TextBoxPONumber" Grid.Row="4" Grid.Column="4" TabIndex="5" ToolTip="Enter the purchase order number linked to the company." Style="{StaticResource UXTextBoxStyle}"
-            Text="{Binding SelectedPONumber, UpdateSourceTrigger=PropertyChanged}">
-        </TextBox>
-        <TextBlock Grid.Row="0" Grid.Column="6" Text="Billing levels:" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
-        <ListBox x:Name="ListBoxBillingLevels" Grid.Row="2" Grid.Column="6" Grid.ColumnSpan="2" Grid.RowSpan="7" TabIndex="10"
-            ItemsSource="{Binding CompanyBillingLevelCollection, UpdateSourceTrigger=PropertyChanged}" />
-        <TextBlock Grid.Row="6" Grid.Column="0" Text="Cost code:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-        <TextBox x:Name="TextBoxCostCode" Grid.Row="6" Grid.Column="1" TabIndex="6" ToolTip="Enter the cost code linked to the company." Style="{StaticResource UXTextBoxStyle}"
+        <TextBlock Grid.Row="4" Grid.Column="3" Text="Cost code:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <TextBox x:Name="TextBoxCostCode" Grid.Row="4" Grid.Column="4" Grid.ColumnSpan="4" TabIndex="5" ToolTip="Enter the cost code linked to the company." Style="{StaticResource UXTextBoxStyle}"
             Text="{Binding SelectedCostCode, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidCostCode}">
         </TextBox>
-        <TextBlock Grid.Row="6" Grid.Column="3" Text="Admin fee:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-        <TextBox x:Name="TextBoxAdminFee" Grid.Row="6" Grid.Column="4" TabIndex="7" ToolTip="Enter the IP adrress linked to the company." Style="{StaticResource UXTextBoxStyle}"
-            Text="{Binding SelectedCompany.AdminFee}">
-        </TextBox>
-        <TextBlock Grid.Row="8" Grid.Column="3" Text="Split billing:" Style="{StaticResource UXLabelTextStyle}"/>
-        <CheckBox x:Name="CkeckBoxSplitBilling" Grid.Row="8" Grid.Column="4" TabIndex="9" VerticalAlignment="Center"
-              IsChecked="{Binding HasSplitBilling, UpdateSourceTrigger=PropertyChanged}"/>
-        <TextBlock Grid.Row="8" Grid.Column="0" Text="IP address:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-        <TextBox x:Name="TextBoxIPAddress" Grid.Row="8" Grid.Column="1" TabIndex="8" ToolTip="Enter the IP adrress linked to the company." Style="{StaticResource UXTextBoxStyle}"
+        <TextBlock Grid.Row="6" Grid.Column="0" Text="IP address:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <TextBox x:Name="TextBoxIPAddress" Grid.Row="6" Grid.Column="1" TabIndex="6" ToolTip="Enter the IP adrress linked to the company." Style="{StaticResource UXTextBoxStyle}"
             Text="{Binding SelectedCompany.IPAddress}">
         </TextBox>
-        <StackPanel Grid.Row="9" Grid.Column="7" Orientation="Horizontal" HorizontalAlignment="Right">
+        <TextBlock Grid.Row="6" Grid.Column="3" Text="Admin fee:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <TextBox x:Name="TextBoxAdminFee" Grid.Row="6" Grid.Column="4" TabIndex="7" ToolTip="Enter the admin fee linked to the company." Style="{StaticResource UXTextBoxStyle}"
+            Text="{Binding SelectedCompany.AdminFee}">
+        </TextBox>
+        <TextBlock Grid.Row="6" Grid.Column="6" Text="Split billing:" Style="{StaticResource UXLabelTextStyle}"/>
+        <CheckBox x:Name="CkeckBoxSplitBilling" Grid.Row="6" Grid.Column="7" TabIndex="8" VerticalAlignment="Center"
+              IsChecked="{Binding HasSplitBilling, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Row="8" Grid.Column="0" Text="PO no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <TextBox x:Name="TextBoxPONumber" Grid.Row="8" Grid.Column="1" TabIndex="9" ToolTip="Enter the purchase order number linked to the company." Style="{StaticResource UXTextBoxStyle}"
+            Text="{Binding SelectedPONumber, UpdateSourceTrigger=PropertyChanged}">
+        </TextBox>
+        <TextBlock Grid.Row="8" Grid.Column="3" Text="PO exp date:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <DatePicker x:Name="DatePickerPOExpiryDate" Grid.Row="8" Grid.Column="4" Grid.ColumnSpan="4" TabIndex="10" Height="24" ToolTip="Select the PO expiry date." BorderBrush="{Binding ValidPOExpiryDate}"
+            SelectedDate="{Binding SelectedPOExpiryDate, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding HasPONumber}"/>
+        <StackPanel Grid.Row="9" Grid.Column="10" Orientation="Horizontal" HorizontalAlignment="Right">
             <TextBlock Text="Active" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom" Margin="0,0,5,0"></TextBlock>
-            <CheckBox x:Name="CkeckBoxIsActive" TabIndex="10" VerticalAlignment="Bottom" IsChecked="{Binding CompanyState, UpdateSourceTrigger=PropertyChanged}"/>
+            <CheckBox x:Name="CkeckBoxIsActive" TabIndex="12" VerticalAlignment="Bottom" IsChecked="{Binding CompanyState, UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
         <TextBlock Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Text="Available Companies" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
-        <DataGrid x:Name="DataGridCompanies" Grid.Row="10" Grid.ColumnSpan="8" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True" 
-            IsReadOnly="True" TabIndex="12" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" 
+        <DataGrid x:Name="DataGridCompanies" Grid.Row="10" Grid.ColumnSpan="11" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True" 
+            IsReadOnly="True" TabIndex="13" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" 
             ItemsSource="{Binding CompanyCollection}" SelectedItem="{Binding SelectedCompany, UpdateSourceTrigger=PropertyChanged}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Company Name" Binding="{Binding CompanyName}" Width="Auto" />
