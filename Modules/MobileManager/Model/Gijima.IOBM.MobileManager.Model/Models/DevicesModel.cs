@@ -148,7 +148,6 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                  where device.fkContractID == contractID
                                                  select device)).Include("DeviceMake")
                                                                 .Include("DeviceModel")
-                                                                .Include("DeviceSimCards")
                                                                 .Include("Status")
                                                                 .OrderByDescending(p => p.IsActive)
                                                                 .ThenBy(p => p.Status.StatusDescription).ToList();

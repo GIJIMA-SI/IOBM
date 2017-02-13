@@ -123,42 +123,60 @@
                         </Button>
                     </Grid>
                 </Border>
-                <TextBlock Grid.Row="4" Grid.Column="0" Text="IME no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxDeiceIMENumber" Grid.Row="4" Grid.Column="1" TabIndex="67" ToolTip="Enter the device IME number." Style="{StaticResource UXTextBoxStyle}"
-                    Text="{Binding SelectedIMENumber, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidIMENumber}">
-                </TextBox>
-                <TextBlock Grid.Row="4" Grid.Column="3" Text="Serial no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxDeviceSerialNumber" Grid.Row="4" Grid.Column="4" TabIndex="68" ToolTip="Enter the device serial number." Style="{StaticResource UXTextBoxStyle}"
+                <TextBlock Grid.Row="2" Grid.Column="3" Text="Serial no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <TextBox x:Name="TextBoxDeviceSerialNumber" Grid.Row="2" Grid.Column="4" TabIndex="66" ToolTip="Enter the device serial number." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedDevice.SerialNumber, UpdateSourceTrigger=PropertyChanged}">
                 </TextBox>
-                <TextBlock Grid.Row="6" Grid.Column="0" Text="Received:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <DatePicker x:Name="DatePickerReceivedDate" Grid.Row="6" Grid.Column="1" TabIndex="69" ToolTip="Select the device received date."
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="Received:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <DatePicker x:Name="DatePickerReceivedDate" Grid.Row="4" Grid.Column="1" TabIndex="67" ToolTip="Select the device received date."
                     SelectedDate="{Binding SelectedReceivedDate, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidReceivedDate}">
                 </DatePicker>
-                <TextBlock Grid.Row="6" Grid.Column="3" Text="Insured:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <StackPanel Grid.Row="6" Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
-                    <RadioButton x:Name="RadioButtonInsuranceYes" Content="Yes" Margin="0,0,5,0" TabIndex="70" GroupName="Insurance" 
+                <TextBlock Grid.Row="4" Grid.Column="3" Text="IME no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <Border Grid.Row="4" Grid.Column="4" BorderThickness="1" BorderBrush="{Binding ValidIMENumberCollection}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="TextBoxDeiceIMENumber" TabIndex="68" Height="22" ToolTip="Enter the device IME number." Style="{StaticResource UXTextBoxStyle}"
+                            Text="{Binding SelectedIMENumber, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
+                        </TextBox>
+                        <Button x:Name="ButtonIMENoRemove" Grid.Column="1" Margin="2,0,0,0" ToolTip="Remove an IME number." TabIndex="69" Height="22"
+                            Style="{StaticResource UXImageButtonStyle}" Command="{Binding DeviceIMENumberRemoveCommand}">
+                            <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/278.png" Margin="2" />
+                        </Button>
+                        <Button x:Name="ButtonIMENoAdd" Grid.Column="2" Margin="2,0,0,0" ToolTip="Add device IME number." TabIndex="70" Height="22"
+                            Style="{StaticResource UXImageButtonStyle}" Command="{Binding DeviceIMENumberAddCommand}">
+                            <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/508.png" Margin="2" />
+                        </Button>
+                    </Grid>
+                </Border>
+                <ListBox Grid.Row="6" Grid.Column="4" Grid.RowSpan="4" Margin="0,0,0,10" SelectedItem="{Binding SelectedIMENumberObject, UpdateSourceTrigger=PropertyChanged}"
+                         ItemsSource="{Binding DeviceIMENumberCollection, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="IMENumber" ></ListBox>
+                <TextBlock Grid.Row="6" Grid.Column="0" Text="Insured:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <RadioButton x:Name="RadioButtonInsuranceYes" Content="Yes" Margin="0,0,5,0" TabIndex="71" GroupName="Insurance" 
                         IsChecked="{Binding DeviceInsuranceYes, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidInsurance}"/>
-                    <RadioButton x:Name="RadioButtonInsuranceNo" Content="No" TabIndex="71" GroupName="Insurance" 
+                    <RadioButton x:Name="RadioButtonInsuranceNo" Content="No" TabIndex="72" GroupName="Insurance" 
                         IsChecked="{Binding DeviceInsuranceNo, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidInsurance}"/>
                 </StackPanel>
-                <TextBlock Grid.Row="2" Grid.Column="3" Text="Sim crd:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <WPF:MultiSelectComboBoxUX x:Name="ComboboxSimCard" Grid.Row="2" Grid.Column="4" ToolTip="Select the sim cards for the device." TabIndex="27" Height="22"
-                    DefaultText="-- Please Select --" ItemsSource="{Binding DeviceSimCardCollection, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" SelectedItems="{Binding SelectedDeviceSimCardCollection, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                </WPF:MultiSelectComboBoxUX>
                 <TextBlock Grid.Row="8" Grid.Column="0" Text="Insr value:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxInsuranceValue" Grid.Row="8" Grid.Column="1" TabIndex="72" ToolTip="Enter the insurance value." Style="{StaticResource UXTextBoxStyle}"
+                <Grid Grid.Row="8" Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.5*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1.5*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="TextBoxInsuranceValue" Grid.Row="0" Grid.Column="0" TabIndex="73" Margin="0,0,5,0" ToolTip="Enter the insurance value." Style="{StaticResource UXTextBoxStyle}"
                     IsEnabled="{Binding DeviceInsuranceYes}" Text="{Binding SelectedInsuranceValue, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidInsuranceValue}">
-                </TextBox>
-                <TextBlock Grid.Row="8" Grid.Column="3" Text="Insr cost:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxInsuranceCost" Grid.Row="8" Grid.Column="4" TabIndex="73" ToolTip="Enter the insurance cost." Style="{StaticResource UXTextBoxStyle}"
+                    </TextBox>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Insr cost:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                    <TextBox x:Name="TextBoxInsuranceCost" Grid.Row="0" Grid.Column="2" Margin="5,0,0,0" TabIndex="74" ToolTip="Enter the insurance cost." Style="{StaticResource UXTextBoxStyle}"
                     IsEnabled="{Binding DeviceInsuranceYes}" Text="{Binding SelectedInsuranceCost, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidInsuranceCost}">
-                </TextBox>
+                    </TextBox>
+                </Grid>
                 <TextBlock Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Text="Linked Devices" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
-                <!--<StackPanel Grid.Row="9" Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <TextBlock Text="Active" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Top" Margin="0,6,5,0"></TextBlock>
-                    <CheckBox x:Name="CkeckBoxIsActive" TabIndex="74" VerticalAlignment="Bottom" IsChecked="{Binding DeviceState, UpdateSourceTrigger=PropertyChanged}"/>
-                </StackPanel>-->
                 <DataGrid x:Name="DataGridInstruments" Grid.Row="10" Grid.ColumnSpan="5" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True"
                     IsReadOnly="True" TabIndex="75" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" 
                     ItemsSource="{Binding DeviceCollection}" SelectedItem="{Binding SelectedDevice, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" 

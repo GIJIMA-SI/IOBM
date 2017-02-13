@@ -1699,7 +1699,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     }
                 }
 
-                if (BillingLevelCollection != null)
+                if (BillingLevelCollection != null && clientBilling != null)
                 {
                     AllowBillingLevels = true;
                     SelectedBillingLevel = BillingLevelCollection != null ? BillingLevelCollection.Where(p => p.pkCompanyBillingLevelID == clientBilling.fkCompanyBillingLevelID).FirstOrDefault() : null;

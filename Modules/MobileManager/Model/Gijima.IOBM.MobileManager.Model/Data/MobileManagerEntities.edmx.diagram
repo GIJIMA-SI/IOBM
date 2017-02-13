@@ -5,44 +5,52 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="a681782f449d481b91262e6c5a0d1ab6" Name="Diagram1" ZoomLevel="117">
-        <EntityTypeShape EntityType="MobileManagerModel.AppSetting" Width="1.5" PointX="6.875" PointY="2.125" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.AuditLog" Width="1.5" PointX="8.875" PointY="2.125" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.BillingLevel" Width="1.5" PointX="0.625" PointY="4.875" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.BillingProcess" Width="1.5" PointX="9.125" PointY="3.75" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.BillingProcessHistory" Width="1.5" PointX="7" PointY="2.875" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.City" Width="1.5" PointX="0.625" PointY="5.625" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.AppSetting" Width="1.5" PointX="9.625" PointY="4.5" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.AuditLog" Width="1.5" PointX="11.125" PointY="2.125" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.BillingLevel" Width="1.5" PointX="0.875" PointY="7.625" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.BillingProcess" Width="1.5" PointX="11.875" PointY="4.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.BillingProcessHistory" Width="1.5" PointX="9.875" PointY="6.375" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.City" Width="1.5" PointX="0.625" PointY="8.375" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.Client" Width="1.5" PointX="2.875" PointY="1.375" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.ClientBilling" Width="1.5" PointX="3.125" PointY="3.75" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.ClientLocation" Width="1.5" PointX="2.875" PointY="0.5" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.CompanyGroup" Width="1.5" PointX="4.875" PointY="3" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.DataImportRule" Width="1.5" PointX="9.25" PointY="6" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.DataUpdateRule" Width="1.5" PointX="4.75" PointY="5.5" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.DataValidationProperty" Width="1.5" PointX="7" PointY="6.75" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.DataValidationRule" Width="1.5" PointX="6.625" PointY="5" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.DeviceMake" Width="1.5" PointX="4.625" PointY="0.5" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.DeviceModel" Width="1.5" PointX="4.875" PointY="2.125" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.Invoice" Width="1.5" PointX="9.125" PointY="4.5" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.InvoiceDetail" Width="1.5" PointX="9.125" PointY="5.25" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.Company" Width="1.5" PointX="4.75" PointY="10.375" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.CompanyBillingLevel" Width="1.5" PointX="1.125" PointY="5.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.CompanyGroup" Width="1.5" PointX="3.25" PointY="7.125" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.DataImportRule" Width="1.5" PointX="11.75" PointY="7.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.DataUpdateRule" Width="1.5" PointX="7.625" PointY="10.5" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.DataValidationProperty" Width="1.5" PointX="14.75" PointY="9.375" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.DataValidationRule" Width="1.5" PointX="14" PointY="8.625" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.DeviceMake" Width="1.5" PointX="6.5" PointY="1.125" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.DeviceModel" Width="1.5" PointX="6" PointY="4.875" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.Invoice" Width="1.5" PointX="10.5" PointY="5.625" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.InvoiceDetail" Width="1.5" PointX="12.75" PointY="6.5" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.Package" Width="1.5" PointX="0.5" PointY="1.25" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.PackageSetup" Width="1.5" PointX="0.5" PointY="0.5" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.Province" Width="1.5" PointX="3" PointY="4.625" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.Report" Width="1.5" PointX="9.125" PointY="6.5" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.Role" Width="1.5" PointX="9.875" PointY="0.5" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.Service" Width="1.5" PointX="7" PointY="3.625" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.ServiceProvider" Width="1.5" PointX="6.25" PointY="0.5" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.Province" Width="1.5" PointX="3.375" PointY="7.875" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.Report" Width="1.5" PointX="13.75" PointY="7.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.Role" Width="1.5" PointX="10.75" PointY="0.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.Service" Width="1.5" PointX="7.125" PointY="7.375" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.ServiceProvider" Width="1.5" PointX="7.875" PointY="0.5" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.SimCard" Width="1.5" PointX="2.75" PointY="2.5" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.Status" Width="1.5" PointX="0.75" PointY="4" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.Suburb" Width="1.5" PointX="2.625" PointY="5.5" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.User" Width="1.5" PointX="9.125" PointY="3" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.UserInCompany" Width="1.5" PointX="7.375" PointY="5.875" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.UserInRole" Width="1.5" PointX="9.75" PointY="1.25" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.Status" Width="1.5" PointX="1" PointY="6.875" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.Suburb" Width="1.5" PointX="4.875" PointY="8.5" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.User" Width="1.5" PointX="10.75" PointY="3.5" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.UserInCompany" Width="1.5" PointX="11.875" PointY="10.625" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.UserInRole" Width="1.5" PointX="13" PointY="3.625" IsExpanded="false" />
+        <AssociationConnector Association="MobileManagerModel.FK_CompanyBillingLevel_BillingLevel" ManuallyRouted="false" />
         <AssociationConnector Association="MobileManagerModel.FK_BillingProcessHistory_BillingProcess" ManuallyRouted="false" />
         <AssociationConnector Association="MobileManagerModel.FK_City_Province" ManuallyRouted="false" />
         <AssociationConnector Association="MobileManagerModel.FK_Suburb_City" ManuallyRouted="false" />
         <AssociationConnector Association="MobileManagerModel.FK_Client_ClientBilling" ManuallyRouted="false" />
         <AssociationConnector Association="MobileManagerModel.FK_Client_ClientLocation" ManuallyRouted="false" />
+        <AssociationConnector Association="MobileManagerModel.FK_Client_Company" ManuallyRouted="false" />
         <AssociationConnector Association="MobileManagerModel.FK_Client_Suburb" ManuallyRouted="false" />
         <AssociationConnector Association="MobileManagerModel.FK_Invoice_Client" ManuallyRouted="false" />
+        <AssociationConnector Association="MobileManagerModel.FK_ClientBilling_CompanyBillingLevel" ManuallyRouted="false" />
+        <AssociationConnector Association="MobileManagerModel.FK_Company_CompanyGroup" ManuallyRouted="false" />
+        <AssociationConnector Association="MobileManagerModel.FK_UserInCompany_Company" ManuallyRouted="false" />
+        <AssociationConnector Association="MobileManagerModel.FK_CompanyBillingLevel_CompanyGroup" ManuallyRouted="false" />
         <AssociationConnector Association="MobileManagerModel.FK_DataValidationRule_DataValidationProperty" ManuallyRouted="false" />
         <AssociationConnector Association="MobileManagerModel.FK_DeviceModel_DeviceMake" ManuallyRouted="false" />
         <AssociationConnector Association="MobileManagerModel.FK_Invoice_Service" ManuallyRouted="false" />
@@ -53,12 +61,12 @@
         <AssociationConnector Association="MobileManagerModel.FK_SimCard_Status" ManuallyRouted="false" />
         <AssociationConnector Association="MobileManagerModel.FK_UserInCompany_User" ManuallyRouted="false" />
         <AssociationConnector Association="MobileManagerModel.FK_UserInRole_User" ManuallyRouted="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.Device" Width="1.5" PointX="7.875" PointY="1.25" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.Device" Width="1.5" PointX="7.875" PointY="5.625" IsExpanded="false" />
         <AssociationConnector Association="MobileManagerModel.FK_Device_DeviceMake" />
         <AssociationConnector Association="MobileManagerModel.FK_Device_DeviceModel" />
         <AssociationConnector Association="MobileManagerModel.FK_Device_SimCard" />
         <AssociationConnector Association="MobileManagerModel.FK_Device_Status" />
-        <EntityTypeShape EntityType="MobileManagerModel.DataValidationException" Width="1.5" PointX="7.25" PointY="4.375" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.DataValidationException" Width="1.5" PointX="13.875" PointY="5.5" IsExpanded="false" />
         <AssociationConnector Association="MobileManagerModel.FK_DataValidationException_BillingProcess" />
         <AssociationConnector Association="MobileManagerModel.FK_DataValidationException_DataValidationProperty" />
         <EntityTypeShape EntityType="MobileManagerModel.Contract" Width="1.5" PointX="0.875" PointY="2.125" IsExpanded="false" />
@@ -68,22 +76,13 @@
         <AssociationConnector Association="MobileManagerModel.FK_Contract_Status" />
         <AssociationConnector Association="MobileManagerModel.FK_Device_Contract" />
         <AssociationConnector Association="MobileManagerModel.FK_SimCard_Contract" />
-        <EntityTypeShape EntityType="MobileManagerModel.ExternalBillingData" Width="1.5" PointX="5.125" PointY="1.375" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.ClientService" Width="1.5" PointX="0.625" PointY="6.375" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.ContractService" Width="1.5" PointX="0.625" PointY="7" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.ExternalBillingData" Width="1.5" PointX="9" PointY="1.625" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.ClientService" Width="1.5" PointX="0.625" PointY="10.375" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.ContractService" Width="1.5" PointX="0.625" PointY="9.25" IsExpanded="false" />
         <AssociationConnector Association="MobileManagerModel.FK_ClientService_ClientService" />
         <AssociationConnector Association="MobileManagerModel.FK_ClientService_Contract" />
-        <EntityTypeShape EntityType="MobileManagerModel.DeviceSimCard" Width="1.5" PointX="8" PointY="0.5" IsExpanded="false" />
-        <AssociationConnector Association="MobileManagerModel.FK_DeviceSimCard_Device" />
-        <AssociationConnector Association="MobileManagerModel.FK_DeviceSimCard_SimCard" />
-        <EntityTypeShape EntityType="MobileManagerModel.Company" Width="1.5" PointX="2.625" PointY="6.125" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.CompanyBillingLevel" Width="1.5" PointX="2.625" PointY="6.875" IsExpanded="false" />
-        <AssociationConnector Association="MobileManagerModel.FK_CompanyBillingLevel_BillingLevel" />
-        <AssociationConnector Association="MobileManagerModel.FK_Client_Company" />
-        <AssociationConnector Association="MobileManagerModel.FK_ClientBilling_CompanyBillingLevel" />
-        <AssociationConnector Association="MobileManagerModel.FK_Company_CompanyGroup" />
-        <AssociationConnector Association="MobileManagerModel.FK_UserInCompany_Company" />
-        <AssociationConnector Association="MobileManagerModel.FK_CompanyBillingLevel_CompanyGroup" />
+        <EntityTypeShape EntityType="MobileManagerModel.DeviceIMENumber" Width="1.5" PointX="8" PointY="3.5" IsExpanded="false" />
+        <AssociationConnector Association="MobileManagerModel.FK_DeviceIMENumber_Device" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

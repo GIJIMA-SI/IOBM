@@ -12,15 +12,14 @@ namespace Gijima.IOBM.MobileManager.Model.Data
     using System;
     using System.Collections.Generic;
     
-    public partial class DeviceSimCard
+    public partial class DeviceIMENumber
     {
-        public int pkDeviceSimCardD { get; set; }
+        public int pkDeviceIMENumberID { get; set; }
+        public string IMENumber { get; set; }
         public int fkDeviceID { get; set; }
-        public int fkSimCardID { get; set; }
         public string ModifiedBy { get; set; }
         public System.DateTime ModifiedDate { get; set; }
     
         public virtual Device Device { get; set; }
-        public virtual SimCard SimCard { get; set; }
     }
 }

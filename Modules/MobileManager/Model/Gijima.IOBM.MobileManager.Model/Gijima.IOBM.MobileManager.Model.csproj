@@ -133,13 +133,13 @@
     <Compile Include="Data\Device.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Data\DeviceIMENumber.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="Data\DeviceMake.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\DeviceModel.cs">
-      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Data\DeviceSimCard.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Extentions\CompanyExt.cs" />
@@ -231,7 +231,7 @@
     <Compile Include="Models\ContractModel.cs" />
     <Compile Include="Models\ContractServiceModel.cs" />
     <Compile Include="Models\DataImportRuleModel.cs" />
-    <Compile Include="Models\DeviceSimCardModel.cs" />
+    <Compile Include="Models\DeviceIMENumberModel.cs" />
     <Compile Include="Models\DevicesMakeModel.cs" />
     <Compile Include="Models\DevicesModel.cs" />
     <Compile Include="Models\DevicesModelModel.cs" />

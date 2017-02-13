@@ -37,6 +37,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         public DelegateCommand DeviceMakeCommand { get; set; }
         public DelegateCommand DeviceModelCommand { get; set; }
         public DelegateCommand DeviceStatusCommand { get; set; }
+        public DelegateCommand DeviceIMENumberAddCommand { get; set; }
+        public DelegateCommand DeviceIMENumberRemoveCommand { get; set; }
 
         #endregion
 
@@ -65,8 +67,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                        SimCardCollection.Where(p => p.pkSimCardID == 0).FirstOrDefault() : null;
                     SelectedStatus = StatusCollection != null ? StatusCollection.Where(p => p.pkStatusID == value.fkStatusID).FirstOrDefault() : null;
                     SelectedReceivedDate = value.ReceiveDate != null ? value.ReceiveDate : DateTime.MinValue;
-                    SelectedIMENumber = value.IMENumber;
-
+                    
                     // Insurance required fields
                     if (value.InsuranceCost != null && value.InsuranceValue != null)
                         SetDeviceInsurance(value.InsuranceCost.Value, value.InsuranceValue.Value);
@@ -75,7 +76,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     //LinkDeviceToSimCard();
 
                     // Set the selected sim cards for the selected device
-                    SetSelectedDeviceSimCard();
+                    ReadDeviceIMENumbersAsync();
                 }
             }
         }
@@ -154,24 +155,14 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private ObservableCollection<Status> _statusCollection = null;
 
         /// <summary>
-        /// The collection of the selected device sim cards
+        /// The collection of IME numbers for the selected device
         /// </summary>
-        public Dictionary<string, object> SelectedDeviceSimCardCollection
+        public ObservableCollection<DeviceIMENumber> DeviceIMENumberCollection
         {
-            get { return _selectedDeviceSimCardCollection; }
-            set { SetProperty(ref _selectedDeviceSimCardCollection, value); }
+            get { return _deviceIMENumberCollection; }
+            set { SetProperty(ref _deviceIMENumberCollection, value); }
         }
-        private Dictionary<string, object> _selectedDeviceSimCardCollection = null;
-
-        /// <summary>
-        /// The collection of sim cards from the database
-        /// </summary>
-        public Dictionary<string, object> DeviceSimCardCollection
-        {
-            get { return _deviceSimCardCollection; }
-            set { SetProperty(ref _deviceSimCardCollection, value); }
-        }
-        private Dictionary<string, object> _deviceSimCardCollection = null;
+        private ObservableCollection<DeviceIMENumber> _deviceIMENumberCollection;
 
         #endregion
 
@@ -189,7 +180,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 SetProperty(ref _selectedDeviceMake, value);
 
                 if (SelectedDeviceMake != null && SelectedDeviceMake.pkDeviceMakeID != currentMakeID)
-                    ReadDeviceMakeModelsAsync();       
+                    ReadDeviceMakeModelsAsync();
             }
         }
         private DeviceMake _selectedDeviceMake;
@@ -213,6 +204,21 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _selectedStatus, value); }
         }
         private Status _selectedStatus;
+
+        /// <summary>
+        /// The selected IME number convert to a string so SelectedIMENumber 
+        /// can get the value
+        /// </summary>
+        public DeviceIMENumber SelectedIMENumberObject
+        {
+            get { return _selectedIMENumberObject; }
+            set
+            {
+                SetProperty(ref _selectedIMENumberObject, value);
+                SelectedIMENumber =  value != null ? value.IMENumber : SelectedIMENumber;
+            }
+        }
+        private DeviceIMENumber _selectedIMENumberObject;
 
         /// <summary>
         /// The selected received date
@@ -301,12 +307,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Set the required field border colour
         /// </summary>
-        public Brush ValidIMENumber
+        public Brush ValidIMENumberCollection
         {
-            get { return _validIMENumber; }
-            set { SetProperty(ref _validIMENumber, value); }
+            get { return _validIMENumberCollection; }
+            set { SetProperty(ref _validIMENumberCollection, value); }
         }
-        private Brush _validIMENumber = Brushes.Red;
+        private Brush _validIMENumberCollection = Brushes.Red;
 
         /// <summary>
         /// Set the required field border colour
@@ -389,8 +395,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         ValidStatus = SelectedStatus == null || SelectedStatus.pkStatusID < 1 ? Brushes.Red : Brushes.Silver; break;
                     case "SelectedReceivedDate":
                         ValidReceivedDate = SelectedReceivedDate.Date == DateTime.MinValue.Date ? Brushes.Red : Brushes.Silver; break;
-                    case "SelectedIMENumber":
-                        ValidIMENumber = string.IsNullOrEmpty(SelectedIMENumber) ? Brushes.Red : Brushes.Silver; break;
+                    case "DeviceIMENumberCollection":
+                        if (DeviceIMENumberCollection != null)
+                            ValidIMENumberCollection = DeviceIMENumberCollection.Count > 0 ? Brushes.Silver : Brushes.Red;
+                        else
+                            ValidIMENumberCollection = Brushes.Red;
+                        break;
                     case "SelectedInsuranceValue":
                         ValidInsuranceValue = DeviceInsuranceYes && SelectedInsuranceValue < 1 ? Brushes.Red : Brushes.Silver; break;
                     case "SelectedInsuranceCost":
@@ -503,10 +513,13 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                           .ObservesProperty(() => DeviceInsuranceYes)
                                                                           .ObservesProperty(() => DeviceInsuranceNo)
                                                                           .ObservesProperty(() => SelectedInsuranceCost)
-                                                                          .ObservesProperty(() => SelectedInsuranceValue);
+                                                                          .ObservesProperty(() => SelectedInsuranceValue)
+                                                                          .ObservesProperty(() => DeviceIMENumberCollection);
             DeviceMakeCommand = new DelegateCommand(ExecuteShowMakeView, CanExecuteMaintenace);
             DeviceModelCommand = new DelegateCommand(ExecuteShowModelView, CanExecuteMaintenace);
             DeviceStatusCommand = new DelegateCommand(ExecuteShowStatusView, CanExecuteMaintenace);
+            DeviceIMENumberAddCommand = new DelegateCommand(ExecuteAddIMENumber, CanExecuteAddIMENumber).ObservesProperty(() => SelectedIMENumber);
+            DeviceIMENumberRemoveCommand = new DelegateCommand(ExecuteRemoveIMENumber, CanExecuteRemoveIMENumber).ObservesProperty(() => SelectedIMENumber);
 
             // Subscribe to this event to read devices linked to selectede contract
             _eventAggregator.GetEvent<ReadDevicesEvent>().Subscribe(ReadContractDevices_Event, true);
@@ -541,9 +554,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedSimCard = SimCardCollection != null ? SimCardCollection.Where(p => p.pkSimCardID == 0).FirstOrDefault() : null;
             SelectedStatus = StatusCollection != null ? StatusCollection.Where(p => p.pkStatusID == 0).FirstOrDefault() : null;
             SelectedReceivedDate = DateTime.Now;
-            SelectedIMENumber = string.Empty;
+            SelectedIMENumber = null;
+            DeviceIMENumberCollection = null;
             DeviceInsuranceYes = DeviceInsuranceNo = false;
-            DeviceSimCardCollection = new Dictionary<string, object>();
             await ReadContractSimCardsAsync();
         }
 
@@ -614,43 +627,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 _eventAggregator.GetEvent<LinkDeviceSimCardEvent>().Publish(0);
         }
         
-        /// <summary>
-        ///  Set the device selected simcards
-        /// </summary>
-        private async void SetSelectedDeviceSimCard()
-        {
-            try
-            {
-                IEnumerable<DeviceSimCard> simCard = await Task.Run(() => new DeviceSimCardModel(_eventAggregator).ReadDeviceSimCard(SelectedDevice.pkDeviceID));
-                DeviceSimCardCollection = new Dictionary<string, object>();
-                SelectedDeviceSimCardCollection = new Dictionary<string, object>();
-
-                // Reset the simcards linked to the device
-                foreach (SimCard deviceSimCard in SimCardCollection)
-                {
-                    DeviceSimCardCollection.Add(deviceSimCard.CellNumber, deviceSimCard.pkSimCardID);
-                }
-                DeviceSimCardCollection = new Dictionary<string, object>(DeviceSimCardCollection);
-
-                // Set the selected device simcards
-                foreach (DeviceSimCard deviceSimCard in simCard)
-                {
-                    SelectedDeviceSimCardCollection.Add(deviceSimCard.SimCard.CellNumber, deviceSimCard.fkSimCardID);
-                }
-
-                SelectedDeviceSimCardCollection = new Dictionary<string, object>(SelectedDeviceSimCardCollection);
-            }
-            catch (Exception ex)
-            {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("ViewCellularViewModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "SetSelectedDeviceSimCard",
-                                                                ApplicationMessage.MessageTypes.SystemError));
-            }
-        }
-
         #region Lookup Data Loading
 
         /// <summary>
@@ -665,7 +641,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("ViewCellularViewModel",
+                                .Publish(new ApplicationMessage("ViewDeviceViewModel",
                                                                 string.Format("Error! {0}, {1}.",
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
                                                                 "ReadDeviceMakesAsync",
@@ -685,11 +661,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
                 if (DeviceModelCollection != null && SelectedDevice != null)
                     SelectedDeviceModel = DeviceModelCollection.Where(p => p.pkDeviceModelID == SelectedDevice.fkDeviceModelID).FirstOrDefault();
+                
             }
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("ViewCellularViewModel",
+                                .Publish(new ApplicationMessage("ViewDeviceViewModel",
                                                                 string.Format("Error! {0}, {1}.",
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
                                                                 "ReadDeviceMakeModelsAsync",
@@ -709,7 +686,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("ViewCellularViewModel",
+                                .Publish(new ApplicationMessage("ViewDeviceViewModel",
                                                                 string.Format("Error! {0}, {1}.",
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
                                                                 "ReadStatusesAsync",
@@ -751,10 +728,31 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("ViewCellularViewModel",
+                                .Publish(new ApplicationMessage("ViewDeviceViewModel",
                                                                 string.Format("Error! {0}, {1}.",
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
                                                                 "ReadContractSimCardsAsync",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
+
+        /// <summary>
+        ///  Set the device IME numbers
+        /// </summary>
+        private async void ReadDeviceIMENumbersAsync()
+        {
+            try
+            {
+                DeviceIMENumberCollection = await Task.Run(() => new DeviceIMENumberModel(_eventAggregator).ReadDeviceIMENumber(SelectedDevice.pkDeviceID));
+                SelectedIMENumber = DeviceIMENumberCollection.FirstOrDefault<DeviceIMENumber>().IMENumber;
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ViewDeviceViewModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ReadDeviceIMENumbersAsync",
                                                                 ApplicationMessage.MessageTypes.SystemError));
             }
         }
@@ -809,8 +807,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             // Validate if the logged-in user can administrate the company the client is linked to
             result = MobileManagerEnvironment.ClientCompanyID > 0 && _securityHelper.IsUserInCompany(MobileManagerEnvironment.ClientCompanyID) ? true : false;
 
-            if (result && SelectedDeviceMake != null && SelectedDeviceModel != null)
-                result = SelectedDeviceMake.pkDeviceMakeID > 0 && SelectedDeviceModel.pkDeviceModelID > 0 && !string.IsNullOrEmpty(SelectedIMENumber) &&
+            if (result && SelectedDeviceMake != null && SelectedDeviceModel != null && DeviceIMENumberCollection != null)
+                result = SelectedDeviceMake.pkDeviceMakeID > 0 && SelectedDeviceModel.pkDeviceModelID > 0 && DeviceIMENumberCollection.Count > 0 &&
                          SelectedReceivedDate.Date > DateTime.MinValue.Date && (DeviceInsuranceYes || DeviceInsuranceNo) && SelectedStatus.pkStatusID > 0 &&
                          (DeviceInsuranceYes ? SelectedInsuranceCost > 0 && SelectedInsuranceValue > 0 : true);
             else
@@ -834,7 +832,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedDevice.fkDeviceModelID = SelectedDeviceModel.pkDeviceModelID;
             SelectedDevice.fkStatusID = SelectedStatus.pkStatusID;
             SelectedDevice.fkSimCardID = SelectedSimCard != null && SelectedSimCard.pkSimCardID > 0 ? SelectedSimCard.pkSimCardID : (int?)null;
-            SelectedDevice.IMENumber = SelectedIMENumber.ToUpper();
+            SelectedDevice.IMENumber = "";// SelectedIMENumber.ToUpper();
             SelectedDevice.SerialNumber = SelectedDevice.SerialNumber;
             SelectedDevice.ReceiveDate = SelectedReceivedDate;
             SelectedDevice.InsuranceCost = SelectedInsuranceCost;
@@ -855,8 +853,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
             if (result)
             {
-                if (SelectedDeviceSimCardCollection != null)
-                    new DeviceSimCardModel(_eventAggregator).UpdateDeviceSimCards(SelectedDevice, SelectedDeviceSimCardCollection);
+                new DeviceIMENumberModel(_eventAggregator).UpdateDeviceIMENumber(DeviceIMENumberCollection, SelectedDevice.pkDeviceID);
 
                 if (_autoSave)
                     _eventAggregator.GetEvent<ActionCompletedEvent>().Publish(ActionCompleted.SaveContractDevices);
@@ -876,6 +873,24 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private bool CanExecuteMaintenace()
         {
             return _securityHelper.IsUserInRole(SecurityRole.Administrator.Value()) || _securityHelper.IsUserInRole(SecurityRole.DataManager.Value());
+        }
+
+        /// <summary>
+        /// Validate if the add IME button can be executed
+        /// </summary>
+        /// <returns></returns>
+        private bool CanExecuteAddIMENumber()
+        {
+            return string.IsNullOrWhiteSpace(SelectedIMENumber) || DeviceIMENumberCollection.Where(x => x.IMENumber == SelectedIMENumber).Count() > 0 ? false : true;
+        }
+
+        /// <summary>
+        /// Validate if the remove IME button can be executed
+        /// </summary>
+        /// <returns></returns>
+        private bool CanExecuteRemoveIMENumber()
+        {
+            return DeviceIMENumberCollection == null ? false : DeviceIMENumberCollection.Where(x => x.IMENumber == SelectedIMENumber).Count() > 0 ? true : false;
         }
 
         /// <summary>
@@ -907,6 +922,37 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             PopupWindow popupWindow = new PopupWindow(new ViewStatus(), "Status Maintenance", PopupWindow.PopupButtonType.Close);
             popupWindow.ShowDialog();
             await ReadStatusesAsync();
+        }
+
+        /// <summary>
+        /// Execute add IME number to selected device
+        /// </summary>
+        private void ExecuteAddIMENumber()
+        {
+            DeviceIMENumber deviceIMENumber = new DeviceIMENumber();
+
+            deviceIMENumber.IMENumber = SelectedIMENumber;
+            deviceIMENumber.fkDeviceID = SelectedDevice.pkDeviceID;
+            deviceIMENumber.ModifiedBy = SecurityHelper.LoggedInUserFullName;
+            deviceIMENumber.ModifiedDate = DateTime.Now;
+
+            DeviceIMENumberCollection.Add(deviceIMENumber);
+
+            //Update the value of Selected IME number so the add IME button can disbale
+            SelectedIMENumber = string.Empty;
+            SelectedIMENumber = deviceIMENumber.IMENumber;
+        }
+
+        /// <summary>
+        /// Execute remove IME number from the collection
+        /// </summary>
+        private void ExecuteRemoveIMENumber()
+        {
+            DeviceIMENumberCollection.Remove(DeviceIMENumberCollection.Where(x => x.IMENumber == SelectedIMENumber).First());
+            //Disbale remove IME number
+            SelectedIMENumber = string.Empty;
+            //Check if the collection count is 0 and set required field
+            ValidIMENumberCollection = DeviceIMENumberCollection.Count() > 0 ? Brushes.Silver : Brushes.Red;
         }
 
         #endregion
