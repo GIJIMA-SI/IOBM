@@ -18,7 +18,7 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public int fkUserID { get; set; }
         public int fkCompanyID { get; set; }
     
-        public virtual Company Company { get; set; }
         public virtual User User { get; set; }
+        public virtual Company Company { get; set; }
     }
 }

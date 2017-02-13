@@ -71,6 +71,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private string _selectedIPAddress = string.Empty;
 
         /// <summary>
+        /// The entered company PO number
+        /// </summary>
+        public string SelectedPONumber
+        {
+            get { return _selectedPONumber; }
+            set { SetProperty(ref _selectedPONumber, value); }
+        }
+        private string _selectedPONumber = string.Empty;
+
+        /// <summary>
         /// The selected company state
         /// </summary>
         public bool CompanyState

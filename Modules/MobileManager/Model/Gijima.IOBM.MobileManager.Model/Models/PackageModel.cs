@@ -136,6 +136,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                             existingPackage.enPackageType = package.enPackageType;
                             existingPackage.PackageName = package.PackageName;
                             existingPackage.Cost = package.Cost;
+                            existingPackage.MBData = package.MBData;
                             existingPackage.TalkTimeMinutes = package.TalkTimeMinutes;
                             existingPackage.SMSNumber = package.SMSNumber;
                             existingPackage.RandValue = package.RandValue;

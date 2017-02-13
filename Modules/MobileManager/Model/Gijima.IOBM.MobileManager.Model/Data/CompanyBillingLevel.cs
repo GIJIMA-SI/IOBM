@@ -23,6 +23,7 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public int pkCompanyBillingLevelID { get; set; }
         public int fkCompanyGroupID { get; set; }
         public int fkBillingLevelID { get; set; }
+        public short enBillingLevelType { get; set; }
         public decimal Amount { get; set; }
         public string ModifiedBy { get; set; }
         public System.DateTime ModifiedDate { get; set; }

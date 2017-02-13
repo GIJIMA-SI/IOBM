@@ -47,10 +47,10 @@ namespace Gijima.IOBM.MobileManager.Model.Data
     
         public virtual ClientBilling ClientBilling { get; set; }
         public virtual ClientLocation ClientLocation { get; set; }
-        public virtual Company Company { get; set; }
         public virtual Suburb Suburb { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Invoice> Invoices { get; set; }
         public virtual Contract Contract { get; set; }
+        public virtual Company Company { get; set; }
     }
 }
