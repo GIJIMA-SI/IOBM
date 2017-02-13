@@ -154,6 +154,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
         private ObservableCollection<Status> _statusCollection = null;
 
+        /// <summary>
+        /// The collection of IME numbers for the selected device
+        /// </summary>
         public ObservableCollection<DeviceIMENumber> DeviceIMENumberCollection
         {
             get { return _deviceIMENumberCollection; }
@@ -804,7 +807,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             // Validate if the logged-in user can administrate the company the client is linked to
             result = MobileManagerEnvironment.ClientCompanyID > 0 && _securityHelper.IsUserInCompany(MobileManagerEnvironment.ClientCompanyID) ? true : false;
 
-            if (result && SelectedDeviceMake != null && SelectedDeviceModel != null)
+            if (result && SelectedDeviceMake != null && SelectedDeviceModel != null && DeviceIMENumberCollection != null)
                 result = SelectedDeviceMake.pkDeviceMakeID > 0 && SelectedDeviceModel.pkDeviceModelID > 0 && DeviceIMENumberCollection.Count > 0 &&
                          SelectedReceivedDate.Date > DateTime.MinValue.Date && (DeviceInsuranceYes || DeviceInsuranceNo) && SelectedStatus.pkStatusID > 0 &&
                          (DeviceInsuranceYes ? SelectedInsuranceCost > 0 && SelectedInsuranceValue > 0 : true);
