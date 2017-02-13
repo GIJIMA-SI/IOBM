@@ -17,7 +17,7 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Device()
         {
-            this.DeviceSimCards = new HashSet<DeviceSimCard>();
+            this.DeviceIMENumbers = new HashSet<DeviceIMENumber>();
         }
     
         public int pkDeviceID { get; set; }
@@ -41,6 +41,6 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public virtual Status Status { get; set; }
         public virtual Contract Contract { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<DeviceSimCard> DeviceSimCards { get; set; }
+        public virtual ICollection<DeviceIMENumber> DeviceIMENumbers { get; set; }
     }
 }

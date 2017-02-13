@@ -81,9 +81,8 @@
         <EntityTypeShape EntityType="MobileManagerModel.ContractService" Width="1.5" PointX="0.625" PointY="9.25" IsExpanded="false" />
         <AssociationConnector Association="MobileManagerModel.FK_ClientService_ClientService" />
         <AssociationConnector Association="MobileManagerModel.FK_ClientService_Contract" />
-        <EntityTypeShape EntityType="MobileManagerModel.DeviceSimCard" Width="1.5" PointX="8.375" PointY="3.375" IsExpanded="false" />
-        <AssociationConnector Association="MobileManagerModel.FK_DeviceSimCard_Device" />
-        <AssociationConnector Association="MobileManagerModel.FK_DeviceSimCard_SimCard" />
+        <EntityTypeShape EntityType="MobileManagerModel.DeviceIMENumber" Width="1.5" PointX="8" PointY="3.5" IsExpanded="false" />
+        <AssociationConnector Association="MobileManagerModel.FK_DeviceIMENumber_Device" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
