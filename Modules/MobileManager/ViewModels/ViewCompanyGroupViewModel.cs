@@ -204,12 +204,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             {
                 List<ListBoxItem> billingLevelItems = new List<ListBoxItem>();
                 ListBoxItem billingLevelItem = null;
-                ObservableCollection<CompanyBillingLevel> collection = await Task.Run(() => new CompanyBillingLevelModel(_eventAggregator).ReadCompanyBillingLevels(SelectedGroup.pkCompanyGroupID, true));
+                ObservableCollection<CompanyBillingLevel> collection = await Task.Run(() => new CompanyBillingLevelModel(_eventAggregator).ReadCompanyBillingLevels(SelectedGroup.pkCompanyGroupID));
 
                 foreach (CompanyBillingLevel billingLevel in collection)
                 {
                     billingLevelItem = new ListBoxItem();
-                    billingLevelItem.Content = string.Format("{0} - R{1}", billingLevel.BillingLevel.LevelDescription, billingLevel.Amount);
+                    billingLevelItem.Content = string.Format("{0} - {1} - R{2}", billingLevel.BillingLevel.LevelDescription, billingLevel.TypeDescription, billingLevel.Amount);
                     billingLevelItems.Add(billingLevelItem);
                 }
 

@@ -1,4 +1,5 @@
 ﻿using Gijima.IOBM.Infrastructure.Events;
+using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Gijima.IOBM.MobileManager.Model.Models;
 using Gijima.IOBM.MobileManager.Security;
@@ -46,6 +47,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 if (value != null)
                 {
                     SelectedBillingLevel = BillingLevelCollection != null ? BillingLevelCollection.First(p => p.pkBillingLevelID == value.fkBillingLevelID) : null;
+                    SelectedBillingLevelType = BillingLevelTypeCollection != null ? ((BillingLevelType)value.enBillingLevelType).ToString() : "-- Please Select --";
                     BillingAmount = value.Amount > 0 ? value.Amount.ToString() : "0";
                     SetProperty(ref _selectedCompanyBillingLevel, value);
                 }
@@ -86,6 +88,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private BillingLevel _selectedBillingLevel;
 
         /// <summary>
+        /// The selected billing level type
+        /// </summary>
+        public string SelectedBillingLevelType
+        {
+            get { return _selectedBillingLevelType; }
+            set { SetProperty(ref _selectedBillingLevelType, value); }
+        }
+        private string _selectedBillingLevelType;
+
+        /// <summary>
         /// The entered billing amount
         /// </summary>
         public string BillingAmount
@@ -112,12 +124,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// The collection of company groups from the database
         /// </summary>
-        public ObservableCollection<CompanyGroup> GroupCollection
+        public ObservableCollection<string> BillingLevelTypeCollection
         {
-            get { return _groupCollection; }
-            set { SetProperty(ref _groupCollection, value); }
+            get { return _billingLevelTypeCollection; }
+            set { SetProperty(ref _billingLevelTypeCollection, value); }
         }
-        private ObservableCollection<CompanyGroup> _groupCollection = null;
+        private ObservableCollection<string> _billingLevelTypeCollection = null;
 
         #endregion
 
@@ -212,6 +224,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             // Load the view data
             await ReadCompanyBillingLevelsAsync();
             await ReadBillingLevelsAsync();
+            ReadBillingLevelTypes();
         }
 
         /// <summary>
@@ -220,6 +233,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private void InitialiseViewControls()
         {
             SelectedCompanyBillingLevel = new CompanyBillingLevel();
+            SelectedBillingLevelType = "-- Please Select --";
         }
 
         /// <summary>
@@ -229,12 +243,28 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
-                CompanyBillingLevelCollection = await Task.Run(() => _model.ReadCompanyBillingLevels(_companyGroupID, true));
+                CompanyBillingLevelCollection = await Task.Run(() => _model.ReadCompanyBillingLevels(_companyGroupID));
             }
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
             }
+        }
+
+        /// <summary>
+        /// Populate the level types combobox from the BillingLevelType enum
+        /// </summary>
+        private void ReadBillingLevelTypes()
+        {
+            BillingLevelTypeCollection = new ObservableCollection<string>();
+            BillingLevelTypeCollection.Add("-- Please Select --");
+
+            foreach (BillingLevelType source in Enum.GetValues(typeof(BillingLevelType)))
+            {
+                BillingLevelTypeCollection.Add(source.ToString());
+            }
+
+            SelectedBillingLevelType = "-- Please Select --";
         }
 
         /// <summary>
@@ -309,6 +339,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             bool result = false;
             SelectedCompanyBillingLevel.fkCompanyGroupID = _companyGroupID;
             SelectedCompanyBillingLevel.fkBillingLevelID = SelectedBillingLevel.pkBillingLevelID;
+            SelectedCompanyBillingLevel.enBillingLevelType = ((BillingLevelType)Enum.Parse(typeof(BillingLevelType), SelectedBillingLevelType)).Value();
             SelectedCompanyBillingLevel.Amount = Convert.ToDecimal(BillingAmount);
             SelectedCompanyBillingLevel.ModifiedBy = SecurityHelper.LoggedInDomainName;
             SelectedCompanyBillingLevel.ModifiedDate = DateTime.Now;

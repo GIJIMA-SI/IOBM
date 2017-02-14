@@ -52,6 +52,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     SelectedWBSNumber = value.WBSNumber;
                     SelectedCostCode = value.CostCode;
                     SelectedPONumber = value.PONumber != null ? value.PONumber : string.Empty;
+                    SelectedPOExpiryDate = value.POExpiryDate != null ? value.POExpiryDate.Value : DateTime.MinValue;
                     HasSplitBilling = value.HasSpitBilling;
                     SelectedIPAddress = value.IPAddress;
                     CompanyState = value.IsActive;
@@ -80,6 +81,26 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _selectedPONumber, value); }
         }
         private string _selectedPONumber = string.Empty;
+
+        /// <summary>
+        /// The entered company PO expiry date
+        /// </summary>
+        public DateTime SelectedPOExpiryDate
+        {
+            get { return _selectedPOExpiryDate; }
+            set { SetProperty(ref _selectedPOExpiryDate, value); }
+        }
+        private DateTime _selectedPOExpiryDate = DateTime.MinValue;
+
+        /// <summary>
+        /// Indicate if the company has a PO Number
+        /// </summary>
+        public bool HasPONumber
+        {
+            get { return _hasPONumber; }
+            set { SetProperty(ref _hasPONumber, value); }
+        }
+        private bool _hasPONumber;
 
         /// <summary>
         /// The selected company state
@@ -222,6 +243,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private Brush _validCostCode = Brushes.Red;
 
         /// <summary>
+        /// Set the required field border colour
+        /// </summary>
+        public Brush ValidPOExpiryDate
+        {
+            get { return _validPOExpiryDate; }
+            set { SetProperty(ref _validPOExpiryDate, value); }
+        }
+        private Brush _validPOExpiryDate = Brushes.Red;
+
+        /// <summary>
         /// Input validate error message
         /// </summary>
         public string Error
@@ -252,6 +283,22 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         ValidWBSNumber = string.IsNullOrEmpty(SelectedWBSNumber) ? Brushes.Red : Brushes.Silver; break;
                     case "SelectedCostCode":
                         ValidCostCode = string.IsNullOrEmpty(SelectedCostCode) ? Brushes.Red : Brushes.Silver; break;
+                    case "SelectedPONumber":
+                       if (string.IsNullOrEmpty(SelectedPONumber))
+                        {
+                            HasPONumber = false;
+                            SelectedPOExpiryDate = DateTime.MinValue;
+                            ValidPOExpiryDate = Brushes.Silver;
+                        }
+                        else
+                        {
+                            HasPONumber = true;
+                            SelectedPOExpiryDate = DateTime.Now;
+                            ValidPOExpiryDate = Brushes.Red;
+                        }
+                        break;
+                    case "SelectedPOExpiryDate":
+                        ValidPOExpiryDate = HasPONumber && SelectedPOExpiryDate < DateTime.Now ? Brushes.Red : Brushes.Silver; break;
                 }
                 return result;
             }
@@ -287,7 +334,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SaveCommand = new DelegateCommand(ExecuteSave, CanExecuteSave).ObservesProperty(() => SelectedCompanyName)
                                                                           .ObservesProperty(() => SelectedGroup)
                                                                           .ObservesProperty(() => SelectedWBSNumber)
-                                                                          .ObservesProperty(() => SelectedCostCode);
+                                                                          .ObservesProperty(() => SelectedCostCode)
+                                                                          .ObservesProperty(() => SelectedPONumber)
+                                                                          .ObservesProperty(() => SelectedPOExpiryDate);
             GroupCommand = new DelegateCommand(ExecuteShowCompanyGroupView);
 
             // Load the view data
@@ -351,12 +400,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
                 if (SelectedCompany.fkCompanyGroupID != null)
                 {
-                    ObservableCollection<CompanyBillingLevel> collection = await Task.Run(() => new CompanyBillingLevelModel(_eventAggregator).ReadCompanyBillingLevels(SelectedCompany.fkCompanyGroupID.Value, true));
+                    ObservableCollection<CompanyBillingLevel> collection = await Task.Run(() => new CompanyBillingLevelModel(_eventAggregator).ReadCompanyBillingLevels(SelectedCompany.fkCompanyGroupID.Value));
 
                     foreach (CompanyBillingLevel billingLevel in collection)
                     {
                         billingLevelItem = new ListBoxItem();
-                        billingLevelItem.Content = string.Format("{0} - R{1}", billingLevel.BillingLevel.LevelDescription, billingLevel.Amount);
+                        billingLevelItem.Content = string.Format("{0} - {1} - R{2}", billingLevel.BillingLevel.LevelDescription, billingLevel.TypeDescription, billingLevel.Amount);
                         billingLevelItems.Add(billingLevelItem);
                     }
                 }
@@ -397,7 +446,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private bool CanExecuteSave()
         {
             return !string.IsNullOrWhiteSpace(SelectedCompanyName) && !string.IsNullOrWhiteSpace(SelectedWBSNumber) &&
-                   !string.IsNullOrWhiteSpace(SelectedCostCode) && SelectedGroup != null && SelectedGroup.pkCompanyGroupID > 0;
+                   !string.IsNullOrWhiteSpace(SelectedCostCode) && SelectedGroup != null && SelectedGroup.pkCompanyGroupID > 0 &&
+                   (!HasPONumber || (HasPONumber && SelectedPOExpiryDate > DateTime.Now));
         }
 
         /// <summary>
@@ -419,6 +469,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedCompany.WBSNumber = SelectedWBSNumber.ToUpper();
             SelectedCompany.CostCode = SelectedCostCode.ToUpper();
             SelectedCompany.PONumber = SelectedPONumber.ToUpper();
+            SelectedCompany.POExpiryDate = HasPONumber && SelectedPOExpiryDate > DateTime.MinValue ? SelectedPOExpiryDate : (DateTime?)null;
             SelectedCompany.HasSpitBilling = HasSplitBilling;
             SelectedCompany.ModifiedBy = SecurityHelper.LoggedInUserFullName;
             SelectedCompany.ModifiedDate = DateTime.Now;

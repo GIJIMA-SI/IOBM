@@ -940,7 +940,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
             //Update the value of Selected IME number so the add IME button can disbale
             SelectedIMENumber = string.Empty;
-            SelectedIMENumber = deviceIMENumber.IMENumber;
         }
 
         /// <summary>

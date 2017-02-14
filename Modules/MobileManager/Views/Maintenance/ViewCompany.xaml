@@ -76,7 +76,7 @@
             </Button>
         </StackPanel>
         <TextBlock Grid.Row="0" Grid.Column="9" Text="Billing levels:" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
-        <ListBox x:Name="ListBoxBillingLevels" Grid.Row="2" Grid.Column="9" Grid.ColumnSpan="2" Grid.RowSpan="7" TabIndex="11"
+        <ListBox x:Name="ListBoxBillingLevels" Grid.Row="2" Grid.Column="9" Grid.ColumnSpan="2" Grid.RowSpan="9" TabIndex="12" Height="105" VerticalAlignment="Top"
             ItemsSource="{Binding CompanyBillingLevelCollection, UpdateSourceTrigger=PropertyChanged}" />
         <TextBlock Grid.Row="4" Grid.Column="0" Text="WBS no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
         <TextBox x:Name="TextBoxWBSNumber" Grid.Row="4" Grid.Column="1" TabIndex="4" ToolTip="Enter the WBS number linked to the company." Style="{StaticResource UXTextBoxStyle}"
@@ -99,14 +99,14 @@
               IsChecked="{Binding HasSplitBilling, UpdateSourceTrigger=PropertyChanged}"/>
         <TextBlock Grid.Row="8" Grid.Column="0" Text="PO no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
         <TextBox x:Name="TextBoxPONumber" Grid.Row="8" Grid.Column="1" TabIndex="9" ToolTip="Enter the purchase order number linked to the company." Style="{StaticResource UXTextBoxStyle}"
-            Text="{Binding SelectedPONumber, UpdateSourceTrigger=PropertyChanged}">
+            Text="{Binding SelectedPONumber, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
         </TextBox>
         <TextBlock Grid.Row="8" Grid.Column="3" Text="PO exp date:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
         <DatePicker x:Name="DatePickerPOExpiryDate" Grid.Row="8" Grid.Column="4" Grid.ColumnSpan="4" TabIndex="10" Height="24" ToolTip="Select the PO expiry date." BorderBrush="{Binding ValidPOExpiryDate}"
             SelectedDate="{Binding SelectedPOExpiryDate, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding HasPONumber}"/>
         <StackPanel Grid.Row="9" Grid.Column="10" Orientation="Horizontal" HorizontalAlignment="Right">
             <TextBlock Text="Active" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom" Margin="0,0,5,0"></TextBlock>
-            <CheckBox x:Name="CkeckBoxIsActive" TabIndex="12" VerticalAlignment="Bottom" IsChecked="{Binding CompanyState, UpdateSourceTrigger=PropertyChanged}"/>
+            <CheckBox x:Name="CkeckBoxIsActive" TabIndex="11" VerticalAlignment="Bottom" IsChecked="{Binding CompanyState, UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
         <TextBlock Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Text="Available Companies" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
         <DataGrid x:Name="DataGridCompanies" Grid.Row="10" Grid.ColumnSpan="11" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True" 

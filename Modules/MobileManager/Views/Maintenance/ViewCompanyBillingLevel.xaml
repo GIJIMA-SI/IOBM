@@ -7,7 +7,7 @@
              xmlns:prism="http://prismlibrary.com/"
              prism:ViewModelLocator.AutoWireViewModel="False"             
              mc:Ignorable="d" 
-             Height="200" Width="500">
+             Height="200" Width="400">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -18,12 +18,11 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="75" />
+            <ColumnDefinition Width="70" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="5" />
             <ColumnDefinition Width="55" />
             <ColumnDefinition Width="63" />
-            <ColumnDefinition Width="5" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <TextBlock Grid.Row="0" Grid.Column="0" Text="Billing level:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
@@ -42,34 +41,41 @@
                 </Button>
             </Grid>
         </Border>
-        <TextBlock Grid.Row="0" Grid.Column="3" Text="Amount:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-        <TextBox x:Name="TextBoxAmount" Grid.Row="0" Grid.Column="4" TabIndex="3" Style="{StaticResource UXTextBoxStyle}" ToolTip="Enter the billing level amount."
-             Text="{Binding BillingAmount, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidBillingAmount}">
-        </TextBox>
-        <StackPanel Grid.Row="0" Grid.Column="6" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button x:Name="ButtonCancel" TabIndex="5" Style="{StaticResource UXImageButtonStyle}"
+        <StackPanel Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="ButtonCancel" TabIndex="6" Style="{StaticResource UXImageButtonStyle}"
                 ToolTip="Cancel the current operation." Command="{Binding CancelCommand}">
                 <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico"  />
             </Button>
-            <Button x:Name="ButtonAdd" TabIndex="6" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
+            <Button x:Name="ButtonAdd" TabIndex="7" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
                 ToolTip="Add a new company billing level." Command="{Binding AddCommand}">
                 <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/508.png"  />
             </Button>
-            <Button x:Name="ButtonDelete" TabIndex="7" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
+            <Button x:Name="ButtonDelete" TabIndex="8" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
                 ToolTip="Delete the selected company billing level." Command="{Binding DeleteCommand}">
                 <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/278.png"  />
             </Button>
-            <Button x:Name="ButtonSave" TabIndex="8" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
+            <Button x:Name="ButtonSave" TabIndex="9" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
                 ToolTip="Save the company billing level data." Command="{Binding SaveCommand}">
                 <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/save_32.ico"  />
             </Button>
         </StackPanel>
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Level type:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <Border Grid.Row="2" Grid.Column="1" BorderThickness="1" BorderBrush="{Binding ValidBillingLevelType}">
+            <ComboBox x:Name="ComboBoxBillingLevelType" ToolTip="Select the billing level type." TabIndex="3" IsSynchronizedWithCurrentItem="True" Height="20"
+                ItemsSource="{Binding BillingLevelTypeCollection}" SelectedItem="{Binding SelectedBillingLevelType, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding RequiredFieldColour}">
+            </ComboBox>
+        </Border>
+        <TextBlock Grid.Row="2" Grid.Column="3" Text="Amount:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <TextBox x:Name="TextBoxAmount" Grid.Row="2" Grid.Column="4" TabIndex="4" Style="{StaticResource UXTextBoxStyle}" ToolTip="Enter the billing level amount."
+             Text="{Binding BillingAmount, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidBillingAmount}">
+        </TextBox>
         <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="4" Text="Available Company Billing Levels" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
         <DataGrid x:Name="DataGridCompanyBillingLevels" Grid.Row="4" Grid.ColumnSpan="7" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True" 
-            IsReadOnly="True" TabIndex="4" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" 
+            IsReadOnly="True" TabIndex="5" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" 
             ItemsSource="{Binding CompanyBillingLevelCollection}" SelectedItem="{Binding SelectedCompanyBillingLevel, UpdateSourceTrigger=PropertyChanged}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Billing Level" Binding="{Binding BillingLevel.LevelDescription}" Width="*" />
+                <DataGridTextColumn Header="Type" Binding="{Binding TypeDescription}" Width="100" />
                 <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" Width="100" />
             </DataGrid.Columns>
         </DataGrid>

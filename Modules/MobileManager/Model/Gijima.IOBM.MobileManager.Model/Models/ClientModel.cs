@@ -58,7 +58,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 {
                     using (var db = MobileManagerEntities.GetContext())
                     {
-                        if (!db.Clients.Any(p => p.ClientName.ToUpper() == client.ClientName && p.PrimaryCellNumber == client.PrimaryCellNumber))
+                        if (!db.Clients.Any(p => p.IDNumber == client.IDNumber && p.PrimaryCellNumber == client.PrimaryCellNumber))
                         {
                             // Save the client entity data
                             client.IsActive = true;

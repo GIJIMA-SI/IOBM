@@ -41,11 +41,12 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 using (var db = MobileManagerEntities.GetContext())
                 {
                     if (db.CompanyBillingLevels.Any(p => p.fkCompanyGroupID == companyBillingLevel.fkCompanyGroupID &&
-                                                         p.fkBillingLevelID == companyBillingLevel.fkBillingLevelID))
+                                                         p.fkBillingLevelID == companyBillingLevel.fkBillingLevelID &&
+                                                         p.enBillingLevelType == companyBillingLevel.enBillingLevelType))
                     {
                         _eventAggregator.GetEvent<ApplicationMessageEvent>()
                                         .Publish(new ApplicationMessage("CompanyBillingLevelModel",
-                                                                        string.Format("The {0} company billing level already exist.", companyBillingLevel.BillingLevel.LevelDescription),
+                                                                        "The company billing level already exist.",
                                                                         "CreateCompanyBillingLevel",
                                                                         ApplicationMessage.MessageTypes.SystemError));
                         return false;
@@ -73,9 +74,9 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// Read all the company billing levels from the database
         /// </summary>
         /// <param name="companyGroupID">The company group linked to the billing levels.</param>
-        /// <param name="excludeDefault">Flag to include or exclude the default entity.</param>
+        /// <param name="billingLevelType">The billing level type based on the package type.</param>
         /// <returns>Collection of CompanyBillingLevels</returns>
-        public ObservableCollection<CompanyBillingLevel> ReadCompanyBillingLevels(int companyGroupID, bool excludeDefault = false)
+        public ObservableCollection<CompanyBillingLevel> ReadCompanyBillingLevels(int companyGroupID, short? billingLevelType = null)
         {
             try
             {
@@ -91,8 +92,8 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                                                                 .Include("CompanyGroup")
                                                                                                 .OrderBy(p => p.BillingLevel.LevelDescription).ToList();
 
-                    if (excludeDefault)
-                        companyBillingLevels = companyBillingLevels.Where(p => p.pkCompanyBillingLevelID > 0);
+                    if (billingLevelType != null)
+                        companyBillingLevels = companyBillingLevels.Where(p => p.enBillingLevelType == billingLevelType);
 
                     return new ObservableCollection<CompanyBillingLevel>(companyBillingLevels);
                 }
@@ -136,6 +137,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                     existingBillingLevel.fkCompanyGroupID = companyBillingLevel.fkCompanyGroupID;
                     existingBillingLevel.fkBillingLevelID = companyBillingLevel.fkBillingLevelID;
+                    existingBillingLevel.enBillingLevelType = companyBillingLevel.enBillingLevelType;
                     existingBillingLevel.Amount = companyBillingLevel.Amount;
                     existingBillingLevel.ModifiedBy = Security.SecurityHelper.LoggedInFullName;
                     existingBillingLevel.ModifiedDate = DateTime.Now;

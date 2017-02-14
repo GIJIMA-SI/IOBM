@@ -27,6 +27,7 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public string WBSNumber { get; set; }
         public string CostCode { get; set; }
         public string PONumber { get; set; }
+        public Nullable<System.DateTime> POExpiryDate { get; set; }
         public decimal AdminFee { get; set; }
         public string IPAddress { get; set; }
         public bool HasSpitBilling { get; set; }

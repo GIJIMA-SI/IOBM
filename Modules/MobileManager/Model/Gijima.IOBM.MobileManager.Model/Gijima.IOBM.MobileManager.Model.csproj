@@ -142,6 +142,7 @@
     <Compile Include="Data\DeviceModel.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Data\Extentions\CompanyBillingLevelExt.cs" />
     <Compile Include="Data\Extentions\CompanyExt.cs" />
     <Compile Include="Data\Extentions\ContractServiceExt.cs" />
     <Compile Include="Data\Extentions\DataValidationPropertyExt.cs" />

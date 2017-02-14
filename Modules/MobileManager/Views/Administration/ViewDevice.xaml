@@ -152,8 +152,9 @@
                         </Button>
                     </Grid>
                 </Border>
-                <ListBox Grid.Row="6" Grid.Column="4" Grid.RowSpan="4" Margin="0,0,0,10" SelectedItem="{Binding SelectedIMENumberObject, UpdateSourceTrigger=PropertyChanged}"
-                         ItemsSource="{Binding DeviceIMENumberCollection, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="IMENumber" ></ListBox>
+                <ListBox Grid.Row="5" Grid.Column="4" Grid.RowSpan="4" Margin="1,0,0,0" MaxHeight="45"
+                    SelectedItem="{Binding SelectedIMENumberObject, UpdateSourceTrigger=PropertyChanged}"
+                    ItemsSource="{Binding DeviceIMENumberCollection, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="IMENumber" ></ListBox>
                 <TextBlock Grid.Row="6" Grid.Column="0" Text="Insured:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
                 <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                     <RadioButton x:Name="RadioButtonInsuranceYes" Content="Yes" Margin="0,0,5,0" TabIndex="71" GroupName="Insurance" 
@@ -187,7 +188,6 @@
                         <DataGridTextColumn Header="Make" Binding="{Binding DeviceMake.MakeDescription}" Width="Auto" />
                         <DataGridTextColumn Header="Model" Binding="{Binding DeviceModel.ModelDescription}" Width="Auto" />
                         <DataGridTextColumn Header="Cell Number" Binding="{Binding SimCard.CellNumber}" Width="Auto" />
-                        <DataGridTextColumn Header="IME Number" Binding="{Binding IMENumber}" Width="Auto" />
                         <DataGridTextColumn Header="Serial Number" Binding="{Binding SerialNumber}" Width="Auto" />
                         <DataGridTextColumn Header="Insr Value" Binding="{Binding InsuranceValue}" Width="Auto" />
                         <DataGridTextColumn Header="Insr Cost" Binding="{Binding InsuranceCost}" Width="Auto" />

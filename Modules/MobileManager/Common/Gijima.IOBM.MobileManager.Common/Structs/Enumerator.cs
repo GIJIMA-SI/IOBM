@@ -212,7 +212,6 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
     /// </summary>
     public enum BillingLevelType
     {
-        NONE = 0,
         VOICE = 1,
         DATA = 2
     }
@@ -574,6 +573,10 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
         public static int Value(this Statuses type)
         {
             return Convert.ToInt32(type);
+        }
+        public static short Value(this BillingLevelType type)
+        {
+            return Convert.ToInt16(type);
         }
     }
 }

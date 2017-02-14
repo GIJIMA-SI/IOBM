@@ -7,7 +7,7 @@
              xmlns:prism="http://prismlibrary.com/"
              prism:ViewModelLocator.AutoWireViewModel="True"             
              mc:Ignorable="d" 
-             Height="255" Width="400">
+             Height="255" Width="450">
 
     <UserControl.Resources>
         <mm:UIDataConvertionHelper x:Key="UIDataConvertionHelper"/>
@@ -50,7 +50,7 @@
             </Button>
         </StackPanel>
         <TextBlock Grid.Row="2" Grid.Column="0" Text="Billing levels:" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Top"></TextBlock>
-        <ListBox x:Name="ListBoxBillingLevels" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" TabIndex="8"
+        <ListBox x:Name="ListBoxBillingLevels" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" TabIndex="8" Height="100" VerticalAlignment="Top"
             ItemsSource="{Binding CompanyBillingLevelCollection, UpdateSourceTrigger=PropertyChanged}" MinHeight="38" MaxHeight="50"/>
         <StackPanel Grid.Row="3" Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right">
             <TextBlock Text="Active" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom" Margin="0,0,5,0"></TextBlock>
