@@ -75,8 +75,9 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// </summary>
         /// <param name="companyGroupID">The company group linked to the billing levels.</param>
         /// <param name="billingLevelType">The billing level type based on the package type.</param>
+        /// <param name="excludeDefault">Flag to include or exclude the default entity.</param>
         /// <returns>Collection of CompanyBillingLevels</returns>
-        public ObservableCollection<CompanyBillingLevel> ReadCompanyBillingLevels(int companyGroupID, short? billingLevelType = null)
+        public ObservableCollection<CompanyBillingLevel> ReadCompanyBillingLevels(int companyGroupID, short? billingLevelType = null, bool excludeDefault = false)
         {
             try
             {
@@ -93,7 +94,10 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                                                                 .OrderBy(p => p.BillingLevel.LevelDescription).ToList();
 
                     if (billingLevelType != null)
-                        companyBillingLevels = companyBillingLevels.Where(p => p.enBillingLevelType == billingLevelType);
+                        companyBillingLevels = companyBillingLevels.Where(p => p.enBillingLevelType == billingLevelType || p.enBillingLevelType == 0);
+
+                    if (excludeDefault)
+                        companyBillingLevels = companyBillingLevels.Where(p => p.pkCompanyBillingLevelID > 0);
 
                     return new ObservableCollection<CompanyBillingLevel>(companyBillingLevels);
                 }

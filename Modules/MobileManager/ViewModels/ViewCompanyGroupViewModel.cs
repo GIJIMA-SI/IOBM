@@ -1,4 +1,5 @@
 ﻿using Gijima.IOBM.Infrastructure.Events;
+using Gijima.IOBM.Infrastructure.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Gijima.IOBM.MobileManager.Model.Models;
 using Gijima.IOBM.MobileManager.Security;
@@ -10,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -76,12 +78,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// The collection of company billing level from the database
         /// </summary>
-        public List<ListBoxItem> CompanyBillingLevelCollection
+        public List<CompanyBillingLevel> CompanyBillingLevelCollection
         {
             get { return _companyBillingLevelCollection; }
             set { SetProperty(ref _companyBillingLevelCollection, value); }
         }
-        private List<ListBoxItem> _companyBillingLevelCollection = null;
+        private List<CompanyBillingLevel> _companyBillingLevelCollection = null;
 
         #region Required Fields
 
@@ -191,7 +193,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
             catch (Exception ex)
             {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ViewCompanyGroupViewModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ReadCompanyGroupsAsync",
+                                                                ApplicationMessage.MessageTypes.SystemError));
             }
         }
 
@@ -202,22 +209,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
-                List<ListBoxItem> billingLevelItems = new List<ListBoxItem>();
-                ListBoxItem billingLevelItem = null;
-                ObservableCollection<CompanyBillingLevel> collection = await Task.Run(() => new CompanyBillingLevelModel(_eventAggregator).ReadCompanyBillingLevels(SelectedGroup.pkCompanyGroupID));
-
-                foreach (CompanyBillingLevel billingLevel in collection)
-                {
-                    billingLevelItem = new ListBoxItem();
-                    billingLevelItem.Content = string.Format("{0} - {1} - R{2}", billingLevel.BillingLevel.LevelDescription, billingLevel.TypeDescription, billingLevel.Amount);
-                    billingLevelItems.Add(billingLevelItem);
-                }
-
-                CompanyBillingLevelCollection = billingLevelItems;
+                CompanyBillingLevelCollection = await Task.Run(() => new CompanyBillingLevelModel(_eventAggregator).ReadCompanyBillingLevels(SelectedGroup.pkCompanyGroupID, null, true).ToList());
             }
             catch (Exception ex)
             {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ViewCompanyGroupViewModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ReadCompanyBillingLevelsAsync",
+                                                                ApplicationMessage.MessageTypes.SystemError));
             }
         }
 

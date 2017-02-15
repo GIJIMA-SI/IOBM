@@ -1,4 +1,5 @@
 ﻿using Gijima.IOBM.Infrastructure.Events;
+using Gijima.IOBM.Infrastructure.Structs;
 using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Gijima.IOBM.MobileManager.Model.Models;
@@ -243,11 +244,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
-                CompanyBillingLevelCollection = await Task.Run(() => _model.ReadCompanyBillingLevels(_companyGroupID));
+                CompanyBillingLevelCollection = await Task.Run(() => _model.ReadCompanyBillingLevels(_companyGroupID, null, true));
             }
             catch (Exception ex)
             {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ViewCompanyBillingLevelViewModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ReadCompanyBillingLevelsAsync",
+                                                                ApplicationMessage.MessageTypes.SystemError));
             }
         }
 
@@ -278,7 +284,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
             catch (Exception ex)
             {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ViewCompanyBillingLevelViewModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ReadBillingLevelsAsync",
+                                                                ApplicationMessage.MessageTypes.SystemError));
             }
         }
 
@@ -341,7 +352,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedCompanyBillingLevel.fkBillingLevelID = SelectedBillingLevel.pkBillingLevelID;
             SelectedCompanyBillingLevel.enBillingLevelType = ((BillingLevelType)Enum.Parse(typeof(BillingLevelType), SelectedBillingLevelType)).Value();
             SelectedCompanyBillingLevel.Amount = Convert.ToDecimal(BillingAmount);
-            SelectedCompanyBillingLevel.ModifiedBy = SecurityHelper.LoggedInDomainName;
+            SelectedCompanyBillingLevel.ModifiedBy = SecurityHelper.LoggedInUserFullName;
             SelectedCompanyBillingLevel.ModifiedDate = DateTime.Now;
 
             if (SelectedCompanyBillingLevel.pkCompanyBillingLevelID == 0)

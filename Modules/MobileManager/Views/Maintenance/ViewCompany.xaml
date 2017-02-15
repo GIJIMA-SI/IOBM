@@ -77,7 +77,7 @@
         </StackPanel>
         <TextBlock Grid.Row="0" Grid.Column="9" Text="Billing levels:" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
         <ListBox x:Name="ListBoxBillingLevels" Grid.Row="2" Grid.Column="9" Grid.ColumnSpan="2" Grid.RowSpan="9" TabIndex="12" Height="105" VerticalAlignment="Top"
-            ItemsSource="{Binding CompanyBillingLevelCollection, UpdateSourceTrigger=PropertyChanged}" />
+            ItemsSource="{Binding CompanyBillingLevelCollection, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="BillingLevelDescription"/>
         <TextBlock Grid.Row="4" Grid.Column="0" Text="WBS no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
         <TextBox x:Name="TextBoxWBSNumber" Grid.Row="4" Grid.Column="1" TabIndex="4" ToolTip="Enter the WBS number linked to the company." Style="{StaticResource UXTextBoxStyle}"
             Text="{Binding SelectedWBSNumber, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidWBSNumber}">

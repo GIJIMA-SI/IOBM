@@ -544,28 +544,29 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             {
                 SetProperty(ref _selectedBillingLevel, value);
 
-                //if (SelectedBillingLevel != null)
-                //{
-                //    if ((SplitBilling && SelectedPackageType != null) || (value != null && value.pkCompanyBillingLevelID > 0))
-                //    {
-                //        if (((PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType)) == PackageType.DATA)
-                //        {
-                //            AllowVoiceAllowance = false;
-                //            AllowWDPAllowance = true;
-                //            SelectedWDPAllowance = value != null ? value.Amount.ToString() : "0";
-                //        }
-                //        else if (SplitBilling && ((PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType)) == PackageType.VOICE)
-                //        {
-                //            AllowVoiceAllowance = true;
-                //            AllowWDPAllowance = false;
-                //            SelectedVoiceAllowance = value != null ? value.Amount.ToString() : "0";
-                //        }
-                //    }
-                //    else
-                //    {
-                //        AllowVoiceAllowance = AllowWDPAllowance = false;
-                //    }
-                //}
+                if (value != null && value.pkCompanyBillingLevelID > 0)
+                {
+                    if (SelectedPackageType != null)
+                    {
+                        if (((PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType)) == PackageType.DATA)
+                        {
+                            AllowVoiceAllowance = false;
+                            AllowWDPAllowance = true;
+                            SelectedWDPAllowance = value != null ? value.Amount.ToString() : "0";
+                        }
+                        else if (((PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType)) == PackageType.VOICE)
+                        {
+                            AllowVoiceAllowance = true;
+                            AllowWDPAllowance = false;
+                            SelectedVoiceAllowance = value != null ? value.Amount.ToString() : "0";
+                        }
+                    }
+                }
+                else
+                {
+                    AllowVoiceAllowance = AllowWDPAllowance = false;
+                    SelectedVoiceAllowance = SelectedWDPAllowance = "0";
+                }
             }
         }
         private CompanyBillingLevel _selectedBillingLevel;
@@ -707,7 +708,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             {
                 SetProperty(ref _selectedPackage, value);
                 SetPackageDefaults();
-                ReadCompanyBillingLevelsAsync();
+                ReadCompanyBillingLevels();
             }
         }
         private Package _selectedPackage;
@@ -1342,7 +1343,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         ValidRoamingToDate = SplitBilling && SelectedIntRoaming && (SelectedRoamingToDate.Date < SelectedRoamingFromDate.Date ||
                                              SelectedRoamingToDate.Date == DateTime.MinValue.Date) ? Brushes.Red : Brushes.Silver; break;
                     case "SelectedBillingLevel":
-                        ValidBillingLevel = SplitBilling && BillingLevelCollection != null && BillingLevelCollection.Count > 0 && SelectedBillingLevel != null && SelectedBillingLevel.pkCompanyBillingLevelID < 1 ? Brushes.Red : Brushes.Silver; break;
+                        ValidBillingLevel = BillingLevelCollection != null && BillingLevelCollection.Count > 0 && SelectedBillingLevel != null && SelectedBillingLevel.pkCompanyBillingLevelID < 1 ? Brushes.Red : Brushes.Silver; break;
                     case "NoSplitBilling":
                         if (NoSplitBilling)
                         {
@@ -1350,7 +1351,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                             AllowVoiceAllowance = AllowWDPAllowance = false;
                         }
                         ValidSplitBilling = !SplitBilling && !NoSplitBilling ? Brushes.Red : Brushes.Silver; break;
-                    //ValidBillingLevel = SplitBilling && !NoSplitBilling && BillingLevelCollection != null &&? Brushes.Red : Brushes.Silver; break;
                     case "SelectedIntRoaming":
                         ValidRoamingCountry = SelectedIntRoaming && string.IsNullOrEmpty(SelectedRoamingCountry) ? Brushes.Red : Brushes.Silver;
                         ValidRoamingFromDate = SplitBilling && SelectedIntRoaming && (SelectedRoamingFromDate == null ||
@@ -1680,11 +1680,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
-                bool flag = false;
                 SelectedClientBilling = clientBilling;
-                CanSetSplitBilling = true;
+                bool flag = false;
 
-                if (clientBilling != null)
+                if (SelectedClient != null && !SelectedClient.IsPrivate && clientBilling != null)
                 {
                     if (clientBilling.SplitBillingException)
                     {
@@ -1695,19 +1694,18 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     {
                         flag = clientBilling.IsSplitBilling;
                     }
-                }
 
-                AllowBillingLevels = true;
-                //if (BillingLevelCollection != null && clientBilling != null)
-                //{
-                //    AllowBillingLevels = true;
-                //    SelectedBillingLevel = BillingLevelCollection != null ? BillingLevelCollection.Where(p => p.pkCompanyBillingLevelID == clientBilling.fkCompanyBillingLevelID).FirstOrDefault() : null;
-                //}
-                //else
-                //{
-                //    AllowBillingLevels = false;
-                //    SelectedBillingLevel = null;
-                //}
+                    if (BillingLevelCollection != null)
+                    {
+                        AllowBillingLevels = true;
+                        SelectedBillingLevel = BillingLevelCollection != null ? BillingLevelCollection.Where(p => p.pkCompanyBillingLevelID == clientBilling.fkCompanyBillingLevelID).FirstOrDefault() : null;
+                    }
+                    else
+                    {
+                        AllowBillingLevels = false;
+                        SelectedBillingLevel = null;
+                    }
+                }
 
                 if (flag)
                 {
@@ -1733,13 +1731,14 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     SelectedRoamingFromDate = DateTime.MinValue.Date;
                     SelectedRoamingToDate = DateTime.MinValue.Date;
 
-                    if (clientBilling != null)
+                    if (SelectedClient != null && !SelectedClient.IsPrivate && clientBilling != null)
                     {
                         SelectedSPAllowance = clientBilling.SPLimit.ToString();
                         SelectedAllowanceLimit = clientBilling.AllowanceLimit.ToString();
                     }
                     else
                     {
+                        CanSetSplitBilling = false;
                         SelectedSPAllowance = SelectedAllowanceLimit = "0";
                     }
                 }
@@ -1747,11 +1746,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                .Publish(new ApplicationMessage("ViewCellularViewModel",
-                                                string.Format("Error! {0}, {1}.",
-                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                "SetClientBilling",
-                                                ApplicationMessage.MessageTypes.SystemError));
+                                .Publish(new ApplicationMessage("ViewCellularViewModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "SetClientBilling",
+                                                                ApplicationMessage.MessageTypes.SystemError));
             }
         }
 
@@ -1936,7 +1935,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Populate the company billing levels from the selected company from the database
         /// </summary>
-        private async void ReadCompanyBillingLevelsAsync()
+        private void ReadCompanyBillingLevels()
         {
             try
             {
@@ -1944,15 +1943,15 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 short billingLevelType = 0;
 
                 // Set the billing level type based on the package type
-                if (SelectedCompany != null && (PackageType)SelectedPackage.enPackageType == PackageType.VOICE)
+                if (SelectedCompany != null && SelectedPackage != null && (PackageType)SelectedPackage.enPackageType == PackageType.VOICE)
                     billingLevelType = BillingLevelType.VOICE.Value();
-                else if (SelectedCompany != null && (PackageType)SelectedPackage.enPackageType == PackageType.DATA)
+                else if (SelectedCompany != null && SelectedPackage != null && (PackageType)SelectedPackage.enPackageType == PackageType.DATA)
                     billingLevelType = BillingLevelType.DATA.Value();
 
                 if (SelectedCompany != null && SelectedCompany.pkCompanyID > 0 && SelectedCompany.fkCompanyGroupID != null)
-                    BillingLevelCollection = await Task.Run(() => new CompanyBillingLevelModel(_eventAggregator).ReadCompanyBillingLevels(SelectedCompany.fkCompanyGroupID.Value,
-                                                                                                                                          billingLevelType));
-
+                {
+                    BillingLevelCollection = new CompanyBillingLevelModel(_eventAggregator).ReadCompanyBillingLevels(SelectedCompany.fkCompanyGroupID.Value, billingLevelType);
+                }
             }
             catch (Exception ex)
             {
@@ -2038,19 +2037,24 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                          (SelectedStatus.StatusDescription != Statuses.ACTIVE.ToString() ? !string.IsNullOrWhiteSpace(SelectedBillingYear) && !string.IsNullOrWhiteSpace(SelectedBillingMonth) : true);
 
             // Validate billing data
-            if (result && SplitBilling)
+            if (result && SplitBilling && !SelectedClient.IsPrivate)
                 result = SelectedClientBilling != null && (SplitBilling || NoSplitBilling) &&
-                         
+                         (BillingLevelCollection == null ? true :
+                          BillingLevelCollection.Count > 1 && SelectedBillingLevel != null ? SelectedBillingLevel.pkCompanyBillingLevelID > 0 : false) &&
                          (SplitBilling ? (!string.IsNullOrWhiteSpace(SelectedWDPAllowance) && Convert.ToDecimal(SelectedWDPAllowance) > 0 ||
                                           !string.IsNullOrWhiteSpace(SelectedVoiceAllowance) && Convert.ToDecimal(SelectedVoiceAllowance) > 0) : false) &&
                          (SelectedIntRoaming && !SelectedPermanentRoaming ? !string.IsNullOrEmpty(SelectedRoamingCountry) : true) &&
                          (SplitBilling && SelectedIntRoaming && !SelectedPermanentRoaming ? SelectedRoamingFromDate.Date > DateTime.MinValue.Date : true) &&
                          (SplitBilling && SelectedIntRoaming && !SelectedPermanentRoaming ? SelectedRoamingToDate.Date > SelectedRoamingFromDate.Date && SelectedRoamingToDate.Date > DateTime.MinValue.Date : true);
+            else if (result && !SelectedClient.IsPrivate)
+                result = BillingLevelCollection == null ? true : BillingLevelCollection.Count > 1 && SelectedBillingLevel != null ? SelectedBillingLevel.pkCompanyBillingLevelID > 0 &&
+                         (!string.IsNullOrWhiteSpace(SelectedWDPAllowance) && Convert.ToDecimal(SelectedWDPAllowance) > 0 ||
+                          !string.IsNullOrWhiteSpace(SelectedVoiceAllowance) && Convert.ToDecimal(SelectedVoiceAllowance) > 0) : false;
+
 
             return result;
 
-            //(SplitBilling && BillingLevelCollection == null ? true :
-            //              SplitBilling && BillingLevelCollection.Count > 1 && SelectedBillingLevel != null ? SelectedBillingLevel.pkCompanyBillingLevelID > 0 : false) &&
+
         }
 
         /// <summary>
