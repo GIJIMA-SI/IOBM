@@ -295,7 +295,6 @@
           <Property Name="fkDeviceMakeID" Type="int" Nullable="false" />
           <Property Name="fkDeviceModelID" Type="int" Nullable="false" />
           <Property Name="fkStatusID" Type="int" Nullable="false" />
-          <Property Name="IMENumber" Type="varchar" MaxLength="20" Nullable="false" />
           <Property Name="SerialNumber" Type="varchar" MaxLength="20" />
           <Property Name="ReceiveDate" Type="datetime" Nullable="false" />
           <Property Name="InsuranceCost" Type="decimal" Precision="18" Scale="2" />
@@ -309,8 +308,8 @@
             <PropertyRef Name="pkDeviceIMENumberID" />
           </Key>
           <Property Name="pkDeviceIMENumberID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="fkDeviceID" Type="int" Nullable="false" />
           <Property Name="IMENumber" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="fkDeviceID" Type="int" Nullable="false" />
           <Property Name="ModifiedBy" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="ModifiedDate" Type="datetime" Nullable="false" />
         </EntityType>
@@ -630,6 +629,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_ClientService_ClientService">
+          <End Role="ContractService" Type="Self.ContractService" Multiplicity="1" />
+          <End Role="ClientService" Type="Self.ClientService" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ContractService">
+              <PropertyRef Name="pkContractServiceID" />
+            </Principal>
+            <Dependent Role="ClientService">
+              <PropertyRef Name="fkContractServiceID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_ClientService_Contract">
           <End Role="Contract" Type="Self.Contract" Multiplicity="1" />
           <End Role="ClientService" Type="Self.ClientService" Multiplicity="*" />
@@ -639,18 +650,6 @@
             </Principal>
             <Dependent Role="ClientService">
               <PropertyRef Name="fkContractID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ClientService_ContractService">
-          <End Role="ContractService" Type="Self.ContractService" Multiplicity="1" />
-          <End Role="ClientService" Type="Self.ClientService" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ContractService">
-              <PropertyRef Name="pkContractServiceID" />
-            </Principal>
-            <Dependent Role="ClientService">
-              <PropertyRef Name="fkContractServiceID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1066,12 +1065,12 @@
             <End Role="CompanyBillingLevel" EntitySet="CompanyBillingLevel" />
             <End Role="ClientBilling" EntitySet="ClientBilling" />
           </AssociationSet>
-          <AssociationSet Name="FK_ClientService_Contract" Association="Self.FK_ClientService_Contract">
-            <End Role="Contract" EntitySet="Contract" />
+          <AssociationSet Name="FK_ClientService_ClientService" Association="Self.FK_ClientService_ClientService">
+            <End Role="ContractService" EntitySet="ContractService" />
             <End Role="ClientService" EntitySet="ClientService" />
           </AssociationSet>
-          <AssociationSet Name="FK_ClientService_ContractService" Association="Self.FK_ClientService_ContractService">
-            <End Role="ContractService" EntitySet="ContractService" />
+          <AssociationSet Name="FK_ClientService_Contract" Association="Self.FK_ClientService_Contract">
+            <End Role="Contract" EntitySet="Contract" />
             <End Role="ClientService" EntitySet="ClientService" />
           </AssociationSet>
           <AssociationSet Name="FK_Company_CompanyGroup" Association="Self.FK_Company_CompanyGroup">
@@ -1597,8 +1596,8 @@
           <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="Status" Relationship="Self.FK_SimCard_Status" FromRole="SimCard" ToRole="Status" />
-          <NavigationProperty Name="Devices" Relationship="MobileManagerModel.FK_Device_SimCard" FromRole="SimCard" ToRole="Device" />
           <NavigationProperty Name="Contract" Relationship="MobileManagerModel.FK_SimCard_Contract" FromRole="SimCard" ToRole="Contract" />
+          <NavigationProperty Name="Devices" Relationship="MobileManagerModel.FK_Device_SimCard" FromRole="SimCard" ToRole="Device" />
         </EntityType>
         <EntityType Name="Status">
           <Key>
@@ -1611,8 +1610,8 @@
           <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="SimCards" Relationship="Self.FK_SimCard_Status" FromRole="Status" ToRole="SimCard" />
-          <NavigationProperty Name="Devices" Relationship="MobileManagerModel.FK_Device_Status" FromRole="Status" ToRole="Device" />
           <NavigationProperty Name="Contracts" Relationship="MobileManagerModel.FK_Contract_Status" FromRole="Status" ToRole="Contract" />
+          <NavigationProperty Name="Devices" Relationship="MobileManagerModel.FK_Device_Status" FromRole="Status" ToRole="Device" />
         </EntityType>
         <EntityType Name="Suburb">
           <Key>
@@ -2016,23 +2015,6 @@
           <FunctionImport Name="sp_report_Invoice" ReturnType="Collection(MobileManagerModel.sp_report_Invoice_Result)">
           <Parameter Name="invoiceID" Mode="In" Type="Int32" />
           </FunctionImport>
-          <EntitySet Name="Devices" EntityType="MobileManagerModel.Device" />
-          <AssociationSet Name="FK_Device_DeviceMake" Association="MobileManagerModel.FK_Device_DeviceMake">
-            <End Role="DeviceMake" EntitySet="DeviceMakes" />
-            <End Role="Device" EntitySet="Devices" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Device_DeviceModel" Association="MobileManagerModel.FK_Device_DeviceModel">
-            <End Role="DeviceModel" EntitySet="DeviceModels" />
-            <End Role="Device" EntitySet="Devices" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Device_SimCard" Association="MobileManagerModel.FK_Device_SimCard">
-            <End Role="SimCard" EntitySet="SimCards" />
-            <End Role="Device" EntitySet="Devices" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Device_Status" Association="MobileManagerModel.FK_Device_Status">
-            <End Role="Status" EntitySet="Status" />
-            <End Role="Device" EntitySet="Devices" />
-          </AssociationSet>
           <EntitySet Name="DataValidationExceptions" EntityType="MobileManagerModel.DataValidationException" />
           <AssociationSet Name="FK_DataValidationException_BillingProcess" Association="MobileManagerModel.FK_DataValidationException_BillingProcess">
             <End Role="BillingProcess" EntitySet="BillingProcesses" />
@@ -2059,10 +2041,6 @@
             <End Role="Status" EntitySet="Status" />
             <End Role="Contract" EntitySet="Contracts" />
           </AssociationSet>
-          <AssociationSet Name="FK_Device_Contract" Association="MobileManagerModel.FK_Device_Contract">
-            <End Role="Contract" EntitySet="Contracts" />
-            <End Role="Device" EntitySet="Devices" />
-          </AssociationSet>
           <AssociationSet Name="FK_SimCard_Contract" Association="MobileManagerModel.FK_SimCard_Contract">
             <End Role="Contract" EntitySet="Contracts" />
             <End Role="SimCard" EntitySet="SimCards" />
@@ -2079,10 +2057,6 @@
             <End Role="ClientService" EntitySet="ClientServices" />
           </AssociationSet>
           <EntitySet Name="DeviceIMENumbers" EntityType="MobileManagerModel.DeviceIMENumber" />
-          <AssociationSet Name="FK_DeviceIMENumber_Device" Association="MobileManagerModel.FK_DeviceIMENumber_Device">
-            <End Role="Device" EntitySet="Devices" />
-            <End Role="DeviceIMENumber" EntitySet="DeviceIMENumbers" />
-          </AssociationSet>
           <EntitySet Name="Companies" EntityType="MobileManagerModel.Company" />
           <AssociationSet Name="FK_Client_Company" Association="MobileManagerModel.FK_Client_Company">
             <End Role="Company" EntitySet="Companies" />
@@ -2095,6 +2069,31 @@
           <AssociationSet Name="FK_UserInCompany_Company" Association="MobileManagerModel.FK_UserInCompany_Company">
             <End Role="Company" EntitySet="Companies" />
             <End Role="UserInCompany" EntitySet="UserInCompanies" />
+          </AssociationSet>
+          <EntitySet Name="Devices" EntityType="MobileManagerModel.Device" />
+          <AssociationSet Name="FK_Device_Contract" Association="MobileManagerModel.FK_Device_Contract">
+            <End Role="Contract" EntitySet="Contracts" />
+            <End Role="Device" EntitySet="Devices" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Device_DeviceMake" Association="MobileManagerModel.FK_Device_DeviceMake">
+            <End Role="DeviceMake" EntitySet="DeviceMakes" />
+            <End Role="Device" EntitySet="Devices" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Device_DeviceModel" Association="MobileManagerModel.FK_Device_DeviceModel">
+            <End Role="DeviceModel" EntitySet="DeviceModels" />
+            <End Role="Device" EntitySet="Devices" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Device_SimCard" Association="MobileManagerModel.FK_Device_SimCard">
+            <End Role="SimCard" EntitySet="SimCards" />
+            <End Role="Device" EntitySet="Devices" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Device_Status" Association="MobileManagerModel.FK_Device_Status">
+            <End Role="Status" EntitySet="Status" />
+            <End Role="Device" EntitySet="Devices" />
+          </AssociationSet>
+          <AssociationSet Name="FK_DeviceIMENumber_Device" Association="MobileManagerModel.FK_DeviceIMENumber_Device">
+            <End Role="Device" EntitySet="Devices" />
+            <End Role="DeviceIMENumber" EntitySet="DeviceIMENumbers" />
           </AssociationSet>
           </EntityContainer>
         <ComplexType Name="sp_report_Invoice_Result">
@@ -2115,79 +2114,6 @@
           <Property Type="Decimal" Name="ItemAmount" Nullable="false" Precision="18" Scale="2" />
           <Property Type="Boolean" Name="IsPrivate" Nullable="false" />
         </ComplexType>
-        <EntityType Name="Device">
-          <Key>
-            <PropertyRef Name="pkDeviceID" />
-          </Key>
-          <Property Name="pkDeviceID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="fkContractID" Type="Int32" Nullable="false" />
-          <Property Name="fkSimCardID" Type="Int32" />
-          <Property Name="fkDeviceMakeID" Type="Int32" Nullable="false" />
-          <Property Name="fkDeviceModelID" Type="Int32" Nullable="false" />
-          <Property Name="fkStatusID" Type="Int32" Nullable="false" />
-          <Property Name="IMENumber" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="SerialNumber" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="ReceiveDate" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="InsuranceCost" Type="Decimal" Precision="18" Scale="2" />
-          <Property Name="InsuranceValue" Type="Decimal" Precision="18" Scale="2" />
-          <Property Name="ModifiedBy" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="IsActive" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="DeviceMake" Relationship="MobileManagerModel.FK_Device_DeviceMake" FromRole="Device" ToRole="DeviceMake" />
-          <NavigationProperty Name="DeviceModel" Relationship="MobileManagerModel.FK_Device_DeviceModel" FromRole="Device" ToRole="DeviceModel" />
-          <NavigationProperty Name="SimCard" Relationship="MobileManagerModel.FK_Device_SimCard" FromRole="Device" ToRole="SimCard" />
-          <NavigationProperty Name="Status" Relationship="MobileManagerModel.FK_Device_Status" FromRole="Device" ToRole="Status" />
-          <NavigationProperty Name="Contract" Relationship="MobileManagerModel.FK_Device_Contract" FromRole="Device" ToRole="Contract" />
-          <NavigationProperty Name="DeviceIMENumbers" Relationship="MobileManagerModel.FK_DeviceIMENumber_Device" FromRole="Device" ToRole="DeviceIMENumber" />
-        </EntityType>
-        <Association Name="FK_Device_DeviceMake">
-          <End Type="MobileManagerModel.DeviceMake" Role="DeviceMake" Multiplicity="1" />
-          <End Type="MobileManagerModel.Device" Role="Device" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="DeviceMake">
-              <PropertyRef Name="pkDeviceMakeID" />
-            </Principal>
-            <Dependent Role="Device">
-              <PropertyRef Name="fkDeviceMakeID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_Device_DeviceModel">
-          <End Type="MobileManagerModel.DeviceModel" Role="DeviceModel" Multiplicity="1" />
-          <End Type="MobileManagerModel.Device" Role="Device" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="DeviceModel">
-              <PropertyRef Name="pkDeviceModelID" />
-            </Principal>
-            <Dependent Role="Device">
-              <PropertyRef Name="fkDeviceModelID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_Device_SimCard">
-          <End Type="MobileManagerModel.SimCard" Role="SimCard" Multiplicity="0..1" />
-          <End Type="MobileManagerModel.Device" Role="Device" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="SimCard">
-              <PropertyRef Name="pkSimCardID" />
-            </Principal>
-            <Dependent Role="Device">
-              <PropertyRef Name="fkSimCardID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_Device_Status">
-          <End Type="MobileManagerModel.Status" Role="Status" Multiplicity="1" />
-          <End Type="MobileManagerModel.Device" Role="Device" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Status">
-              <PropertyRef Name="pkStatusID" />
-            </Principal>
-            <Dependent Role="Device">
-              <PropertyRef Name="fkStatusID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="DataValidationException">
           <Key>
             <PropertyRef Name="pkDataValidationExceptionID" />
@@ -2251,9 +2177,9 @@
           <NavigationProperty Name="Package" Relationship="MobileManagerModel.FK_Contract_Package" FromRole="Contract" ToRole="Package" />
           <NavigationProperty Name="PackageSetup" Relationship="MobileManagerModel.FK_Contract_PackageSetup" FromRole="Contract" ToRole="PackageSetup" />
           <NavigationProperty Name="Status" Relationship="MobileManagerModel.FK_Contract_Status" FromRole="Contract" ToRole="Status" />
-          <NavigationProperty Name="Devices" Relationship="MobileManagerModel.FK_Device_Contract" FromRole="Contract" ToRole="Device" />
           <NavigationProperty Name="SimCards" Relationship="MobileManagerModel.FK_SimCard_Contract" FromRole="Contract" ToRole="SimCard" />
           <NavigationProperty Name="ClientServices" Relationship="MobileManagerModel.FK_ClientService_Contract" FromRole="Contract" ToRole="ClientService" />
+          <NavigationProperty Name="Devices" Relationship="MobileManagerModel.FK_Device_Contract" FromRole="Contract" ToRole="Device" />
         </EntityType>
         <Association Name="FK_Client_Contract">
           <End Type="MobileManagerModel.Contract" Role="Contract" Multiplicity="1" />
@@ -2300,18 +2226,6 @@
             </Principal>
             <Dependent Role="Contract">
               <PropertyRef Name="fkStatusID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_Device_Contract">
-          <End Type="MobileManagerModel.Contract" Role="Contract" Multiplicity="1" />
-          <End Type="MobileManagerModel.Device" Role="Device" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Contract">
-              <PropertyRef Name="pkContractID" />
-            </Principal>
-            <Dependent Role="Device">
-              <PropertyRef Name="fkContractID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -2398,18 +2312,6 @@
           <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
           <NavigationProperty Name="Device" Relationship="MobileManagerModel.FK_DeviceIMENumber_Device" FromRole="DeviceIMENumber" ToRole="Device" />
         </EntityType>
-        <Association Name="FK_DeviceIMENumber_Device">
-          <End Type="MobileManagerModel.Device" Role="Device" Multiplicity="1" />
-          <End Type="MobileManagerModel.DeviceIMENumber" Role="DeviceIMENumber" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Device">
-              <PropertyRef Name="pkDeviceID" />
-            </Principal>
-            <Dependent Role="DeviceIMENumber">
-              <PropertyRef Name="fkDeviceID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="Company">
           <Key>
             <PropertyRef Name="pkCompanyID" />
@@ -2464,6 +2366,102 @@
             </Principal>
             <Dependent Role="UserInCompany">
               <PropertyRef Name="fkCompanyID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Device">
+          <Key>
+            <PropertyRef Name="pkDeviceID" />
+          </Key>
+          <Property Name="pkDeviceID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="fkContractID" Type="Int32" Nullable="false" />
+          <Property Name="fkSimCardID" Type="Int32" />
+          <Property Name="fkDeviceMakeID" Type="Int32" Nullable="false" />
+          <Property Name="fkDeviceModelID" Type="Int32" Nullable="false" />
+          <Property Name="fkStatusID" Type="Int32" Nullable="false" />
+          <Property Name="SerialNumber" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="ReceiveDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="InsuranceCost" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="InsuranceValue" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="ModifiedBy" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Contract" Relationship="MobileManagerModel.FK_Device_Contract" FromRole="Device" ToRole="Contract" />
+          <NavigationProperty Name="DeviceMake" Relationship="MobileManagerModel.FK_Device_DeviceMake" FromRole="Device" ToRole="DeviceMake" />
+          <NavigationProperty Name="DeviceModel" Relationship="MobileManagerModel.FK_Device_DeviceModel" FromRole="Device" ToRole="DeviceModel" />
+          <NavigationProperty Name="SimCard" Relationship="MobileManagerModel.FK_Device_SimCard" FromRole="Device" ToRole="SimCard" />
+          <NavigationProperty Name="Status" Relationship="MobileManagerModel.FK_Device_Status" FromRole="Device" ToRole="Status" />
+          <NavigationProperty Name="DeviceIMENumbers" Relationship="MobileManagerModel.FK_DeviceIMENumber_Device" FromRole="Device" ToRole="DeviceIMENumber" />
+        </EntityType>
+        <Association Name="FK_Device_Contract">
+          <End Type="MobileManagerModel.Contract" Role="Contract" Multiplicity="1" />
+          <End Type="MobileManagerModel.Device" Role="Device" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Contract">
+              <PropertyRef Name="pkContractID" />
+            </Principal>
+            <Dependent Role="Device">
+              <PropertyRef Name="fkContractID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Device_DeviceMake">
+          <End Type="MobileManagerModel.DeviceMake" Role="DeviceMake" Multiplicity="1" />
+          <End Type="MobileManagerModel.Device" Role="Device" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="DeviceMake">
+              <PropertyRef Name="pkDeviceMakeID" />
+            </Principal>
+            <Dependent Role="Device">
+              <PropertyRef Name="fkDeviceMakeID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Device_DeviceModel">
+          <End Type="MobileManagerModel.DeviceModel" Role="DeviceModel" Multiplicity="1" />
+          <End Type="MobileManagerModel.Device" Role="Device" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="DeviceModel">
+              <PropertyRef Name="pkDeviceModelID" />
+            </Principal>
+            <Dependent Role="Device">
+              <PropertyRef Name="fkDeviceModelID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Device_SimCard">
+          <End Type="MobileManagerModel.SimCard" Role="SimCard" Multiplicity="0..1" />
+          <End Type="MobileManagerModel.Device" Role="Device" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SimCard">
+              <PropertyRef Name="pkSimCardID" />
+            </Principal>
+            <Dependent Role="Device">
+              <PropertyRef Name="fkSimCardID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Device_Status">
+          <End Type="MobileManagerModel.Status" Role="Status" Multiplicity="1" />
+          <End Type="MobileManagerModel.Device" Role="Device" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Status">
+              <PropertyRef Name="pkStatusID" />
+            </Principal>
+            <Dependent Role="Device">
+              <PropertyRef Name="fkStatusID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_DeviceIMENumber_Device">
+          <End Type="MobileManagerModel.Device" Role="Device" Multiplicity="1" />
+          <End Type="MobileManagerModel.DeviceIMENumber" Role="DeviceIMENumber" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Device">
+              <PropertyRef Name="pkDeviceID" />
+            </Principal>
+            <Dependent Role="DeviceIMENumber">
+              <PropertyRef Name="fkDeviceID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -2942,26 +2940,6 @@
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
-          <EntitySetMapping Name="Devices">
-            <EntityTypeMapping TypeName="MobileManagerModel.Device">
-              <MappingFragment StoreEntitySet="Device">
-                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
-                <ScalarProperty Name="ModifiedDate" ColumnName="ModifiedDate" />
-                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
-                <ScalarProperty Name="InsuranceValue" ColumnName="InsuranceValue" />
-                <ScalarProperty Name="InsuranceCost" ColumnName="InsuranceCost" />
-                <ScalarProperty Name="ReceiveDate" ColumnName="ReceiveDate" />
-                <ScalarProperty Name="SerialNumber" ColumnName="SerialNumber" />
-                <ScalarProperty Name="IMENumber" ColumnName="IMENumber" />
-                <ScalarProperty Name="fkStatusID" ColumnName="fkStatusID" />
-                <ScalarProperty Name="fkDeviceModelID" ColumnName="fkDeviceModelID" />
-                <ScalarProperty Name="fkDeviceMakeID" ColumnName="fkDeviceMakeID" />
-                <ScalarProperty Name="fkSimCardID" ColumnName="fkSimCardID" />
-                <ScalarProperty Name="fkContractID" ColumnName="fkContractID" />
-                <ScalarProperty Name="pkDeviceID" ColumnName="pkDeviceID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="DataValidationExceptions">
             <EntityTypeMapping TypeName="MobileManagerModel.DataValidationException">
               <MappingFragment StoreEntitySet="DataValidationException">
@@ -3061,6 +3039,25 @@
                 <ScalarProperty Name="CompanyName" ColumnName="CompanyName" />
                 <ScalarProperty Name="fkCompanyGroupID" ColumnName="fkCompanyGroupID" />
                 <ScalarProperty Name="pkCompanyID" ColumnName="pkCompanyID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Devices">
+            <EntityTypeMapping TypeName="MobileManagerModel.Device">
+              <MappingFragment StoreEntitySet="Device">
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="ModifiedDate" ColumnName="ModifiedDate" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="InsuranceValue" ColumnName="InsuranceValue" />
+                <ScalarProperty Name="InsuranceCost" ColumnName="InsuranceCost" />
+                <ScalarProperty Name="ReceiveDate" ColumnName="ReceiveDate" />
+                <ScalarProperty Name="SerialNumber" ColumnName="SerialNumber" />
+                <ScalarProperty Name="fkStatusID" ColumnName="fkStatusID" />
+                <ScalarProperty Name="fkDeviceModelID" ColumnName="fkDeviceModelID" />
+                <ScalarProperty Name="fkDeviceMakeID" ColumnName="fkDeviceMakeID" />
+                <ScalarProperty Name="fkSimCardID" ColumnName="fkSimCardID" />
+                <ScalarProperty Name="fkContractID" ColumnName="fkContractID" />
+                <ScalarProperty Name="pkDeviceID" ColumnName="pkDeviceID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

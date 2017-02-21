@@ -50,17 +50,17 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                     // If a device gets re-allocated ensure that all the required properties 
                     // is valid to allow re-alloaction
-                    if (db.Devices.Any(p => p.IMENumber.ToUpper().Trim() == device.IMENumber.ToUpper().Trim() &&
-                                            p.fkStatusID != reAllocatedStatusID &&
-                                            p.IsActive == true))
-                    {
-                        _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                        .Publish(new ApplicationMessage("DevicesModel",
-                                                                        "The device is still allocated to another client.",
-                                                                        "CreateDevice",
-                                                                        ApplicationMessage.MessageTypes.Information));
-                        return false;
-                    }
+                    //if (db.Devices.Any(p => p.IMENumber.ToUpper().Trim() == device.IMENumber.ToUpper().Trim() &&
+                    //                        p.fkStatusID != reAllocatedStatusID &&
+                    //                        p.IsActive == true))
+                    //{
+                    //    _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                    //                    .Publish(new ApplicationMessage("DevicesModel",
+                    //                                                    "The device is still allocated to another client.",
+                    //                                                    "CreateDevice",
+                    //                                                    ApplicationMessage.MessageTypes.Information));
+                    //    return false;
+                    //}
 
                     if (!db.Devices.Any(p => p.fkDeviceMakeID == device.fkDeviceMakeID &&
                                              p.fkDeviceModelID == device.fkDeviceModelID &&
@@ -205,7 +205,6 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         existingDevice.fkDeviceModelID = device.fkDeviceModelID;
                         existingDevice.fkSimCardID = device.fkSimCardID;
                         existingDevice.fkStatusID = device.fkStatusID;
-                        existingDevice.IMENumber = device.IMENumber;
                         existingDevice.SerialNumber = device.SerialNumber;
                         existingDevice.ReceiveDate = device.ReceiveDate;
                         existingDevice.InsuranceCost = device.InsuranceCost;

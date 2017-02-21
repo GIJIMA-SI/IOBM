@@ -26,7 +26,6 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public int fkDeviceMakeID { get; set; }
         public int fkDeviceModelID { get; set; }
         public int fkStatusID { get; set; }
-        public string IMENumber { get; set; }
         public string SerialNumber { get; set; }
         public System.DateTime ReceiveDate { get; set; }
         public Nullable<decimal> InsuranceCost { get; set; }
@@ -35,11 +34,11 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public System.DateTime ModifiedDate { get; set; }
         public bool IsActive { get; set; }
     
+        public virtual Contract Contract { get; set; }
         public virtual DeviceMake DeviceMake { get; set; }
         public virtual DeviceModel DeviceModel { get; set; }
         public virtual SimCard SimCard { get; set; }
         public virtual Status Status { get; set; }
-        public virtual Contract Contract { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<DeviceIMENumber> DeviceIMENumbers { get; set; }
     }

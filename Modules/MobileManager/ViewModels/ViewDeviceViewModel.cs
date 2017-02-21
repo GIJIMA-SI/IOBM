@@ -545,7 +545,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Set default values to view properties
         /// </summary>
-        private async void InitialiseViewControls()
+        private void InitialiseViewControls()
         {
             SelectedDeviceIndex = -1;
             SelectedDevice = null;
@@ -557,7 +557,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedIMENumber = null;
             DeviceIMENumberCollection = null;
             DeviceInsuranceYes = DeviceInsuranceNo = false;
-            await ReadContractSimCardsAsync();
+            //await ReadContractSimCardsAsync();
         }
 
         /// <summary>
@@ -625,6 +625,17 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 _eventAggregator.GetEvent<LinkDeviceSimCardEvent>().Publish(SelectedDevice.fkSimCardID.Value);
             else
                 _eventAggregator.GetEvent<LinkDeviceSimCardEvent>().Publish(0);
+        }
+
+        /// <summary>
+        /// Gives the DeviceIMENumberCollection a fkDeviceID if its a new device
+        /// </summary>
+        private void SetIMENumberDeviceID()
+        {
+            foreach (DeviceIMENumber deviceIMENumber in DeviceIMENumberCollection)
+            {
+                deviceIMENumber.fkDeviceID = SelectedDevice.pkDeviceID;
+            }
         }
         
         #region Lookup Data Loading
@@ -832,7 +843,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedDevice.fkDeviceModelID = SelectedDeviceModel.pkDeviceModelID;
             SelectedDevice.fkStatusID = SelectedStatus.pkStatusID;
             SelectedDevice.fkSimCardID = SelectedSimCard != null && SelectedSimCard.pkSimCardID > 0 ? SelectedSimCard.pkSimCardID : (int?)null;
-            SelectedDevice.IMENumber = "";// SelectedIMENumber.ToUpper();
             SelectedDevice.SerialNumber = SelectedDevice.SerialNumber;
             SelectedDevice.ReceiveDate = SelectedReceivedDate;
             SelectedDevice.InsuranceCost = SelectedInsuranceCost;
@@ -845,9 +855,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             // gets un-linked from any simcards
             if (!SelectedDevice.IsActive)
                 SelectedDevice.fkSimCardID = (Int32?)null;
-            
+
             if (SelectedDevice.pkDeviceID == 0)
+            {
                 result = _model.CreateDevice(SelectedDevice);
+                SetIMENumberDeviceID();
+            }
             else
                 result = _model.UpdateDevice(SelectedDevice);
 
@@ -881,7 +894,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <returns></returns>
         private bool CanExecuteAddIMENumber()
         {
-            return string.IsNullOrWhiteSpace(SelectedIMENumber) || DeviceIMENumberCollection.Where(x => x.IMENumber == SelectedIMENumber).Count() > 0 ? false : true;
+            if (DeviceIMENumberCollection != null)
+                return string.IsNullOrWhiteSpace(SelectedIMENumber) || DeviceIMENumberCollection.Where(x => x.IMENumber == SelectedIMENumber).Count() > 0 ? false : true;
+            else
+                return string.IsNullOrWhiteSpace(SelectedIMENumber) ?false : true;
         }
 
         /// <summary>
@@ -930,13 +946,20 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private void ExecuteAddIMENumber()
         {
             DeviceIMENumber deviceIMENumber = new DeviceIMENumber();
-
+            if (DeviceIMENumberCollection == null)
+                DeviceIMENumberCollection = new ObservableCollection<DeviceIMENumber>();
+           
             deviceIMENumber.IMENumber = SelectedIMENumber;
-            deviceIMENumber.fkDeviceID = SelectedDevice.pkDeviceID;
             deviceIMENumber.ModifiedBy = SecurityHelper.LoggedInUserFullName;
             deviceIMENumber.ModifiedDate = DateTime.Now;
 
+            //Check for a new device if true collection wil get pk on save
+            deviceIMENumber.fkDeviceID = SelectedDevice != null ? SelectedDevice.pkDeviceID : 0;
+
             DeviceIMENumberCollection.Add(deviceIMENumber);
+
+            //Validate the collection if new device
+            ValidIMENumberCollection = DeviceIMENumberCollection.Count() > 0 ? Brushes.Silver : Brushes.Red;
 
             //Update the value of Selected IME number so the add IME button can disbale
             SelectedIMENumber = string.Empty;
