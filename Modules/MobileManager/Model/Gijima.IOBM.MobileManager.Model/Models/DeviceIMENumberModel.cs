@@ -66,7 +66,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// </summary>
         /// <param name="deviceIMENumbers">The device IME number entity to delete.</param>
         /// <returns>True if successfull</returns>
-        public bool UpdateDeviceIMENumber(ObservableCollection<DeviceIMENumber> deviceIMENumbers, int DeviceID)
+        public bool UpdateDeviceIMENumber(IEnumerable<DeviceIMENumber> deviceIMENumbers, int DeviceID)
         {
             try
             {
@@ -78,6 +78,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     {
                         //Remove all previous entries
                         db.DeviceIMENumbers.RemoveRange(db.DeviceIMENumbers.Where(x => x.fkDeviceID == DeviceID));
+                        db.SaveChanges();
                         
                         foreach (DeviceIMENumber deviceIMENumber in deviceIMENumbers)
                         {

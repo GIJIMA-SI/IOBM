@@ -48,9 +48,9 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     // Get the re-allacted status ID to be used in re-allaction valdation
                     int reAllocatedStatusID = db.Status.Where(p => p.StatusDescription == "REALLOCATED").First().pkStatusID;
 
-                    // If a device gets re-allocated ensure that all the required properties 
-                    // is valid to allow re-alloaction
-                    //if (db.Devices.Any(p => p.IMENumber.ToUpper().Trim() == device.IMENumber.ToUpper().Trim() &&
+                    //// If a device gets re-allocated ensure that all the required properties 
+                    //// is valid to allow re-alloaction
+                    //if (db.devices.Any(p => p.pkDev.ToUpper().Trim() == device.IMENumber.ToUpper().Trim() &&
                     //                        p.fkStatusID != reAllocatedStatusID &&
                     //                        p.IsActive == true))
                     //{
@@ -69,6 +69,11 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     {
                         db.Devices.Add(device);
                         db.SaveChanges();
+
+                        // Save device IMENumbers
+                        if (device.DeviceIMENumbers != null && device.DeviceIMENumbers.Count > 0)
+                            new DeviceIMENumberModel(_eventAggregator).UpdateDeviceIMENumber(device.DeviceIMENumbers, device.pkDeviceID);
+
                         return true;
                     }
                     else
@@ -213,6 +218,10 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         existingDevice.ModifiedDate = device.ModifiedDate;
                         existingDevice.IsActive = device.IsActive;
                         db.SaveChanges();
+
+                        // Save device IMENumbers
+                        if (device.DeviceIMENumbers != null && device.DeviceIMENumbers.Count > 0)
+                            new DeviceIMENumberModel(_eventAggregator).UpdateDeviceIMENumber(device.DeviceIMENumbers, device.pkDeviceID);
                     }
 
                     return true;
