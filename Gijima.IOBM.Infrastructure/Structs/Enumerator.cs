@@ -56,7 +56,9 @@ namespace Gijima.IOBM.Infrastructure.Structs
         [Description("Date")]
         DateOperator = 3,
         [Description("Boolean")]
-        BooleanOperator = 4
+        BooleanOperator = 4,
+        [Description("Rule")]
+        RuleOperator = 5
     }
 
     /// <summary>
@@ -130,6 +132,17 @@ namespace Gijima.IOBM.Infrastructure.Structs
     }
 
     /// <summary>
+    /// The <see cref="BooleanOperator"/> enumeration a list of 
+    /// boolean operator to validate on.
+    /// </summary>
+    public enum RuleOperator
+    {
+        None = 0,
+        Duplicate = 1,
+        Range
+    }
+
+    /// <summary>
     /// The below extension class can be used for all Enum types defined herein.
     /// Please not that you'll have to define each extension method per Enum type
     /// to handle the correct return type.
@@ -169,6 +182,10 @@ namespace Gijima.IOBM.Infrastructure.Structs
             return Convert.ToInt16(type);
         }
         public static short Value(this DataTypeName type)
+        {
+            return Convert.ToInt16(type);
+        }
+        public static short Value(this RuleOperator type)
         {
             return Convert.ToInt16(type);
         }

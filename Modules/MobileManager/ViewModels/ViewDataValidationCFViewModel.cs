@@ -850,6 +850,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                 OperatorCollection.Add(source.ToString());
                             }
                             break;
+                        case OperatorType.RuleOperator:
+                            foreach (RuleOperator source in Enum.GetValues(typeof(RuleOperator)))
+                            {
+                                OperatorCollection.Add(source.ToString());
+                            }
+                            break;
                     }
 
                     SelectedOperator = _defaultEnum;
@@ -998,6 +1004,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         break;
                     case OperatorType.BooleanOperator:
                         SelectedValidationRule.enOperator = ((BooleanOperator)Enum.Parse(typeof(BooleanOperator), SelectedOperator)).Value();
+                        break;
+                    case OperatorType.RuleOperator:
+                        SelectedValidationRule.enOperator = ((RuleOperator)Enum.Parse(typeof(RuleOperator), SelectedOperator)).Value();
                         break;
                     default:
                         SelectedValidationRule.enOperator = StringOperator.None.Value();

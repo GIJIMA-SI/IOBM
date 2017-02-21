@@ -108,6 +108,8 @@ namespace Gijima.IOBM.Infrastructure.Helpers
                     return ((DateOperator)operatorEnumValue).ToString();
                 case OperatorType.BooleanOperator:
                     return ((BooleanOperator)operatorEnumValue).ToString();
+                case OperatorType.RuleOperator:
+                    return ((RuleOperator)operatorEnumValue).ToString();
                 default:
                     return StringOperator.Equal.ToString();
             }

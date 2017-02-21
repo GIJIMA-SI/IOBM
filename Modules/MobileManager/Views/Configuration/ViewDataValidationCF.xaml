@@ -158,7 +158,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Validation Value" Binding="{Binding DataValidationValue}" Width="Auto" />
+                <DataGridTextColumn Header="Validation Value" Binding="{Binding DataValidationValue}" Width="300" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
