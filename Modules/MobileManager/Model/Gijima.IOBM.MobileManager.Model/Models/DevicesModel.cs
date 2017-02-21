@@ -48,8 +48,8 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     // Get the re-allacted status ID to be used in re-allaction valdation
                     int reAllocatedStatusID = db.Status.Where(p => p.StatusDescription == "REALLOCATED").First().pkStatusID;
 
-                    //// If a device gets re-allocated ensure that all the required properties 
-                    //// is valid to allow re-alloaction
+                    // If a device gets re-allocated ensure that all the required properties 
+                    // is valid to allow re-alloaction
                     foreach (DeviceIMENumber imeNumber in device.DeviceIMENumbers)
                     {
                         DeviceIMENumber existingNumber = db.DeviceIMENumbers.Where(p => p.IMENumber == imeNumber.IMENumber).FirstOrDefault();
@@ -73,15 +73,11 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     if (!db.Devices.Any(p => p.fkDeviceMakeID == device.fkDeviceMakeID &&
                                              p.fkDeviceModelID == device.fkDeviceModelID &&
                                              p.fkContractID == device.fkContractID &&
-                                             p.fkStatusID != reAllocatedStatusID))
+                                             p.fkStatusID != reAllocatedStatusID && 
+                                             p.IsActive == false))
                     {
                         db.Devices.Add(device);
                         db.SaveChanges();
-
-                        // Save device IMENumbers
-                        if (device.DeviceIMENumbers != null && device.DeviceIMENumbers.Count > 0)
-                            new DeviceIMENumberModel(_eventAggregator).UpdateDeviceIMENumber(device.DeviceIMENumbers, device.pkDeviceID);
-
                         return true;
                     }
                     else
@@ -215,7 +211,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     {
                         // Log the data values that changed
                         _activityLogger.CreateDataChangeAudits<Device>(_dataActivityHelper.GetDataChangeActivities<Device>(existingDevice, device, device.fkContractID, db));
-                        _activityLogger.CreateDataChangeAudits<DeviceIMENumber>(_dataActivityHelper.GetDataChangeActivities<DeviceIMENumber>(existingDevice.DeviceIMENumbers, device.DeviceIMENumbers, device.pkDeviceID, db));
+                        _activityLogger.CreateDataChangeAudits<DeviceIMENumber>(_dataActivityHelper.GetDataChangeActivities<DeviceIMENumber>(existingDevice.DeviceIMENumbers, device.DeviceIMENumbers, device.fkContractID, db));
 
                         // Save the new values
                         existingDevice.fkDeviceMakeID = device.fkDeviceMakeID;

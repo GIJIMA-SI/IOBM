@@ -85,6 +85,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                             deviceIMENumber.pkDeviceIMENumberID = 0;
                             db.DeviceIMENumbers.Add(deviceIMENumber);
                         }
+
                         db.SaveChanges();
                     }
                     result = true;

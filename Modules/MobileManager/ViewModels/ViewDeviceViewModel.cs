@@ -878,8 +878,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
             if (result)
             {
-                //new DeviceIMENumberModel(_eventAggregator).UpdateDeviceIMENumber(DeviceIMENumberCollection, SelectedDevice.pkDeviceID);
-
                 if (_autoSave)
                     _eventAggregator.GetEvent<ActionCompletedEvent>().Publish(ActionCompleted.SaveContractDevices);
                 else
