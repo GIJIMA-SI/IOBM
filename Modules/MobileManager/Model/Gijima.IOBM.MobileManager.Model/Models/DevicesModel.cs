@@ -50,17 +50,25 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                     //// If a device gets re-allocated ensure that all the required properties 
                     //// is valid to allow re-alloaction
-                    //if (db.devices.Any(p => p.pkDev.ToUpper().Trim() == device.IMENumber.ToUpper().Trim() &&
-                    //                        p.fkStatusID != reAllocatedStatusID &&
-                    //                        p.IsActive == true))
-                    //{
-                    //    _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                    //                    .Publish(new ApplicationMessage("DevicesModel",
-                    //                                                    "The device is still allocated to another client.",
-                    //                                                    "CreateDevice",
-                    //                                                    ApplicationMessage.MessageTypes.Information));
-                    //    return false;
-                    //}
+                    foreach (DeviceIMENumber imeNumber in device.DeviceIMENumbers)
+                    {
+                        DeviceIMENumber existingNumber = db.DeviceIMENumbers.Where(p => p.IMENumber == imeNumber.IMENumber).FirstOrDefault();
+                        if (existingNumber != null)
+                        {
+                            if (db.Devices.Any(p => p.pkDeviceID == existingNumber.fkDeviceID &&
+                                            p.fkStatusID != reAllocatedStatusID &&
+                                            p.IsActive == true))
+                            {
+                                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                        .Publish(new ApplicationMessage("DevicesModel",
+                                                                        "The device is still allocated to another client.",
+                                                                        "CreateDevice",
+                                                                        ApplicationMessage.MessageTypes.Information));
+                                return false;
+                            }
+                        }
+
+                    }
 
                     if (!db.Devices.Any(p => p.fkDeviceMakeID == device.fkDeviceMakeID &&
                                              p.fkDeviceModelID == device.fkDeviceModelID &&
@@ -186,7 +194,10 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             {
                 using (var db = MobileManagerEntities.GetContext())
                 {
-                    Device existingDevice = db.Devices.Where(p => p.pkDeviceID == device.pkDeviceID).FirstOrDefault();
+                    Device existingDevice = ((DbQuery<Device>)(from myDevice in db.Devices
+                                                               where myDevice.pkDeviceID == device.pkDeviceID
+                                                               select myDevice)).Include("DeviceIMENumbers")
+                                                                .FirstOrDefault();
 
                     // Check to see if the device description already exist for another entity 
                     if (existingDevice != null && existingDevice.pkDeviceID != device.pkDeviceID &&
@@ -204,6 +215,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     {
                         // Log the data values that changed
                         _activityLogger.CreateDataChangeAudits<Device>(_dataActivityHelper.GetDataChangeActivities<Device>(existingDevice, device, device.fkContractID, db));
+                        _activityLogger.CreateDataChangeAudits<DeviceIMENumber>(_dataActivityHelper.GetDataChangeActivities<DeviceIMENumber>(existingDevice.DeviceIMENumbers, device.DeviceIMENumbers, device.pkDeviceID, db));
 
                         // Save the new values
                         existingDevice.fkDeviceMakeID = device.fkDeviceMakeID;
