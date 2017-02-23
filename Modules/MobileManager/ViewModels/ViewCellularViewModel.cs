@@ -769,23 +769,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         public bool SplitBilling
         {
             get { return _splitBilling; }
-            set
-            {
-                SetProperty(ref _splitBilling, value);
-
-                if (((PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType)) == PackageType.DATA)
-                {
-                    AllowVoiceAllowance = false;
-                    AllowWDPAllowance = value;
-                    SelectedWDPAllowance = "0";
-                }
-                else if (SplitBilling && ((PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType)) == PackageType.VOICE)
-                {
-                    AllowVoiceAllowance = value;
-                    AllowWDPAllowance = false;
-                    SelectedVoiceAllowance = "0";
-                }
-            }
+            set { SetProperty(ref _splitBilling, value); }
         }
         private bool _splitBilling;
 
@@ -802,7 +786,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 if (value == true)
                 {
                     SelectedClientBilling = new ClientBilling();
-                    SelectedVoiceAllowance = SelectedWDPAllowance = "0";
                     SelectedIntRoaming = false;
                 }
             }
@@ -1348,7 +1331,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         if (NoSplitBilling)
                         {
                             ValidSplitBilling = ValidBillingLevel = ValidVoiceAllowance = ValidWDPAllowance = ValidRoamingCountry = ValidRoamingFromDate = ValidRoamingToDate = Brushes.Silver;
-                            AllowVoiceAllowance = AllowWDPAllowance = false;
                         }
                         ValidSplitBilling = !SplitBilling && !NoSplitBilling ? Brushes.Red : Brushes.Silver; break;
                     case "SelectedIntRoaming":
