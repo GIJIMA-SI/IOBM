@@ -195,6 +195,68 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
         City = 16,
     }
 
+    /// <summary>
+    /// The <see cref="AdvancedDataBaseEntity"/> enumeration a list of 
+    /// data update column options.
+    /// </summary>
+    public enum AdvancedDataBaseEntity
+    {
+        [Description("-- Please Select --")]
+        None = 0,
+        [Description("Audit Log")]
+        AuditLog = 1,
+        [Description("Cities")]
+        City = 2,
+        [Description("Clients")]
+        Client = 3,
+        [Description("Client Billing")]
+        ClientBilling = 4,
+        [Description("Client Locations")]
+        ClientLocation = 5,
+        [Description("Client Service")]
+        ClientService = 6,
+        [Description("Companies")]
+        Company = 7,
+        [Description("Company Billing Levels")]
+        CompanyBillingLevel = 8,
+        [Description("Company Groups")]
+        CompanyGroup = 9,
+        [Description("Contracts")]
+        Contract = 10,
+        [Description("Contract Services")]
+        ContractService = 11,
+        [Description("Devices")]
+        Device = 12,
+        [Description("Devices IME Number")]
+        DeviceIMENumber = 13,
+        [Description("Device Makes")]
+        DeviceMake = 14,
+        [Description("Device Models")]
+        DeviceModel = 15,
+        [Description("Invoices")]
+        Invoice = 16,
+        [Description("Invoice Details")]
+        InvoiceDetail = 17,
+        [Description("Packages")]
+        Package = 18,
+        [Description("Client Package Setup")]
+        PackageSetup = 19,
+        [Description("Provinces")]
+        Province = 20,
+        [Description("Reports")]
+        Report = 21,
+        [Description("Roles")]
+        Role = 22,
+        [Description("Services")]
+        Service = 23,
+        [Description("Service Providers")]
+        ServiceProvider = 24,
+        [Description("Sim Cards")]
+        SimCard = 25,
+        [Description("Suburbs")]
+        Suburb = 26
+    }
+
     #region Types
 
     /// <summary>
