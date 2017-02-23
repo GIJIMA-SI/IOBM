@@ -50,7 +50,9 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     if (!db.DataValidationRules.Any(p => p.enDataValidationProcess == validationRule.enDataValidationProcess &&
                                                          p.enDataValidationGroupName == validationRule.enDataValidationGroupName &&
                                                          p.DataValidationEntityID == validationRule.DataValidationEntityID &&
-                                                         p.fkDataValidationPropertyID == validationRule.fkDataValidationPropertyID))
+                                                         p.fkDataValidationPropertyID == validationRule.fkDataValidationPropertyID &&
+                                                         p.enOperatorType == validationRule.enOperatorType &&
+                                                         p.enOperator == validationRule.enOperator))
                     {
                         db.DataValidationRules.Add(validationRule);
                         db.SaveChanges();
@@ -261,10 +263,16 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             {
                 using (var db = MobileManagerEntities.GetContext())
                 {
-                    DataValidationRule existingValidationRule = db.DataValidationRules.Where(p => p.pkDataValidationRuleID == validationRule.pkDataValidationRuleID).FirstOrDefault();
-
-                    // Check to see if the validation rule name already exist for another entity 
-                    if (existingValidationRule != null && existingValidationRule.pkDataValidationRuleID != validationRule.pkDataValidationRuleID)
+                    // Check to see if the validation rule name already exist for another entity
+                    DataValidationRule existingValidationRule = db.DataValidationRules.Where(p => p.pkDataValidationRuleID != validationRule.pkDataValidationRuleID &&
+                                                                                                  p.enDataValidationProcess == validationRule.enDataValidationProcess &&
+                                                                                                  p.enDataValidationGroupName == validationRule.enDataValidationGroupName &&
+                                                                                                  p.DataValidationEntityID == validationRule.DataValidationEntityID &&
+                                                                                                  p.fkDataValidationPropertyID == validationRule.fkDataValidationPropertyID &&
+                                                                                                  p.enOperatorType == validationRule.enOperatorType &&
+                                                                                                  p.enOperator == validationRule.enOperator).FirstOrDefault();
+        
+                    if (existingValidationRule != null)
                     {
                         _eventAggregator.GetEvent<ApplicationMessageEvent>()
                                         .Publish(new ApplicationMessage("DataValidationRuleModel",
@@ -273,23 +281,23 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                                         ApplicationMessage.MessageTypes.Information));
                         return false;
                     }
-                    else
-                    {
-                        if (existingValidationRule != null)
-                        {
-                            existingValidationRule.DataValidationEntityID = validationRule.DataValidationEntityID;
-                            existingValidationRule.fkDataValidationPropertyID = validationRule.fkDataValidationPropertyID;
-                            existingValidationRule.enOperatorType = validationRule.enOperatorType;
-                            existingValidationRule.enOperator = validationRule.enOperator;
-                            existingValidationRule.DataValidationValue = validationRule.DataValidationValue;
-                            existingValidationRule.ModifiedBy = validationRule.ModifiedBy;
-                            existingValidationRule.ModifiedDate = validationRule.ModifiedDate;
-                            db.SaveChanges();
-                            return true;
-                        }
 
-                        return false;
+                    existingValidationRule = db.DataValidationRules.Where(p => p.pkDataValidationRuleID == validationRule.pkDataValidationRuleID).FirstOrDefault();
+
+                    if (existingValidationRule != null)
+                    {
+                        existingValidationRule.DataValidationEntityID = validationRule.DataValidationEntityID;
+                        existingValidationRule.fkDataValidationPropertyID = validationRule.fkDataValidationPropertyID;
+                        existingValidationRule.enOperatorType = validationRule.enOperatorType;
+                        existingValidationRule.enOperator = validationRule.enOperator;
+                        existingValidationRule.DataValidationValue = validationRule.DataValidationValue;
+                        existingValidationRule.ModifiedBy = validationRule.ModifiedBy;
+                        existingValidationRule.ModifiedDate = validationRule.ModifiedDate;
+                        db.SaveChanges();
+                        return true;
                     }
+
+                    return false;
                 }
             }
             catch (Exception ex)
