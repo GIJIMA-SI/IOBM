@@ -126,6 +126,7 @@
     <Compile Include="MobileManagerController.cs" />
     <Compile Include="MobileManagerModule.cs" />
     <Compile Include="ViewModels\ViewAccountViewModel.cs" />
+    <Compile Include="ViewModels\ViewAdvancedSearchViewModel.cs" />
     <Compile Include="ViewModels\ViewAuditLogViewModel.cs" />
     <Compile Include="ViewModels\ViewBasicSearchViewModel.cs" />
     <Compile Include="ViewModels\ViewBillingLevelViewModel.cs" />

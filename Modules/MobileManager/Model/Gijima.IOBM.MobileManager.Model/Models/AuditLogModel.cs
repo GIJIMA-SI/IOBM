@@ -145,5 +145,25 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 return false;
             }
         }
+
+        /// <summary>
+        /// Return all the column names of the entity
+        /// </summary>
+        /// <returns></returns>
+        public ObservableCollection<string> ReadColumnNames()
+        {
+            IEnumerable<string> names = typeof(AuditLog).GetProperties()
+                        .Select(property => property.Name)
+                        .ToList();
+
+            ObservableCollection<string> observableNames = new ObservableCollection<string>();
+
+            foreach (string name in names)
+            {
+                observableNames.Add(name);
+            }
+
+            return observableNames;
+        }
     }
 }

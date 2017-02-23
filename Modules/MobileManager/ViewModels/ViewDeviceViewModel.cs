@@ -562,6 +562,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
+                //Clears the selected device and set new one when new user is selected
+                InitialiseViewControls();
                 if (MobileManagerEnvironment.ClientContractID > 0)
                 {
                      DeviceCollection = await Task.Run(() => new DevicesModel(_eventAggregator).ReadDevicesForContract(MobileManagerEnvironment.ClientContractID));
