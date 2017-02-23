@@ -769,7 +769,24 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         public bool SplitBilling
         {
             get { return _splitBilling; }
-            set { SetProperty(ref _splitBilling, value); }
+            set
+            {
+                SetProperty(ref _splitBilling, value);
+
+                if (BillingLevelCollection == null || BillingLevelCollection.Count < 2)
+                {
+                    if (((PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType)) == PackageType.DATA)
+                    {
+                        AllowVoiceAllowance = false;
+                        AllowWDPAllowance = value;
+                    }
+                    else if (SplitBilling && ((PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType)) == PackageType.VOICE)
+                    {
+                        AllowVoiceAllowance = value;
+                        AllowWDPAllowance = false;
+                    }
+                }
+            }
         }
         private bool _splitBilling;
 
@@ -1677,7 +1694,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         flag = clientBilling.IsSplitBilling;
                     }
 
-                    if (BillingLevelCollection != null)
+                    if (BillingLevelCollection != null && BillingLevelCollection.Count > 1)
                     {
                         AllowBillingLevels = true;
                         SelectedBillingLevel = BillingLevelCollection != null ? BillingLevelCollection.Where(p => p.pkCompanyBillingLevelID == clientBilling.fkCompanyBillingLevelID).FirstOrDefault() : null;
@@ -2022,15 +2039,15 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             // Validate billing data
             if (result && SplitBilling && !SelectedClient.IsPrivate)
                 result = SelectedClientBilling != null && (SplitBilling || NoSplitBilling) &&
-                         (BillingLevelCollection == null ? true :
-                          BillingLevelCollection.Count > 1 && SelectedBillingLevel != null ? SelectedBillingLevel.pkCompanyBillingLevelID > 0 : false) &&
+                         ((BillingLevelCollection == null || BillingLevelCollection .Count < 2) ? true :
+                          SelectedBillingLevel != null ? SelectedBillingLevel.pkCompanyBillingLevelID > 0 : false) &&
                          (SplitBilling ? (!string.IsNullOrWhiteSpace(SelectedWDPAllowance) && Convert.ToDecimal(SelectedWDPAllowance) > 0 ||
                                           !string.IsNullOrWhiteSpace(SelectedVoiceAllowance) && Convert.ToDecimal(SelectedVoiceAllowance) > 0) : false) &&
                          (SelectedIntRoaming && !SelectedPermanentRoaming ? !string.IsNullOrEmpty(SelectedRoamingCountry) : true) &&
                          (SplitBilling && SelectedIntRoaming && !SelectedPermanentRoaming ? SelectedRoamingFromDate.Date > DateTime.MinValue.Date : true) &&
                          (SplitBilling && SelectedIntRoaming && !SelectedPermanentRoaming ? SelectedRoamingToDate.Date > SelectedRoamingFromDate.Date && SelectedRoamingToDate.Date > DateTime.MinValue.Date : true);
             else if (result && !SelectedClient.IsPrivate)
-                result = BillingLevelCollection == null ? true : BillingLevelCollection.Count > 1 && SelectedBillingLevel != null ? SelectedBillingLevel.pkCompanyBillingLevelID > 0 &&
+                result = (BillingLevelCollection == null || BillingLevelCollection.Count < 2) ? true : SelectedBillingLevel != null ? SelectedBillingLevel.pkCompanyBillingLevelID > 0 &&
                          (!string.IsNullOrWhiteSpace(SelectedWDPAllowance) && Convert.ToDecimal(SelectedWDPAllowance) > 0 ||
                           !string.IsNullOrWhiteSpace(SelectedVoiceAllowance) && Convert.ToDecimal(SelectedVoiceAllowance) > 0) : false;
 
