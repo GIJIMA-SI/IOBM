@@ -75,9 +75,10 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                              p.fkContractID == device.fkContractID &&
                                              p.fkStatusID != reAllocatedStatusID && 
                                              p.IsActive == false))
-                    {
+                    {                       
                         db.Devices.Add(device);
                         db.SaveChanges();
+                        
                         return true;
                     }
                     else
@@ -102,43 +103,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 return false;
             }
         }
-
-        /// <summary>
-        /// Read all or active only devices from the database
-        /// </summary>
-        /// <param name="activeOnly">Flag to load all or active only entities.</param>
-        /// <param name="excludeDefault">Flag to include or exclude the default entity.</param>
-        /// <returns>Collection of Devices</returns>
-        public ObservableCollection<Device> ReadDevices(bool activeOnly, bool excludeDefault = false)
-        {
-            try
-            {
-                IEnumerable<Device> devices = null;
-
-                using (var db = MobileManagerEntities.GetContext())
-                {
-                    devices = ((DbQuery<Device>)(from device in db.Devices
-                                                 where activeOnly ? device.IsActive : true &&
-                                                       excludeDefault ? device.pkDeviceID > 0 : true
-                                                 select device)).OrderBy(p => p.DeviceMake.MakeDescription)
-                                                 .Include("DeviceSimCard")
-                                                 .Include("SimCard").ToList();
-
-                    return new ObservableCollection<Device>(devices);
-                }
-            }
-            catch (Exception ex)
-            {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("DevicesModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "ReadDevices",
-                                                                ApplicationMessage.MessageTypes.SystemError));
-                return null;
-            }
-        }
-
+        
         /// <summary>
         /// Read all or active only devices linked to the specified contract from the database
         /// </summary>

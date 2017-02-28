@@ -604,8 +604,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 DeviceIMENumberCollection = await Task.Run(() => new DeviceIMENumberModel(_eventAggregator).ReadDeviceIMENumber(SelectedDevice.pkDeviceID));
 
                 // Set the first IME number of the selcted device
-                if (SelectedDevice != null && DeviceIMENumberCollection != null)
-                    SelectedIMENumber = DeviceIMENumberCollection.FirstOrDefault().IMENumber;
+                //if (SelectedDevice != null && DeviceIMENumberCollection != null)
+                    //SelectedIMENumber = DeviceIMENumberCollection.FirstOrDefault().IMENumber;
             }
             catch (Exception ex)
             {

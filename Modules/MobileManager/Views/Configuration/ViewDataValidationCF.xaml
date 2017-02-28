@@ -115,7 +115,7 @@
                 <Border Grid.Row="0" Grid.Column="10" BorderThickness="1" BorderBrush="{Binding ValidOperatorType}">
                     <ComboBox x:Name="ComboBoxOperatorType" ToolTip="Select the operator type based on the data type." TabIndex="5" IsSynchronizedWithCurrentItem="True"
                         ItemsSource="{Binding OperatorTypeCollection}" Height="22"
-                        SelectedItem="{Binding SelectedOperatorType, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
+                        SelectedItem="{Binding SelectedOperatorType, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" Width="118">
                     </ComboBox>
                 </Border>                
                 <Border Grid.Row="0" Grid.Column="12" BorderThickness="1" BorderBrush="{Binding ValidOperator}">

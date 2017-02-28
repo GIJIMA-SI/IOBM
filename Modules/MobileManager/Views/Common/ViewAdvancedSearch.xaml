@@ -90,15 +90,15 @@
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Data Entity:" Style="{StaticResource UXLabelTextStyle}" Margin="0,0,5,0"></TextBlock>
                 <Border Grid.Row="0" Grid.Column="1" BorderThickness="1" BorderBrush="{Binding ValidDataEntity}">
                     <ComboBox x:Name="ComboBoxDataEntity" ToolTip="{Binding DataItemTooltip, UpdateSourceTrigger=PropertyChanged}" TabIndex="3" IsSynchronizedWithCurrentItem="True"
-                        ItemsSource="{Binding DataEntityCollection}" Height="22"
+                        ItemsSource="{Binding DataEntityCollection}" DisplayMemberPath="EntityName" Height="22"
                         SelectedItem="{Binding SelectedDataEntity, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
                     </ComboBox>
                 </Border>
                 <TextBlock Grid.Row="0" Grid.Column="3" Text="Entity field:" Style="{StaticResource UXLabelTextStyle}" Margin="0,0,5,0"></TextBlock>
-                <Border Grid.Row="0" Grid.Column="4" BorderThickness="1" BorderBrush="{Binding ValidDataProperty}">
+                <Border Grid.Row="0" Grid.Column="4" BorderThickness="1" BorderBrush="{Binding ValidColumnName}">
                     <ComboBox x:Name="ComboBoxDataProperties" ToolTip="Select the data field to base the rule on." TabIndex="4" IsSynchronizedWithCurrentItem="True"
-                    ItemsSource="{Binding DataPropertyCollection}" DisplayMemberPath="{Binding DataPropertyDisplayName, UpdateSourceTrigger=PropertyChanged}" Height="22"
-                    SelectedItem="{Binding SelectedDataProperty, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
+                    ItemsSource="{Binding EntityColumnCollection}" Height="22"
+                    SelectedItem="{Binding SelectedColumn, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
                     </ComboBox>
                 </Border>
                 <TextBlock Grid.Row="0" Grid.Column="6" Text="Operator type:" Style="{StaticResource UXLabelTextStyle}" Margin="0,0,5,0"></TextBlock>
@@ -107,6 +107,7 @@
                         ItemsSource="{Binding OperatorTypeCollection}" Height="22"
                         SelectedItem="{Binding SelectedOperatorType, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
                     </ComboBox>
+                    <!--<TextBox Text="{Binding SelectedOperatorType}"></TextBox>-->
                 </Border>
                 <Border Grid.Row="0" Grid.Column="8" BorderThickness="1" BorderBrush="{Binding ValidOperator}">
                     <ComboBox x:Name="ComboBoxOperator" ToolTip="Select the operator." TabIndex="6" IsSynchronizedWithCurrentItem="True"

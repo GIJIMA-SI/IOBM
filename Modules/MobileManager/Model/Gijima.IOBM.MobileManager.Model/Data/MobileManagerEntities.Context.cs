@@ -64,8 +64,8 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public virtual DbSet<ExternalBillingData> ExternalBillingDatas { get; set; }
         public virtual DbSet<ClientService> ClientServices { get; set; }
         public virtual DbSet<ContractService> ContractServices { get; set; }
-        public virtual DbSet<DeviceIMENumber> DeviceIMENumbers { get; set; }
         public virtual DbSet<Company> Companies { get; set; }
+        public virtual DbSet<DeviceIMENumber> DeviceIMENumbers { get; set; }
         public virtual DbSet<Device> Devices { get; set; }
     
         public virtual ObjectResult<sp_report_Invoice_Result> sp_report_Invoice(Nullable<int> invoiceID)
