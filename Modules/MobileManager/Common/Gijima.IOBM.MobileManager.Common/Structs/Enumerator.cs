@@ -108,7 +108,7 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
         XLOAN = 1182,
         INACTIVE = 1211
     }
-    
+
     /// <summary>
     /// The <see cref="StatusLink"/> enumeration lists of
     /// option status entites can be linked to.
@@ -616,10 +616,14 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
         {
             return Convert.ToInt16(type);
         }
+        public static short Value(this AdvancedDataBaseEntity type)
+        {
+            return Convert.ToInt16(type);
+        }
         public static short Value(this DataValidationPropertyName type)
         {
             return Convert.ToInt16(type);
-        }       
+        }
         public static short Value(this DataValidationProcess type)
         {
             return Convert.ToInt16(type);

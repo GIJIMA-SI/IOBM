@@ -2056,7 +2056,6 @@
             <End Role="Contract" EntitySet="Contracts" />
             <End Role="ClientService" EntitySet="ClientServices" />
           </AssociationSet>
-          <EntitySet Name="DeviceIMENumbers" EntityType="MobileManagerModel.DeviceIMENumber" />
           <EntitySet Name="Companies" EntityType="MobileManagerModel.Company" />
           <AssociationSet Name="FK_Client_Company" Association="MobileManagerModel.FK_Client_Company">
             <End Role="Company" EntitySet="Companies" />
@@ -2070,6 +2069,7 @@
             <End Role="Company" EntitySet="Companies" />
             <End Role="UserInCompany" EntitySet="UserInCompanies" />
           </AssociationSet>
+          <EntitySet Name="DeviceIMENumbers" EntityType="MobileManagerModel.DeviceIMENumber" />
           <EntitySet Name="Devices" EntityType="MobileManagerModel.Device" />
           <AssociationSet Name="FK_Device_Contract" Association="MobileManagerModel.FK_Device_Contract">
             <End Role="Contract" EntitySet="Contracts" />
@@ -2301,17 +2301,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="DeviceIMENumber">
-          <Key>
-            <PropertyRef Name="pkDeviceIMENumberID" />
-          </Key>
-          <Property Name="pkDeviceIMENumberID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="IMENumber" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="fkDeviceID" Type="Int32" Nullable="false" />
-          <Property Name="ModifiedBy" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
-          <NavigationProperty Name="Device" Relationship="MobileManagerModel.FK_DeviceIMENumber_Device" FromRole="DeviceIMENumber" ToRole="Device" />
-        </EntityType>
         <EntityType Name="Company">
           <Key>
             <PropertyRef Name="pkCompanyID" />
@@ -2369,6 +2358,17 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="DeviceIMENumber">
+          <Key>
+            <PropertyRef Name="pkDeviceIMENumberID" />
+          </Key>
+          <Property Name="pkDeviceIMENumberID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IMENumber" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="fkDeviceID" Type="Int32" Nullable="false" />
+          <Property Name="ModifiedBy" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="Device" Relationship="MobileManagerModel.FK_DeviceIMENumber_Device" FromRole="DeviceIMENumber" ToRole="Device" />
+        </EntityType>
         <EntityType Name="Device">
           <Key>
             <PropertyRef Name="pkDeviceID" />
@@ -3012,17 +3012,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="DeviceIMENumbers">
-            <EntityTypeMapping TypeName="MobileManagerModel.DeviceIMENumber">
-              <MappingFragment StoreEntitySet="DeviceIMENumber">
-                <ScalarProperty Name="ModifiedDate" ColumnName="ModifiedDate" />
-                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
-                <ScalarProperty Name="fkDeviceID" ColumnName="fkDeviceID" />
-                <ScalarProperty Name="IMENumber" ColumnName="IMENumber" />
-                <ScalarProperty Name="pkDeviceIMENumberID" ColumnName="pkDeviceIMENumberID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Companies">
             <EntityTypeMapping TypeName="MobileManagerModel.Company">
               <MappingFragment StoreEntitySet="Company">
@@ -3039,6 +3028,17 @@
                 <ScalarProperty Name="CompanyName" ColumnName="CompanyName" />
                 <ScalarProperty Name="fkCompanyGroupID" ColumnName="fkCompanyGroupID" />
                 <ScalarProperty Name="pkCompanyID" ColumnName="pkCompanyID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DeviceIMENumbers">
+            <EntityTypeMapping TypeName="MobileManagerModel.DeviceIMENumber">
+              <MappingFragment StoreEntitySet="DeviceIMENumber">
+                <ScalarProperty Name="ModifiedDate" ColumnName="ModifiedDate" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="fkDeviceID" ColumnName="fkDeviceID" />
+                <ScalarProperty Name="IMENumber" ColumnName="IMENumber" />
+                <ScalarProperty Name="pkDeviceIMENumberID" ColumnName="pkDeviceIMENumberID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

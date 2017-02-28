@@ -71,12 +71,12 @@
         <EntityTypeShape EntityType="MobileManagerModel.ContractService" Width="1.5" PointX="0.625" PointY="9.25" IsExpanded="false" />
         <AssociationConnector Association="MobileManagerModel.FK_ClientService_ClientService" />
         <AssociationConnector Association="MobileManagerModel.FK_ClientService_Contract" />
-        <EntityTypeShape EntityType="MobileManagerModel.DeviceIMENumber" Width="1.5" PointX="8" PointY="3.5" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.Company" Width="1.5" PointX="3.875" PointY="4.375" IsExpanded="false" />
         <AssociationConnector Association="MobileManagerModel.FK_Client_Company" />
         <AssociationConnector Association="MobileManagerModel.FK_Company_CompanyGroup" />
         <AssociationConnector Association="MobileManagerModel.FK_UserInCompany_Company" />
-        <EntityTypeShape EntityType="MobileManagerModel.Device" Width="1.5" PointX="7.625" PointY="6.125" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.DeviceIMENumber" Width="1.5" PointX="8" PointY="2.375" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.Device" Width="1.5" PointX="7.5" PointY="6" IsExpanded="false" />
         <AssociationConnector Association="MobileManagerModel.FK_Device_Contract" />
         <AssociationConnector Association="MobileManagerModel.FK_Device_DeviceMake" />
         <AssociationConnector Association="MobileManagerModel.FK_Device_DeviceModel" />
