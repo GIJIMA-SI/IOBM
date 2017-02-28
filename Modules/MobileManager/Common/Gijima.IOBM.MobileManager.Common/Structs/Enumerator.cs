@@ -544,7 +544,11 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
         [Description("Sim Number")]
         CardNumber = 22,
         [Description("PUK Number")]
-        PUKNumber = 23
+        PUKNumber = 23,
+        [Description("Pin Number")]
+        PinNumber = 24,
+        [Description("Active")]
+        IsActive = 25
     }
 
     /// <summary>

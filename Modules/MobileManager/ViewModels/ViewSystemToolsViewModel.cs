@@ -57,7 +57,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             {
                 TabCollection.Add(new TabItem() { Header = "Data Validation" });
                 TabCollection.Add(new TabItem() { Header = "Data Update" });
-                TabCollection.Add(new TabItem() { Header = "Data Import" });
+                //TabCollection.Add(new TabItem() { Header = "Data Import" });
             }
         }
 
@@ -78,9 +78,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     case "Data Update":
                         SelectedTab.Content = new ViewDataUpdate();
                         break;
-                    case "Data Import":
-                        SelectedTab.Content = new ViewDataImport();
-                        break;
+                    //case "Data Import":
+                    //    SelectedTab.Content = new ViewDataImport();
+                    //    break;
                 }
 
             }

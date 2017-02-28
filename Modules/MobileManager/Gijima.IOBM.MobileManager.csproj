@@ -138,9 +138,9 @@
     <Compile Include="ViewModels\ViewCompanyGroupViewModel.cs" />
     <Compile Include="ViewModels\ViewContractServiceViewModel.cs" />
     <Compile Include="ViewModels\ViewDataImportExtViewModel.cs" />
-    <Compile Include="ViewModels\ViewDataImportIntViewModel.cs" />
-    <Compile Include="ViewModels\ViewDataImportViewModel.cs" />
     <Compile Include="ViewModels\ViewDataUpdateViewModel.cs" />
+    <Compile Include="ViewModels\ViewDataImportIntViewModel.cs" />
+    <Compile Include="ViewModels\ViewDataUpdateViewModelOld.cs" />
     <Compile Include="ViewModels\ViewDataValidationCFViewModel.cs" />
     <Compile Include="ViewModels\ViewCompanyViewModel.cs" />
     <Compile Include="ViewModels\ViewConfigViewModel.cs" />
@@ -178,8 +178,8 @@
     <Compile Include="Views\SystemTools\ViewDataImport.xaml.cs">
       <DependentUpon>ViewDataImport.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SystemTools\ViewDataImportInt.xaml.cs">
-      <DependentUpon>ViewDataImportInt.xaml</DependentUpon>
+    <Compile Include="Views\SystemTools\ViewDataUpdate.xaml.cs">
+      <DependentUpon>ViewDataUpdate.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SystemTools\ViewDataImportExt.xaml.cs">
       <DependentUpon>ViewDataImportExt.xaml</DependentUpon>
@@ -244,8 +244,8 @@
     <Compile Include="Views\SystemTools\ViewSystemTools.xaml.cs">
       <DependentUpon>ViewSystemTools.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SystemTools\ViewDataUpdate.xaml.cs">
-      <DependentUpon>ViewDataUpdate.xaml</DependentUpon>
+    <Compile Include="Views\SystemTools\ViewDataUpdateOld.xaml.cs">
+      <DependentUpon>ViewDataUpdateOld.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ViewMobileManager.xaml.cs">
       <DependentUpon>ViewMobileManager.xaml</DependentUpon>
@@ -295,7 +295,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SystemTools\ViewDataImportInt.xaml">
+    <Page Include="Views\SystemTools\ViewDataUpdate.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -383,7 +383,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\SystemTools\ViewDataUpdate.xaml">
+    <Page Include="Views\SystemTools\ViewDataUpdateOld.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
