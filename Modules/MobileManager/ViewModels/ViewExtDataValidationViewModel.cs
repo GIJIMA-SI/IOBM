@@ -354,7 +354,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private void BillingProcessCompleted_Event(BillingExecutionState sender)
         {
             if (sender == BillingExecutionState.ExternalDataValidation)
-                BillingProcessCompleted = true;
+                Application.Current.Dispatcher.Invoke(() => { BillingProcessCompleted = true; });
         }
 
         #endregion
