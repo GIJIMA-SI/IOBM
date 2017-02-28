@@ -323,7 +323,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// <param name="mappedProperties">The simcard properties (columns) to import.</param>
         /// <param name="errorMessage">OUT The error message.</param>
         /// <returns>True if successfull</returns>
-        public bool ImportSimCard(SearchEntity searchEntity, string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, out string errorMessage)
+        public bool UpdateSimCard(SearchEntity searchEntity, string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, out string errorMessage)
         {
             errorMessage = string.Empty;
             string[] importProperties = null;
@@ -414,8 +414,8 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                 sourceValue = SecurityHelper.LoggedInFullName;
                             if (property.Name == "ModifiedDate")
                                 sourceValue = DateTime.Now;
-                            if (property.Name == "IsActive")
-                                sourceValue = true;
+                            //if (property.Name == "IsActive")
+                            //    sourceValue = true;
 
                             // Convert the db type into the type of the property in our entity
                             if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
@@ -431,18 +431,18 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                             property.SetValue(simCardToImport, sourceValue);
                         }
 
-                        // If new simcard add it else
-                        // update and add activity log
-                        if (simCardToImport.pkSimCardID == 0)
-                        {
-                            db.SimCards.Add(simCardToImport);
-                            result = true;
-                        }
-                        else
-                        {
+                        //// If new simcard add it else
+                        //// update and add activity log
+                        //if (simCardToImport.pkSimCardID == 0)
+                        //{
+                        //    db.SimCards.Add(simCardToImport);
+                        //    result = true;
+                        //}
+                        //else
+                        //{
                             // Add the data activity log
                             result = _activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<SimCard>(existingSimCard, simCardToImport, simCardToImport.fkContractID.Value, db));
-                        }
+                        //}
 
                         db.SaveChanges();
 

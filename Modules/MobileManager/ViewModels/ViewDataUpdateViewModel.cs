@@ -26,18 +26,18 @@ namespace Gijima.IOBM.MobileManager.ViewModels
     {
         #region Properties & Attributes
 
-        private DataImportRuleModel _model = null;
+        private DataUpdateRuleModel _model = null;
         private IEventAggregator _eventAggregator;
         private SecurityHelper _securityHelper = null;
-        private IEnumerable<DataImportRule> _importRules = null;
-        private DataImportRule _importRule = null;
+        private IEnumerable<DataUpdateRule> _updateRules = null;
+        private DataUpdateRule _updateRule = null;
         private MSOfficeHelper _officeHelper = null;
         private string _defaultItem = "-- Please Select --";
 
         #region Commands
 
         public DelegateCommand OpenFileCommand { get; set; }
-        public DelegateCommand ImportCommand { get; set; }
+        public DelegateCommand UpdateCommand { get; set; }
         public DelegateCommand MapCommand { get; set; }
         public DelegateCommand UnMapCommand { get; set; }
 
@@ -148,16 +148,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private ObservableCollection<string> _sourceColumnCollection = null;
       
         /// <summary>
-        /// The collection of service providers from the database
-        /// </summary>
-        public ObservableCollection<ServiceProvider> DataProviderCollection
-        {
-            get { return _dataProviderCollection; }
-            set { SetProperty(ref _dataProviderCollection, value); }
-        }
-        private ObservableCollection<ServiceProvider> _dataProviderCollection = null;
-
-        /// <summary>
         /// The collection of entity columns to search on
         /// </summary>
         public ObservableCollection<string> DestinationSearchCollection
@@ -168,7 +158,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private ObservableCollection<string> _searchEntityCollection = null;
 
         /// <summary>
-        /// The collection of data columns to import to from the DataImportColumn enum
+        /// The collection of data columns to import to from the DataUpdateColumn enum
         /// </summary>
         public ObservableCollection<string> DestinationColumnCollection
         {
@@ -178,7 +168,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private ObservableCollection<string> _destinationColumnCollection = null;
 
         /// <summary>
-        /// The collection of data entities to import to from the DataImportEntities enum
+        /// The collection of data entities to import to from the DataUpdateEntities enum
         /// </summary>
         public ObservableCollection<string> DestinationEntityCollection
         {
@@ -234,15 +224,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set
             {
                 SetProperty(ref _selectedDestinationEntity, value);
-                _importRule = null;
+                _updateRule = null;
 
                 if (value != null)
                 {
-                    if (value != _defaultItem && _importRules != null)
-                    {
-                        short dataEntity = EnumHelper.GetEnumFromDescription<DataBaseEntity>(value).Value();
-                        _importRule = _importRules.Where(p => p.enDataBaseEntity == dataEntity).FirstOrDefault();
-                    }
+
 
                     ReadDataDestinationInfo();
                 }
@@ -350,12 +336,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Check if the data can be imported
         /// </summary>
-        public bool CanImport
+        public bool CanUpdate
         {
-            get { return _canImport; }
-            set { SetProperty(ref _canImport, value); }
+            get { return _canUpdate; }
+            set { SetProperty(ref _canUpdate, value); }
         }
-        private bool _canImport = false;
+        private bool _canUpdate = false;
         
         /// <summary>
         /// Set the required field border colour
@@ -448,13 +434,13 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         ValidSelectedDataSheet = SelectedDataSheet == null || SelectedDataSheet.SheetName == _defaultItem ? false : true; break;
                     case "SelectedSourceSearch":
                         ValidSourceSearch = string.IsNullOrEmpty(SelectedSourceSearch) || SelectedSourceSearch == _defaultItem ? Brushes.Red : Brushes.Silver;
-                        CanStartImport(); break;
+                        CanStartUpdate(); break;
                     case "SelectedDestinationEntity":
                         ValidDestinationEntity = string.IsNullOrEmpty(SelectedDestinationEntity) || SelectedDestinationEntity == _defaultItem ? Brushes.Red : Brushes.Silver;
                         ValidSelectedDestinationEntity = string.IsNullOrEmpty(SelectedDestinationEntity) || SelectedDestinationEntity == _defaultItem ? false : true; break;
                     case "SelectedDestinationSearch":
                         ValidDestinationSearch = string.IsNullOrEmpty(SelectedDestinationSearch) || SelectedDestinationSearch == _defaultItem ? Brushes.Red : Brushes.Silver;
-                        CanStartImport(); break;
+                        CanStartUpdate(); break;
                 }
 
                 return result;
@@ -480,26 +466,26 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             _eventAggregator = eventAggregator;
             _securityHelper = new SecurityHelper(eventAggregator);
-            _model = new DataImportRuleModel(_eventAggregator);
-            InitialiseDataImportView();
+            _model = new DataUpdateRuleModel(_eventAggregator);
+            InitialiseDataUpdateView();
         }
 
         /// <summary>
         /// Initialise all the view dependencies
         /// </summary>
-        private async void InitialiseDataImportView()
+        private async void InitialiseDataUpdateView()
         {
             InitialiseViewControls();
 
             // Initialise the view commands
             OpenFileCommand = new DelegateCommand(ExecuteOpenFileCommand);
-            ImportCommand = new DelegateCommand(ExecuteImport);
+            UpdateCommand = new DelegateCommand(ExecuteUpdate);
             MapCommand = new DelegateCommand(ExecuteMap, CanMap).ObservesProperty(() => SelectedSourceProperty)
                                                                 .ObservesProperty(() => SelectedDestinationProperty);
             UnMapCommand = new DelegateCommand(ExecuteUnMap, CanUnMap).ObservesProperty(() => SelectedMappedProperty);
 
             // Load the view data
-            await ReadDataImportRulesAsync();
+            await ReadDataUpdateRulesAsync();
         }
 
         /// <summary>
@@ -517,15 +503,15 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             DataSheetCollection.Add(defaultInfo);
             DestinationEntityCollection = new ObservableCollection<string>();
             DestinationEntityCollection.Add(_defaultItem);
-            InitialiseImportControls();
+            InitialiseUpdateControls();
         }
 
         /// <summary>
         /// Set default values to view properties
         /// </summary>
-        private void InitialiseImportControls()
+        private void InitialiseUpdateControls()
         {
-            ImportUpdateDescription = string.Format("Importing - {0} of {1}", 0, 0);
+            ImportUpdateDescription = string.Format("Updateing - {0} of {1}", 0, 0);
             ImportUpdateCount = 1;
             ImportUpdateProgress = ImportUpdatesPassed = ImportUpdatesFailed = 0;
             ValidImportData = false;
@@ -547,7 +533,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
-                InitialiseImportControls();
+                InitialiseUpdateControls();
 
                 if (SelectedDataSheet != null && SelectedDataSheet.WorkBookName != null)
                 {
@@ -601,11 +587,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Check if the import can start
         /// </summary>
-        private void CanStartImport()
+        private void CanStartUpdate()
         {
             if (SelectedSourceSearch != null && SelectedDestinationSearch != null && DestinationColumnCollection != null)
             {
-                CanImport = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem &&
+                CanUpdate = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem &&
                 DestinationColumnCollection.Count == 1 ? true : false;
                 ValidMapping = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem &&
                                DestinationColumnCollection.Count == 1 ? Brushes.Silver : Brushes.Red;
@@ -617,16 +603,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Read all the data import rules from the database
         /// </summary>
-        private async Task ReadDataImportRulesAsync()
+        private async Task ReadDataUpdateRulesAsync()
         {
             try
             {
                 DestinationEntityCollection = new ObservableCollection<string>();
                 DestinationEntityCollection.Add(EnumHelper.GetDescriptionFromEnum(DataBaseEntity.None));
 
-                _importRules = await Task.Run(() => _model.ReadDataImportRules());
+                _updateRules = await Task.Run(() => _model.ReadDataUpdateRules(true));
 
-                foreach (DataImportRule rule in _importRules)
+                foreach (DataUpdateRule rule in _updateRules)
                 {
                     DestinationEntityCollection.Add(EnumHelper.GetDescriptionFromEnum((DataBaseEntity)rule.enDataBaseEntity));
                 }
@@ -636,10 +622,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("ViewDataImportViewModel",
+                                .Publish(new ApplicationMessage("ViewDataUpdateViewModel",
                                                                 string.Format("Error! {0}, {1}.",
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "ReadDataImportRulesAsync",
+                                                                "ReadDataUpdateRulesAsync",
                                                                 ApplicationMessage.MessageTypes.SystemError));
             }
         }
@@ -666,7 +652,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
 
         /// <summary>
-        /// Populate the data search and destination column combobox from the DataImport rule
+        /// Populate the data search and destination column combobox from the DataUpdate rule
         /// </summary>
         private void ReadDataDestinationInfo()
         {
@@ -675,19 +661,20 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             DestinationColumnCollection = new ObservableCollection<string>();
             DestinationColumnCollection.Add(_defaultItem);
 
-            if (_importRule != null)
+            if (_updateRules != null && _updateRules.Count() > 0)
             {
-                string[] searchItems = _importRule.SearchProperties.Split(';');
-                string[] dataItems = _importRule.DataProperties.Split(';');
+                string[] searchItems = _updateRules.First().SearchEntities.Split(';');
 
                 foreach (string searchItem in searchItems)
                 {
                     DestinationSearchCollection.Add(searchItem);
                 }
 
-                foreach (string dataItem in dataItems)
+                DataBaseEntity destinationEntity = EnumHelper.GetEnumFromDescription<DataBaseEntity>(SelectedDestinationEntity);
+
+                foreach (DataUpdateRule rule in _updateRules.Where(p => p.enDataBaseEntity == destinationEntity.Value()))
                 {
-                    DestinationColumnCollection.Add(dataItem);
+                    DestinationColumnCollection.Add(EnumHelper.GetDescriptionFromEnum((DataUpdateColumn)rule.enDataUpdateColumn));
                 }
             }
 
@@ -706,7 +693,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
-                InitialiseDataImportView();
+                InitialiseDataUpdateView();
                 System.Windows.Forms.OpenFileDialog dialog = new System.Windows.Forms.OpenFileDialog();
                 dialog.Filter = "Excel files (*.xlsx)|*.xlsx";
                 System.Windows.Forms.DialogResult result = dialog.ShowDialog();
@@ -766,7 +753,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 SourceColumnCollection.Remove(SelectedSourceProperty);
                 DestinationColumnCollection.Remove(SelectedDestinationProperty);
                 SelectedSourceProperty = SelectedDestinationProperty = _defaultItem;
-                CanStartImport();
+                CanStartUpdate();
             }
             catch (Exception ex)
             {
@@ -800,7 +787,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 SourceColumnCollection.Add(mappedProperties[0].Trim());
                 DestinationColumnCollection.Add(mappedProperties[1].Trim());
                 SelectedMappedProperty = null;
-                CanStartImport();
+                CanStartUpdate();
             }
             catch (Exception ex)
             {
@@ -816,11 +803,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Execute when the start command button is clicked 
         /// </summary>
-        private async void ExecuteImport()
+        private async void ExecuteUpdate()
         {
             try
             {
-                ImportUpdateDescription = string.Format("Importing {0} - {1} of {2}", "", 0, 0);
+                ImportUpdateDescription = string.Format("Updating {0} - {1} of {2}", "", 0, 0);
                 ImportUpdateProgress = ImportUpdatesPassed = ImportUpdatesFailed = 0;
                 ImportUpdateCount = ImportedDataCollection.Rows.Count;
                 string errorMessage = string.Empty;
@@ -833,12 +820,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
                 foreach (DataRow row in ImportedDataCollection.Rows)
                 {
-                    ImportUpdateDescription = string.Format("Importing {0} - {1} of {2}", "", ++ImportUpdateProgress, ImportUpdateCount);
+                    ImportUpdateDescription = string.Format("Updating {0} - {1} of {2}", "", ++ImportUpdateProgress, ImportUpdateCount);
                     searchCriteria = row[SelectedSourceSearch] as string;
                     rowIdx = ImportedDataCollection.Rows.IndexOf(row);
 
-                    // Import the related entity data
-                    switch ((DataBaseEntity)_importRule.enDataBaseEntity)
+                    // Update the related entity data
+                    switch ((DataBaseEntity)_updateRule.enDataBaseEntity)
                     {
                         //case DataBaseEntity.Client:
                         //    result = await Task.Run(() => new ClientModel(_eventAggregator).UpdateClient(searchEntity,
@@ -868,7 +855,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         //                                                                                     SelectedDestinationCompany,
                         //                                                                                     out errorMessage)); break;
                         case DataBaseEntity.SimCard:
-                            result = await Task.Run(() => new SimCardModel(_eventAggregator).ImportSimCard(searchEntity,
+                            result = await Task.Run(() => new SimCardModel(_eventAggregator).UpdateSimCard(searchEntity,
                                                                                                            searchCriteria,
                                                                                                            MappedPropertyCollection,
                                                                                                            row,
@@ -895,7 +882,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                 .Publish(new ApplicationMessage("ViewDataImportViewModel",
                                          string.Format("Error! {0}, {1}.",
                                          ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                         "ExecuteImport",
+                                         "ExecuteUpdate",
                                          ApplicationMessage.MessageTypes.SystemError));
             }
         }

@@ -529,7 +529,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             {
                 SetProperty(ref _selectedCompany, value);
                 if (value != null && value.pkCompanyID > 0)
+                {
                     SetCompanyDefaults();
+
+                    if (SelectedPackage != null)
+                        ReadCompanyBillingLevels();
+                }
             }
         }
         private Company _selectedCompany;
@@ -1697,7 +1702,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     if (BillingLevelCollection != null && BillingLevelCollection.Count > 1)
                     {
                         AllowBillingLevels = true;
-                        SelectedBillingLevel = BillingLevelCollection != null ? BillingLevelCollection.Where(p => p.pkCompanyBillingLevelID == clientBilling.fkCompanyBillingLevelID).FirstOrDefault() : null;
+                        if (clientBilling.fkCompanyBillingLevelID != null)
+                            SelectedBillingLevel = BillingLevelCollection.Where(p => p.pkCompanyBillingLevelID == clientBilling.fkCompanyBillingLevelID).FirstOrDefault();
+                        else
+                            SelectedBillingLevel = BillingLevelCollection.Where(p => p.pkCompanyBillingLevelID == 0).FirstOrDefault();
                     }
                     else
                     {
@@ -1939,6 +1947,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             try
             {
                 BillingLevelCollection = null;
+                SelectedBillingLevel = null;
                 short billingLevelType = 0;
 
                 // Set the billing level type based on the package type
@@ -1950,6 +1959,17 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 if (SelectedCompany != null && SelectedCompany.pkCompanyID > 0 && SelectedCompany.fkCompanyGroupID != null)
                 {
                     BillingLevelCollection = new CompanyBillingLevelModel(_eventAggregator).ReadCompanyBillingLevels(SelectedCompany.fkCompanyGroupID.Value, billingLevelType);
+
+                    if (BillingLevelCollection != null && BillingLevelCollection.Count > 1)
+                    {
+                        AllowBillingLevels = true;
+                        SelectedBillingLevel = BillingLevelCollection.Where(p => p.pkCompanyBillingLevelID == 0).FirstOrDefault();
+                    }
+                    else
+                    {
+                        AllowBillingLevels = false;
+                        SelectedBillingLevel = null;
+                    }
                 }
             }
             catch (Exception ex)
