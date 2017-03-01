@@ -587,12 +587,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// </summary>
         private void CanStartUpdate()
         {
-            if (SelectedSourceSearch != null && SelectedDestinationSearch != null && DestinationColumnCollection != null)
+            if (SelectedSourceSearch != null && SelectedDestinationSearch != null && MappedPropertyCollection != null)
             {
-                CanUpdate = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem &&
-                DestinationColumnCollection.Count == 1 ? true : false;
+                if (MappedPropertyCollection != null)
+                    CanUpdate = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem && MappedPropertyCollection.Count >= 1 ? true : false;
                 ValidMapping = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem &&
-                               DestinationColumnCollection.Count == 1 ? Brushes.Silver : Brushes.Red;
+                               MappedPropertyCollection.Count >= 1 ? Brushes.Silver : Brushes.Red;
             }
         }
 
@@ -842,8 +842,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     searchCriteria = row[SelectedSourceSearch] as string;
                     rowIdx = ImportedDataCollection.Rows.IndexOf(row);
 
+                    
                     // Update the related entity data
-                    switch ((DataBaseEntity)_updateRule.enDataBaseEntity)
+                    switch (EnumHelper.GetEnumFromDescription<DataUpdateEntity>(SelectedDestinationEntity))
                     {
                         //case DataBaseEntity.Client:
                         //    result = await Task.Run(() => new ClientModel(_eventAggregator).UpdateClient(searchEntity,
@@ -872,7 +873,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         //                                                                                     importValue,
                         //                                                                                     SelectedDestinationCompany,
                         //                                                                                     out errorMessage)); break;
-                        case DataBaseEntity.SimCard:
+                        case DataUpdateEntity.SimCard:
                             result = await Task.Run(() => new SimCardModel(_eventAggregator).UpdateSimCard(searchEntity,
                                                                                                            searchCriteria,
                                                                                                            MappedPropertyCollection,
