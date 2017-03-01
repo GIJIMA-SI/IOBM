@@ -23,7 +23,7 @@
         </Grid.ColumnDefinitions>
         <TextBlock Grid.Column="0" Text="Search criteria:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
         <ComboBox Grid.Column="1" IsEditable="True" MinWidth="200" Text="{Binding SearchCriteria, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding  ClientResults}"
-            DisplayMemberPath="ClientName" SelectedItem="{Binding SelectedClient}" IsDropDownOpen="{Binding MultipleResults}">
+            DisplayMemberPath="SearchResult" SelectedItem="{Binding SelectedClient}" IsDropDownOpen="{Binding MultipleResults}">
             <ComboBox.InputBindings>
                 <KeyBinding Key="Enter" Command="{Binding SearchKeyDownCommand}"/>
             </ComboBox.InputBindings>

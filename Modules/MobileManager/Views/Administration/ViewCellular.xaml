@@ -124,11 +124,11 @@
                     </Grid>
                 </Border>
                 <TextBlock Grid.Row="4" Grid.Column="0" Text="Name:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxClientName" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1" TabIndex="6" ToolTip="Enter the client name linked cellular number." Style="{StaticResource UXTextBoxStyle}"
+                <TextBox x:Name="TextBoxClientName" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="4" TabIndex="6" ToolTip="Enter the client name linked cellular number." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedClientName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidClientName}">
                 </TextBox>
-                <TextBlock Grid.Row="4" Grid.Column="3" Text="Email:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxClientEmail" Grid.Row="4" Grid.Column="4" Grid.ColumnSpan="7" TabIndex="7" ToolTip="Enter the client's email address." Style="{StaticResource UXTextBoxStyle}"
+                <TextBlock Grid.Row="4" Grid.Column="6" Text="Email:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <TextBox x:Name="TextBoxClientEmail" Grid.Row="4" Grid.Column="7" Grid.ColumnSpan="4" TabIndex="7" ToolTip="Enter the client's email address." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedClient.Email}">
                 </TextBox>
                 <TextBlock Grid.Row="6" Grid.Column="0" Text="Land line:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>

@@ -58,7 +58,18 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 {
                     using (var db = MobileManagerEntities.GetContext())
                     {
-                        if (!db.Clients.Any(p => p.IDNumber == client.IDNumber && p.PrimaryCellNumber == client.PrimaryCellNumber))
+                        Client existingClient = db.Clients.Where(p => p.PrimaryCellNumber == client.PrimaryCellNumber && p.IsActive).FirstOrDefault();
+
+                        if (existingClient != null)
+                        {
+                            _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                            .Publish(new ApplicationMessage("ClientModel",
+                                                                            string.Format("Cell number {0} already\nexist for client {1}.", client.PrimaryCellNumber, existingClient.ClientName),
+                                                                            "CreateClient",
+                                                                            ApplicationMessage.MessageTypes.ProcessError));
+                            return false;
+                        }
+                        else
                         {
                             // Save the client entity data
                             client.IsActive = true;
@@ -69,15 +80,6 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                             tc.Complete();
 
                             return true;
-                        }
-                        else
-                        {
-                            _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                            .Publish(new ApplicationMessage("ClientModel",
-                                                                            "This client already exist.",
-                                                                            "CreateClient",
-                                                                            ApplicationMessage.MessageTypes.Information));
-                            return false;
                         }
                     }
                 }
@@ -239,9 +241,19 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         Client existingClient = ReadClient(client.pkClientID);
 
                         // Check to see if the client name already exist for another entity 
-                        if (existingClient != null && existingClient.pkClientID != client.pkClientID)
+                        if (existingClient != null && 
+                            existingClient.ClientName != client.ClientName &&
+                            existingClient.EmployeeNumber != client.EmployeeNumber &&
+                            existingClient.IDNumber != client.IDNumber &&
+                            existingClient.Email != client.Email &&
+                            existingClient.CostCode != client.CostCode &&
+                            existingClient.AddressLine1 != client.AddressLine1)
                         {
-                            //_eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(string.Format("The {0} client already exist.", client.ClientName));
+                            _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                            .Publish(new ApplicationMessage("ClientModel",
+                                                                            "This method of re-allocation is not allowed.",
+                                                                            "UpdateClient",
+                                                                            ApplicationMessage.MessageTypes.ProcessError));
                             result = false;
                         }
                         else
