@@ -532,8 +532,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 {
                     SetCompanyDefaults();
 
-                    if (SelectedPackage != null)
+                    if (SelectedClientBilling != null && SelectedPackage != null)
+                    {
                         ReadCompanyBillingLevels();
+                        SetClientBilling(SelectedClientBilling);
+                    }
                 }
             }
         }
@@ -1971,6 +1974,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         SelectedBillingLevel = null;
                     }
                 }
+
+                if (SelectedClientBilling != null)
+                    SetClientBilling(SelectedClientBilling);
             }
             catch (Exception ex)
             {
@@ -2059,18 +2065,18 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             // Validate billing data
             if (result && SplitBilling && !SelectedClient.IsPrivate)
                 result = SelectedClientBilling != null && (SplitBilling || NoSplitBilling) &&
-                         ((BillingLevelCollection == null || BillingLevelCollection .Count < 2) ? true :
-                          SelectedBillingLevel != null ? SelectedBillingLevel.pkCompanyBillingLevelID > 0 : false) &&
                          (SplitBilling ? (!string.IsNullOrWhiteSpace(SelectedWDPAllowance) && Convert.ToDecimal(SelectedWDPAllowance) > 0 ||
                                           !string.IsNullOrWhiteSpace(SelectedVoiceAllowance) && Convert.ToDecimal(SelectedVoiceAllowance) > 0) : false) &&
                          (SelectedIntRoaming && !SelectedPermanentRoaming ? !string.IsNullOrEmpty(SelectedRoamingCountry) : true) &&
                          (SplitBilling && SelectedIntRoaming && !SelectedPermanentRoaming ? SelectedRoamingFromDate.Date > DateTime.MinValue.Date : true) &&
                          (SplitBilling && SelectedIntRoaming && !SelectedPermanentRoaming ? SelectedRoamingToDate.Date > SelectedRoamingFromDate.Date && SelectedRoamingToDate.Date > DateTime.MinValue.Date : true);
-            else if (result && !SelectedClient.IsPrivate)
-                result = (BillingLevelCollection == null || BillingLevelCollection.Count < 2) ? true : SelectedBillingLevel != null ? SelectedBillingLevel.pkCompanyBillingLevelID > 0 &&
-                         (!string.IsNullOrWhiteSpace(SelectedWDPAllowance) && Convert.ToDecimal(SelectedWDPAllowance) > 0 ||
-                          !string.IsNullOrWhiteSpace(SelectedVoiceAllowance) && Convert.ToDecimal(SelectedVoiceAllowance) > 0) : false;
 
+            // Validate billing levels
+            //if (result && !SelectedClient.IsPrivate)
+            //    result = (BillingLevelCollection == null || BillingLevelCollection.Count < 2) ? true : 
+            //              SelectedBillingLevel != null ? SelectedBillingLevel.pkCompanyBillingLevelID > 0 &&
+            //             (!string.IsNullOrWhiteSpace(SelectedWDPAllowance) && Convert.ToDecimal(SelectedWDPAllowance) > 0 ||
+            //              !string.IsNullOrWhiteSpace(SelectedVoiceAllowance) && Convert.ToDecimal(SelectedVoiceAllowance) > 0) : false;
 
             return result;
 
@@ -2180,8 +2186,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     }
 
                     // Raise the events to update the device and simcard data
-                    _eventAggregator.GetEvent<SaveDeviceEvent>().Publish(SelectedContract.pkContractID);
-                    _eventAggregator.GetEvent<SaveSimCardEvent>().Publish(SelectedContract.pkContractID);
+                    _eventAggregator.GetEvent<SaveDeviceEvent>().Publish(SelectedClient.fkContractID);
+                    _eventAggregator.GetEvent<SaveSimCardEvent>().Publish(SelectedClient.fkContractID);
                 }
                 else if (result)
                 {
