@@ -263,6 +263,20 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set
             {
                 SetProperty(ref _selectedSourceSearch, value);
+
+                //Remove the seleceted item from the SourceColumn Collection
+                if (value != "-- Please Select --")
+                {
+                    SourceColumnCollection = new ObservableCollection<string>();
+                    SourceColumnCollection.Add(_defaultItem);
+                    SelectedSourceProperty = _defaultItem;
+                    foreach (string columnName in SelectedDataSheet.ColumnNames)
+                    {
+                        if (columnName != value)
+                            SourceColumnCollection.Add(columnName);
+                    }
+                }
+                    
             }
         }
         private string _selectedSourceSearch;
@@ -803,7 +817,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 string[] mappedProperties = SelectedMappedProperty.Split('=');
                 MappedPropertyCollection.Remove(SelectedMappedProperty);
                 SourceColumnCollection.Add(mappedProperties[0].Trim());
-                DestinationColumnCollection.Add(mappedProperties[1].Trim());
+                DestinationColumnCollection.Add(EnumHelper.GetDescriptionFromEnum((DataUpdateColumn)Enum.Parse(typeof(DataUpdateColumn),mappedProperties[1].Trim())));
                 SelectedMappedProperty = null;
                 CanStartUpdate();
             }
