@@ -2177,25 +2177,41 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     result = _model.UpdateClient(SelectedClient);
 
                 // Save other linked client data 
-                if (result && SelectedClientState)
+                if (result)
                 {
-                    // Update the client's contract services if and were selected
+                    // Set the global application properties
+                    MobileManagerEnvironment.ClientID = SelectedClient.pkClientID;
+                    MobileManagerEnvironment.ClientCompanyID = SelectedClient.fkCompanyID;
+                    MobileManagerEnvironment.ClientContractID = SelectedClient.fkContractID;
+                    MobileManagerEnvironment.ClientPrimaryCell = SelectedClient.PrimaryCellNumber;
+
+                    // Update the client's contract services
                     if (SelectedContractServiceCollection != null)
-                    {
                         _model.UpdateClientServices(SelectedClient, SecurityHelper.LoggedInUserFullName, SelectedContractServiceCollection);
+
+                    // Raise the events to update the device and 
+                    // simcard data only if the client is active
+                    if (SelectedClientState)
+                    {
+                        _eventAggregator.GetEvent<SaveDeviceEvent>().Publish(SelectedClient.fkContractID);
+                        _eventAggregator.GetEvent<SaveSimCardEvent>().Publish(SelectedClient.fkContractID);
                     }
 
-                    // Raise the events to update the device and simcard data
-                    _eventAggregator.GetEvent<SaveDeviceEvent>().Publish(SelectedClient.fkContractID);
-                    _eventAggregator.GetEvent<SaveSimCardEvent>().Publish(SelectedClient.fkContractID);
-                }
-                else if (result)
-                {
+                    _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                    .Publish(new ApplicationMessage("ViewCellularViewModel",
+                                                                    "The client data saved successfully.",
+                                                                    "ExecuteSave",
+                                                                    ApplicationMessage.MessageTypes.Information));
+
                     InitialiseViewControls();
                 }
                 else
                 {
-                    //display message to user
+                    _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                    .Publish(new ApplicationMessage("ViewCellularViewModel",
+                                                                    "The client data did not saved.",
+                                                                    "ExecuteSave",
+                                                                    ApplicationMessage.MessageTypes.ProcessError));
                 }
 
                 // Publish the event to read the administration activity logs
@@ -2208,11 +2224,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                .Publish(new ApplicationMessage("ViewCellularViewModel",
-                                                string.Format("Error! {0}, {1}.",
-                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                "ExecuteSave",
-                                                ApplicationMessage.MessageTypes.SystemError));
+                                .Publish(new ApplicationMessage("ViewCellularViewModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ExecuteSave",
+                                                                ApplicationMessage.MessageTypes.SystemError));
             }
         }
 

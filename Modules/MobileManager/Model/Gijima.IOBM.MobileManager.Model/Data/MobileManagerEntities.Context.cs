@@ -53,7 +53,6 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public virtual DbSet<Role> Roles { get; set; }
         public virtual DbSet<Service> Services { get; set; }
         public virtual DbSet<ServiceProvider> ServiceProviders { get; set; }
-        public virtual DbSet<SimCard> SimCards { get; set; }
         public virtual DbSet<Status> Status { get; set; }
         public virtual DbSet<Suburb> Suburbs { get; set; }
         public virtual DbSet<User> Users { get; set; }
@@ -67,6 +66,7 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public virtual DbSet<Company> Companies { get; set; }
         public virtual DbSet<DeviceIMENumber> DeviceIMENumbers { get; set; }
         public virtual DbSet<Device> Devices { get; set; }
+        public virtual DbSet<SimCard> SimCards { get; set; }
     
         public virtual ObjectResult<sp_report_Invoice_Result> sp_report_Invoice(Nullable<int> invoiceID)
         {

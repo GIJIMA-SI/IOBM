@@ -181,7 +181,6 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         // Save the new values
                         existingDevice.fkDeviceMakeID = device.fkDeviceMakeID;
                         existingDevice.fkDeviceModelID = device.fkDeviceModelID;
-                        existingDevice.fkSimCardID = device.fkSimCardID;
                         existingDevice.fkStatusID = device.fkStatusID;
                         existingDevice.SerialNumber = device.SerialNumber;
                         existingDevice.ReceiveDate = device.ReceiveDate;
@@ -217,22 +216,19 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// </summary>
         /// <param name="contractID">The contract linked to the devices</param>
         /// <param name="context">The context inside the transaction</param>
-        public void DeleteDevicesForClient(int contractID, MobileManagerEntities context)
+        public void DeleteDevicesForClient(int contractID, MobileManagerEntities db)
         {
             try
             {
-                using (var db = MobileManagerEntities.GetContext())
+                IEnumerable<Device> devices = db.Devices.Where(p => p.fkContractID == contractID);
+
+                foreach (Device device in devices)
                 {
-                    IEnumerable<Device> devices = context.Devices.Where(p => p.fkContractID == contractID);
-
-                    foreach (Device device in devices)
-                    {
-                        device.fkStatusID = Statuses.INACTIVE.Value();
-                        device.IsActive = false;
-                    }
-
-                    db.SaveChanges();
+                    device.fkStatusID = Statuses.INACTIVE.Value();
+                    device.IsActive = false;
                 }
+
+                db.SaveChanges();
             }
             catch (Exception ex)
             {

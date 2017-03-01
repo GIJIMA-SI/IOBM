@@ -765,7 +765,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 if (MappedPropertyCollection == null)
                     MappedPropertyCollection = new ObservableCollection<string>();
                     
-                SelectedMappedProperty = string.Format("{0} = {1}", SelectedSourceProperty, SelectedDestinationProperty);
+                SelectedMappedProperty = string.Format("{0} = {1}", SelectedSourceProperty, 
+                                                                    EnumHelper.GetEnumFromDescription<DataUpdateColumn>(SelectedDestinationProperty).ToString());
                 MappedPropertyCollection.Add(SelectedMappedProperty);
                 SourceColumnCollection.Remove(SelectedSourceProperty);
                 DestinationColumnCollection.Remove(SelectedDestinationProperty);

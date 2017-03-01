@@ -14,12 +14,6 @@ namespace Gijima.IOBM.MobileManager.Model.Data
     
     public partial class SimCard
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public SimCard()
-        {
-            this.Devices = new HashSet<Device>();
-        }
-    
         public int pkSimCardID { get; set; }
         public Nullable<int> fkContractID { get; set; }
         public Nullable<int> fkStatusID { get; set; }
@@ -32,9 +26,7 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public Nullable<System.DateTime> ModifiedDate { get; set; }
         public bool IsActive { get; set; }
     
-        public virtual Status Status { get; set; }
         public virtual Contract Contract { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Device> Devices { get; set; }
+        public virtual Status Status { get; set; }
     }
 }

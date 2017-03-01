@@ -18,9 +18,9 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public Contract()
         {
             this.Clients = new HashSet<Client>();
-            this.SimCards = new HashSet<SimCard>();
             this.ClientServices = new HashSet<ClientService>();
             this.Devices = new HashSet<Device>();
+            this.SimCards = new HashSet<SimCard>();
         }
     
         public int pkContractID { get; set; }
@@ -44,10 +44,10 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public virtual PackageSetup PackageSetup { get; set; }
         public virtual Status Status { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SimCard> SimCards { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ClientService> ClientServices { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Device> Devices { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SimCard> SimCards { get; set; }
     }
 }

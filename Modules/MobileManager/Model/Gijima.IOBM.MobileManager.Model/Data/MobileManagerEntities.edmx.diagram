@@ -31,7 +31,6 @@
         <EntityTypeShape EntityType="MobileManagerModel.Role" Width="1.5" PointX="10.75" PointY="0.75" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.Service" Width="1.5" PointX="7.125" PointY="7.375" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.ServiceProvider" Width="1.5" PointX="7.875" PointY="0.5" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.SimCard" Width="1.5" PointX="2.75" PointY="2.5" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.Status" Width="1.5" PointX="1" PointY="6.875" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.Suburb" Width="1.5" PointX="4.875" PointY="8.5" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.User" Width="1.5" PointX="10.75" PointY="3.5" IsExpanded="false" />
@@ -54,7 +53,6 @@
         <AssociationConnector Association="MobileManagerModel.FK_InvoiceDetail_ServiceProvider" ManuallyRouted="false" />
         <AssociationConnector Association="MobileManagerModel.FK_Package_ServiceProvider" ManuallyRouted="false" />
         <AssociationConnector Association="MobileManagerModel.FK_UserInRole_Role" ManuallyRouted="false" />
-        <AssociationConnector Association="MobileManagerModel.FK_SimCard_Status" ManuallyRouted="false" />
         <AssociationConnector Association="MobileManagerModel.FK_UserInCompany_User" ManuallyRouted="false" />
         <AssociationConnector Association="MobileManagerModel.FK_UserInRole_User" ManuallyRouted="false" />
         <EntityTypeShape EntityType="MobileManagerModel.DataValidationException" Width="1.5" PointX="13.875" PointY="5.5" IsExpanded="false" />
@@ -65,7 +63,6 @@
         <AssociationConnector Association="MobileManagerModel.FK_Contract_Package" />
         <AssociationConnector Association="MobileManagerModel.FK_Contract_PackageSetup" />
         <AssociationConnector Association="MobileManagerModel.FK_Contract_Status" />
-        <AssociationConnector Association="MobileManagerModel.FK_SimCard_Contract" />
         <EntityTypeShape EntityType="MobileManagerModel.ExternalBillingData" Width="1.5" PointX="9" PointY="1.625" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.ClientService" Width="1.5" PointX="0.625" PointY="10.375" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.ContractService" Width="1.5" PointX="0.625" PointY="9.25" IsExpanded="false" />
@@ -76,13 +73,15 @@
         <AssociationConnector Association="MobileManagerModel.FK_Company_CompanyGroup" />
         <AssociationConnector Association="MobileManagerModel.FK_UserInCompany_Company" />
         <EntityTypeShape EntityType="MobileManagerModel.DeviceIMENumber" Width="1.5" PointX="8" PointY="2.375" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.Device" Width="1.5" PointX="7.5" PointY="6" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.Device" Width="1.5" PointX="8.125" PointY="3.125" IsExpanded="false" />
         <AssociationConnector Association="MobileManagerModel.FK_Device_Contract" />
         <AssociationConnector Association="MobileManagerModel.FK_Device_DeviceMake" />
         <AssociationConnector Association="MobileManagerModel.FK_Device_DeviceModel" />
-        <AssociationConnector Association="MobileManagerModel.FK_Device_SimCard" />
         <AssociationConnector Association="MobileManagerModel.FK_Device_Status" />
         <AssociationConnector Association="MobileManagerModel.FK_DeviceIMENumber_Device" />
+        <EntityTypeShape EntityType="MobileManagerModel.SimCard" Width="1.5" PointX="4.375" PointY="2.625" IsExpanded="false" />
+        <AssociationConnector Association="MobileManagerModel.FK_SimCard_Contract" />
+        <AssociationConnector Association="MobileManagerModel.FK_SimCard_Status" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

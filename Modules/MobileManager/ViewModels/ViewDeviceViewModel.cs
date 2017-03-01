@@ -62,9 +62,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                          DeviceMakeCollection.Where(p => p.pkDeviceMakeID == value.fkDeviceMakeID).FirstOrDefault() :
                                          DeviceMakeCollection.Where(p => p.pkDeviceMakeID == 0).FirstOrDefault() : null;
                     SelectedDeviceModel = DeviceModelCollection != null ? DeviceModelCollection.Where(p => p.pkDeviceModelID == value.fkDeviceModelID).FirstOrDefault() : null;
-                    SelectedSimCard = SimCardCollection != null ? value.fkSimCardID != null ?
-                                       SimCardCollection.Where(p => p.pkSimCardID == value.fkSimCardID).FirstOrDefault() :
-                                       SimCardCollection.Where(p => p.pkSimCardID == 0).FirstOrDefault() : null;
                     SelectedStatus = StatusCollection != null ? StatusCollection.Where(p => p.pkStatusID == value.fkStatusID).FirstOrDefault() : null;
                     SelectedReceivedDate = value.ReceiveDate != null ? value.ReceiveDate : DateTime.MinValue;
                     
@@ -72,6 +69,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     if (value.InsuranceCost != null && value.InsuranceValue != null)
                         SetDeviceInsurance(value.InsuranceCost.Value, value.InsuranceValue.Value);
 
+                    // Read all the device IME numbers
                     ReadDeviceIMENumbersAsync();
                 }
             }
@@ -87,17 +85,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _selectedDeviceIndex, value); }
         }
         private int _selectedDeviceIndex;
-
-        /// <summary>
-        /// The selected Sim card
-        /// </summary>
-        public SimCard SelectedSimCard
-        {
-            get { return _selectedSimCard; }
-            set { SetProperty(ref _selectedSimCard, value); }
-        }
-        private SimCard _selectedSimCard;
-        
+       
         /// <summary>
         /// The collection of devices from the database
         /// </summary>
@@ -129,16 +117,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _deviceModelCollection, value); }
         }
         private ObservableCollection<DeviceModel> _deviceModelCollection = null;
-
-        /// <summary>
-        /// The collection of contract Simcards from the database
-        /// </summary>
-        public ObservableCollection<SimCard> SimCardCollection
-        {
-            get { return _simCardCollection; }
-            set { SetProperty(ref _simCardCollection, value); }
-        }
-        private ObservableCollection<SimCard> _simCardCollection = null;
 
         /// <summary>
         /// The collection of statuses from the database
@@ -448,33 +426,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
         }
 
-        ///// <summary>
-        ///// Call the process based on the sender's completed action.
-        ///// </summary>
-        ///// <param name="sender">The completed action.</param>
-        //private void ActionCompleted_Event(ActionCompleted sender)
-        //{
-        //    switch (sender)
-        //    {
-        //        case ActionCompleted.ReadContractSimCards:
-        //            LinkDeviceToSimCard();
-        //            break;
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Link the selected Simcard on the Simcard view to its device
-        ///// </summary>
-        ///// <param name="sender">The selected Sim card id.</param>
-        //private void LinkSimCardToDevice_Event(int sender)
-        //{
-        //    if (DeviceCollection != null && DeviceCollection.Count > 0)
-        //    {
-        //        if (sender > 0 && DeviceCollection.Any(p => p.fkSimCardID != null && p.fkSimCardID.Value == sender))
-        //            SelectedDevice = DeviceCollection.Where(p => p.fkSimCardID != null && p.fkSimCardID.Value == sender).FirstOrDefault();
-        //    }
-        //}
-
         #endregion
 
         #region Methods
@@ -523,12 +474,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             // Subscribe to this event to save devices when the client save was executed
             _eventAggregator.GetEvent<SaveDeviceEvent>().Subscribe(SaveContractDevices_Event, true);
 
-            //// Subscribe to this event to link the first active device to its Simcard
-            //_eventAggregator.GetEvent<ActionCompletedEvent>().Subscribe(ActionCompleted_Event, true);
-
-            //// Subscribe to this event to link the selected Simcard to its device
-            //_eventAggregator.GetEvent<LinkSimCardDeviceEvent>().Subscribe(LinkSimCardToDevice_Event, true);
-
             // Initialise the data activity log info entity
             _activityLogInfo = new DataActivityLog();
             _activityLogInfo.ActivityProcess = ActivityProcess.Administration.Value();
@@ -547,7 +492,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedDevice = null;
             SelectedDeviceMake = DeviceMakeCollection != null ? DeviceMakeCollection.Where(p => p.pkDeviceMakeID == 0).FirstOrDefault() : null;
             SelectedDeviceModel = DeviceModelCollection != null ? DeviceModelCollection.Where(p => p.pkDeviceModelID == 0).FirstOrDefault() : null;
-            SelectedSimCard = SimCardCollection != null ? SimCardCollection.Where(p => p.pkSimCardID == 0).FirstOrDefault() : null;
             SelectedStatus = StatusCollection != null ? StatusCollection.Where(p => p.pkStatusID == 0).FirstOrDefault() : null;
             SelectedReceivedDate = DateTime.Now;
             SelectedIMENumber = null;
@@ -602,10 +546,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             try
             {
                 DeviceIMENumberCollection = await Task.Run(() => new DeviceIMENumberModel(_eventAggregator).ReadDeviceIMENumber(SelectedDevice.pkDeviceID));
-
-                // Set the first IME number of the selcted device
-                //if (SelectedDevice != null && DeviceIMENumberCollection != null)
-                    //SelectedIMENumber = DeviceIMENumberCollection.FirstOrDefault().IMENumber;
             }
             catch (Exception ex)
             {
@@ -639,18 +579,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
         }
 
-        ///// <summary>
-        ///// Link the selected device to its Simcard on the Simcard view
-        ///// </summary>
-        //private void LinkDeviceToSimCard()
-        //{
-        //    // Publish the event so the Simcard view can link the Simcard to the device
-        //    if (SelectedDevice.fkSimCardID != null && SelectedSimCard != null && SelectedDevice.fkSimCardID != SelectedSimCard.pkSimCardID)
-        //        _eventAggregator.GetEvent<LinkDeviceSimCardEvent>().Publish(SelectedDevice.fkSimCardID.Value);
-        //    else
-        //        _eventAggregator.GetEvent<LinkDeviceSimCardEvent>().Publish(0);
-        //}
-
         /// <summary>
         /// Gives the DeviceIMENumberCollection a fkDeviceID if its a new device
         /// </summary>
@@ -662,7 +590,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
         }
         
-
         #region Lookup Data Loading
 
         /// <summary>
@@ -729,48 +656,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                 ApplicationMessage.MessageTypes.SystemError));
             }
         }
-
-        ///// <summary>
-        ///// Load all the Sim cards linked to the selected contract from the database
-        ///// </summary>
-        //private async Task ReadContractSimCardsAsync()
-        //{
-        //    try
-        //    {
-        //        //Clear the SimCollection when ExecuteCancel is called
-        //        SimCardCollection = MobileManagerEnvironment.ClientContractID > 0 ? await Task.Run(() => new SimCardModel(_eventAggregator).ReadSimCardsForContract(MobileManagerEnvironment.ClientContractID)) : null;
-
-        //        if (SimCardCollection != null)
-        //        {
-        //            if (SimCardCollection.Count > 0)
-        //            {
-        //                // Get the primary simcard
-        //                SimCard primarySimcard = SimCardCollection.Where(p => p.CellNumber == MobileManagerEnvironment.ClientPrimaryCell).FirstOrDefault();
-
-        //                if (DeviceCollection != null && DeviceCollection.Count > 0)
-        //                {
-        //                    // Set the selected device the one linked to the primary simcard
-        //                    if (primarySimcard != null)
-        //                        SelectedDevice = DeviceCollection.Where(p => p.fkSimCardID == primarySimcard.pkSimCardID && p.IsActive).FirstOrDefault();
-
-        //                    // If device is not linked to a primary simcard
-        //                    // then select the first active device 
-        //                    if (SelectedDevice == null)
-        //                        SelectedDevice = DeviceCollection.Where(p => p.IsActive).FirstOrDefault();
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _eventAggregator.GetEvent<ApplicationMessageEvent>()
-        //                        .Publish(new ApplicationMessage("ViewDeviceViewModel",
-        //                                                        string.Format("Error! {0}, {1}.",
-        //                                                        ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-        //                                                        "ReadContractSimCardsAsync",
-        //                                                        ApplicationMessage.MessageTypes.SystemError));
-        //    }
-        //}
 
         #endregion
 
@@ -846,7 +731,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedDevice.fkDeviceMakeID = SelectedDeviceMake.pkDeviceMakeID;
             SelectedDevice.fkDeviceModelID = SelectedDeviceModel.pkDeviceModelID;
             SelectedDevice.fkStatusID = SelectedStatus.pkStatusID;
-            SelectedDevice.fkSimCardID = SelectedSimCard != null && SelectedSimCard.pkSimCardID > 0 ? SelectedSimCard.pkSimCardID : (int?)null;
             SelectedDevice.SerialNumber = SelectedDevice.SerialNumber;
             SelectedDevice.ReceiveDate = SelectedReceivedDate;
             SelectedDevice.InsuranceCost = SelectedInsuranceCost;
@@ -866,15 +750,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 SelectedDevice.DeviceIMENumbers.Add(imeNumber);
             }
 
-            // Ensure a device that is in-active
-            // gets un-linked from any simcards
-            if (!SelectedDevice.IsActive)
-                SelectedDevice.fkSimCardID = (Int32?)null;
-
             if (SelectedDevice.pkDeviceID == 0)
-            {
                 result = _model.CreateDevice(SelectedDevice);
-            }
             else
                 result = _model.UpdateDevice(SelectedDevice);
 
