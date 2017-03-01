@@ -329,13 +329,21 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             SimCard existingSimCard = null;
             SimCard simCardToImport = null;
             bool mustUpdate = false;
+            bool dataChanged = false;
             bool result = false;
+            bool state = true;
 
             try
             {
                 using (var db = MobileManagerEntities.GetContext())
                 {
                     existingSimCard = db.SimCards.Where(p => p.CellNumber == searchCriteria).FirstOrDefault();
+
+                    if (existingSimCard == null)
+                    {
+                        errorMessage = string.Format("Cell number {0} not found.", searchCriteria);
+                        return false;
+                    }
                 }
 
                 using (var db = MobileManagerEntities.GetContext())
@@ -360,13 +368,13 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                     importProperties = mappedProperty.Split('=');
                                     sourceProperty = importProperties[0].Trim();
                                     sourceValue = importValues[sourceProperty];
-                                    mustUpdate = true;
+                                    dataChanged = mustUpdate = true;
                                     break;
                                 }
                             }
 
                             // Always update these values
-                            if (property.Name == "ModifiedBy" || property.Name == "ModifiedDate")
+                            if (dataChanged && (property.Name == "ModifiedBy" || property.Name == "ModifiedDate" || property.Name == "IsActive"))
                                 mustUpdate = true;
 
                             if (mustUpdate)
@@ -387,6 +395,11 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                         return false;
                                     }
 
+                                    // Set the simcard to in-active 
+                                    // if the status is not issued
+                                    if (status.StatusDescription != "ISSUED")
+                                        state = false;
+
                                     sourceValue = status.pkStatusID;
                                 }
 
@@ -395,6 +408,8 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                     sourceValue = SecurityHelper.LoggedInFullName;
                                 if (property.Name == "ModifiedDate")
                                     sourceValue = DateTime.Now;
+                                if (property.Name == "IsActive")
+                                    sourceValue = state;
 
                                 // Convert the db type into the type of the property in our entity
                                 if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
@@ -415,11 +430,14 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                             }
                         }
 
-                        // Add the data activity log
-                        result = _activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<SimCard>(existingSimCard, simCardToImport, simCardToImport.fkContractID.Value, db));
+                        if (dataChanged)
+                        {
+                            // Add the data activity log
+                            result = _activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<SimCard>(existingSimCard, simCardToImport, simCardToImport.fkContractID.Value, db));
 
-                        db.SaveChanges();
-                        tc.Complete();
+                            db.SaveChanges();
+                            tc.Complete();
+                        }
                     }
                 }
 

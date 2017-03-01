@@ -547,8 +547,8 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
         PUKNumber = 23,
         [Description("Pin Number")]
         PinNumber = 24,
-        [Description("Active")]
-        IsActive = 25
+        [Description("Status")]
+        fkStatusID = 25
     }
 
     /// <summary>

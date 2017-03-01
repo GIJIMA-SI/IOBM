@@ -842,7 +842,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     searchCriteria = row[SelectedSourceSearch] as string;
                     rowIdx = ImportedDataCollection.Rows.IndexOf(row);
 
-                    
                     // Update the related entity data
                     switch (EnumHelper.GetEnumFromDescription<DataUpdateEntity>(SelectedDestinationEntity))
                     {
