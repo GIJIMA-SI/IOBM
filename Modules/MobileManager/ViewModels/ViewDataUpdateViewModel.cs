@@ -228,8 +228,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
                 if (value != null)
                 {
-
-
                     ReadDataDestinationInfo();
                 }
             }
@@ -607,15 +605,23 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
-                DestinationEntityCollection = new ObservableCollection<string>();
-                DestinationEntityCollection.Add(EnumHelper.GetDescriptionFromEnum(DataBaseEntity.None));
+                //DestinationEntityCollection = new ObservableCollection<string>();
+                //DestinationEntityCollection.Add(EnumHelper.GetDescriptionFromEnum(DataBaseEntity.None));
 
                 _updateRules = await Task.Run(() => _model.ReadDataUpdateRules(true));
 
-                foreach (DataUpdateRule rule in _updateRules)
+                //foreach (DataUpdateRule rule in _updateRules)
+                //{
+                //    DestinationEntityCollection.Add(EnumHelper.GetDescriptionFromEnum((DataUpdateEntity)rule.enDataBaseEntity));
+                //}
+
+                DestinationEntityCollection = new ObservableCollection<string>();
+                foreach (DataUpdateEntity dataUpdateEntity in Enum.GetValues(typeof(DataUpdateEntity)))
                 {
-                    DestinationEntityCollection.Add(EnumHelper.GetDescriptionFromEnum((DataBaseEntity)rule.enDataBaseEntity));
+                    DestinationEntityCollection.Add(EnumHelper.GetDescriptionFromEnum(dataUpdateEntity));
                 }
+
+
 
                 SelectedDestinationEntity = _defaultItem;
             }
@@ -663,16 +669,27 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
             if (_updateRules != null && _updateRules.Count() > 0)
             {
-                string[] searchItems = _updateRules.First().SearchEntities.Split(';');
+                List<DataUpdateRule> updateRulesFilter = new List<DataUpdateRule>();
 
-                foreach (string searchItem in searchItems)
+                foreach (DataUpdateRule rule in _updateRules)
                 {
-                    DestinationSearchCollection.Add(searchItem);
+                    if (rule.enDataUpdateEntity == EnumHelper.GetEnumFromDescription<DataUpdateEntity>(SelectedDestinationEntity).Value())
+                        updateRulesFilter.Add(rule);
                 }
 
-                DataBaseEntity destinationEntity = EnumHelper.GetEnumFromDescription<DataBaseEntity>(SelectedDestinationEntity);
+                if (updateRulesFilter.Count > 0)
+                {
+                    string[] searchItems = updateRulesFilter.First().SearchEntities.Split(';');
+                    
+                    foreach (string searchItem in searchItems)
+                    {
+                        DestinationSearchCollection.Add(searchItem);
+                    }
+                }
 
-                foreach (DataUpdateRule rule in _updateRules.Where(p => p.enDataBaseEntity == destinationEntity.Value()))
+                DataUpdateEntity destinationEntity = EnumHelper.GetEnumFromDescription<DataUpdateEntity>(SelectedDestinationEntity);
+
+                foreach (DataUpdateRule rule in _updateRules.Where(p => p.enDataUpdateEntity == destinationEntity.Value()))
                 {
                     DestinationColumnCollection.Add(EnumHelper.GetDescriptionFromEnum((DataUpdateColumn)rule.enDataUpdateColumn));
                 }

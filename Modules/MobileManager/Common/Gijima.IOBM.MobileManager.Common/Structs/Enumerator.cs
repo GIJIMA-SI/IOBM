@@ -484,7 +484,7 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
         [Description("Card Number")]
         CardNumber = 33,
         [Description("PUK Number")]
-        PUKNumber = 34,
+        PUKNumber = 34
     }
 
     #endregion
