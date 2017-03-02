@@ -1915,7 +1915,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 // Add current year and next year as payment years
                 paymentYears.Add(string.Empty);
                 paymentYears.Add(DateTime.Now.Year.ToString());
-                paymentYears.Add(DateTime.Now.AddYears(1).ToString());
+                paymentYears.Add(DateTime.Now.AddYears(1).Year.ToString());
+                PaymentYearCollection = paymentYears;
                 SelectedBillingMonth = SelectedBillingYear = string.Empty;
             }
             catch (Exception ex)
