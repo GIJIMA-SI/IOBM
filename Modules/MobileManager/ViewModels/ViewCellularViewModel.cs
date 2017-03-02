@@ -1902,21 +1902,21 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             try
             {
                 List<string> paymentMonths = new List<string>();
+                List<string> paymentYears = new List<string>();
 
+                // Add 12 payment months
+                paymentMonths.Add(string.Empty);
                 for (int i = 1; i <= 12; i++)
                 {
                     paymentMonths.Add(i.ToString().PadLeft(2, '0'));
                 }
-
-                PaymentYearCollection = new List<string>();
-                PaymentYearCollection.Add(_currentBillingYear.ToString());
-                PaymentYearCollection.Add(Convert.ToString(++_currentBillingYear));
-
-                paymentMonths.Add(string.Empty);
                 PaymentMonthCollection = paymentMonths;
-                PaymentYearCollection.Add(string.Empty);
-                SelectedBillingMonth = SelectedBillingYear = string.Empty;
 
+                // Add current year and next year as payment years
+                paymentYears.Add(string.Empty);
+                paymentYears.Add(DateTime.Now.Year.ToString());
+                paymentYears.Add(DateTime.Now.AddYears(1).ToString());
+                SelectedBillingMonth = SelectedBillingYear = string.Empty;
             }
             catch (Exception ex)
             {
