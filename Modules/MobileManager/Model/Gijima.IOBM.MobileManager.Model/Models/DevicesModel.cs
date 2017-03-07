@@ -1,15 +1,20 @@
 ﻿using Gijima.IOBM.Infrastructure.Events;
 using Gijima.IOBM.Infrastructure.Helpers;
 using Gijima.IOBM.Infrastructure.Structs;
+using Gijima.IOBM.MobileManager.Common.Helpers;
 using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Reflection;
+using System.Transactions;
+using System.Windows.Documents;
 
 namespace Gijima.IOBM.MobileManager.Model.Models
 {
@@ -103,7 +108,135 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 return false;
             }
         }
-        
+
+        /// <summary>
+        /// Creates a new device entity in the database from a spreadsheet row
+        /// </summary>
+        /// <param name="searchCriteria"></param>
+        /// <param name="mappedProperties"></param>
+        /// <param name="importValues"></param>
+        /// <param name="modifiedBy"></param>
+        /// <param name="errorMessage"></param>
+        /// <returns></returns>
+        public bool CreateDeviceImport(string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, string modifiedBy, out string errorMessage)
+        {
+            errorMessage = "";
+            try
+            {
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    //Enusure that all changes are made before commit
+                    using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
+                    {
+                        //Check if number is linked to a contract
+                        Contract contract = db.Contracts.Where(p => p.CellNumber == searchCriteria).FirstOrDefault();
+                        if (contract == null || contract.IsActive == false)
+                        {
+                            errorMessage = string.Format("Cell number {0} not found.", searchCriteria);
+                            return false;
+                        }
+
+                        //Set all previous devices for contract in-active
+                        //Requested by Charl
+                        ObservableCollection<Device> devices = ReadDevicesForContract(contract.pkContractID, true);
+                        foreach (Device tmpDevice in devices)
+                        {
+                            tmpDevice.IsActive = false;
+                            UpdateDevice(tmpDevice);
+                        }
+
+                        //Create a new empty device to add properties
+                        Device device = new Device();
+                        device.fkContractID = contract.pkContractID;
+                        device.DeviceIMENumbers = new List<DeviceIMENumber>();
+                        //Loop through the row and add each property to the device
+                        foreach (string property in mappedProperties)
+                        {
+                            string[] mapping = property.Split('=');
+                            string sheetHeader = mapping[0].Trim();
+                            string dbHeader = mapping[1].Trim();
+                            
+                            switch ((DataImportColumn)Enum.Parse(typeof(DataImportColumn), dbHeader))
+                            {
+                                case DataImportColumn.fkDeviceMakeID:
+                                    string deviceMakeRow = importValues[sheetHeader].ToString().ToUpper();
+                                    DeviceMake deviceMake = db.DeviceMakes.Where(p => p.MakeDescription == deviceMakeRow).FirstOrDefault();
+                                    if (deviceMake == null)
+                                    {
+                                        errorMessage = string.Format("Device make not found.");
+                                        return false;
+                                    }
+                                    device.fkDeviceMakeID = deviceMake.pkDeviceMakeID;
+                                    break;
+                                case DataImportColumn.fkDeviceModelID:
+                                    string deviceModelRow = importValues[sheetHeader].ToString().ToUpper();
+                                    DeviceModel deviceModel = db.DeviceModels.Where(p => p.ModelDescription == deviceModelRow).FirstOrDefault();
+                                    if (deviceModel == null)
+                                    {
+                                        errorMessage = string.Format("Device model not found.");
+                                        return false;
+                                    }
+                                    device.fkDeviceModelID = deviceModel.pkDeviceModelID;
+                                    break;
+                                case DataImportColumn.fkStatusID:
+                                    string statusRow = importValues[sheetHeader].ToString().ToUpper();
+                                    Status status = db.Status.Where(p => p.StatusDescription == statusRow).FirstOrDefault();
+                                    if (status == null)
+                                    {
+                                        errorMessage = string.Format("Status description not found.");
+                                        return false;
+                                    }
+                                    device.fkStatusID = status.pkStatusID;
+                                    break;
+                                case DataImportColumn.SerialNumber:
+                                    device.SerialNumber = importValues[sheetHeader].ToString();
+                                    break;
+                                case DataImportColumn.ReceiveDate:
+                                    //Converts the date from an excel format
+                                    device.ReceiveDate = DateTime.FromOADate(Convert.ToDouble(importValues[sheetHeader].ToString()));
+                                    break;
+                                case DataImportColumn.InsuranceCost:
+                                    device.InsuranceCost = importValues[sheetHeader].ToString() != null && importValues[sheetHeader].ToString() != "" ? Convert.ToDecimal(importValues[sheetHeader].ToString()) : 0;
+                                    break;
+                                case DataImportColumn.InsuranceValue:
+                                    device.InsuranceValue = importValues[sheetHeader].ToString() != null && importValues[sheetHeader].ToString() != "" ? Convert.ToDecimal(importValues[sheetHeader].ToString()) : 0;
+                                    break;
+                                case DataImportColumn.IMENumber:
+                                    //Create a new deviceIMENumber
+                                    DeviceIMENumber deviceIMENumber = new DeviceIMENumber();
+                                    deviceIMENumber.IMENumber = importValues[sheetHeader].ToString();
+                                    deviceIMENumber.fkDeviceID = 0;
+                                    deviceIMENumber.ModifiedBy = modifiedBy;
+                                    deviceIMENumber.ModifiedDate = DateTime.Now;
+                                    device.DeviceIMENumbers.Add(deviceIMENumber);
+                                    break;
+                            }
+                        }
+                        //Add last missing values to the device
+                        device.ModifiedBy = modifiedBy;
+                        device.ModifiedDate = DateTime.Now;
+                        device.IsActive = true;
+                        //Create the device in the db
+                        CreateDevice(device);
+                        db.SaveChanges();
+                        //Commit all changes to the database server
+                        tc.Complete();
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage(this.GetType().Name,
+                                         string.Format("Error! {0}, {1}.",
+                                         ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                         MethodBase.GetCurrentMethod().Name,
+                                         ApplicationMessage.MessageTypes.SystemError));
+                return false;
+            }
+        }
+
         /// <summary>
         /// Read all or active only devices linked to the specified contract from the database
         /// </summary>

@@ -14,6 +14,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Reflection;
 using System.Transactions;
 
 namespace Gijima.IOBM.MobileManager.Model.Models
@@ -93,6 +94,113 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
                                                                 "CreateSimCard",
                                                                 ApplicationMessage.MessageTypes.SystemError));
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Create a new simcard from a spreadsheet if it doesn't exist
+        /// </summary>
+        /// <param name="searchCriteria"></param>
+        /// <param name="mappedProperties"></param>
+        /// <param name="importValues"></param>
+        /// <param name="modifiedBy"></param>
+        /// <param name="errorMessage"></param>
+        /// <returns></returns>
+        public bool CreateSimCardImport(string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, string modifiedBy, out string errorMessage)
+        {
+            errorMessage = "";
+            try
+            {
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    //Enusure that all changes are made before commit
+                    using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
+                    {
+                        //Check if number is linked to a contract
+                        Contract contract = db.Contracts.Where(p => p.CellNumber == searchCriteria).FirstOrDefault();
+                        if (contract == null || contract.IsActive == false)
+                        {
+                            errorMessage = string.Format("Cell number {0} not found.", searchCriteria);
+                            return false;
+                        }
+
+                        //Get all the simcards for the contract
+                        ObservableCollection<SimCard> simCards = ReadSimCardsForContract(contract.pkContractID, true);
+                        
+                        //Create a new empty simcard to add properties
+                        SimCard simCard = new SimCard();
+                        simCard.fkContractID = contract.pkContractID;
+                        simCard.CellNumber = searchCriteria;
+                        //Loop through the row and add each property to the simcard
+                        foreach (string property in mappedProperties)
+                        {
+                            string[] mapping = property.Split('=');
+                            string sheetHeader = mapping[0].Trim();
+                            string dbHeader = mapping[1].Trim();
+
+                            switch ((DataImportColumn)Enum.Parse(typeof(DataImportColumn), dbHeader))
+                            {
+                                case DataImportColumn.fkStatusID:
+                                    string statusRow = importValues[sheetHeader].ToString().ToUpper();
+                                    Status status = db.Status.Where(p => p.StatusDescription == statusRow).FirstOrDefault();
+                                    if (status == null)
+                                    {
+                                        errorMessage = string.Format("Status description not found.");
+                                        return false;
+                                    }
+                                    simCard.fkStatusID = status.pkStatusID;
+                                    break;
+                                case DataImportColumn.CardNumber:
+                                    if (simCards.Any(p => p.CellNumber == searchCriteria && p.CardNumber == importValues[sheetHeader].ToString()))
+                                    {
+                                        errorMessage = string.Format("Card number already exist with this number.");
+                                        return false;
+                                    }
+                                    else
+                                    {
+                                        SimCard tmpSimCard = (SimCard)simCards.Where(p => p.CellNumber == searchCriteria && p.CardNumber != importValues[sheetHeader].ToString());
+                                        if (tmpSimCard != null)
+                                        {
+                                            tmpSimCard.IsActive = false;
+                                            UpdateSimCard(tmpSimCard);
+                                        }
+                                    }
+                                    simCard.CardNumber = importValues[sheetHeader].ToString();
+                                    break;
+                                case DataImportColumn.PinNumber:
+                                    simCard.PinNumber = importValues[sheetHeader].ToString() != null || importValues[sheetHeader].ToString() != "" ? importValues[sheetHeader].ToString() : "0";
+                                    break;
+                                case DataImportColumn.PUKNumber:
+                                    simCard.PUKNumber = importValues[sheetHeader].ToString() != null || importValues[sheetHeader].ToString() != "" ? importValues[sheetHeader].ToString() : "0";
+                                    break;
+                                case DataImportColumn.ReceiveDate:
+                                    //Converts the date from an excel format
+                                    simCard.ReceiveDate = DateTime.FromOADate(Convert.ToDouble(importValues[sheetHeader].ToString()));
+                                    break;
+                            }
+                        }
+                        //Add last missing values to the simcard
+                        simCard.ModifiedBy = modifiedBy;
+                        simCard.ModifiedDate = DateTime.Now;
+                        simCard.IsActive = true;
+                        //Create the simcard in the db
+                        CreateSimCard(simCard);
+                        db.SaveChanges();
+                        //Commit all changes to the database server
+                        tc.Complete();
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage(this.GetType().Name,
+                                         string.Format("Error! {0}, {1}.",
+                                         ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                         MethodBase.GetCurrentMethod().Name,
+                                         ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }
         }

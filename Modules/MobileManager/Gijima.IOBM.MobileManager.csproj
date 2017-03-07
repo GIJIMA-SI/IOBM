@@ -178,6 +178,9 @@
     <Compile Include="Views\SystemTools\ViewDataImport.xaml.cs">
       <DependentUpon>ViewDataImport.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\SystemTools\ViewDataImportInt.xaml.cs">
+      <DependentUpon>ViewDataImportInt.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SystemTools\ViewDataUpdate.xaml.cs">
       <DependentUpon>ViewDataUpdate.xaml</DependentUpon>
     </Compile>
@@ -294,6 +297,10 @@
     <Page Include="Views\SystemTools\ViewDataImport.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SystemTools\ViewDataImportInt.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\SystemTools\ViewDataUpdate.xaml">
       <SubType>Designer</SubType>

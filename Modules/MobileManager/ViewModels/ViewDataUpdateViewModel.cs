@@ -19,6 +19,7 @@ using System.Threading;
 using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.Infrastructure.Helpers;
 using Gijima.IOBM.Infrastructure.Structs;
+using System.Reflection;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
 {
@@ -146,7 +147,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _sourceColumnCollection, value); }
         }
         private ObservableCollection<string> _sourceColumnCollection = null;
-      
+
         /// <summary>
         /// The collection of entity columns to search on
         /// </summary>
@@ -233,7 +234,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
         }
         private string _selectedDestinationEntity;
-        
+
         /// <summary>
         /// The selected entity to search on
         /// </summary>
@@ -265,18 +266,36 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 SetProperty(ref _selectedSourceSearch, value);
 
                 //Remove the seleceted item from the SourceColumn Collection
-                if (value != "-- Please Select --")
+                //Reset propert mapping collection
+                try
                 {
-                    SourceColumnCollection = new ObservableCollection<string>();
-                    SourceColumnCollection.Add(_defaultItem);
-                    SelectedSourceProperty = _defaultItem;
-                    foreach (string columnName in SelectedDataSheet.ColumnNames)
-                    {
-                        if (columnName != value)
-                            SourceColumnCollection.Add(columnName);
+                    if (value != "-- Please Select --")
+                   {
+                        if (MappedPropertyCollection != null)
+                        {
+                            foreach (string property in MappedPropertyCollection)
+                            {
+                                string[] mappedProperties = property.Split('=');
+                                SourceColumnCollection.Add(mappedProperties[0].Trim());
+                                DestinationColumnCollection.Add(EnumHelper.GetDescriptionFromEnum((DataUpdateColumn)Enum.Parse(typeof(DataUpdateColumn), mappedProperties[1].Trim())));
+                                SelectedMappedProperty = null;
+                                CanStartUpdate();
+                            }
+                            MappedPropertyCollection.Clear();
+                        }
+                        SourceColumnCollection = new ObservableCollection<string>(SourceSearchCollection);
+                        SourceColumnCollection.Remove(value);
                     }
                 }
-                    
+                catch (Exception ex)
+                {
+                    _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
+                }
             }
         }
         private string _selectedSourceSearch;
@@ -354,7 +373,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _canUpdate, value); }
         }
         private bool _canUpdate = false;
-        
+
         /// <summary>
         /// Set the required field border colour
         /// </summary>
@@ -414,7 +433,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _validMapping, value); }
         }
         private Brush _validMapping = Brushes.Red;
-        
+
         /// <summary>
         /// Input validate error message
         /// </summary>
@@ -588,7 +607,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
                 ++ImportUpdatesFailed;
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("ViewDataImportViewModel",
+                                .Publish(new ApplicationMessage("ViewDataUpdateViewModel",
                                                                 string.Format("Error! {0}, {1}.",
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
                                                                 "ImportWorkSheetDataAsync",
@@ -694,7 +713,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 if (updateRulesFilter.Count > 0)
                 {
                     string[] searchItems = updateRulesFilter.First().SearchEntities.Split(';');
-                    
+
                     foreach (string searchItem in searchItems)
                     {
                         DestinationSearchCollection.Add(searchItem);
@@ -778,8 +797,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             {
                 if (MappedPropertyCollection == null)
                     MappedPropertyCollection = new ObservableCollection<string>();
-                    
-                SelectedMappedProperty = string.Format("{0} = {1}", SelectedSourceProperty, 
+
+                SelectedMappedProperty = string.Format("{0} = {1}", SelectedSourceProperty,
                                                                     EnumHelper.GetEnumFromDescription<DataUpdateColumn>(SelectedDestinationProperty).ToString());
                 MappedPropertyCollection.Add(SelectedMappedProperty);
                 SourceColumnCollection.Remove(SelectedSourceProperty);
@@ -817,7 +836,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 string[] mappedProperties = SelectedMappedProperty.Split('=');
                 MappedPropertyCollection.Remove(SelectedMappedProperty);
                 SourceColumnCollection.Add(mappedProperties[0].Trim());
-                DestinationColumnCollection.Add(EnumHelper.GetDescriptionFromEnum((DataUpdateColumn)Enum.Parse(typeof(DataUpdateColumn),mappedProperties[1].Trim())));
+                DestinationColumnCollection.Add(EnumHelper.GetDescriptionFromEnum((DataUpdateColumn)Enum.Parse(typeof(DataUpdateColumn), mappedProperties[1].Trim())));
                 SelectedMappedProperty = null;
                 CanStartUpdate();
             }
