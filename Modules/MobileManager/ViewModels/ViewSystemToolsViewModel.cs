@@ -56,8 +56,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 _securityHelper.IsUserInRole(SecurityRole.DataManager.Value()))
             {
                 TabCollection.Add(new TabItem() { Header = "Data Validation" });
+                TabCollection.Add(new TabItem() { Header = "Data Import" });
                 TabCollection.Add(new TabItem() { Header = "Data Update" });
-                //TabCollection.Add(new TabItem() { Header = "Data Import" });
             }
         }
 
@@ -75,12 +75,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     case "Data Validation":
                         SelectedTab.Content = new ViewDataValidation();
                         break;
+                    case "Data Import":
+                        SelectedTab.Content = new ViewDataImportInt();
+                        break;
                     case "Data Update":
                         SelectedTab.Content = new ViewDataUpdate();
                         break;
-                    //case "Data Import":
-                    //    SelectedTab.Content = new ViewDataImport();
-                    //    break;
                 }
 
             }

@@ -552,6 +552,74 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
     }
 
     /// <summary>
+    /// The <see cref="DataUpdateColumn"/> enumeration a list of 
+    /// data update column options.
+    /// </summary>
+    public enum DataImportColumn
+    {
+        [Description("-- Please Select --")]
+        None = 0,
+        [Description("Device Make")]
+        fkDeviceMakeID = 1,
+        [Description("Device Model")]
+        fkDeviceModelID = 2,
+        [Description("Status")]
+        fkStatusID = 3,
+        [Description("Serial Number")]
+        SerialNumber = 4,
+        [Description("Received Date")]
+        ReceiveDate = 5,
+        [Description("Insurance Cost")]
+        InsuranceCost = 6,
+        [Description("Insurance Value")]
+        InsuranceValue = 7,
+        [Description("IME Number")]
+        IMENumber = 8,
+        [Description("Cell Number")]
+        CellNumber = 9,
+        [Description("Card Number")]
+        CardNumber = 10,
+        [Description("Pin Number")]
+        PinNumber = 11,
+        [Description("PUK Number")]
+        PUKNumber = 12,
+        [Description("Company Billing Level")]
+        fkCompanyBillingLevelID = 13,
+        [Description("Is Billable")]
+        IsBillable = 14,
+        [Description("Is Split Billing")]
+        IsSplitBilling = 15,
+        [Description("Split Billing Exception")]
+        SplitBillingException = 16,
+        [Description("WDP Allowance")]
+        WDPAllowance = 17,
+        [Description("Voice Allowance")]
+        VoiceAllowance = 18,
+        [Description("SP Limit")]
+        SPLimit = 19,
+        [Description("Allowance Limit")]
+        AllowanceLimit = 20,
+        [Description("International Dailing")]
+        InternationalDailing = 21,
+        [Description("Permanent Int Dailing")]
+        PermanentIntDailing = 22,
+        [Description("International Roaming")]
+        InternationalRoaming = 23,
+        [Description("Permanent Int Roaming")]
+        PermanentIntRoaming = 24,
+        [Description("Country Visiting")]
+        CountryVisiting = 25,
+        [Description("Roaming From Date")]
+        RoamingFromDate = 26,
+        [Description("Roaming To Date")]
+        RoamingToDate = 27,
+        [Description("Stop Billing From Date")]
+        StopBillingFromDate = 28,
+        [Description("Stop Billing To Date")]
+        StopBillingToDate = 29
+    }
+
+    /// <summary>
     /// The <see cref="DataUpdateEntity"/> enumeration a list of 
     /// data import entities options.
     /// </summary>
@@ -573,6 +641,22 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
         Package = 6,
         [Description("Sim Data")]
         SimCard = 7
+    }
+
+    /// <summary>
+    /// The <see cref="DataUpdateEntity"/> enumeration a list of 
+    /// data import entities options.
+    /// </summary>
+    public enum DataImportEntity
+    {
+        [Description("-- Please Select --")]
+        None = 0,
+        [Description("Device Data")]
+        Device = 1,
+        [Description("Sim Data")]
+        SimCard = 2,
+        [Description("Billing Data")]
+        ClientBilling = 3
     }
 
     #endregion
@@ -617,6 +701,10 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
             return Convert.ToInt16(type);
         }
         public static short Value(this DataUpdateEntity type)
+        {
+            return Convert.ToInt16(type);
+        }
+        public static short Value(this DataImportEntity type)
         {
             return Convert.ToInt16(type);
         }
