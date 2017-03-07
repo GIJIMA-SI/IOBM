@@ -148,9 +148,14 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
     /// </summary>
     public enum BillingExecutionState
     {
-        Started = 1,
+        StartBillingProcess = 1,
         InternalDataValidation = 2,
-        ExternalDataValidation = 3
+        ExternalDataImport = 3,
+        ExternalDataRuleValidation = 4,
+        ExternalDataValidation = 5,
+        BillingDataExport = 6,
+        BillingResultAudit = 7,
+        CloseBillingProcess = 8
     }
 
     /// <summary>

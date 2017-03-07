@@ -709,7 +709,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             try
             {
                 // Set the previous data validation process as complete
-                await CompleteBillingProcessHistoryAsync(BillingExecutionState.Started);
+                await CompleteBillingProcessHistoryAsync(BillingExecutionState.StartBillingProcess);
 
                 // Create a new history entry everytime the process get started
                 await CreateBillingProcessHistoryAsync();

@@ -256,7 +256,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             switch (sender)
             {
-                case BillingExecutionState.Started:
+                case BillingExecutionState.StartBillingProcess:
                     Application.Current.Dispatcher.Invoke(() => { BillingRunStarted = true; StartProcessCompleted = false; }); break;
                 case BillingExecutionState.InternalDataValidation:
                     Application.Current.Dispatcher.Invoke(() => { DataValidationProcessCompleted = false; }); break;
@@ -273,7 +273,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             switch (sender)
             {
-                case BillingExecutionState.Started:
+                case BillingExecutionState.StartBillingProcess:
                     Application.Current.Dispatcher.Invoke(() => { BillingRunStarted = StartProcessCompleted = true; }); break;
                 case BillingExecutionState.InternalDataValidation:
                     Application.Current.Dispatcher.Invoke(() => { BillingRunStarted = DataValidationProcessCompleted = true; }); break;
@@ -417,7 +417,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
-                bool result = await Task.Run(() => new BillingProcessModel(_eventAggregator).CreateBillingProcessHistory(BillingExecutionState.Started));
+                bool result = await Task.Run(() => new BillingProcessModel(_eventAggregator).CreateBillingProcessHistory(BillingExecutionState.StartBillingProcess));
 
                 // Publish this event to update the billing process history on the wizard's Info content
                 _eventAggregator.GetEvent<BillingProcessHistoryEvent>().Publish(result);
