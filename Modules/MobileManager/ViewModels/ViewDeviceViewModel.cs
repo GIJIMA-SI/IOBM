@@ -737,7 +737,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedDevice.InsuranceValue = SelectedInsuranceValue;
             SelectedDevice.ModifiedBy = SecurityHelper.LoggedInUserFullName;
             SelectedDevice.ModifiedDate = DateTime.Now;
-            SelectedDevice.IsActive = SelectedStatus.StatusDescription == Statuses.ISSUED.ToString() ? true : false;
+            SelectedDevice.IsActive = (SelectedStatus.StatusDescription == Statuses.ISSUED.ToString() ||
+                                       SelectedStatus.StatusDescription == Statuses.LOAN.ToString()) ? true : false;
 
             // Link the device IME numbers
             if (SelectedDevice.DeviceIMENumbers == null)
