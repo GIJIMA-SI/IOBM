@@ -217,6 +217,16 @@
           <Property Name="ModifiedDate" Type="datetime" Nullable="false" />
           <Property Name="IsActive" Type="bit" Nullable="false" />
         </EntityType>
+        <EntityType Name="DataImportProperty">
+          <Key>
+            <PropertyRef Name="pkDataImportPropertyID" />
+          </Key>
+          <Property Name="pkDataImportPropertyID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="enDataEntity" Type="int" Nullable="false" />
+          <Property Name="PropertyDescription" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="PropertyName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="MultipleProperty" Type="bit" Nullable="false" />
+        </EntityType>
         <EntityType Name="DataImportRule">
           <Key>
             <PropertyRef Name="pkDataImportRuleID" />
@@ -228,14 +238,22 @@
           <Property Name="ModifiedBy" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="DateModified" Type="smalldatetime" Nullable="false" />
         </EntityType>
+        <EntityType Name="DataImportSearchProperty">
+          <Key>
+            <PropertyRef Name="pkDataImportSearchPropertyID" />
+          </Key>
+          <Property Name="pkDataImportSearchPropertyID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="enDataEntity" Type="int" Nullable="false" />
+          <Property Name="SearchProperties" Type="varchar" MaxLength="100" Nullable="false" />
+        </EntityType>
         <EntityType Name="DataUpdateRule">
           <Key>
             <PropertyRef Name="pkDataUpdateRuleID" />
           </Key>
           <Property Name="pkDataUpdateRuleID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="enDataUpdateColumn" Type="smallint" Nullable="false" />
-          <Property Name="enDataUpdateEntity" Type="smallint" Nullable="false" />
           <Property Name="enDataBaseEntity" Type="smallint" Nullable="false" />
+          <Property Name="enDataUpdateEntity" Type="smallint" Nullable="false" />
+          <Property Name="enDataUpdateColumn" Type="smallint" Nullable="false" />
           <Property Name="SearchEntities" Type="varchar" MaxLength="250" />
           <Property Name="ModifiedBy" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="DateModified" Type="smalldatetime" Nullable="false" />
@@ -281,7 +299,7 @@
           <Property Name="fkDataValidationPropertyID" Type="int" Nullable="false" />
           <Property Name="enOperatorType" Type="smallint" Nullable="false" />
           <Property Name="enOperator" Type="smallint" Nullable="false" />
-          <Property Name="DataValidationValue" Type="varchar(max)" Nullable="false" />
+          <Property Name="DataValidationValue" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="ModifiedBy" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="ModifiedDate" Type="datetime" Nullable="false" />
         </EntityType>
@@ -307,8 +325,8 @@
             <PropertyRef Name="pkDeviceIMENumberID" />
           </Key>
           <Property Name="pkDeviceIMENumberID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="fkDeviceID" Type="int" Nullable="false" />
           <Property Name="IMENumber" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="fkDeviceID" Type="int" Nullable="false" />
           <Property Name="ModifiedBy" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="ModifiedDate" Type="datetime" Nullable="false" />
         </EntityType>
@@ -628,6 +646,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_ClientService_ClientService">
+          <End Role="ContractService" Type="Self.ContractService" Multiplicity="1" />
+          <End Role="ClientService" Type="Self.ClientService" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ContractService">
+              <PropertyRef Name="pkContractServiceID" />
+            </Principal>
+            <Dependent Role="ClientService">
+              <PropertyRef Name="fkContractServiceID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_ClientService_Contract">
           <End Role="Contract" Type="Self.Contract" Multiplicity="1" />
           <End Role="ClientService" Type="Self.ClientService" Multiplicity="*" />
@@ -637,18 +667,6 @@
             </Principal>
             <Dependent Role="ClientService">
               <PropertyRef Name="fkContractID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ClientService_ContractService">
-          <End Role="ContractService" Type="Self.ContractService" Multiplicity="1" />
-          <End Role="ClientService" Type="Self.ClientService" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ContractService">
-              <PropertyRef Name="pkContractServiceID" />
-            </Principal>
-            <Dependent Role="ClientService">
-              <PropertyRef Name="fkContractServiceID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -995,7 +1013,9 @@
           <EntitySet Name="CompanyGroup" EntityType="Self.CompanyGroup" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Contract" EntityType="Self.Contract" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ContractService" EntityType="Self.ContractService" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="DataImportProperty" EntityType="Self.DataImportProperty" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DataImportRule" EntityType="Self.DataImportRule" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="DataImportSearchProperty" EntityType="Self.DataImportSearchProperty" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DataUpdateRule" EntityType="Self.DataUpdateRule" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DataValidationException" EntityType="Self.DataValidationException" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DataValidationProperty" EntityType="Self.DataValidationProperty" Schema="dbo" store:Type="Tables" />
@@ -1052,12 +1072,12 @@
             <End Role="CompanyBillingLevel" EntitySet="CompanyBillingLevel" />
             <End Role="ClientBilling" EntitySet="ClientBilling" />
           </AssociationSet>
-          <AssociationSet Name="FK_ClientService_Contract" Association="Self.FK_ClientService_Contract">
-            <End Role="Contract" EntitySet="Contract" />
+          <AssociationSet Name="FK_ClientService_ClientService" Association="Self.FK_ClientService_ClientService">
+            <End Role="ContractService" EntitySet="ContractService" />
             <End Role="ClientService" EntitySet="ClientService" />
           </AssociationSet>
-          <AssociationSet Name="FK_ClientService_ContractService" Association="Self.FK_ClientService_ContractService">
-            <End Role="ContractService" EntitySet="ContractService" />
+          <AssociationSet Name="FK_ClientService_Contract" Association="Self.FK_ClientService_Contract">
+            <End Role="Contract" EntitySet="Contract" />
             <End Role="ClientService" EntitySet="ClientService" />
           </AssociationSet>
           <AssociationSet Name="FK_Company_CompanyGroup" Association="Self.FK_Company_CompanyGroup">
@@ -1399,7 +1419,7 @@
           <Property Name="fkDataValidationPropertyID" Type="Int32" Nullable="false" />
           <Property Name="enOperatorType" Type="Int16" Nullable="false" />
           <Property Name="enOperator" Type="Int16" Nullable="false" />
-          <Property Name="DataValidationValue" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="DataValidationValue" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="ModifiedBy" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
           <NavigationProperty Name="DataValidationProperty" Relationship="Self.FK_DataValidationRule_DataValidationProperty" FromRole="DataValidationRule" ToRole="DataValidationProperty" />
@@ -2043,6 +2063,8 @@
             <End Role="Status" EntitySet="Status" />
             <End Role="SimCard" EntitySet="SimCards" />
           </AssociationSet>
+          <EntitySet Name="DataImportSearchProperties" EntityType="MobileManagerModel.DataImportSearchProperty" />
+          <EntitySet Name="DataImportProperties" EntityType="MobileManagerModel.DataImportProperty" />
           </EntityContainer>
         <ComplexType Name="sp_report_Invoice_Result">
           <Property Type="String" Name="ClientName" Nullable="false" MaxLength="100" />
@@ -2429,6 +2451,24 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="DataImportSearchProperty">
+          <Key>
+            <PropertyRef Name="pkDataImportSearchPropertyID" />
+          </Key>
+          <Property Name="pkDataImportSearchPropertyID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="enDataEntity" Type="Int32" Nullable="false" />
+          <Property Name="SearchProperties" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="DataImportProperty">
+          <Key>
+            <PropertyRef Name="pkDataImportPropertyID" />
+          </Key>
+          <Property Name="pkDataImportPropertyID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="enDataEntity" Type="Int32" Nullable="false" />
+          <Property Name="PropertyDescription" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PropertyName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="MultipleProperty" Type="Boolean" Nullable="false" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -3021,6 +3061,26 @@
                 <ScalarProperty Name="fkStatusID" ColumnName="fkStatusID" />
                 <ScalarProperty Name="fkContractID" ColumnName="fkContractID" />
                 <ScalarProperty Name="pkSimCardID" ColumnName="pkSimCardID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DataImportSearchProperties">
+            <EntityTypeMapping TypeName="MobileManagerModel.DataImportSearchProperty">
+              <MappingFragment StoreEntitySet="DataImportSearchProperty">
+                <ScalarProperty Name="SearchProperties" ColumnName="SearchProperties" />
+                <ScalarProperty Name="enDataEntity" ColumnName="enDataEntity" />
+                <ScalarProperty Name="pkDataImportSearchPropertyID" ColumnName="pkDataImportSearchPropertyID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DataImportProperties">
+            <EntityTypeMapping TypeName="MobileManagerModel.DataImportProperty">
+              <MappingFragment StoreEntitySet="DataImportProperty">
+                <ScalarProperty Name="MultipleProperty" ColumnName="MultipleProperty" />
+                <ScalarProperty Name="PropertyName" ColumnName="PropertyName" />
+                <ScalarProperty Name="PropertyDescription" ColumnName="PropertyDescription" />
+                <ScalarProperty Name="enDataEntity" ColumnName="enDataEntity" />
+                <ScalarProperty Name="pkDataImportPropertyID" ColumnName="pkDataImportPropertyID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

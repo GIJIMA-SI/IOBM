@@ -31,7 +31,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private IEventAggregator _eventAggregator;
         private SecurityHelper _securityHelper = null;
         private IEnumerable<DataImportRule> _importRules = null;
-        private DataImportRule _importRule = null;
         private MSOfficeHelper _officeHelper = null;
         private string _defaultItem = "-- Please Select --";
 
@@ -188,6 +187,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
         private ObservableCollection<string> _mappedPropertyCollection = null;
 
+        /// <summary>
+        /// Collection of columns that can be maped more than once
+        /// </summary>
+        public ObservableCollection<MultipleEntry> MultipleEntriesColection
+        {
+            get { return _multipleEntriesColection; }
+            set { SetProperty(ref _multipleEntriesColection, value); }
+        }
+        private ObservableCollection<MultipleEntry> _multipleEntriesColection;
+
         #endregion
 
         #region Required Fields
@@ -225,15 +234,20 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set
             {
                 SetProperty(ref _selectedDestinationEntity, value);
-                _importRule = null;
-
-                if (value != null)
+                DestinationSearchCollection = new ObservableCollection<string>();
+                if (value != null && value != _defaultItem)
                 {
-                    if (value == EnumHelper.GetDescriptionFromEnum(DataImportEntity.Device))
-                        IMEUsed = false;
-                    else
-                        IMEUsed = true;
+                    MultipleEntriesColection = new ObservableCollection<MultipleEntry>();
                     ReadDataDestinationInfo();
+
+                    //Add all the properties that can have multiple entires to the collection
+                    foreach (string column in DestinationColumnCollection)
+                    {
+                        if (new DataImportPropertyModel(_eventAggregator).HasMultipleProperty(column, EnumHelper.GetEnumFromDescription<DataImportEntity>(value).Value()))
+                        {
+                            MultipleEntriesColection.Add(new MultipleEntry(column));
+                        }
+                    }
                 }
             }
         }
@@ -273,7 +287,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 //Reset propert mapping collection
                 try
                 {
-                    if (value != "-- Please Select --")
+                    if (value != _defaultItem)
                     {
                         if (MappedPropertyCollection != null)
                         {
@@ -282,7 +296,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                 string[] mappedProperties = property.Split('=');
                                 SourceColumnCollection.Add(mappedProperties[0].Trim());
                                 if (mappedProperties[1].Trim() != EnumHelper.GetDescriptionFromEnum(DataImportColumn.IMENumber).Replace(" ", string.Empty))
-                                    DestinationColumnCollection.Add(EnumHelper.GetDescriptionFromEnum((DataImportColumn)Enum.Parse(typeof(DataImportColumn), mappedProperties[1].Trim())));
+                                    DestinationColumnCollection.Add(mappedProperties[1].Trim());
                                 SelectedMappedProperty = null;
                                 CanStartImport();
                             }
@@ -378,26 +392,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _canImport, value); }
         }
         private bool _canImport = false;
-
-        /// <summary>
-        /// If device is selected check to see if IME is mapped
-        /// </summary>
-        public bool IMEUsed
-        {
-            get { return _IMEUsed; }
-            set { SetProperty(ref _IMEUsed, value); }
-        }
-        private bool _IMEUsed = false;
-
-        /// <summary>
-        /// Number of IME fields mapped
-        /// </summary>
-        public int IMECount
-        {
-            get { return _IMECount; }
-            set { SetProperty(ref _IMECount, value); }
-        }
-        private int _IMECount = 0;
 
         /// <summary>
         /// Set the required field border colour
@@ -649,18 +643,22 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             {
                 if (MappedPropertyCollection != null)
                 {
-                    if (EnumHelper.GetEnumFromDescription<DataImportEntity>(SelectedDestinationEntity) == DataImportEntity.Device)
+                    //Test if all multiple entries is selcted
+                    bool mulitpleEntriesTest = true;
+                    if (MultipleEntriesColection.Count > 0)
                     {
-                        CanImport = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem && DestinationColumnCollection.Count <= 2 && IMEUsed ? true : false;
-                        ValidMapping = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem &&
-                               DestinationColumnCollection.Count <= 2 && IMEUsed ? Brushes.Silver : Brushes.Red;
+                        foreach (MultipleEntry multipleEntry in MultipleEntriesColection)
+                        {
+                            if (multipleEntry.NumberMappings == 0)
+                            {
+                                mulitpleEntriesTest = false;
+                            }
+                        }
                     }
-                    else
-                    {
-                        CanImport = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem && DestinationColumnCollection.Count <= 1 ? true : false;
-                        ValidMapping = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem &&
-                               DestinationColumnCollection.Count <= 1? Brushes.Silver : Brushes.Red;
-                    }
+
+                    CanImport = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem && DestinationColumnCollection.Count <= MultipleEntriesColection.Count + 1 && mulitpleEntriesTest ? true : false;
+                    ValidMapping = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem &&
+                           DestinationColumnCollection.Count <= MultipleEntriesColection.Count + 1 && mulitpleEntriesTest ? Brushes.Silver : Brushes.Red;
                 }
             }
         }
@@ -727,42 +725,14 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
 
         /// <summary>
-        /// Populate the data search and destination column combobox from the DataUpdate rule
+        /// Populate the data search and destination column combobox from the DataImportProperty/Seach
         /// </summary>
         private void ReadDataDestinationInfo()
         {
-            DestinationSearchCollection = new ObservableCollection<string>();
-            DestinationSearchCollection.Add(_defaultItem);
-            DestinationColumnCollection = new ObservableCollection<string>();
-            DestinationColumnCollection.Add(_defaultItem);
+            DataImportEntity destinationEntity = EnumHelper.GetEnumFromDescription<DataImportEntity>(SelectedDestinationEntity);
 
-            if (_importRules != null && _importRules.Count() > 0)
-            {
-                List<DataImportRule> importRulesFilter = new List<DataImportRule>();
-
-                foreach (DataImportRule rule in _importRules)
-                {
-                    if (rule.enDataBaseEntity == EnumHelper.GetEnumFromDescription<DataImportEntity>(SelectedDestinationEntity).Value())
-                        importRulesFilter.Add(rule);
-                }
-
-                if (importRulesFilter.Count > 0)
-                {
-                    string[] searchItems = importRulesFilter.First().DataProperties.Split(';');
-
-                    foreach (string searchItem in searchItems)
-                    {
-                        DestinationColumnCollection.Add(searchItem);
-                    }
-                }
-
-                DataImportEntity destinationEntity = EnumHelper.GetEnumFromDescription<DataImportEntity>(SelectedDestinationEntity);
-
-                foreach (DataImportRule rule in _importRules.Where(p => p.enDataBaseEntity == destinationEntity.Value()))
-                {
-                    DestinationSearchCollection.Add(rule.SearchProperties);
-                }
-            }
+            DestinationSearchCollection = new DataImportSearchPropertyModel(_eventAggregator).GetSearchProperties(destinationEntity);
+            DestinationColumnCollection = new DataImportPropertyModel(_eventAggregator).GetPropertiesDescription(destinationEntity);
 
             SelectedDestinationSearch = _defaultItem;
             SelectedDestinationProperty = _defaultItem;
@@ -834,17 +804,20 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 if (MappedPropertyCollection == null)
                     MappedPropertyCollection = new ObservableCollection<string>();
 
-                SelectedMappedProperty = string.Format("{0} = {1}", SelectedSourceProperty,
-                                                                    EnumHelper.GetEnumFromDescription<DataImportColumn>(SelectedDestinationProperty).ToString());
+                SelectedMappedProperty = string.Format("{0} = {1}", SelectedSourceProperty, SelectedDestinationProperty);
                 MappedPropertyCollection.Add(SelectedMappedProperty);
-
-                //Test if Device is selected if IME is used
-                if (SelectedDestinationProperty == EnumHelper.GetDescriptionFromEnum(DataImportColumn.IMENumber))
-                { IMEUsed = true; _IMECount++; }
-                    
                 SourceColumnCollection.Remove(SelectedSourceProperty);
-                if (SelectedDestinationProperty != EnumHelper.GetDescriptionFromEnum(DataImportColumn.IMENumber).ToString())
+
+                //Test if the item selected my have multiple mappings
+                if (new DataImportPropertyModel(_eventAggregator).HasMultipleProperty(SelectedDestinationProperty, EnumHelper.GetEnumFromDescription<DataImportEntity>(SelectedDestinationEntity).Value()))
+                {
+                    MultipleEntriesColection.Where(p => p.Name == SelectedDestinationProperty).FirstOrDefault().NumberMappings++;
+                }
+                else
+                {
                     DestinationColumnCollection.Remove(SelectedDestinationProperty);
+                }
+
                 SelectedSourceProperty = SelectedDestinationProperty = _defaultItem;
                 CanStartImport();
             }
@@ -878,17 +851,17 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 string[] mappedProperties = SelectedMappedProperty.Split('=');
                 MappedPropertyCollection.Remove(SelectedMappedProperty);
                 SourceColumnCollection.Add(mappedProperties[0].Trim());
-                if (mappedProperties[1].Trim() != EnumHelper.GetDescriptionFromEnum(DataImportColumn.IMENumber).ToString().Replace(" ", string.Empty))
-                    DestinationColumnCollection.Add(EnumHelper.GetDescriptionFromEnum((DataImportColumn)Enum.Parse(typeof(DataImportColumn), mappedProperties[1])));
                 SelectedMappedProperty = null;
 
-                //Test if Device is selected if IME is removed
-                if (mappedProperties[1].Trim() == EnumHelper.GetDescriptionFromEnum(DataImportColumn.IMENumber).Replace(" ", string.Empty) && IMECount == 1)
+                //Test the selected option for multiple entries
+                if (new DataImportPropertyModel(_eventAggregator).HasMultipleProperty(mappedProperties[1].Trim(), EnumHelper.GetEnumFromDescription<DataImportEntity>(SelectedDestinationEntity).Value()))
                 {
-                    IMEUsed = false; IMECount--;
+                    MultipleEntriesColection.Where(p => p.Name == mappedProperties[1].Trim()).FirstOrDefault().NumberMappings--;
                 }
-                else if (mappedProperties[1].Trim() == EnumHelper.GetDescriptionFromEnum(DataImportColumn.IMENumber).Replace(" ", string.Empty))
-                    IMECount--;
+                else
+                {
+                    DestinationColumnCollection.Add(mappedProperties[1].Trim());
+                }
                 CanStartImport();
             }
             catch (Exception ex)
@@ -951,9 +924,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         //                                                                                             out errorMessage)); break;
                         case DataImportEntity.Device:
                             result = await Task.Run(() => new DevicesModel(_eventAggregator).CreateDeviceImport(searchCriteria,
-                                                                                                                MappedPropertyCollection, 
-                                                                                                                row, 
-                                                                                                                SecurityHelper.LoggedInUserFullName, 
+                                                                                                                MappedPropertyCollection,
+                                                                                                                row,
+                                                                                                                EnumHelper.GetEnumFromDescription<DataImportEntity>(SelectedDestinationEntity).Value(),
                                                                                                                 out errorMessage)); break;
                         case DataImportEntity.SimCard:
                             result = await Task.Run(() => new SimCardModel(_eventAggregator).CreateSimCardImport(searchCriteria,
@@ -991,5 +964,38 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         #endregion
 
         #endregion
+    }
+
+    /// <summary>
+    /// A class to keep information on a column if 
+    /// it can have more than none mapping
+    /// </summary>
+    public class MultipleEntry
+    {
+        /// <summary>
+        /// Name of the property
+        /// </summary>
+        public string Name
+        {
+            get { return _name; }
+            set { _name = value; }
+        }
+        private string _name;
+
+        public short NumberMappings
+        {
+            get { return _numberMappings; }
+            set { _numberMappings = value; }
+        }
+        private short _numberMappings;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public MultipleEntry(string Name)
+        {
+            this.Name = Name;
+            NumberMappings = 0;
+        }
     }
 }

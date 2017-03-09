@@ -115,7 +115,13 @@
     <Compile Include="Data\ContractService.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Data\DataImportProperty.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="Data\DataImportRule.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\DataImportSearchProperty.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\DataUpdateRule.cs">
@@ -232,7 +238,9 @@
     <Compile Include="Models\CompanyModel.cs" />
     <Compile Include="Models\ContractModel.cs" />
     <Compile Include="Models\ContractServiceModel.cs" />
+    <Compile Include="Models\DataImportPropertyModel.cs" />
     <Compile Include="Models\DataImportRuleModel.cs" />
+    <Compile Include="Models\DataImportSearchPropertyModel.cs" />
     <Compile Include="Models\DeviceIMENumberModel.cs" />
     <Compile Include="Models\DevicesMakeModel.cs" />
     <Compile Include="Models\DevicesModel.cs" />

@@ -4,10 +4,13 @@ using Gijima.IOBM.Infrastructure.Structs;
 using Gijima.IOBM.MobileManager.Common.Helpers;
 using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
+using Gijima.IOBM.MobileManager.Model.Helpers;
+using Gijima.IOBM.Security;
 using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
@@ -78,12 +81,12 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     if (!db.Devices.Any(p => p.fkDeviceMakeID == device.fkDeviceMakeID &&
                                              p.fkDeviceModelID == device.fkDeviceModelID &&
                                              p.fkContractID == device.fkContractID &&
-                                             p.fkStatusID != reAllocatedStatusID && 
+                                             p.fkStatusID != reAllocatedStatusID &&
                                              p.IsActive == false))
-                    {                       
+                    {
                         db.Devices.Add(device);
                         db.SaveChanges();
-                        
+
                         return true;
                     }
                     else
@@ -110,6 +113,73 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         }
 
         /// <summary>
+        /// Create a new device entity in the database
+        /// </summary>
+        /// <param name="device">The device entity to add.</param>
+        /// <returns>True if successfull</returns>
+        public bool CreateDevice(Device device, MobileManagerEntities db)
+        {
+            try
+            {
+                // Get the re-allacted status ID to be used in re-allaction valdation
+                int reAllocatedStatusID = db.Status.Where(p => p.StatusDescription == "REALLOCATED").First().pkStatusID;
+
+                // If a device gets re-allocated ensure that all the required properties 
+                // is valid to allow re-alloaction
+                foreach (DeviceIMENumber imeNumber in device.DeviceIMENumbers)
+                {
+                    DeviceIMENumber existingNumber = db.DeviceIMENumbers.Where(p => p.IMENumber == imeNumber.IMENumber).FirstOrDefault();
+                    if (existingNumber != null)
+                    {
+                        if (db.Devices.Any(p => p.pkDeviceID == existingNumber.fkDeviceID &&
+                                        p.fkStatusID != reAllocatedStatusID &&
+                                        p.IsActive == true))
+                        {
+                            _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                    .Publish(new ApplicationMessage("DevicesModel",
+                                                                    "The device is still allocated to another client.",
+                                                                    "CreateDevice",
+                                                                    ApplicationMessage.MessageTypes.Information));
+                            return false;
+                        }
+                    }
+
+                }
+
+                if (!db.Devices.Any(p => p.fkDeviceMakeID == device.fkDeviceMakeID &&
+                                         p.fkDeviceModelID == device.fkDeviceModelID &&
+                                         p.fkContractID == device.fkContractID &&
+                                         p.fkStatusID != reAllocatedStatusID &&
+                                         p.IsActive == false))
+                {
+                    db.Devices.Add(device);
+                    db.SaveChanges();
+
+                    return true;
+                }
+                else
+                {
+                    _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                    .Publish(new ApplicationMessage("DevicesModel",
+                                                                    "The device already exist.",
+                                                                    "CreateDevice",
+                                                                    ApplicationMessage.MessageTypes.Information));
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("DevicesModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "CreateDevice",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Creates a new device entity in the database from a spreadsheet row
         /// </summary>
         /// <param name="searchCriteria"></param>
@@ -118,121 +188,334 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// <param name="modifiedBy"></param>
         /// <param name="errorMessage"></param>
         /// <returns></returns>
-        public bool CreateDeviceImport(string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, string modifiedBy, out string errorMessage)
+        //public bool CreateDeviceImport(string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, string modifiedBy, out string errorMessage)
+        //{
+        //    errorMessage = "";
+        //    try
+        //    {
+        //        using (var db = MobileManagerEntities.GetContext())
+        //        {
+        //            //Enusure that all changes are made before commit
+        //            using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
+        //            {
+        //                //Check if number is linked to a contract
+        //                Contract contract = db.Contracts.Where(p => p.CellNumber == searchCriteria).FirstOrDefault();
+        //                if (contract == null || contract.IsActive == false)
+        //                {
+        //                    errorMessage = string.Format("Cell number {0} not found.", searchCriteria);
+        //                    return false;
+        //                }
+
+        //                //Set all previous devices for contract in-active
+        //                //Requested by Charl
+        //                ObservableCollection<Device> devices = ReadDevicesForContract(contract.pkContractID, true);
+        //                foreach (Device tmpDevice in devices)
+        //                {
+        //                    tmpDevice.IsActive = false;
+        //                    UpdateDevice(tmpDevice);
+        //                }
+
+        //                //Create a new empty device to add properties
+        //                Device device = new Device();
+        //                device.fkContractID = contract.pkContractID;
+        //                device.DeviceIMENumbers = new List<DeviceIMENumber>();
+        //                //Loop through the row and add each property to the device
+        //                foreach (string property in mappedProperties)
+        //                {
+        //                    string[] mapping = property.Split('=');
+        //                    string sheetHeader = mapping[0].Trim();
+        //                    string dbHeader = mapping[1].Trim();
+
+        //                    switch ((DataImportColumn)Enum.Parse(typeof(DataImportColumn), dbHeader))
+        //                    {
+        //                        case DataImportColumn.fkDeviceMakeID:
+        //                            string deviceMakeRow = importValues[sheetHeader].ToString().ToUpper();
+        //                            DeviceMake deviceMake = db.DeviceMakes.Where(p => p.MakeDescription == deviceMakeRow).FirstOrDefault();
+        //                            if (deviceMake == null)
+        //                            {
+        //                                errorMessage = string.Format("Device make not found.");
+        //                                return false;
+        //                            }
+        //                            device.fkDeviceMakeID = deviceMake.pkDeviceMakeID;
+        //                            break;
+        //                        case DataImportColumn.fkDeviceModelID:
+        //                            string deviceModelRow = importValues[sheetHeader].ToString().ToUpper();
+        //                            DeviceModel deviceModel = db.DeviceModels.Where(p => p.ModelDescription == deviceModelRow).FirstOrDefault();
+        //                            if (deviceModel == null)
+        //                            {
+        //                                errorMessage = string.Format("Device model not found.");
+        //                                return false;
+        //                            }
+        //                            device.fkDeviceModelID = deviceModel.pkDeviceModelID;
+        //                            break;
+        //                        case DataImportColumn.fkStatusID:
+        //                            string statusRow = importValues[sheetHeader].ToString().ToUpper();
+        //                            Status status = db.Status.Where(p => p.StatusDescription == statusRow).FirstOrDefault();
+        //                            if (status == null)
+        //                            {
+        //                                errorMessage = string.Format("Status description not found.");
+        //                                return false;
+        //                            }
+        //                            device.fkStatusID = status.pkStatusID;
+        //                            break;
+        //                        case DataImportColumn.SerialNumber:
+        //                            device.SerialNumber = importValues[sheetHeader].ToString();
+        //                            break;
+        //                        case DataImportColumn.ReceiveDate:
+        //                            //Converts the date from an excel format
+        //                            device.ReceiveDate = DateTime.FromOADate(Convert.ToDouble(importValues[sheetHeader].ToString()));
+        //                            break;
+        //                        case DataImportColumn.InsuranceCost:
+        //                            device.InsuranceCost = importValues[sheetHeader].ToString() != null && importValues[sheetHeader].ToString() != "" ? Convert.ToDecimal(importValues[sheetHeader].ToString()) : 0;
+        //                            break;
+        //                        case DataImportColumn.InsuranceValue:
+        //                            device.InsuranceValue = importValues[sheetHeader].ToString() != null && importValues[sheetHeader].ToString() != "" ? Convert.ToDecimal(importValues[sheetHeader].ToString()) : 0;
+        //                            break;
+        //                        case DataImportColumn.IMENumber:
+        //                            //Create a new deviceIMENumber
+        //                            DeviceIMENumber deviceIMENumber = new DeviceIMENumber();
+        //                            deviceIMENumber.IMENumber = importValues[sheetHeader].ToString();
+        //                            deviceIMENumber.fkDeviceID = 0;
+        //                            deviceIMENumber.ModifiedBy = modifiedBy;
+        //                            deviceIMENumber.ModifiedDate = DateTime.Now;
+        //                            device.DeviceIMENumbers.Add(deviceIMENumber);
+        //                            break;
+        //                    }
+        //                }
+        //                //Add last missing values to the device
+        //                device.ModifiedBy = modifiedBy;
+        //                device.ModifiedDate = DateTime.Now;
+        //                device.IsActive = true;
+        //                //Create the device in the db
+        //                CreateDevice(device);
+        //                db.SaveChanges();
+        //                //Commit all changes to the database server
+        //                tc.Complete();
+        //                return true;
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _eventAggregator.GetEvent<ApplicationMessageEvent>()
+        //                        .Publish(new ApplicationMessage(this.GetType().Name,
+        //                                 string.Format("Error! {0}, {1}.",
+        //                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+        //                                 MethodBase.GetCurrentMethod().Name,
+        //                                 ApplicationMessage.MessageTypes.SystemError));
+        //        return false;
+        //    }
+        //}
+
+        /// <summary>
+        /// Creates a new device entity in the database from a spreadsheet row
+        /// </summary>
+        /// <param name="searchCriteria"></param>
+        /// <param name="mappedProperties"></param>
+        /// <param name="importValues"></param>
+        /// <param name="errorMessage"></param>
+        /// <returns></returns>
+        public bool CreateDeviceImport(string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, short enSelectedEntity, out string errorMessage)
         {
-            errorMessage = "";
+            errorMessage = string.Empty;
+            string[] importProperties = null;
+            string sourceProperty = string.Empty;
+            object sourceValue = null;
+            Device deviceToImport = null;
+            Contract contract = null;
+            bool mustUpdate = false;
+            bool dataChanged = false;
+            bool result = false;
+            bool state = true;
+
             try
             {
                 using (var db = MobileManagerEntities.GetContext())
                 {
-                    //Enusure that all changes are made before commit
-                    using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
+                    //Check if number is linked to a contract
+                    contract = db.Contracts.Where(p => p.CellNumber == searchCriteria).FirstOrDefault();
+                    if (contract == null || contract.IsActive == false)
                     {
-                        //Check if number is linked to a contract
-                        Contract contract = db.Contracts.Where(p => p.CellNumber == searchCriteria).FirstOrDefault();
-                        if (contract == null || contract.IsActive == false)
-                        {
-                            errorMessage = string.Format("Cell number {0} not found.", searchCriteria);
-                            return false;
-                        }
-
-                        //Set all previous devices for contract in-active
-                        //Requested by Charl
-                        ObservableCollection<Device> devices = ReadDevicesForContract(contract.pkContractID, true);
-                        foreach (Device tmpDevice in devices)
-                        {
-                            tmpDevice.IsActive = false;
-                            UpdateDevice(tmpDevice);
-                        }
-
-                        //Create a new empty device to add properties
-                        Device device = new Device();
-                        device.fkContractID = contract.pkContractID;
-                        device.DeviceIMENumbers = new List<DeviceIMENumber>();
-                        //Loop through the row and add each property to the device
-                        foreach (string property in mappedProperties)
-                        {
-                            string[] mapping = property.Split('=');
-                            string sheetHeader = mapping[0].Trim();
-                            string dbHeader = mapping[1].Trim();
-                            
-                            switch ((DataImportColumn)Enum.Parse(typeof(DataImportColumn), dbHeader))
-                            {
-                                case DataImportColumn.fkDeviceMakeID:
-                                    string deviceMakeRow = importValues[sheetHeader].ToString().ToUpper();
-                                    DeviceMake deviceMake = db.DeviceMakes.Where(p => p.MakeDescription == deviceMakeRow).FirstOrDefault();
-                                    if (deviceMake == null)
-                                    {
-                                        errorMessage = string.Format("Device make not found.");
-                                        return false;
-                                    }
-                                    device.fkDeviceMakeID = deviceMake.pkDeviceMakeID;
-                                    break;
-                                case DataImportColumn.fkDeviceModelID:
-                                    string deviceModelRow = importValues[sheetHeader].ToString().ToUpper();
-                                    DeviceModel deviceModel = db.DeviceModels.Where(p => p.ModelDescription == deviceModelRow).FirstOrDefault();
-                                    if (deviceModel == null)
-                                    {
-                                        errorMessage = string.Format("Device model not found.");
-                                        return false;
-                                    }
-                                    device.fkDeviceModelID = deviceModel.pkDeviceModelID;
-                                    break;
-                                case DataImportColumn.fkStatusID:
-                                    string statusRow = importValues[sheetHeader].ToString().ToUpper();
-                                    Status status = db.Status.Where(p => p.StatusDescription == statusRow).FirstOrDefault();
-                                    if (status == null)
-                                    {
-                                        errorMessage = string.Format("Status description not found.");
-                                        return false;
-                                    }
-                                    device.fkStatusID = status.pkStatusID;
-                                    break;
-                                case DataImportColumn.SerialNumber:
-                                    device.SerialNumber = importValues[sheetHeader].ToString();
-                                    break;
-                                case DataImportColumn.ReceiveDate:
-                                    //Converts the date from an excel format
-                                    device.ReceiveDate = DateTime.FromOADate(Convert.ToDouble(importValues[sheetHeader].ToString()));
-                                    break;
-                                case DataImportColumn.InsuranceCost:
-                                    device.InsuranceCost = importValues[sheetHeader].ToString() != null && importValues[sheetHeader].ToString() != "" ? Convert.ToDecimal(importValues[sheetHeader].ToString()) : 0;
-                                    break;
-                                case DataImportColumn.InsuranceValue:
-                                    device.InsuranceValue = importValues[sheetHeader].ToString() != null && importValues[sheetHeader].ToString() != "" ? Convert.ToDecimal(importValues[sheetHeader].ToString()) : 0;
-                                    break;
-                                case DataImportColumn.IMENumber:
-                                    //Create a new deviceIMENumber
-                                    DeviceIMENumber deviceIMENumber = new DeviceIMENumber();
-                                    deviceIMENumber.IMENumber = importValues[sheetHeader].ToString();
-                                    deviceIMENumber.fkDeviceID = 0;
-                                    deviceIMENumber.ModifiedBy = modifiedBy;
-                                    deviceIMENumber.ModifiedDate = DateTime.Now;
-                                    device.DeviceIMENumbers.Add(deviceIMENumber);
-                                    break;
-                            }
-                        }
-                        //Add last missing values to the device
-                        device.ModifiedBy = modifiedBy;
-                        device.ModifiedDate = DateTime.Now;
-                        device.IsActive = true;
-                        //Create the device in the db
-                        CreateDevice(device);
-                        db.SaveChanges();
-                        //Commit all changes to the database server
-                        tc.Complete();
-                        return true;
+                        errorMessage = string.Format("Cell number {0} not linked to a contract/found, ", searchCriteria);
+                        return false;
                     }
                 }
+
+                using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
+                {
+                    using (var db = MobileManagerEntities.GetContext())
+                    {
+                        //Set all client previous devices inactive for the contract
+                        //Requested by Charl
+                        DeleteDevicesForClient(contract.pkContractID, db);
+
+                        //Create a new empty device to add properties
+                        deviceToImport = new Device();
+                        deviceToImport.pkDeviceID = 0;
+                        deviceToImport.fkContractID = contract.pkContractID;
+                        deviceToImport.DeviceIMENumbers = new List<DeviceIMENumber>();
+
+                        //Create the IME numbers for the device
+                        foreach (string mapping in mappedProperties)
+                        {
+                            if (mapping.Contains("IME Number"))
+                            {
+                                string[] arrMapping = mapping.Split('=');
+                                string sheetHeader = arrMapping[0].Trim();
+
+                                DeviceIMENumber deviceIMENumber = new DeviceIMENumber();
+                                deviceIMENumber.IMENumber = importValues[sheetHeader].ToString();
+                                deviceIMENumber.fkDeviceID = 0;
+                                deviceIMENumber.ModifiedBy = SecurityHelper.LoggedInFullName;
+                                deviceIMENumber.ModifiedDate = DateTime.Now;
+                                deviceToImport.DeviceIMENumbers.Add(deviceIMENumber);
+                                break;
+                            }
+                        }
+
+                        // Get the sql table structure of the entity
+                        PropertyDescriptor[] properties = EDMHelper.GetEntityStructure<Device>();
+
+                        foreach (PropertyDescriptor property in properties)
+                        {
+                            mustUpdate = false;
+
+                            // Get the source property and source value 
+                            // mapped the simcard entity property
+                            foreach (string mappedProperty in mappedProperties)
+                            {
+                                string[] arrMappedProperty = mappedProperty.Split('=');
+                                string propertyName = new DataImportPropertyModel(_eventAggregator).GetPropertyName(arrMappedProperty[1].Trim(), enSelectedEntity);
+                                if (propertyName == property.Name)
+                                {
+                                    importProperties = mappedProperty.Split('=');
+                                    sourceProperty = importProperties[0].Trim();
+                                    sourceValue = importValues[sourceProperty];
+                                    dataChanged = mustUpdate = true;
+                                    break;
+                                }
+                            }
+
+                            // Always update these values
+                            if (dataChanged && (property.Name == "ModifiedBy" || property.Name == "ModifiedDate" || property.Name == "IsActive"))
+                                mustUpdate = true;
+
+                            if (mustUpdate)
+                            {
+                                // Validate the source status and get
+                                // the value for the fkStatusID
+                                if (property.Name == "fkStatusID")
+                                {
+                                    Status status = db.Status.Where(p => p.StatusDescription.ToUpper() == sourceValue.ToString().ToUpper()).FirstOrDefault();
+
+                                    if (status == null)
+                                    {
+                                        errorMessage = "Status not found for nr." + searchCriteria;
+                                        return false;
+                                    }
+
+                                    // Set the device to in-active 
+                                    // if the status is not issued
+                                    if (status.StatusDescription != "ISSUED")
+                                        state = false;
+
+                                    sourceValue = status.pkStatusID;
+                                }
+                                // Validate the source device make and get
+                                // the value for the fkDeviceMakeID
+                                if (property.Name == "fkDeviceMakeID")
+                                {
+                                    DeviceMake deviceMake = db.DeviceMakes.Where(p => p.MakeDescription.ToUpper() == sourceValue.ToString().ToUpper()).FirstOrDefault();
+
+                                    if (deviceMake == null)
+                                    {
+                                        errorMessage = "Device make not found for nr." + searchCriteria;
+                                        return false;
+                                    }
+
+                                    sourceValue = deviceMake.pkDeviceMakeID;
+                                }
+                                // Validate the source device model and get
+                                // the value fot the fkDeviceModelID
+                                if (property.Name == "fkDeviceModelID")
+                                {
+                                    DeviceModel deviceModel = db.DeviceModels.Where(p => p.ModelDescription.ToUpper() == sourceValue.ToString().ToUpper()).FirstOrDefault();
+
+                                    if (deviceModel == null)
+                                    {
+                                        errorMessage = "Device model not found for nr." + searchCriteria;
+                                        return false;
+                                    }
+
+                                    sourceValue = deviceModel.pkDeviceModelID;
+                                }
+
+                                // Set the default values
+                                if (property.Name == "ModifiedBy")
+                                    sourceValue = SecurityHelper.LoggedInFullName;
+                                if (property.Name == "ModifiedDate")
+                                    sourceValue = DateTime.Now;
+                                if (property.Name == "IsActive")
+                                    sourceValue = state;
+
+                                // Convert the db type into the type of the property in our entity
+                                if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                                {
+                                    try
+                                    { sourceValue = Convert.ChangeType(sourceValue, property.PropertyType.GetGenericArguments()[0]); }
+                                    catch
+                                    { sourceValue = null; }
+                                }
+                                else if (property.PropertyType == typeof(System.Guid))
+                                    sourceValue = new Guid(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Byte[]))
+                                    sourceValue = Convert.FromBase64String(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.DateTime))
+                                {
+                                    try
+                                    { sourceValue = Convert.ToDateTime(DateTime.FromOADate(Convert.ToDouble(sourceValue.ToString()))); }
+                                    catch
+                                    { sourceValue = Convert.ToDateTime(Convert.ToDateTime(sourceValue.ToString())); }
+                                }
+                                else if (property.PropertyType == typeof(System.Boolean))
+                                    sourceValue = Convert.ToBoolean(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Int32))
+                                    sourceValue = Convert.ToInt32(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Decimal))
+                                    sourceValue = Convert.ToDecimal(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Double))
+                                    sourceValue = Convert.ToDouble(sourceValue.ToString());
+                                else
+                                    sourceValue = Convert.ChangeType(sourceValue, property.PropertyType);
+
+                                // Set the value of the property with the value from the db
+                                property.SetValue(deviceToImport, sourceValue);
+                            }
+                        }
+
+                        if (dataChanged)
+                        {
+                            CreateDevice(deviceToImport, db);
+                            // Add the data activity log
+                            //result = _activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<SimCard>(existingSimCard, simCardToImport, simCardToImport.fkContractID.Value, db));
+
+                            db.SaveChanges();
+                            tc.Complete();
+                        }
+                    }
+                }
+
+                return result;
             }
             catch (Exception ex)
             {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage(this.GetType().Name,
-                                         string.Format("Error! {0}, {1}.",
-                                         ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                         MethodBase.GetCurrentMethod().Name,
-                                         ApplicationMessage.MessageTypes.SystemError));
+                //_eventAggregator.GetEvent<ApplicationMessageEvent>()
+                //                .Publish(new ApplicationMessage("SimCardModel",
+                //                                                string.Format("Error! {0}, {1}.",
+                //                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                //                                                "ImportSimCard",
+                //                                                ApplicationMessage.MessageTypes.SystemError));
+                errorMessage = ex.Message;
                 return false;
             }
         }

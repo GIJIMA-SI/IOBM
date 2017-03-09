@@ -127,7 +127,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                         //Get all the simcards for the contract
                         ObservableCollection<SimCard> simCards = ReadSimCardsForContract(contract.pkContractID, true);
-                        
+
                         //Create a new empty simcard to add properties
                         SimCard simCard = new SimCard();
                         simCard.fkContractID = contract.pkContractID;
@@ -293,16 +293,17 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     // Check to see if the sim card already exist for another entity 
                     if (existingSimCard != null && existingSimCard.pkSimCardID != simCard.pkSimCardID &&
                         existingSimCard.CellNumber == simCard.CellNumber &&
-                        existingSimCard.PUKNumber == simCard.PUKNumber)
+                        existingSimCard.PUKNumber == simCard.PUKNumber &&
+                        existingSimCard.fkStatusID == Statuses.ISSUED.Value())
                     {
                         _eventAggregator.GetEvent<ApplicationMessageEvent>()
                                         .Publish(new ApplicationMessage("SimCardModel",
-                                                                        "The simcard already exist.",
+                                                                        "The simcard already exist. Or is allocated to another contract.",
                                                                         "UpdateSimCard",
                                                                         ApplicationMessage.MessageTypes.Information));
                         return false;
                     }
-                    else if(existingSimCard != null)
+                    else if (existingSimCard != null)
                     {
                         // Log the data values that changed
                         _activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<SimCard>(existingSimCard, simCard, simCard.fkContractID.Value, db));
@@ -317,7 +318,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         existingSimCard.IsActive = simCard.IsActive;
                         existingSimCard.ModifiedBy = simCard.ModifiedBy;
                         existingSimCard.ModifiedDate = simCard.ModifiedDate;
-                        db.SaveChanges();         
+                        db.SaveChanges();
                     }
 
                     return true;
@@ -454,12 +455,14 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     }
                 }
 
-                using (var db = MobileManagerEntities.GetContext())
+                using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
                 {
-                    simCardToImport = db.SimCards.Where(p => p.pkSimCardID == existingSimCard.pkSimCardID).FirstOrDefault();
 
-                    using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
+                    using (var db = MobileManagerEntities.GetContext())
                     {
+                        simCardToImport = db.SimCards.Where(p => p.pkSimCardID == existingSimCard.pkSimCardID).FirstOrDefault();
+
+
                         // Get the sql table structure of the entity
                         PropertyDescriptor[] properties = EDMHelper.GetEntityStructure<SimCard>();
 
