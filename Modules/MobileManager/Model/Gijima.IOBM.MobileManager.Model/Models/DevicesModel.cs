@@ -325,7 +325,6 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             Contract contract = null;
             bool mustUpdate = false;
             bool dataChanged = false;
-            bool result = false;
             bool state = true;
 
             try
@@ -505,7 +504,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     }
                 }
 
-                return result;
+                return true;
             }
             catch (Exception ex)
             {

@@ -567,6 +567,151 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         }
 
         /// <summary>
+        /// Import a new sim card entity into the database
+        /// </summary>
+        /// <param name="searchEntity">The simcard data to search on.</param>
+        /// <param name="searchCriteria">The simcard search criteria to search for.</param>
+        /// <param name="mappedProperties">The simcard properties (columns) to import.</param>
+        /// <param name="errorMessage">OUT The error message.</param>
+        /// <returns>True if successfull</returns>
+        public bool CreateSimCard(SearchEntity searchEntity, string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            string[] importProperties = null;
+            string sourceProperty = string.Empty;
+            object sourceValue = null;
+            SimCard existingSimCard = null;
+            SimCard simCardToImport = null;
+            bool mustUpdate = false;
+            bool dataChanged = false;
+            bool result = false;
+            bool state = true;
+
+            try
+            {
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    existingSimCard = db.SimCards.Where(p => p.CellNumber == searchCriteria).FirstOrDefault();
+
+                    if (existingSimCard == null)
+                    {
+                        errorMessage = string.Format("Cell number {0} not found.", searchCriteria);
+                        return false;
+                    }
+                }
+
+                using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
+                {
+
+                    using (var db = MobileManagerEntities.GetContext())
+                    {
+                        simCardToImport = db.SimCards.Where(p => p.pkSimCardID == existingSimCard.pkSimCardID).FirstOrDefault();
+
+
+                        // Get the sql table structure of the entity
+                        PropertyDescriptor[] properties = EDMHelper.GetEntityStructure<SimCard>();
+
+                        foreach (PropertyDescriptor property in properties)
+                        {
+                            mustUpdate = false;
+
+                            // Get the source property and source value 
+                            // mapped the simcard entity property
+                            foreach (string mappedProperty in mappedProperties)
+                            {
+                                if (mappedProperty.Contains(property.Name))
+                                {
+                                    importProperties = mappedProperty.Split('=');
+                                    sourceProperty = importProperties[0].Trim();
+                                    sourceValue = importValues[sourceProperty];
+                                    dataChanged = mustUpdate = true;
+                                    break;
+                                }
+                            }
+
+                            // Always update these values
+                            if (dataChanged && (property.Name == "ModifiedBy" || property.Name == "ModifiedDate" || property.Name == "IsActive"))
+                                mustUpdate = true;
+
+                            if (mustUpdate)
+                            {
+                                // Validate the source status and get
+                                // the value for the fkStatusID
+                                if (property.Name == "fkStatusID")
+                                {
+                                    Status status = db.Status.Where(p => p.StatusDescription.ToUpper() == sourceValue.ToString().ToUpper()).FirstOrDefault();
+
+                                    if (status == null)
+                                    {
+                                        _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                                        .Publish(new ApplicationMessage("SimCardModel",
+                                                                 string.Format("Invalid status {0}.", sourceValue.ToString()),
+                                                                 "ImportSimCard",
+                                                                 ApplicationMessage.MessageTypes.SystemError));
+                                        return false;
+                                    }
+
+                                    // Set the simcard to in-active 
+                                    // if the status is not issued
+                                    if (status.StatusDescription != "ISSUED")
+                                        state = false;
+
+                                    sourceValue = status.pkStatusID;
+                                }
+
+                                // Set the default values
+                                if (property.Name == "ModifiedBy")
+                                    sourceValue = SecurityHelper.LoggedInFullName;
+                                if (property.Name == "ModifiedDate")
+                                    sourceValue = DateTime.Now;
+                                if (property.Name == "IsActive")
+                                    sourceValue = state;
+
+                                // Convert the db type into the type of the property in our entity
+                                if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                                    sourceValue = Convert.ChangeType(sourceValue, property.PropertyType.GetGenericArguments()[0]);
+                                else if (property.PropertyType == typeof(System.Guid))
+                                    sourceValue = new Guid(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Byte[]))
+                                    sourceValue = Convert.FromBase64String(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.DateTime))
+                                    sourceValue = Convert.ToDateTime(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Boolean))
+                                    sourceValue = Convert.ToBoolean(sourceValue.ToString());
+                                else
+                                    sourceValue = Convert.ChangeType(sourceValue, property.PropertyType);
+
+                                // Set the value of the property with the value from the db
+                                property.SetValue(simCardToImport, sourceValue);
+                            }
+                        }
+
+                        if (dataChanged)
+                        {
+                            // Add the data activity log
+                            result = _activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<SimCard>(existingSimCard, simCardToImport, simCardToImport.fkContractID.Value, db));
+
+                            db.SaveChanges();
+                            tc.Complete();
+                        }
+                    }
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("SimCardModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ImportSimCard",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Sets the linked simcards inactive
         /// </summary>
         /// <param name="contractID">The contract linked to the simcards</param>
