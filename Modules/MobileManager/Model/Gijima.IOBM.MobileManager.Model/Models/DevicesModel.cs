@@ -72,7 +72,6 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                 return false;
                             }
                         }
-
                     }
 
                     if (!db.Devices.Any(p => p.fkDeviceMakeID == device.fkDeviceMakeID &&
@@ -123,10 +122,10 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             errorMessage = "";
             try
             {
-                using (var db = MobileManagerEntities.GetContext())
+                //Enusure that all changes are made before commit
+                using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
                 {
-                    //Enusure that all changes are made before commit
-                    using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
+                    using (var db = MobileManagerEntities.GetContext())
                     {
                         //Check if number is linked to a contract
                         Contract contract = db.Contracts.Where(p => p.CellNumber == searchCriteria).FirstOrDefault();
@@ -219,10 +218,11 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         //Create the device in the db
                         CreateDevice(device);
                         db.SaveChanges();
-                        //Commit all changes to the database server
-                        tc.Complete();
-                        return true;
                     }
+
+                    //Commit all changes to the database server
+                    tc.Complete();
+                    return true;
                 }
             }
             catch (Exception ex)

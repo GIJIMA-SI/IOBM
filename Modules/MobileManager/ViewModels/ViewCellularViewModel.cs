@@ -1916,6 +1916,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 paymentYears.Add(string.Empty);
                 paymentYears.Add(DateTime.Now.Year.ToString());
                 paymentYears.Add(DateTime.Now.AddYears(1).Year.ToString());
+                paymentYears.Add(DateTime.Now.AddYears(2).Year.ToString());
                 PaymentYearCollection = paymentYears;
                 SelectedBillingMonth = SelectedBillingYear = string.Empty;
             }
