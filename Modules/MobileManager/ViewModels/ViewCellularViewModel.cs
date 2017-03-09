@@ -2050,8 +2050,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             if (result)
                 result = SelectedClient != null && SelectedClientLocation != null && SelectedClientLocation.pkClientLocationID > 0 &&
                          SelectedCompany != null && SelectedCompany.pkCompanyID > 0 && SelectedSuburb != null && SelectedSuburb.pkSuburbID > 0 &&
-                         !string.IsNullOrEmpty(SelectedCellNumber) && SelectedCellNumber.Length == 10 && !string.IsNullOrEmpty(SelectedClientName) &&
-                         !string.IsNullOrEmpty(SelectedClientIDNumber) && 
+                         !string.IsNullOrEmpty(SelectedCellNumber) && (SelectedCellNumber.Length == 10 || SelectedCellNumber.Length == 14) && 
+                         !string.IsNullOrEmpty(SelectedClientName) && !string.IsNullOrEmpty(SelectedClientIDNumber) && 
                          (SaIDNumber ? SelectedClientIDNumber.Length == 13 : true || OtherIDNumber ? !string.IsNullOrWhiteSpace(SelectedClientIDNumber) : true) &&
                          !string.IsNullOrEmpty(SelectedClientWBSNumber) &&
                          !string.IsNullOrEmpty(SelectedClientCostCode) && !string.IsNullOrEmpty(SelectedClientAddressLine) &&
