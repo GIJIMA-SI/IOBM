@@ -62,31 +62,32 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 {
                     BillingProcessHistory currentHistory = db.BillingProcessHistories.Where(p => p.ProcessCurrent == true).FirstOrDefault();
 
-                    // If a current process history entity
-                    // found make it not current
-                    if (currentHistory != null)
+                    // If a current process history entity is found and it is 
+                    // the previous process make it not current and add the new process
+                    if (currentHistory != null && 
+                        ((BillingExecutionState)currentHistory.fkBillingProcessID == BillingExecutionState.CloseBillingProcess || currentHistory.fkBillingProcessID < processID))
                     {
                         currentHistory.ProcessCurrent = false;
+
+                        // Add the new process history entity only if if its the next process
+                        BillingProcessHistory processHistory = new BillingProcessHistory();
+                        processHistory.fkBillingProcessID = billingProcess.Value();
+                        processHistory.BillingPeriod = string.Format("{0}/{1}", billingYear, billingMonth.ToString().PadLeft(2, '0'));
+                        processHistory.ProcessStartDate = DateTime.Now;
+                        processHistory.ProcessCurrent = true;
+                        processHistory.ModifiedBy = SecurityHelper.LoggedInDomainName;
+                        processHistory.DateModified = DateTime.Now;
+
+                        db.BillingProcessHistories.Add(processHistory);
+                        db.SaveChanges();
+
+                        // Set the current billing period and billing state
+                        MobileManagerEnvironment.BillingPeriod = processHistory.BillingPeriod;
+                        MobileManagerEnvironment.IsBillingPeriodOpen = true;
+
+                        // Publish the event to update the billing period on the UI
+                        _eventAggregator.GetEvent<BillingPeriodEvent>().Publish(null);
                     }
-
-                    // Add the new process history entity only if if its the next process
-                    BillingProcessHistory processHistory = new BillingProcessHistory();
-                    processHistory.fkBillingProcessID = billingProcess.Value();
-                    processHistory.BillingPeriod = string.Format("{0}/{1}", billingYear, billingMonth.ToString().PadLeft(2, '0')); 
-                    processHistory.ProcessStartDate = DateTime.Now;
-                    processHistory.ProcessCurrent = true;
-                    processHistory.ModifiedBy = SecurityHelper.LoggedInDomainName;
-                    processHistory.DateModified = DateTime.Now;
-
-                    db.BillingProcessHistories.Add(processHistory);
-                    db.SaveChanges();
-
-                    // Set the current billing period and billing state
-                    MobileManagerEnvironment.BillingPeriod = processHistory.BillingPeriod;
-                    MobileManagerEnvironment.IsBillingPeriodOpen = true;
-
-                    // Publish the event to update the billing period on the UI
-                    _eventAggregator.GetEvent<BillingPeriodEvent>().Publish(null);
 
                     return true;
                 }
