@@ -256,7 +256,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             switch (sender)
             {
-                case BillingExecutionState.Started:
+                case BillingExecutionState.StartBillingProcess:
                     Application.Current.Dispatcher.Invoke(() => { BillingRunStarted = true; StartProcessCompleted = false; }); break;
                 case BillingExecutionState.InternalDataValidation:
                     Application.Current.Dispatcher.Invoke(() => { DataValidationProcessCompleted = false; }); break;
@@ -273,7 +273,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             switch (sender)
             {
-                case BillingExecutionState.Started:
+                case BillingExecutionState.StartBillingProcess:
                     Application.Current.Dispatcher.Invoke(() => { BillingRunStarted = StartProcessCompleted = true; }); break;
                 case BillingExecutionState.InternalDataValidation:
                     Application.Current.Dispatcher.Invoke(() => { BillingRunStarted = DataValidationProcessCompleted = true; }); break;
@@ -347,6 +347,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             BillingWizardPageCount = 4;
             BillingWizardProgress = 1;
             BillingProcessProgress = 0;
+            SelectedBillingPeriod = MobileManagerEnvironment.BillingPeriod;
             SelectedBillingMonth = Convert.ToInt32(MobileManagerEnvironment.BillingPeriod.Substring(5, 2));
             SelectedBillingYear =  Convert.ToInt32(MobileManagerEnvironment.BillingPeriod.Substring(0, 4));
             BillingWizardDescription = string.Format("Billing step - {0} of {1}", 1, BillingWizardPageCount);
@@ -396,7 +397,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
                     // Lock all the completed processes
                     if (currentProcessHistory != null)
-                        await Task.Run(() => SetCompletedBillingProcessesAsync(currentProcessHistory));
+                        await Task.Run(() => SetCurrentBillingProcessesAsync(currentProcessHistory));
                 }
             }
             catch (Exception ex)
@@ -413,14 +414,15 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Create a new billing process history entry
         /// </summary>
-        private async Task CreateBillingProcessHistoryAsync()
+        private async Task CreateNewBillingProcessHistoryAsync()
         {
             try
             {
-                bool result = await Task.Run(() => new BillingProcessModel(_eventAggregator).CreateBillingProcessHistory(BillingExecutionState.Started));
+                await Task.Run(() => new BillingProcessModel(_eventAggregator).CreateBillingProcessHistory(BillingExecutionState.StartBillingProcess));
+                InitialiseBillingView();
 
-                // Publish this event to update the billing process history on the wizard's Info content
-                _eventAggregator.GetEvent<BillingProcessHistoryEvent>().Publish(result);
+                // Publish the event to update the billing period on the UI
+                _eventAggregator.GetEvent<BillingPeriodEvent>().Publish(null);
             }
             catch (Exception ex)
             {
@@ -428,7 +430,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                 .Publish(new ApplicationMessage("ViewBillingViewModel",
                                                                 string.Format("Error! {0}, {1}.",
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "CreateBillingProcessHistoryAsync",
+                                                                "CreateNewBillingProcessHistoryAsync",
                                                                 ApplicationMessage.MessageTypes.SystemError));
             }
         }
@@ -437,7 +439,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// Set all the billing processes already completed as completed
         /// </summary>
         /// <param name="currentProcessHistory">The current process history entity.</param>
-        private void SetCompletedBillingProcessesAsync(BillingProcessHistory currentProcessHistory)
+        private void SetCurrentBillingProcessesAsync(BillingProcessHistory currentProcessHistory)
         {
             try
             {
@@ -445,6 +447,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 {
                     if (process.pkBillingProcessID < currentProcessHistory.fkBillingProcessID ||
                         (process.pkBillingProcessID == currentProcessHistory.fkBillingProcessID &&
+                         (BillingExecutionState)process.pkBillingProcessID != BillingExecutionState.CloseBillingProcess &&
                          currentProcessHistory.ProcessEndDate != null && currentProcessHistory.ProcessResult == true))
                     {
                         // Publish this event to lock the completed process and enable functinality to move to the next process
@@ -455,6 +458,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     {
                         // Publish this event to lock the started process and disable functinality to move to the next process
                         _eventAggregator.GetEvent<BillingProcessStartedEvent>().Publish((BillingExecutionState)process.pkBillingProcessID);
+                    }
+                    else if ((BillingExecutionState)process.pkBillingProcessID == BillingExecutionState.CloseBillingProcess &&
+                                currentProcessHistory.ProcessEndDate != null && currentProcessHistory.ProcessResult != null)
+                    {
+                        Application.Current.Dispatcher.Invoke(() => { BillingRunStarted = StartProcessCompleted = false; });
                     }
                 }
             }
@@ -512,11 +520,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
-                BillingRunStarted = true;
-                SelectedBillingPeriod = string.Format("{0}/{1}", SelectedBillingYear, SelectedBillingMonth.ToString().PadLeft(2, '0'));
-
                 // Create a new history entry everytime the process get started
-                await CreateBillingProcessHistoryAsync();
+                await CreateNewBillingProcessHistoryAsync();
+
+                // Publish this event to lock the started process and disable functinality to move to the next process
+                _eventAggregator.GetEvent<BillingProcessStartedEvent>().Publish((BillingExecutionState.InternalDataValidation));
             }
             catch (Exception ex)
             {

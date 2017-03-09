@@ -1,5 +1,6 @@
 ﻿using Gijima.IOBM.Infrastructure.Events;
 using Gijima.IOBM.Infrastructure.Structs;
+using Gijima.IOBM.MobileManager.Common.Events;
 using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Gijima.IOBM.Security;
@@ -38,28 +39,40 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         {
             try
             {
-                string billingPeriod = MobileManagerEnvironment.BillingPeriod;
+                string[] billingPeriod = MobileManagerEnvironment.BillingPeriod.Split('/');
+                short billingYear = Convert.ToInt16(billingPeriod[0]);
+                short billingMonth = Convert.ToInt16(billingPeriod[1]);
                 int processID = billingProcess.Value();
 
+                // If StartBillingProces then set billing period to the next billing period
+                if (billingProcess == BillingExecutionState.StartBillingProcess)
+                {
+                    if (billingMonth < 12)
+                    {
+                        billingMonth++;
+                    }
+                    else
+                    {
+                        billingMonth = 1;
+                        billingYear++;
+                    }
+                }
+                
                 using (var db = MobileManagerEntities.GetContext())
                 {
-                    BillingProcessHistory currentHistory = db.BillingProcessHistories.Where(p => p.BillingPeriod == billingPeriod &&    
-                                                                                                 p.ProcessCurrent == true).FirstOrDefault();
+                    BillingProcessHistory currentHistory = db.BillingProcessHistories.Where(p => p.ProcessCurrent == true).FirstOrDefault();
 
-                    // If a current process history entity
-                    // found make it not current
-                    if (currentHistory != null && currentHistory.fkBillingProcessID < processID &&
-                        currentHistory.ProcessEndDate != null && currentHistory.ProcessResult != null)
+                    // If a current process history entity is found and it is 
+                    // the previous process make it not current and add the new process
+                    if (currentHistory != null && 
+                        ((BillingExecutionState)currentHistory.fkBillingProcessID == BillingExecutionState.CloseBillingProcess || currentHistory.fkBillingProcessID < processID))
                     {
                         currentHistory.ProcessCurrent = false;
-                    }
 
-                    // Add the new process history entity only if if its the next process
-                    if (currentHistory == null || currentHistory.fkBillingProcessID < processID)
-                    {
+                        // Add the new process history entity only if if its the next process
                         BillingProcessHistory processHistory = new BillingProcessHistory();
                         processHistory.fkBillingProcessID = billingProcess.Value();
-                        processHistory.BillingPeriod = billingPeriod;
+                        processHistory.BillingPeriod = string.Format("{0}/{1}", billingYear, billingMonth.ToString().PadLeft(2, '0'));
                         processHistory.ProcessStartDate = DateTime.Now;
                         processHistory.ProcessCurrent = true;
                         processHistory.ModifiedBy = SecurityHelper.LoggedInDomainName;
@@ -67,6 +80,13 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                         db.BillingProcessHistories.Add(processHistory);
                         db.SaveChanges();
+
+                        // Set the current billing period and billing state
+                        MobileManagerEnvironment.BillingPeriod = processHistory.BillingPeriod;
+                        MobileManagerEnvironment.IsBillingPeriodOpen = true;
+
+                        // Publish the event to update the billing period on the UI
+                        _eventAggregator.GetEvent<BillingPeriodEvent>().Publish(null);
                     }
 
                     return true;

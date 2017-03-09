@@ -431,6 +431,17 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
 
         /// <summary>
+        /// This event gets received to disable the next button 
+        /// when the process completed
+        /// </summary>
+        /// <param name="sender">The error message.</param>
+        private void BillingProcessStarted_Event(BillingExecutionState sender)
+        {
+            if (sender == BillingExecutionState.InternalDataValidation)
+                Application.Current.Dispatcher.Invoke(() => { BillingProcessCompleted = false; });
+        }
+
+        /// <summary>
         /// This event show or hide the control header
         /// </summary>
         /// <param name="sender">The error message.</param>
@@ -485,7 +496,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             // and enable functionality to move to the process completed
             _eventAggregator.GetEvent<BillingProcessCompletedEvent>().Subscribe(BillingProcessCompleted_Event, true);
 
-            // Load the view data
+            // Subscribe to this event to lock the started process
+            // and disable functionality to move to the process completed
+            _eventAggregator.GetEvent<BillingProcessStartedEvent>().Subscribe(BillingProcessStarted_Event, true);
+
             // Load the view data
             ReadDataValidationGroups();
             await ReadValidationRuleExceptionsAsync();
@@ -789,7 +803,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 if (_validationProcess == DataValidationProcess.SystemBilling)
                 {
                     // Set the previous data validation process as complete
-                    await CompleteBillingProcessHistoryAsync(BillingExecutionState.Started);
+                    await CompleteBillingProcessHistoryAsync(BillingExecutionState.StartBillingProcess);
 
                     // Create a new history entry everytime the process get started
                     await CreateBillingProcessHistoryAsync();
@@ -881,7 +895,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 // else save the exceptions to the database
                 if (ValidationRuleCollection != null && ValidationErrorCollection != null && ValidationRuleCollection.Count > 0)
                 {
-                    if (ValidationErrorCollection.Count == 0)
+                    if (ValidationErrorCollection.Count == 0 && ValidationGroupCollection.Count == (ValidationGroupsPassed + ValidationGroupsFailed))
                         await CompleteBillingProcessHistoryAsync(BillingExecutionState.InternalDataValidation);
                     else
                         await CreateValidationRuleExceptionsAsync();
