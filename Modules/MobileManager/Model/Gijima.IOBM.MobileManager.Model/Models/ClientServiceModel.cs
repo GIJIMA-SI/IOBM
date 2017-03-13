@@ -98,5 +98,16 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 return null;
             }
         }
+
+        /// <summary>
+        /// Remove all the client services (import sheet data)
+        /// </summary>
+        /// <returns></returns>
+        public void DeleteClientServices(int ContractID, MobileManagerEntities db)
+        {
+            //Remove all previous entries
+            db.ClientServices.RemoveRange(db.ClientServices.Where(x => x.fkContractID == ContractID));
+            db.SaveChanges();
+        }
     }
 }

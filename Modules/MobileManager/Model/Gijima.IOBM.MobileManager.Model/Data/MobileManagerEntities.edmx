@@ -226,6 +226,7 @@
           <Property Name="PropertyDescription" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="PropertyName" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="MultipleProperty" Type="bit" Nullable="false" />
+          <Property Name="Required" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="DataImportRule">
           <Key>
@@ -246,6 +247,17 @@
           <Property Name="enDataEntity" Type="int" Nullable="false" />
           <Property Name="SearchProperties" Type="varchar" MaxLength="100" Nullable="false" />
         </EntityType>
+        <EntityType Name="DataUpdateProperty">
+          <Key>
+            <PropertyRef Name="pkDataUpdatePropertyID" />
+          </Key>
+          <Property Name="pkDataUpdatePropertyID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="enDataEntity" Type="int" Nullable="false" />
+          <Property Name="PropertyDescription" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="PropertyName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="MultipleProperty" Type="bit" Nullable="false" />
+          <Property Name="Required" Type="bit" Nullable="false" />
+        </EntityType>
         <EntityType Name="DataUpdateRule">
           <Key>
             <PropertyRef Name="pkDataUpdateRuleID" />
@@ -258,6 +270,18 @@
           <Property Name="ModifiedBy" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="DateModified" Type="smalldatetime" Nullable="false" />
           <Property Name="IsActive" Type="bit" Nullable="false" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="DataUpdateSearchProperty">
+          <Key>
+            <PropertyRef Name="pkDataUpdateSearchPropertyID" />
+            <PropertyRef Name="enDataEntity" />
+            <PropertyRef Name="SearchProperties" />
+          </Key>
+          <Property Name="pkDataUpdateSearchPropertyID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="enDataEntity" Type="int" Nullable="false" />
+          <Property Name="SearchProperties" Type="varchar" MaxLength="100" Nullable="false" />
         </EntityType>
         <EntityType Name="DataValidationException">
           <Key>
@@ -1016,6 +1040,7 @@
           <EntitySet Name="DataImportProperty" EntityType="Self.DataImportProperty" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DataImportRule" EntityType="Self.DataImportRule" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DataImportSearchProperty" EntityType="Self.DataImportSearchProperty" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="DataUpdateProperty" EntityType="Self.DataUpdateProperty" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DataUpdateRule" EntityType="Self.DataUpdateRule" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DataValidationException" EntityType="Self.DataValidationException" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DataValidationProperty" EntityType="Self.DataValidationProperty" Schema="dbo" store:Type="Tables" />
@@ -1040,6 +1065,13 @@
           <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserInCompany" EntityType="Self.UserInCompany" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserInRole" EntityType="Self.UserInRole" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="DataUpdateSearchProperty" EntityType="Self.DataUpdateSearchProperty" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [DataUpdateSearchProperty].[pkDataUpdateSearchPropertyID] AS [pkDataUpdateSearchPropertyID], 
+    [DataUpdateSearchProperty].[enDataEntity] AS [enDataEntity], 
+    [DataUpdateSearchProperty].[SearchProperties] AS [SearchProperties]
+    FROM [dbo].[DataUpdateSearchProperty] AS [DataUpdateSearchProperty]</DefiningQuery>
+          </EntitySet>
           <AssociationSet Name="FK_BillingProcessHistory_BillingProcess" Association="Self.FK_BillingProcessHistory_BillingProcess">
             <End Role="BillingProcess" EntitySet="BillingProcess" />
             <End Role="BillingProcessHistory" EntitySet="BillingProcessHistory" />
@@ -2065,6 +2097,8 @@
           </AssociationSet>
           <EntitySet Name="DataImportSearchProperties" EntityType="MobileManagerModel.DataImportSearchProperty" />
           <EntitySet Name="DataImportProperties" EntityType="MobileManagerModel.DataImportProperty" />
+          <EntitySet Name="DataUpdateProperties" EntityType="MobileManagerModel.DataUpdateProperty" />
+          <EntitySet Name="DataUpdateSearchProperties" EntityType="MobileManagerModel.DataUpdateSearchProperty" />
           </EntityContainer>
         <ComplexType Name="sp_report_Invoice_Result">
           <Property Type="String" Name="ClientName" Nullable="false" MaxLength="100" />
@@ -2468,6 +2502,28 @@
           <Property Name="PropertyDescription" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="PropertyName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="MultipleProperty" Type="Boolean" Nullable="false" />
+          <Property Name="Required" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="DataUpdateProperty">
+          <Key>
+            <PropertyRef Name="pkDataUpdatePropertyID" />
+          </Key>
+          <Property Name="pkDataUpdatePropertyID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="enDataEntity" Type="Int32" Nullable="false" />
+          <Property Name="PropertyDescription" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PropertyName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="MultipleProperty" Type="Boolean" Nullable="false" />
+          <Property Name="Required" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="DataUpdateSearchProperty">
+          <Key>
+            <PropertyRef Name="pkDataUpdateSearchPropertyID" />
+            <PropertyRef Name="enDataEntity" />
+            <PropertyRef Name="SearchProperties" />
+          </Key>
+          <Property Name="pkDataUpdateSearchPropertyID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="enDataEntity" Type="Int32" Nullable="false" />
+          <Property Name="SearchProperties" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -3076,11 +3132,33 @@
           <EntitySetMapping Name="DataImportProperties">
             <EntityTypeMapping TypeName="MobileManagerModel.DataImportProperty">
               <MappingFragment StoreEntitySet="DataImportProperty">
+                <ScalarProperty Name="Required" ColumnName="Required" />
                 <ScalarProperty Name="MultipleProperty" ColumnName="MultipleProperty" />
                 <ScalarProperty Name="PropertyName" ColumnName="PropertyName" />
                 <ScalarProperty Name="PropertyDescription" ColumnName="PropertyDescription" />
                 <ScalarProperty Name="enDataEntity" ColumnName="enDataEntity" />
                 <ScalarProperty Name="pkDataImportPropertyID" ColumnName="pkDataImportPropertyID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DataUpdateProperties">
+            <EntityTypeMapping TypeName="MobileManagerModel.DataUpdateProperty">
+              <MappingFragment StoreEntitySet="DataUpdateProperty">
+                <ScalarProperty Name="Required" ColumnName="Required" />
+                <ScalarProperty Name="MultipleProperty" ColumnName="MultipleProperty" />
+                <ScalarProperty Name="PropertyName" ColumnName="PropertyName" />
+                <ScalarProperty Name="PropertyDescription" ColumnName="PropertyDescription" />
+                <ScalarProperty Name="enDataEntity" ColumnName="enDataEntity" />
+                <ScalarProperty Name="pkDataUpdatePropertyID" ColumnName="pkDataUpdatePropertyID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DataUpdateSearchProperties">
+            <EntityTypeMapping TypeName="MobileManagerModel.DataUpdateSearchProperty">
+              <MappingFragment StoreEntitySet="DataUpdateSearchProperty">
+                <ScalarProperty Name="SearchProperties" ColumnName="SearchProperties" />
+                <ScalarProperty Name="enDataEntity" ColumnName="enDataEntity" />
+                <ScalarProperty Name="pkDataUpdateSearchPropertyID" ColumnName="pkDataUpdateSearchPropertyID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

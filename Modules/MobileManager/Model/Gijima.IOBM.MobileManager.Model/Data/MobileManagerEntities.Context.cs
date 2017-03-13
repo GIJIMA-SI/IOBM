@@ -69,6 +69,8 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public virtual DbSet<SimCard> SimCards { get; set; }
         public virtual DbSet<DataImportSearchProperty> DataImportSearchProperties { get; set; }
         public virtual DbSet<DataImportProperty> DataImportProperties { get; set; }
+        public virtual DbSet<DataUpdateProperty> DataUpdateProperties { get; set; }
+        public virtual DbSet<DataUpdateSearchProperty> DataUpdateSearchProperties { get; set; }
     
         public virtual ObjectResult<sp_report_Invoice_Result> sp_report_Invoice(Nullable<int> invoiceID)
         {

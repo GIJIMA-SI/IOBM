@@ -12,13 +12,10 @@ namespace Gijima.IOBM.MobileManager.Model.Data
     using System;
     using System.Collections.Generic;
     
-    public partial class DataImportProperty
+    public partial class DataUpdateSearchProperty
     {
-        public int pkDataImportPropertyID { get; set; }
+        public int pkDataUpdateSearchPropertyID { get; set; }
         public int enDataEntity { get; set; }
-        public string PropertyDescription { get; set; }
-        public string PropertyName { get; set; }
-        public bool MultipleProperty { get; set; }
-        public bool Required { get; set; }
+        public string SearchProperties { get; set; }
     }
 }

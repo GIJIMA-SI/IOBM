@@ -30,7 +30,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private DataImportRuleModel _model = null;
         private IEventAggregator _eventAggregator;
         private SecurityHelper _securityHelper = null;
-        private IEnumerable<DataImportRule> _importRules = null;
         private MSOfficeHelper _officeHelper = null;
         private string _defaultItem = "-- Please Select --";
 
@@ -295,8 +294,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                             {
                                 string[] mappedProperties = property.Split('=');
                                 SourceColumnCollection.Add(mappedProperties[0].Trim());
-                                if (mappedProperties[1].Trim() != EnumHelper.GetDescriptionFromEnum(DataImportColumn.IMENumber).Replace(" ", string.Empty))
-                                    DestinationColumnCollection.Add(mappedProperties[1].Trim());
+                                //Test the selected option for multiple entries
+                                if (new DataImportPropertyModel(_eventAggregator).HasMultipleProperty(mappedProperties[1].Trim(), EnumHelper.GetEnumFromDescription<DataImportEntity>(SelectedDestinationEntity).Value()))
+                                {  MultipleEntriesColection.Where(p => p.Name == mappedProperties[1].Trim()).FirstOrDefault().NumberMappings--; }
+                                else
+                                {  DestinationColumnCollection.Add(mappedProperties[1].Trim()); }
+
                                 SelectedMappedProperty = null;
                                 CanStartImport();
                             }
@@ -535,7 +538,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             UnMapCommand = new DelegateCommand(ExecuteUnMap, CanUnMap).ObservesProperty(() => SelectedMappedProperty);
 
             // Load the view data
-            await ReadDataUpdateRulesAsync();
+            ReadDataUpdateRulesAsync();
         }
 
         /// <summary>
@@ -561,7 +564,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// </summary>
         private void InitialiseUpdateControls()
         {
-            ImportUpdateDescription = string.Format("Updateing - {0} of {1}", 0, 0);
+            ImportUpdateDescription = string.Format("Importing - {0} of {1}", 0, 0);
             ImportUpdateCount = 1;
             ImportUpdateProgress = ImportUpdatesPassed = ImportUpdatesFailed = 0;
             ValidImportData = false;
@@ -668,28 +671,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Read all the data import rules from the database
         /// </summary>
-        private async Task ReadDataUpdateRulesAsync()
+        private void ReadDataUpdateRulesAsync()
         {
             try
             {
-                //DestinationEntityCollection = new ObservableCollection<string>();
-                //DestinationEntityCollection.Add(EnumHelper.GetDescriptionFromEnum(DataBaseEntity.None));
-
-                _importRules = await Task.Run(() => _model.ReadDataImportRules());
-
-                //foreach (DataUpdateRule rule in _updateRules)
-                //{
-                //    DestinationEntityCollection.Add(EnumHelper.GetDescriptionFromEnum((DataUpdateEntity)rule.enDataBaseEntity));
-                //}
-
                 DestinationEntityCollection = new ObservableCollection<string>();
                 foreach (DataImportEntity dataUpdateEntity in Enum.GetValues(typeof(DataImportEntity)))
                 {
                     DestinationEntityCollection.Add(EnumHelper.GetDescriptionFromEnum(dataUpdateEntity));
                 }
-
-
-
+                
                 SelectedDestinationEntity = _defaultItem;
             }
             catch (Exception ex)
@@ -882,7 +873,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
-                ImportUpdateDescription = string.Format("Updating {0} - {1} of {2}", "", 0, 0);
+                ImportUpdateDescription = string.Format("Importing {0} - {1} of {2}", "", 0, 0);
                 ImportUpdateProgress = ImportUpdatesPassed = ImportUpdatesFailed = 0;
                 ImportUpdateCount = ImportedDataCollection.Rows.Count;
                 string errorMessage = string.Empty;
@@ -895,33 +886,13 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
                 foreach (DataRow row in ImportedDataCollection.Rows)
                 {
-                    ImportUpdateDescription = string.Format("Updating {0} - {1} of {2}", "", ++ImportUpdateProgress, ImportUpdateCount);
+                    ImportUpdateDescription = string.Format("Importing {0} - {1} of {2}", "", ++ImportUpdateProgress, ImportUpdateCount);
                     searchCriteria = row[SelectedSourceSearch] as string;
                     rowIdx = ImportedDataCollection.Rows.IndexOf(row);
 
                     // Update the related entity data
                     switch (EnumHelper.GetEnumFromDescription<DataImportEntity>(SelectedDestinationEntity))
                     {
-                        //case DataBaseEntity.Client:
-                        //    result = await Task.Run(() => new ClientModel(_eventAggregator).UpdateClient(searchEntity,
-                        //                                                                                 searchCriteria,
-                        //                                                                                 destinationColumn,
-                        //                                                                                 importValue,
-                        //                                                                                 SelectedDestinationCompany,
-                        //                                                                                 out errorMessage)); break;
-                        //case DataBaseEntity.Company:
-                        //    result = await Task.Run(() => new CompanyModel(_eventAggregator).UpdateCompany(searchCriteria,
-                        //                                                                                   destinationColumn,
-                        //                                                                                   importValue,
-                        //                                                                                   SelectedDestinationCompany,
-                        //                                                                                   out errorMessage)); break;
-                        //case DataBaseEntity.PackageSetup:
-                        //    result = await Task.Run(() => new PackageSetupModel(_eventAggregator).UpdatePackageSetup(searchEntity,
-                        //                                                                                             searchCriteria,
-                        //                                                                                             destinationColumn,
-                        //                                                                                             importValue,
-                        //                                                                                             SelectedDestinationCompany,
-                        //                                                                                             out errorMessage)); break;
                         case DataImportEntity.Device:
                             result = await Task.Run(() => new DevicesModel(_eventAggregator).CreateDeviceImport(searchCriteria,
                                                                                                                 MappedPropertyCollection,
@@ -932,7 +903,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                             result = await Task.Run(() => new SimCardModel(_eventAggregator).CreateSimCardImport(searchCriteria,
                                                                                                                  MappedPropertyCollection,
                                                                                                                  row,
-                                                                                                                 SecurityHelper.LoggedInUserFullName,
+                                                                                                                 EnumHelper.GetEnumFromDescription<DataImportEntity>(SelectedDestinationEntity).Value(),
                                                                                                                  out errorMessage)); break;
                     }
 
