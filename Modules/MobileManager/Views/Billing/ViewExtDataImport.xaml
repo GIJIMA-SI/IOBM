@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Gijima.IOBM.MobileManager.Views.ViewDataImportExt"
+﻿<UserControl x:Class="Gijima.IOBM.MobileManager.Views.ViewExtDataImport"
              xmlns:WPF="clr-namespace:Gijima.Controls.WPF;assembly=Gijima.Controls.WPF"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -25,9 +25,23 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="165" />
+            <ColumnDefinition Width="10" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <GroupBox Grid.Row="0" Grid.Column="1" Header="Source Parametes" Margin="5" Style="{StaticResource UXGroupBoxStyle}">
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.RowSpan="4" Margin="0,10,0,0">
+            <Button x:Name="ButtonStartStop" ToolTip="{Binding StartStopButtonToolTip, UpdateSourceTrigger=PropertyChanged}" TabIndex="1" Margin="0,0,0,10" 
+                Style="{StaticResource UXImageTextButtonStyle}" Width="Auto" Command="{Binding StartStopImportCommand}">
+                <StackPanel Orientation="Horizontal" Width="118">
+                    <Image Source="{Binding StartStopButtonImage, UpdateSourceTrigger=PropertyChanged}" Margin="0,1,10,1"/>
+                    <TextBlock Text="{Binding StartStopButtonText, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+            <TextBox BorderThickness="0" FontStyle="Italic" FontFamily="Arial" FontSize="14" FontWeight="Bold" TextWrapping="Wrap"
+                Text="{Binding ImportPageInstruction}">
+            </TextBox>
+        </StackPanel>
+        <GroupBox Grid.Row="0" Grid.Column="2" Header="Source Parametes" Margin="0,0,0,5" Style="{StaticResource UXGroupBoxStyle}">
             <Grid >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -85,7 +99,7 @@
                 </Button>
             </Grid>
         </GroupBox>
-        <Grid Grid.Row="1" Grid.Column="1" Margin="5,0,5,5">
+        <Grid Grid.Row="1" Grid.Column="3" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="25" />
@@ -120,8 +134,8 @@
                 Text="{Binding ImportUpdatesFailed, UpdateSourceTrigger=PropertyChanged}"/>
             <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Height="1" Background="Gray" VerticalAlignment="Bottom" ></Border>
         </Grid>
-        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Imported Sheet Data" VerticalAlignment="Bottom" Margin="5,0"/>
-        <DataGrid x:Name="DataGridImportedData" Grid.Row="3" Grid.ColumnSpan="2" Margin="5,0,5,5" AutoGenerateColumns="True" CanUserReorderColumns="False" CanUserSortColumns="True" MinHeight="52"
+        <TextBlock Grid.Row="2" Grid.Column="3" Text="Imported Sheet Data" VerticalAlignment="Bottom" />
+        <DataGrid x:Name="DataGridImportedData" Grid.Column="3" Grid.Row="3"  AutoGenerateColumns="True" CanUserReorderColumns="False" CanUserSortColumns="True" MinHeight="52"
             IsReadOnly="True" TabIndex="7" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
             ItemsSource="{Binding ImportedDataCollection}">
         </DataGrid>

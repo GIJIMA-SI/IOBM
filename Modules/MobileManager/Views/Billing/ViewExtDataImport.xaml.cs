@@ -3,11 +3,11 @@
 namespace Gijima.IOBM.MobileManager.Views
 {
     /// <summary>
-    /// Interaction logic for ViewDataImportExt.xaml
+    /// Interaction logic for ViewExtDataImport.xaml
     /// </summary>
-    public partial class ViewDataImportExt : UserControl
+    public partial class ViewExtDataImport : UserControl
     {
-        public ViewDataImportExt()
+        public ViewExtDataImport()
         {
             InitializeComponent();
         }

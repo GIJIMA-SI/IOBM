@@ -20,7 +20,7 @@ using Gijima.IOBM.MobileManager.Security;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
 {
-    public class ViewDataImportExtViewModel : BindableBase, IDataErrorInfo
+    public class ViewExtDataImportViewModel : BindableBase, IDataErrorInfo
     {
         #region Properties & Attributes
 
@@ -31,12 +31,63 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
         #region Commands
 
+        public DelegateCommand StartStopImportCommand { get; set; }
         public DelegateCommand OpenFileCommand { get; set; }
         public DelegateCommand ImportCommand { get; set; }
 
         #endregion
 
         #region Properties       
+
+        /// <summary>
+        /// Indicate if the current billing process completed
+        /// </summary>
+        public bool BillingProcessCompleted
+        {
+            get { return _billingProcessCompleted; }
+            set { SetProperty(ref _billingProcessCompleted, value); }
+        }
+        private bool _billingProcessCompleted = false;
+
+        /// <summary>
+        /// The StartStop button tooltip
+        /// </summary>
+        public string StartStopButtonToolTip
+        {
+            get { return string.Format("{0} the external data import process", _startStopButtonToolTip); }
+            set { SetProperty(ref _startStopButtonToolTip, value); }
+        }
+        private string _startStopButtonToolTip = "Start";
+
+        /// <summary>
+        /// The StartStop button text
+        /// </summary>
+        public string StartStopButtonText
+        {
+            get { return _startStopButtonText; }
+            set { SetProperty(ref _startStopButtonText, value); }
+        }
+        private string _startStopButtonText = "Start Imports";
+
+        /// <summary>
+        /// The StartStop button image
+        /// </summary>
+        public string StartStopButtonImage
+        {
+            get { return string.Format("/Gijima.IOBM.MobileManager;component/Assets/Images/{0}", _startStopButtonImage); }
+            set { SetProperty(ref _startStopButtonImage, value); }
+        }
+        private string _startStopButtonImage = "062.png";
+
+        /// <summary>
+        /// The instruction to display on the data import page
+        /// </summary>
+        public string ImportPageInstruction
+        {
+            get { return _importPageInstruction; }
+            set { SetProperty(ref _importPageInstruction, value); }
+        }
+        private string _importPageInstruction = string.Empty;
 
         /// <summary>
         /// The data import progessbar description
@@ -289,7 +340,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Constructor
         /// </summary>
-        public ViewDataImportExtViewModel(IEventAggregator eventAggregator)
+        public ViewExtDataImportViewModel(IEventAggregator eventAggregator)
         {
             _eventAggregator = eventAggregator;
             _model = new ExternalBillingDataModel(eventAggregator);
@@ -304,7 +355,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             InitialiseViewControls();
 
             // Initialise the view commands
-            OpenFileCommand = new DelegateCommand(ExecuteOpenFileCommand);
+            StartStopImportCommand = new DelegateCommand(ExecuteStartStopImport, CanExecuteStartStopImport);
+            OpenFileCommand = new DelegateCommand(ExecuteOpenFileCommand, CanExecuteOpenFile);
             ImportCommand = new DelegateCommand(ExecuteImport, CanExecuteImport).ObservesProperty(() => ValidDataSheet)
                                                                                 .ObservesProperty(() => SelectedDataProvider);
             await ReadCompaniesAsync();
@@ -317,6 +369,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private void InitialiseViewControls()
         {
             ValidDataFile = false;
+            ImportPageInstruction = "Please start the process to import all the external billing data, NOTE Ensure that all the data have been imported before you complete the process.";
 
             // Add the default items
             DataSheetCollection = new ObservableCollection<WorkSheetInfo>();
@@ -461,6 +514,44 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         #endregion
 
         #region Command Execution
+
+        /// <summary>
+        /// Set view command buttons enabled/disabled state
+        /// </summary>
+        /// <returns></returns>
+        private bool CanExecuteStartStopImport()
+        {
+            return BillingProcessCompleted == false ? true : false;
+        }
+
+        /// <summary>
+        /// Execute when the start stop command button is clicked 
+        /// </summary>
+        private void ExecuteStartStopImport()
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                .Publish(new ApplicationMessage("ViewDataImportExtViewModel",
+                                                string.Format("Error! {0}, {1}.",
+                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                "ExecuteOpenFileCommand",
+                                                ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
+
+        /// <summary>
+        /// Set view command buttons enabled/disabled state
+        /// </summary>
+        /// <returns></returns>
+        private bool CanExecuteOpenFile()
+        {
+            return ValidDataSheet == Brushes.Silver && SelectedDataProvider != null && SelectedDataProvider.pkServiceProviderID > 0;
+        }
 
         /// <summary>
         /// Execute when the open file command button is clicked 
