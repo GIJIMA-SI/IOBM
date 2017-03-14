@@ -459,8 +459,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         // Publish this event to lock the started process and disable functinality to move to the next process
                         _eventAggregator.GetEvent<BillingProcessStartedEvent>().Publish((BillingExecutionState)process.pkBillingProcessID);
                     }
-                    else if ((BillingExecutionState)process.pkBillingProcessID == BillingExecutionState.CloseBillingProcess &&
-                                currentProcessHistory.ProcessEndDate != null && currentProcessHistory.ProcessResult != null)
+
+                    // When the current billing run is closed then allow for the new run to be strated
+                    if ((BillingExecutionState)currentProcessHistory.fkBillingProcessID == BillingExecutionState.CloseBillingProcess &&
+                        currentProcessHistory.ProcessEndDate != null && currentProcessHistory.ProcessResult != null)
                     {
                         Application.Current.Dispatcher.Invoke(() => { BillingRunStarted = StartProcessCompleted = false; });
                     }
