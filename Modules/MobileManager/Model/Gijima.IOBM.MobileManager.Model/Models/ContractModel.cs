@@ -195,13 +195,18 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         if (!packageSetupComplete)
                             return false;
 
-                        //Remove all the client services to add import values
-                        new ClientServiceModel(_eventAggregator).DeleteClientServices(contractToImport.pkContractID, db);
+                        //Check if services are being updated
+                        bool newServices = true;
                         //Create the Services for the contract
                         foreach (string mapping in mappedProperties)
                         {
                             if (mapping.Contains("Service"))
                             {
+                                if (newServices)
+                                {
+                                    new ClientServiceModel(_eventAggregator).DeleteClientServices(contractToImport.pkContractID, db);
+                                    newServices = false;
+                                }
                                 string[] arrMapping = mapping.Split('=');
                                 string sheetHeader = arrMapping[0].Trim();
                                 int serviceID = 0;
