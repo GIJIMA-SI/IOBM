@@ -83,7 +83,9 @@
         <AssociationConnector Association="MobileManagerModel.FK_SimCard_Contract" />
         <AssociationConnector Association="MobileManagerModel.FK_SimCard_Status" />
         <EntityTypeShape EntityType="MobileManagerModel.DataImportSearchProperty" Width="1.5" PointX="3.25" PointY="9.375" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.DataImportProperty" Width="1.5" PointX="5.125" PointY="9.375" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.DataImportProperty" Width="1.5" PointX="4.875" PointY="9.375" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.DataUpdateProperty" Width="1.5" PointX="4.875" PointY="9.875" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.DataUpdateSearchProperty" Width="1.5" PointX="3.25" PointY="9.875" IsExpanded="false" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

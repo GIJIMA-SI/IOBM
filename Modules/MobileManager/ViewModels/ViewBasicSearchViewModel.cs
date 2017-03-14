@@ -160,7 +160,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 if (SearchCriteria.Trim().Length == 8)
                     results = await Task.Run(() => _model.SearchForClient(SearchCriteria.ToUpper().Trim(), SearchEntity.EmployeeNumber, false));
 
-                if ((results == null || results.Count == 0) && SearchCriteria.Trim().Length == 10)
+                if ((results == null || results.Count == 0) && (SearchCriteria.Trim().Length == 10 || SearchCriteria.Trim().Length == 14))
                     results = await Task.Run(() => _model.SearchForClient(SearchCriteria.ToUpper().Trim(), SearchEntity.PrimaryCellNumber, false));
 
                 if ((results == null || results.Count == 0) && SearchCriteria.Trim().Length == 13)

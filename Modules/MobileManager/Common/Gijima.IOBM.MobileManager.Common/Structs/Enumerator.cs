@@ -632,20 +632,12 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
     {
         [Description("-- Please Select --")]
         None = 0,
-        [Description("Client Data")]
-        Client = 1,
-        [Description("Company Data")]
-        Company = 2,
-        [Description("Client Billing Data")]
-        ClientBilling = 3,
-        [Description("Billing Level Data")]
-        CompanyBillingLevel = 4,
-        [Description("Contract Data")]
-        Contract = 5,
-        [Description("Package Data")]
-        Package = 6,
+        [Description("Client Billing")]
+        ClientBilling = 1,
+        [Description("Client Contract")]
+        Contract = 2,
         [Description("Sim Data")]
-        SimCard = 7
+        SimCard = 3
     }
 
     /// <summary>
@@ -659,9 +651,7 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
         [Description("Device Data")]
         Device = 1,
         [Description("Sim Data")]
-        SimCard = 2,
-        [Description("Billing Data")]
-        ClientBilling = 3
+        SimCard = 2
     }
 
     #endregion

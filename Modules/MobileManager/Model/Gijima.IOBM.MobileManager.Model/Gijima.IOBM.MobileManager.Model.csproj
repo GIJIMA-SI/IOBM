@@ -124,7 +124,13 @@
     <Compile Include="Data\DataImportSearchProperty.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Data\DataUpdateProperty.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="Data\DataUpdateRule.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\DataUpdateSearchProperty.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\DataValidationException.cs">
@@ -241,6 +247,8 @@
     <Compile Include="Models\DataImportPropertyModel.cs" />
     <Compile Include="Models\DataImportRuleModel.cs" />
     <Compile Include="Models\DataImportSearchPropertyModel.cs" />
+    <Compile Include="Models\DataUpdatePropertyModel.cs" />
+    <Compile Include="Models\DataUpdateSearchPropertyModel.cs" />
     <Compile Include="Models\DeviceIMENumberModel.cs" />
     <Compile Include="Models\DevicesMakeModel.cs" />
     <Compile Include="Models\DevicesModel.cs" />

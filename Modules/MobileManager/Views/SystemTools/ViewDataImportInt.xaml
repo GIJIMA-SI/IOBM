@@ -177,7 +177,7 @@
                 IsEnabled="{Binding CanImport}" Width="80" Style="{StaticResource UXImageTextButtonStyle}" Margin="0,0,0,3" Command="{Binding ImportCommand}">
                 <StackPanel Orientation="Horizontal" ToolTip="Update the selected data.">
                     <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/374.png" Margin="0,1,10,1"/>
-                    <TextBlock Text="Update" VerticalAlignment="Center"/>
+                    <TextBlock Text="Import" VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
             <TextBlock Grid.Row="0" Grid.Column="4" Text="Import Exceptions" Margin="0,0,100,0" VerticalAlignment="Bottom"/>

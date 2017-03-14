@@ -56,6 +56,10 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     // Get the re-allacted status ID to be used in re-allaction valdation
                     int reAllocatedStatusID = db.Status.Where(p => p.StatusDescription == "REALLOCATED").First().pkStatusID;
 
+                    int replacedStatusID = db.Status.Where(p => p.StatusDescription == "REPLACED").First().pkStatusID;
+                    int stolenStatusID = db.Status.Where(p => p.StatusDescription == "STOLEN").First().pkStatusID;
+                    int upgradedStatusID = db.Status.Where(p => p.StatusDescription == "UPGRADED").First().pkStatusID;
+
                     // If a device gets re-allocated ensure that all the required properties 
                     // is valid to allow re-alloaction
                     foreach (DeviceIMENumber imeNumber in device.DeviceIMENumbers)
@@ -81,7 +85,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     if (!db.Devices.Any(p => p.fkDeviceMakeID == device.fkDeviceMakeID &&
                                              p.fkDeviceModelID == device.fkDeviceModelID &&
                                              p.fkContractID == device.fkContractID &&
-                                             p.fkStatusID != reAllocatedStatusID &&
+                                             (p.fkStatusID != reAllocatedStatusID || p.fkStatusID != replacedStatusID || p.fkStatusID != stolenStatusID || p.fkStatusID != upgradedStatusID) &&
                                              p.IsActive == false))
                     {
                         db.Devices.Add(device);
@@ -103,21 +107,23 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("DevicesModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "CreateDevice",
-                                                                ApplicationMessage.MessageTypes.SystemError));
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }
         }
 
         /// <summary>
-        /// Create a new device entity in the database
+        /// Create a device in the database (Import)
         /// </summary>
-        /// <param name="device">The device entity to add.</param>
-        /// <returns>True if successfull</returns>
-        public bool CreateDevice(Device device, MobileManagerEntities db)
+        /// <param name="device"></param>
+        /// <param name="db"></param>
+        /// <param name="errorMessage"></param>
+        /// <returns></returns>
+        public bool CreateDevice(Device device, MobileManagerEntities db, ref string errorMessage)
         {
             try
             {
@@ -152,6 +158,9 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                          p.fkStatusID != reAllocatedStatusID &&
                                          p.IsActive == false))
                 {
+                    //Set all client previous devices inactive for the contract
+                    //Requested by Charl
+                    DeleteDevicesForClient(device.fkContractID, db);
                     db.Devices.Add(device);
                     db.SaveChanges();
 
@@ -159,153 +168,21 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 }
                 else
                 {
-                    _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                    .Publish(new ApplicationMessage("DevicesModel",
-                                                                    "The device already exist.",
-                                                                    "CreateDevice",
-                                                                    ApplicationMessage.MessageTypes.Information));
+                    errorMessage = "Device already exists";
                     return false;
                 }
             }
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("DevicesModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "CreateDevice",
-                                                                ApplicationMessage.MessageTypes.SystemError));
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }
         }
-
-        /// <summary>
-        /// Creates a new device entity in the database from a spreadsheet row
-        /// </summary>
-        /// <param name="searchCriteria"></param>
-        /// <param name="mappedProperties"></param>
-        /// <param name="importValues"></param>
-        /// <param name="modifiedBy"></param>
-        /// <param name="errorMessage"></param>
-        /// <returns></returns>
-        //public bool CreateDeviceImport(string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, string modifiedBy, out string errorMessage)
-        //{
-        //    errorMessage = "";
-        //    try
-        //    {
-        //        using (var db = MobileManagerEntities.GetContext())
-        //        {
-        //            //Enusure that all changes are made before commit
-        //            using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
-        //            {
-        //                //Check if number is linked to a contract
-        //                Contract contract = db.Contracts.Where(p => p.CellNumber == searchCriteria).FirstOrDefault();
-        //                if (contract == null || contract.IsActive == false)
-        //                {
-        //                    errorMessage = string.Format("Cell number {0} not found.", searchCriteria);
-        //                    return false;
-        //                }
-
-        //                //Set all previous devices for contract in-active
-        //                //Requested by Charl
-        //                ObservableCollection<Device> devices = ReadDevicesForContract(contract.pkContractID, true);
-        //                foreach (Device tmpDevice in devices)
-        //                {
-        //                    tmpDevice.IsActive = false;
-        //                    UpdateDevice(tmpDevice);
-        //                }
-
-        //                //Create a new empty device to add properties
-        //                Device device = new Device();
-        //                device.fkContractID = contract.pkContractID;
-        //                device.DeviceIMENumbers = new List<DeviceIMENumber>();
-        //                //Loop through the row and add each property to the device
-        //                foreach (string property in mappedProperties)
-        //                {
-        //                    string[] mapping = property.Split('=');
-        //                    string sheetHeader = mapping[0].Trim();
-        //                    string dbHeader = mapping[1].Trim();
-
-        //                    switch ((DataImportColumn)Enum.Parse(typeof(DataImportColumn), dbHeader))
-        //                    {
-        //                        case DataImportColumn.fkDeviceMakeID:
-        //                            string deviceMakeRow = importValues[sheetHeader].ToString().ToUpper();
-        //                            DeviceMake deviceMake = db.DeviceMakes.Where(p => p.MakeDescription == deviceMakeRow).FirstOrDefault();
-        //                            if (deviceMake == null)
-        //                            {
-        //                                errorMessage = string.Format("Device make not found.");
-        //                                return false;
-        //                            }
-        //                            device.fkDeviceMakeID = deviceMake.pkDeviceMakeID;
-        //                            break;
-        //                        case DataImportColumn.fkDeviceModelID:
-        //                            string deviceModelRow = importValues[sheetHeader].ToString().ToUpper();
-        //                            DeviceModel deviceModel = db.DeviceModels.Where(p => p.ModelDescription == deviceModelRow).FirstOrDefault();
-        //                            if (deviceModel == null)
-        //                            {
-        //                                errorMessage = string.Format("Device model not found.");
-        //                                return false;
-        //                            }
-        //                            device.fkDeviceModelID = deviceModel.pkDeviceModelID;
-        //                            break;
-        //                        case DataImportColumn.fkStatusID:
-        //                            string statusRow = importValues[sheetHeader].ToString().ToUpper();
-        //                            Status status = db.Status.Where(p => p.StatusDescription == statusRow).FirstOrDefault();
-        //                            if (status == null)
-        //                            {
-        //                                errorMessage = string.Format("Status description not found.");
-        //                                return false;
-        //                            }
-        //                            device.fkStatusID = status.pkStatusID;
-        //                            break;
-        //                        case DataImportColumn.SerialNumber:
-        //                            device.SerialNumber = importValues[sheetHeader].ToString();
-        //                            break;
-        //                        case DataImportColumn.ReceiveDate:
-        //                            //Converts the date from an excel format
-        //                            device.ReceiveDate = DateTime.FromOADate(Convert.ToDouble(importValues[sheetHeader].ToString()));
-        //                            break;
-        //                        case DataImportColumn.InsuranceCost:
-        //                            device.InsuranceCost = importValues[sheetHeader].ToString() != null && importValues[sheetHeader].ToString() != "" ? Convert.ToDecimal(importValues[sheetHeader].ToString()) : 0;
-        //                            break;
-        //                        case DataImportColumn.InsuranceValue:
-        //                            device.InsuranceValue = importValues[sheetHeader].ToString() != null && importValues[sheetHeader].ToString() != "" ? Convert.ToDecimal(importValues[sheetHeader].ToString()) : 0;
-        //                            break;
-        //                        case DataImportColumn.IMENumber:
-        //                            //Create a new deviceIMENumber
-        //                            DeviceIMENumber deviceIMENumber = new DeviceIMENumber();
-        //                            deviceIMENumber.IMENumber = importValues[sheetHeader].ToString();
-        //                            deviceIMENumber.fkDeviceID = 0;
-        //                            deviceIMENumber.ModifiedBy = modifiedBy;
-        //                            deviceIMENumber.ModifiedDate = DateTime.Now;
-        //                            device.DeviceIMENumbers.Add(deviceIMENumber);
-        //                            break;
-        //                    }
-        //                }
-        //                //Add last missing values to the device
-        //                device.ModifiedBy = modifiedBy;
-        //                device.ModifiedDate = DateTime.Now;
-        //                device.IsActive = true;
-        //                //Create the device in the db
-        //                CreateDevice(device);
-        //                db.SaveChanges();
-        //                //Commit all changes to the database server
-        //                tc.Complete();
-        //                return true;
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _eventAggregator.GetEvent<ApplicationMessageEvent>()
-        //                        .Publish(new ApplicationMessage(this.GetType().Name,
-        //                                 string.Format("Error! {0}, {1}.",
-        //                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-        //                                 MethodBase.GetCurrentMethod().Name,
-        //                                 ApplicationMessage.MessageTypes.SystemError));
-        //        return false;
-        //    }
-        //}
 
         /// <summary>
         /// Creates a new device entity in the database from a spreadsheet row
@@ -323,7 +200,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             object sourceValue = null;
             Device deviceToImport = null;
             Contract contract = null;
-            bool mustUpdate = false;
+            bool mustImport = false;
             bool dataChanged = false;
             bool state = true;
 
@@ -344,10 +221,6 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 {
                     using (var db = MobileManagerEntities.GetContext())
                     {
-                        //Set all client previous devices inactive for the contract
-                        //Requested by Charl
-                        DeleteDevicesForClient(contract.pkContractID, db);
-
                         //Create a new empty device to add properties
                         deviceToImport = new Device();
                         deviceToImport.pkDeviceID = 0;
@@ -368,7 +241,6 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                 deviceIMENumber.ModifiedBy = SecurityHelper.LoggedInFullName;
                                 deviceIMENumber.ModifiedDate = DateTime.Now;
                                 deviceToImport.DeviceIMENumbers.Add(deviceIMENumber);
-                                break;
                             }
                         }
 
@@ -377,10 +249,10 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                         foreach (PropertyDescriptor property in properties)
                         {
-                            mustUpdate = false;
+                            mustImport = false;
 
                             // Get the source property and source value 
-                            // mapped the simcard entity property
+                            // mapped the device entity property
                             foreach (string mappedProperty in mappedProperties)
                             {
                                 string[] arrMappedProperty = mappedProperty.Split('=');
@@ -390,16 +262,16 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                     importProperties = mappedProperty.Split('=');
                                     sourceProperty = importProperties[0].Trim();
                                     sourceValue = importValues[sourceProperty];
-                                    dataChanged = mustUpdate = true;
+                                    dataChanged = mustImport = true;
                                     break;
                                 }
                             }
 
                             // Always update these values
                             if (dataChanged && (property.Name == "ModifiedBy" || property.Name == "ModifiedDate" || property.Name == "IsActive"))
-                                mustUpdate = true;
+                                mustImport = true;
 
-                            if (mustUpdate)
+                            if (mustImport)
                             {
                                 // Validate the source status and get
                                 // the value for the fkStatusID
@@ -494,7 +366,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                         if (dataChanged)
                         {
-                            CreateDevice(deviceToImport, db);
+                            CreateDevice(deviceToImport, db, ref errorMessage);
                             // Add the data activity log
                             //result = _activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<SimCard>(existingSimCard, simCardToImport, simCardToImport.fkContractID.Value, db));
 
@@ -503,17 +375,13 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         }
                     }
                 }
-
-                return true;
+                if (errorMessage == string.Empty)
+                    return true;
+                else
+                    return false;
             }
             catch (Exception ex)
             {
-                //_eventAggregator.GetEvent<ApplicationMessageEvent>()
-                //                .Publish(new ApplicationMessage("SimCardModel",
-                //                                                string.Format("Error! {0}, {1}.",
-                //                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                //                                                "ImportSimCard",
-                //                                                ApplicationMessage.MessageTypes.SystemError));
                 errorMessage = ex.Message;
                 return false;
             }
@@ -550,11 +418,11 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("DevicesModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "ReadDevicesForContract",
-                                                                ApplicationMessage.MessageTypes.SystemError));
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
                 return null;
             }
         }
@@ -648,11 +516,11 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("DevicesModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "DeleteDevicesForClient",
-                                                                ApplicationMessage.MessageTypes.SystemError));
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
             }
         }
     }

@@ -58,8 +58,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     // is valid to allow re-alloaction
                     if (db.SimCards.Any(p => p.CellNumber == simCard.CellNumber &&
                                              p.PUKNumber.ToUpper().Trim() == simCard.PUKNumber.ToUpper().Trim() &&
-                                             p.fkStatusID != reAllocatedStatusID &&
-                                             p.IsActive == true))
+                                             p.fkStatusID != reAllocatedStatusID))
                     {
                         _eventAggregator.GetEvent<ApplicationMessageEvent>()
                                         .Publish(new ApplicationMessage("SimCardModel",
@@ -89,119 +88,70 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("SimCardModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "CreateSimCard",
-                                                                ApplicationMessage.MessageTypes.SystemError));
+                                     .Publish(new ApplicationMessage(this.GetType().Name,
+                                              string.Format("Error! {0}, {1}.",
+                                              ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                              MethodBase.GetCurrentMethod().Name,
+                                              ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }
         }
 
         /// <summary>
-        /// Create a new simcard from a spreadsheet if it doesn't exist
+        /// Create a new Sim card entity in the database (Import)
         /// </summary>
-        /// <param name="searchCriteria"></param>
-        /// <param name="mappedProperties"></param>
-        /// <param name="importValues"></param>
-        /// <param name="modifiedBy"></param>
+        /// <param name="simCard"></param>
+        /// <param name="db"></param>
         /// <param name="errorMessage"></param>
         /// <returns></returns>
-        public bool CreateSimCardImport(string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, string modifiedBy, out string errorMessage)
+        public bool CreateSimCard(SimCard simCard, MobileManagerEntities db, ref string errorMessage)
         {
-            errorMessage = "";
             try
             {
-                //Enusure that all changes are made before commit
-                using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
+                // Get the re-allacted status ID to be used in re-allaction valdation
+                int reAllocatedStatusID = db.Status.Where(p => p.StatusDescription == "REALLOCATED").First().pkStatusID;
+
+                // If a sim card gets re-allocated ensure that all the required properties 
+                // is valid to allow re-alloaction
+                if (db.SimCards.Any(p => p.CellNumber == simCard.CellNumber &&
+                                         p.PUKNumber.ToUpper().Trim() == simCard.PUKNumber.ToUpper().Trim() &&
+                                         p.fkStatusID != reAllocatedStatusID &&
+                                         p.fkContractID != simCard.fkContractID))
                 {
-                    using (var db = MobileManagerEntities.GetContext())
-                    {
-                        //Check if number is linked to a contract
-                        Contract contract = db.Contracts.Where(p => p.CellNumber == searchCriteria).FirstOrDefault();
-                        if (contract == null || contract.IsActive == false)
-                        {
-                            errorMessage = string.Format("Cell number {0} not found.", searchCriteria);
-                            return false;
-                        }
+                    errorMessage = "The simcard is still allocated to another client.";
+                    return false;
+                }
+                // If a sim card gets re-allocated ensure that all the required properties 
+                // is valid to allow re-alloaction
+                if (db.SimCards.Any(p => p.CellNumber == simCard.CellNumber &&
+                                         //p.PUKNumber.ToUpper().Trim() == simCard.PUKNumber.ToUpper().Trim() &&
+                                         p.fkContractID == simCard.fkContractID &&
+                                         p.CardNumber == simCard.CardNumber))
+                {
+                    errorMessage = "The simcard details hasn't changed";
+                    return false;
+                }
 
-                        //Get all the simcards for the contract
-                        ObservableCollection<SimCard> simCards = ReadSimCardsForContract(contract.pkContractID, true);
-
-                        //Create a new empty simcard to add properties
-                        SimCard simCard = new SimCard();
-                        simCard.fkContractID = contract.pkContractID;
-                        simCard.CellNumber = searchCriteria;
-                        //Loop through the row and add each property to the simcard
-                        foreach (string property in mappedProperties)
-                        {
-                            string[] mapping = property.Split('=');
-                            string sheetHeader = mapping[0].Trim();
-                            string dbHeader = mapping[1].Trim();
-
-                            switch ((DataImportColumn)Enum.Parse(typeof(DataImportColumn), dbHeader))
-                            {
-                                case DataImportColumn.fkStatusID:
-                                    string statusRow = importValues[sheetHeader].ToString().ToUpper();
-                                    Status status = db.Status.Where(p => p.StatusDescription == statusRow).FirstOrDefault();
-                                    if (status == null)
-                                    {
-                                        errorMessage = string.Format("Status description not found.");
-                                        return false;
-                                    }
-                                    simCard.fkStatusID = status.pkStatusID;
-                                    break;
-                                case DataImportColumn.CardNumber:
-                                    if (simCards.Any(p => p.CellNumber == searchCriteria && p.CardNumber == importValues[sheetHeader].ToString()))
-                                    {
-                                        errorMessage = string.Format("Card number already exist with this number.");
-                                        return false;
-                                    }
-                                    else
-                                    {
-                                        SimCard tmpSimCard = (SimCard)simCards.Where(p => p.CellNumber == searchCriteria && p.CardNumber != importValues[sheetHeader].ToString());
-                                        if (tmpSimCard != null)
-                                        {
-                                            tmpSimCard.IsActive = false;
-                                            UpdateSimCard(tmpSimCard);
-                                        }
-                                    }
-                                    simCard.CardNumber = importValues[sheetHeader].ToString();
-                                    break;
-                                case DataImportColumn.PinNumber:
-                                    simCard.PinNumber = importValues[sheetHeader].ToString() != null || importValues[sheetHeader].ToString() != "" ? importValues[sheetHeader].ToString() : "0";
-                                    break;
-                                case DataImportColumn.PUKNumber:
-                                    simCard.PUKNumber = importValues[sheetHeader].ToString() != null || importValues[sheetHeader].ToString() != "" ? importValues[sheetHeader].ToString() : "0";
-                                    break;
-                                case DataImportColumn.ReceiveDate:
-                                    //Converts the date from an excel format
-                                    simCard.ReceiveDate = DateTime.FromOADate(Convert.ToDouble(importValues[sheetHeader].ToString()));
-                                    break;
-                            }
-                        }
-                        //Add last missing values to the simcard
-                        simCard.ModifiedBy = modifiedBy;
-                        simCard.ModifiedDate = DateTime.Now;
-                        simCard.IsActive = true;
-                        //Create the simcard in the db
-                        CreateSimCard(simCard);
-                        db.SaveChanges();
-                    }
-
-                    //Commit all changes to the database server
-                    tc.Complete();
+                if (!db.SimCards.Any(p => p.CellNumber == simCard.CellNumber && p.PUKNumber == simCard.PUKNumber))
+                {
+                    db.SimCards.Add(simCard);
+                    db.SaveChanges();
                     return true;
+                }
+                else
+                {
+                    errorMessage = "Simcard already exist";
+                    return false;
                 }
             }
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage(this.GetType().Name,
-                                         string.Format("Error! {0}, {1}.",
-                                         ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                         MethodBase.GetCurrentMethod().Name,
-                                         ApplicationMessage.MessageTypes.SystemError));
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }
         }
@@ -231,11 +181,11 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("SimCardModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "ReadSimCard",
-                                                                ApplicationMessage.MessageTypes.SystemError));
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
                 return null;
             }
         }
@@ -269,11 +219,11 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("SimCardModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "ReadSimCardsForContract",
-                                                                ApplicationMessage.MessageTypes.SystemError));
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
                 return null;
             }
         }
@@ -328,11 +278,11 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("SimCardModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "UpdateSimCard",
-                                                                ApplicationMessage.MessageTypes.SystemError));
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }
         }
@@ -413,11 +363,11 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("SimCardModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "UpdateSimCard",
-                                                                ApplicationMessage.MessageTypes.SystemError));
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }
         }
@@ -558,11 +508,11 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("SimCardModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "ImportSimCard",
-                                                                ApplicationMessage.MessageTypes.SystemError));
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }
         }
@@ -575,28 +525,27 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// <param name="mappedProperties">The simcard properties (columns) to import.</param>
         /// <param name="errorMessage">OUT The error message.</param>
         /// <returns>True if successfull</returns>
-        public bool CreateSimCard(SearchEntity searchEntity, string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, out string errorMessage)
+        public bool CreateSimCardImport(string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, short enSelectedEntity, out string errorMessage)
         {
             errorMessage = string.Empty;
             string[] importProperties = null;
             string sourceProperty = string.Empty;
             object sourceValue = null;
-            SimCard existingSimCard = null;
             SimCard simCardToImport = null;
-            bool mustUpdate = false;
+            Contract contract = null;
+            bool mustImport = false;
             bool dataChanged = false;
-            bool result = false;
             bool state = true;
 
             try
             {
                 using (var db = MobileManagerEntities.GetContext())
                 {
-                    existingSimCard = db.SimCards.Where(p => p.CellNumber == searchCriteria).FirstOrDefault();
-
-                    if (existingSimCard == null)
+                    //Check if number is linked to a contract
+                    contract = db.Contracts.Where(p => p.CellNumber == searchCriteria).FirstOrDefault();
+                    if (contract == null || contract.IsActive == false)
                     {
-                        errorMessage = string.Format("Cell number {0} not found.", searchCriteria);
+                        errorMessage = string.Format("Cell number {0} not linked to a contract, ", searchCriteria);
                         return false;
                     }
                 }
@@ -606,7 +555,11 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                     using (var db = MobileManagerEntities.GetContext())
                     {
-                        simCardToImport = db.SimCards.Where(p => p.pkSimCardID == existingSimCard.pkSimCardID).FirstOrDefault();
+                        //Create a new empty device to add properties
+                        simCardToImport = new SimCard();
+                        simCardToImport.pkSimCardID = 0;
+                        simCardToImport.CellNumber = searchCriteria;
+                        simCardToImport.fkContractID = contract.pkContractID;
 
 
                         // Get the sql table structure of the entity
@@ -614,27 +567,29 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                         foreach (PropertyDescriptor property in properties)
                         {
-                            mustUpdate = false;
+                            mustImport = false;
 
                             // Get the source property and source value 
                             // mapped the simcard entity property
                             foreach (string mappedProperty in mappedProperties)
                             {
-                                if (mappedProperty.Contains(property.Name))
+                                string[] arrMappedProperty = mappedProperty.Split('=');
+                                string propertyName = new DataImportPropertyModel(_eventAggregator).GetPropertyName(arrMappedProperty[1].Trim(), enSelectedEntity);
+                                if (propertyName == property.Name)
                                 {
                                     importProperties = mappedProperty.Split('=');
                                     sourceProperty = importProperties[0].Trim();
                                     sourceValue = importValues[sourceProperty];
-                                    dataChanged = mustUpdate = true;
+                                    dataChanged = mustImport = true;
                                     break;
                                 }
                             }
 
                             // Always update these values
                             if (dataChanged && (property.Name == "ModifiedBy" || property.Name == "ModifiedDate" || property.Name == "IsActive"))
-                                mustUpdate = true;
+                                mustImport = true;
 
-                            if (mustUpdate)
+                            if (mustImport)
                             {
                                 // Validate the source status and get
                                 // the value for the fkStatusID
@@ -659,6 +614,14 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                                     sourceValue = status.pkStatusID;
                                 }
+                                //Test the excel spreadsheet date for actual date or numbers
+                                if (property.Name == "ReceiveDate")
+                                {
+                                    try
+                                    { sourceValue = Convert.ToDateTime(DateTime.FromOADate(Convert.ToDouble(sourceValue.ToString()))); }
+                                    catch
+                                    { sourceValue = Convert.ToDateTime(Convert.ToDateTime(sourceValue.ToString())); }
+                                }
 
                                 // Set the default values
                                 if (property.Name == "ModifiedBy")
@@ -676,7 +639,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                 else if (property.PropertyType == typeof(System.Byte[]))
                                     sourceValue = Convert.FromBase64String(sourceValue.ToString());
                                 else if (property.PropertyType == typeof(System.DateTime))
-                                    sourceValue = Convert.ToDateTime(sourceValue.ToString());
+                                    sourceValue = Convert.ToDateTime(Convert.ToDateTime(sourceValue.ToString()));
                                 else if (property.PropertyType == typeof(System.Boolean))
                                     sourceValue = Convert.ToBoolean(sourceValue.ToString());
                                 else
@@ -689,25 +652,28 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                         if (dataChanged)
                         {
+                            CreateSimCard(simCardToImport, db, ref errorMessage);
                             // Add the data activity log
-                            result = _activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<SimCard>(existingSimCard, simCardToImport, simCardToImport.fkContractID.Value, db));
+                            //result = _activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<SimCard>(existingSimCard, simCardToImport, simCardToImport.fkContractID.Value, db));
 
                             db.SaveChanges();
                             tc.Complete();
                         }
                     }
                 }
-
-                return result;
+                if (errorMessage == string.Empty)
+                    return true;
+                else
+                    return false;
             }
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("SimCardModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "ImportSimCard",
-                                                                ApplicationMessage.MessageTypes.SystemError));
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }
         }
@@ -734,11 +700,11 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("SimCardModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "DeleteSimcardsForClient",
-                                                                ApplicationMessage.MessageTypes.SystemError));
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
             }
         }
     }
