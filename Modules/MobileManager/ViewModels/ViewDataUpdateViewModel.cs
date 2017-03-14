@@ -660,9 +660,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         }
                     }
 
-                    CanUpdate = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem && DestinationColumnCollection.Count <= 1 && mulitpleEntriesTest ? true : false;
+                    CanUpdate = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem && DestinationColumnCollection.Count <= (MultipleEntriesColection.Count + 1) && mulitpleEntriesTest ? true : false;
                     ValidMapping = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem &&
-                           DestinationColumnCollection.Count <= 1 && mulitpleEntriesTest ? Brushes.Silver : Brushes.Red;
+                           DestinationColumnCollection.Count <= (MultipleEntriesColection.Count + 1) && mulitpleEntriesTest ? Brushes.Silver : Brushes.Red;
                 }
             }
         }

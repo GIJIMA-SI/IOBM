@@ -140,10 +140,10 @@
                 <TextBlock Text="Export to Excel" VerticalAlignment="Center"/>
             </StackPanel>
         </Button>
-        <DataGrid x:Name="DataGridValidationRules" Grid.Row="7" Grid.ColumnSpan="12" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True" MinHeight="52"
+        <DataGrid x:Name="DataGridValidationRules" Grid.Row="7" Grid.ColumnSpan="12" AutoGenerateColumns="True" CanUserReorderColumns="False" CanUserSortColumns="True" MinHeight="52"
             IsReadOnly="True" TabIndex="8" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"  Margin="5"
             ItemsSource="{Binding ValidationRuleCollection}" SelectedItem="{Binding SelectedValidationRule}">
-            <DataGrid.Columns>
+            <!--<DataGrid.Columns>
                 <DataGridTextColumn Header="Group" Binding="{Binding GroupDescription}" Width="*" />
                 <DataGridTextColumn Header="Entity" Binding="{Binding EntityDescription}" Width="*" />
                 <DataGridTextColumn Header="Data Field" Binding="{Binding PropertyDescription}" Width="*" />
@@ -169,7 +169,7 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Validation Value" Binding="{Binding DataValidationValue}" Width="300" />
-            </DataGrid.Columns>
+            </DataGrid.Columns>-->
         </DataGrid>
     </Grid>
 </UserControl>
