@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
 
 namespace Gijima.IOBM.MobileManager.Model.Models
@@ -16,6 +17,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         #region Properties and Attributes
 
         private IEventAggregator _eventAggregator;
+        private string _defaultItem = "-- Please Select --";
 
         #endregion
 
@@ -95,6 +97,43 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
                                                                 "ReadContractService",
                                                                 ApplicationMessage.MessageTypes.SystemError));
+                return null;
+            }
+        }
+        
+        /// <summary>
+        /// Read contract service names from the database
+        /// </summary>
+        /// <returns>Collection of Contract Service Names</returns>
+        public ObservableCollection<string> ReadContractService()
+        {
+            try
+            {
+                IEnumerable<ContractService> contractServices = null;
+
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    contractServices = ((DbQuery<ContractService>)(from service in db.ContractServices
+                                                                   select service)).OrderBy(p => p.ServiceDescription).ToList();
+                }
+
+                //Converto to observabile collection of string
+                ObservableCollection<string> contractServiceNames = new ObservableCollection<string>();
+                contractServiceNames.Add(_defaultItem);
+                foreach (ContractService contractService in contractServices)
+                {
+                    contractServiceNames.Add(contractService.ServiceDescription);
+                }
+                return contractServiceNames;
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
                 return null;
             }
         }

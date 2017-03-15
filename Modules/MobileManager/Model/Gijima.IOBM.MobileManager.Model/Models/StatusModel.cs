@@ -1,4 +1,5 @@
 ﻿using Gijima.IOBM.Infrastructure.Events;
+using Gijima.IOBM.Infrastructure.Structs;
 using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Prism.Events;
@@ -8,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Reflection;
 
 namespace Gijima.IOBM.MobileManager.Model.Models
 {
@@ -104,6 +106,62 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Read all status names from the database
+        /// </summary>
+        /// <param name="enLinkedTo">The entities the status is linked to.</param>
+        /// <returns>Collection of Statuses</returns>
+        public ObservableCollection<string> ReadStatuseOptions(StatusLink enLinkedTo)
+        {
+            try
+            {
+                short allID = StatusLink.All.Value();
+                short contractID = StatusLink.Contract.Value();
+                short deviceID = StatusLink.Device.Value();
+                short simID = StatusLink.Sim.Value();
+                short contractDeviceID = StatusLink.ContractDevice.Value();
+                short contractSimID = StatusLink.ContractSim.Value();
+                short deviceSimID = StatusLink.DeviceSim.Value();
+                IEnumerable<Status> statuses = null;
+
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    statuses = ((DbQuery<Status>)(from status in db.Status
+                                                  select status)).OrderBy(p => p.StatusDescription).ToList();
+
+                    if (enLinkedTo == StatusLink.Contract)
+                        statuses = statuses.Where(p => p.enStatusLink == allID || p.enStatusLink == contractID ||
+                                                       p.enStatusLink == contractDeviceID || p.enStatusLink == contractSimID);
+
+                    if (enLinkedTo == StatusLink.Device)
+                        statuses = statuses.Where(p => p.enStatusLink == allID || p.enStatusLink == deviceID ||
+                                                       p.enStatusLink == contractDeviceID || p.enStatusLink == deviceSimID);
+
+                    if (enLinkedTo == StatusLink.Sim)
+                        statuses = statuses.Where(p => p.enStatusLink == allID || p.enStatusLink == simID ||
+                                                       p.enStatusLink == contractSimID || p.enStatusLink == deviceSimID);
+                }
+
+                //Converto to observabile collection of string
+                ObservableCollection<string> statusOptions = new ObservableCollection<string>();
+                foreach (Status status in statuses)
+                {
+                    statusOptions.Add(status.StatusDescription);
+                }
+                return statusOptions;
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
                 return null;
             }
         }

@@ -306,6 +306,27 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
         Usage = 2,
     }
 
+    /// <summary>
+    /// The <see cref="SearchCategory"/> enumeration lists of advanced search types.
+    /// </summary>
+    public enum SearchCategory
+    {
+        [Description("-- Please Select --")]
+        None = 0,
+        [Description("Client")]
+        Client = 1,
+        [Description("Client Address")]
+        ClientAddress = 2,
+        [Description("Contract")]
+        Contract = 3,
+        [Description("Billing")]
+        Billing = 4,
+        [Description("Device")]
+        Device = 5,
+        [Description("Sim Card")]
+        SimCard = 6
+    }
+
     #endregion
 
     #region Data Activity
@@ -676,6 +697,10 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
             return Convert.ToInt16(type);
         }
         public static short Value(this CostType type)
+        {
+            return Convert.ToInt16(type);
+        }
+        public static short Value(this SearchCategory type)
         {
             return Convert.ToInt16(type);
         }

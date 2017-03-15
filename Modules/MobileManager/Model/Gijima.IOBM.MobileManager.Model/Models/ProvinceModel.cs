@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Reflection;
 
 namespace Gijima.IOBM.MobileManager.Model.Models
 {
@@ -84,6 +85,45 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Read all province names from the database
+        /// </summary>
+        /// <param name="activeOnly">Flag to load all or active only entities.</param>
+        /// <param name="excludeDefault">Flag to include or exclude the default entity.</param>
+        /// <returns>Collection of Provincees</returns>
+        public ObservableCollection<string> ReadProvinceNames(bool activeOnly)
+        {
+            try
+            {
+                IEnumerable<Province> provinces = null;
+
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    provinces = ((DbQuery<Province>)(from province in db.Provinces
+                                                     where activeOnly ? province.IsActive : true
+                                                     select province)).OrderBy(p => p.ProvinceName).ToList();
+                }
+
+                //Converto to observabile collection of string
+                ObservableCollection<string> provinceNames = new ObservableCollection<string>();
+                foreach (Province province in provinces)
+                {
+                    provinceNames.Add(province.ProvinceName);
+                }
+                return provinceNames;
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
                 return null;
             }
         }

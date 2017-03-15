@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
@@ -38,26 +40,18 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
         private string _dataEntityDisplayName = string.Empty;
 
-
-        /// <summary>
-        /// The collection of data entities for the selected group from the database
-        /// </summary>
-        public ObservableCollection<EntityDetail> DataEntityCollection
-        {
-            get { return _dataEntityCollection; }
-            set { SetProperty(ref _dataEntityCollection, value); }
-        }
-        private ObservableCollection<EntityDetail> _dataEntityCollection;
-
-
+        
         #region View Lookup Data Collection
 
-        public ObservableCollection<string> EntityColumnCollection
+        /// <summary>
+        /// The collection of entity columns for the selected category from the database
+        /// </summary>
+        public ObservableCollection<AdvancedSearchField> SearchCollumnCollection
         {
-            get { return _entityColumnCollection; }
-            set { SetProperty(ref _entityColumnCollection, value); ; }
+            get { return _searchCollumnCollection; }
+            set { SetProperty(ref _searchCollumnCollection, value); }
         }
-        private ObservableCollection<string> _entityColumnCollection;
+        private ObservableCollection<AdvancedSearchField> _searchCollumnCollection;
 
         /// <summary>
         /// The collection of operators types from the OperatorType enum's
@@ -80,6 +74,36 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
         private ObservableCollection<string> _operatorCollection;
 
+        /// <summary>
+        /// Collection of the enum categories to search
+        /// </summary>
+        public ObservableCollection<string> SearchCategorieCollection
+        {
+            get { return _searchCategorieCollection; }
+            set { SetProperty(ref _searchCategorieCollection, value); ; }
+        }
+        private ObservableCollection<string> _searchCategorieCollection;
+
+        /// <summary>
+        /// Collection of all the advanced search field
+        /// </summary>
+        public ObservableCollection<AdvancedSearchField> AdvancedSearchFieldCollection
+        {
+            get { return _advancedSearchFieldCollection; }
+            set { SetProperty(ref _advancedSearchFieldCollection, value); }
+        }
+        private ObservableCollection<AdvancedSearchField> _advancedSearchFieldCollection;
+
+        /// <summary>
+        /// Collection of the required fields data
+        /// </summary>
+        public ObservableCollection<string> ComboBoxValidationCollection
+        {
+            get { return _comboBoxValidationCollection; }
+            set { SetProperty(ref _comboBoxValidationCollection, value); }
+        }
+        private ObservableCollection<string> _comboBoxValidationCollection;
+
         #endregion
 
         #region Required Fields
@@ -87,17 +111,28 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// The selected validation data entity
         /// </summary>
-        public EntityDetail SelectedDataEntity
+        public string SelectedSearchCategory
         {
-            get { return _selectedDataEntity; }
+            get { return _selectedSearchCategory; }
             set
             {
-                _selectedDataEntity = value;
-                if (SelectedDataEntity != null)
-                    EntityColumnCollection = SelectedDataEntity.ReadAllColumnNames();
+                SetProperty(ref _selectedSearchCategory, value);
+                if (value != null && value != _defaultItem)
+                {
+                    //Create Please select to set as default item
+                    AdvancedSearchField defaultItem = new AdvancedSearchField();
+                    defaultItem.ColumnName = defaultItem.DataType = defaultItem.ColumnName = defaultItem.ControlType = string.Empty;
+                    defaultItem.enSearchCategory = 0;
+                    defaultItem.DisplayName = _defaultItem;
+                    
+                    List<AdvancedSearchField> searchColumns = new List<AdvancedSearchField>();
+                    searchColumns = AdvancedSearchFieldCollection.Where(p => p.enSearchCategory == EnumHelper.GetEnumFromDescription<SearchCategory>(SelectedSearchCategory).Value()).ToList();
+                    searchColumns.Insert(0, defaultItem);
+                    SearchCollumnCollection = new ObservableCollection<AdvancedSearchField>(searchColumns);
+                }
             }
         }
-        private EntityDetail _selectedDataEntity = null;
+        private string _selectedSearchCategory = null;
 
         /// <summary>
         /// The selected validation entity
@@ -113,24 +148,55 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
         private string _selectedEntity = EnumHelper.GetDescriptionFromEnum(DataValidationGroupName.None);
 
-        public string SelectedColumn
+        public AdvancedSearchField SelectedColumn
         {
             get { return _selectedColumn; }
             set
             {
                 SetProperty(ref _selectedColumn, value);
-                ReadOperatorTypes();
-                SelectedOperatorType = "";
-
-                try
+                if (value != null)
                 {
-                    SelectedOperatorType = SelectedDataEntity.ColumnTypes[EntityColumnCollection.IndexOf(SelectedColumn)];
+                    ShowValueComponent(value.ControlType);
+                    SelectedOperatorType = value.DataType != string.Empty ? value.DataType : "None";
+                    //if it is a combobox get the collection to show
+                    if (value.ControlType == "ComboBox")
+                        GetComboBoxCollection(value);
+                    ReadTypeOperators();
                 }
-                catch
-                { }
+                //ReadOperatorTypes();
             }
         }
-        private string _selectedColumn;
+        private AdvancedSearchField _selectedColumn;
+
+        /// <summary>
+        /// TextBox value visiblity
+        /// </summary>
+        public string TextBoxValueShow
+        {
+            get { return _textBoxValueShow; }
+            set { SetProperty(ref _textBoxValueShow, value); }
+        }
+        private string _textBoxValueShow;
+
+        /// <summary>
+        /// ComboBox value visiblity
+        /// </summary>
+        public string ComboBoxValueShow
+        {
+            get { return _comboBoxValueShow; }
+            set { SetProperty(ref _comboBoxValueShow, value); }
+        }
+        private string _comboBoxValueShow;
+
+        /// <summary>
+        /// Calendar value visiblity
+        /// </summary>
+        public string CalendarValueShow
+        {
+            get { return _calendarValueShow; }
+            set { SetProperty(ref _calendarValueShow, value); }
+        }
+        private string _calendarValueShow;
 
         /// <summary>
         /// The selected operator
@@ -171,6 +237,36 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private string _selectedOperator;
 
         /// <summary>
+        /// Textbox validation test value
+        /// </summary>
+        public string TextBoxValidationValue
+        {
+            get { return _textBoxValidationValue; }
+            set { SetProperty(ref _textBoxValidationValue, value); }
+        }
+        private string _textBoxValidationValue;
+
+        /// <summary>
+        /// Combobox validation test value
+        /// </summary>
+        public string ComboBoxValidationValue
+        {
+            get { return _comboBoxValidationValue; }
+            set { SetProperty(ref _comboBoxValidationValue, value); }
+        }
+        private string _comboBoxValidationValue;
+
+        /// <summary>
+        /// Calendar validation test value
+        /// </summary>
+        public DateTime CalendarValidationValue
+        {
+            get { return _calendarValidationValue; }
+            set { SetProperty(ref _calendarValidationValue, value); }
+        }
+        private DateTime _calendarValidationValue;
+
+        /// <summary>
         /// 
         /// </summary>
         public string Error
@@ -206,6 +302,27 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private Brush _validColumnName = Brushes.Red;
 
         /// <summary>
+        /// Set the operator combobox border colour
+        /// </summary>
+        public Brush ValidOperator
+        {
+            get { return _validOperator; }
+            set { SetProperty(ref _validOperator, value); }
+        }
+        private Brush _validOperator = Brushes.Red;
+
+        /// <summary>
+        /// Set the validation grid border colour
+        /// </summary>
+        public Brush ValidValidation
+        {
+            get { return _validValidation; }
+            set { SetProperty(ref _validValidation, value); }
+        }
+        private Brush _validValidation = Brushes.Red;
+
+        
+        /// <summary>
         /// Input validation properties
         /// </summary>
         /// <param name="columnName"></param>
@@ -217,19 +334,23 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 string result = string.Empty;
                 switch (columnName)
                 {
-                    case "SelectedDataEntity":
-                        ValidDataEntity = SelectedDataEntity != null && SelectedDataEntity.EntityName != _defaultItem ? Brushes.Silver : Brushes.Red;
-                        break;
+                    case "SelectedSearchCategory":
+                        ValidDataEntity = SelectedSearchCategory != null && SelectedSearchCategory.ToString() != _defaultItem ? Brushes.Silver : Brushes.Red; break;
                     case "SelectedDataProperty":
-                        ValidColumnName = SelectedDataProperty != null && SelectedDataProperty.ToString() != _defaultItem ? Brushes.Silver : Brushes.Red;
-                        break;
+                        ValidColumnName = SelectedDataProperty != null && SelectedDataProperty.ToString() != _defaultItem ? Brushes.Silver : Brushes.Red; break;
                     case "SelectedColumn":
-                        ValidColumnName = SelectedColumn != null && SelectedColumn.ToString() != _defaultItem ? Brushes.Silver : Brushes.Red; 
-                        break;
+                        ValidColumnName = SelectedColumn != null && SelectedColumn.DisplayName != _defaultItem ? Brushes.Silver : Brushes.Red; break;
+                    case "SelectedOperator":
+                        ValidOperator = string.IsNullOrEmpty(SelectedOperator) || SelectedOperator == _defaultEnum ? Brushes.Red : Brushes.Silver; break;
+                    case "TextBoxValidationValue":
+                        ValidValidation = TextBoxValueShow == "Visible" && string.IsNullOrEmpty(TextBoxValidationValue) ? Brushes.Red : Brushes.Silver; break;
+                    case "ComboBoxValidationValue":
+                        ValidValidation = ComboBoxValueShow == "Visible" && ComboBoxValidationValue != null && ComboBoxValidationValue == _defaultItem ? Brushes.Red : Brushes.Silver; break;
+                    case "CalendarValidationValue":
+                        ValidValidation = CalendarValueShow == "Visible" && CalendarValidationValue == DateTime.MinValue ? Brushes.Red : Brushes.Silver; break;
                 }
                 return result;
             }
-
         }
 
         #endregion
@@ -251,16 +372,61 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             ReadDataEntities();
         }
 
+        /// <summary>
+        /// Reset the form to a start state
+        /// </summary>
         public void InitialiseViewControls()
         {
-            DataEntityCollection = new AdvancedSearchEntities().EntityDetails;
-            EntityColumnCollection = new ObservableCollection<string>();
-
-            SelectedDataEntity = DataEntityCollection.Where(x => x.EntityType == null).FirstOrDefault();
+            ReadSearchCategories();
+            ReadSearchColumnCollection();
+            TextBoxValueShow = ComboBoxValueShow = CalendarValueShow = "Hidden";
+            //Set the selected SearchCategory
+            SelectedSearchCategory = SearchCategorieCollection.Where(x => x == _defaultItem).FirstOrDefault();
 
             SelectedColumn = null;
         }
 
+        /// <summary>
+        /// Set the required component visible
+        /// </summary>
+        /// <param name="Component"></param>
+        public void ShowValueComponent(string Component)
+        {
+            switch (Component)
+            {
+                case "TextBox":
+                    TextBoxValueShow = "Visible";
+                    TextBoxValidationValue = string.Empty;
+                    ComboBoxValueShow = CalendarValueShow = "Hidden";
+                    break;
+                case "ComboBox":
+                    ComboBoxValueShow = "Visible";
+                    ComboBoxValidationValue = _defaultItem;
+                    TextBoxValueShow = CalendarValueShow = "Hidden";
+                    break;
+                case "Calendar":
+                    CalendarValueShow = "Visible";
+                    CalendarValidationValue = DateTime.Now;
+                    ComboBoxValueShow = TextBoxValueShow = "Hidden";
+                    break;
+                default:
+                    TextBoxValueShow = ComboBoxValueShow = CalendarValueShow = "Hidden";
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// All the combobox values with yes or no options
+        /// </summary>
+        /// <param name="collection"></param>
+        public ObservableCollection<string> GetBooleanValues()
+        {
+            ObservableCollection<string> collection = new ObservableCollection<string>();
+            collection.Add(_defaultItem);
+            collection.Add("True");
+            collection.Add("False");
+            return collection;
+        }
 
         #region Lookup Data Loading
 
@@ -313,60 +479,38 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
 
         /// <summary>
-        /// Load all the operator types from the OperatorType enum
+        /// Populate the package types combobox from the PackageType enum
         /// </summary>
-        private void ReadOperatorTypes()
+        private void ReadSearchCategories()
+        {
+            SearchCategorieCollection = new ObservableCollection<string>();
+
+            foreach (SearchCategory source in Enum.GetValues(typeof(SearchCategory)))
+            {
+                SearchCategorieCollection.Add(EnumHelper.GetDescriptionFromEnum(source));
+            }
+        }
+
+        /// <summary>
+        /// Populate AdvancedSearchFieldCollection with all the rows
+        /// </summary>
+        private async void ReadSearchColumnCollection()
         {
             try
             {
-                OperatorTypeCollection = new ObservableCollection<string>();
-
-                DataValidationProperty tmp = new Model.Data.DataValidationProperty();
-                
-
-                if (SelectedDataProperty != null && SelectedDataProperty.ToString() != _defaultItem)
-                {
-
-                    switch ((DataTypeName)SelectedDataProperty.enDataType)
-                    {
-                        case DataTypeName.Integer:
-                        case DataTypeName.Decimal:
-                        case DataTypeName.Float:
-                        case DataTypeName.Long:
-                        case DataTypeName.Short:
-                            OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(OperatorType.None));
-                            OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(OperatorType.NumericOperator));
-                            break;
-                        case DataTypeName.DateTime:
-                            OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(OperatorType.None));
-                            OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(OperatorType.DateOperator));
-                            break;
-                        case DataTypeName.Bool:
-                            OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(OperatorType.None));
-                            OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(OperatorType.BooleanOperator));
-                            break;
-                        default:
-                            foreach (OperatorType source in Enum.GetValues(typeof(OperatorType)))
-                            {
-                                OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(source));
-                            }
-                            break;
-                    }
-                }
-
-                SelectedOperatorType = _defaultEnum;
+                AdvancedSearchFieldCollection = await Task.Run(() => new AdvancedSearchFieldModel(_eventAggregator).ReadAdvancedSearchColumns());
             }
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("ViewDataValidationCFViewModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "ReadOperatorTypes",
-                                                                ApplicationMessage.MessageTypes.SystemError));
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
             }
         }
-
+        
         /// <summary>
         /// Load all the data type operators from the string, 
         /// numeric and date OperatorType enum's
@@ -424,6 +568,174 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
                                                                 "ReadTypeOperators",
                                                                 ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
+
+        /// <summary>
+        /// Get the Validationvalue combobox collection
+        /// </summary>
+        /// <param name="SearchFor"></param>
+        public async void GetComboBoxCollection(AdvancedSearchField Row)
+        {
+            string entityName = Row.EntityName;
+            string displayName = Row.DisplayName;
+
+            try
+            {
+                switch (entityName)
+                {
+                    case "Client":
+                        switch (displayName)
+                        {
+                            case "Site":
+                                ComboBoxValidationCollection = await Task.Run(() => new ClientLocationModel(_eventAggregator).ReadClientLocationNames(true));
+                                break;
+                            case "Private OR Company":
+                                ComboBoxValidationCollection = await Task.Run(() => new CompanyModel(_eventAggregator).ReadCompanieNames(true));
+                                break;
+                            case "State":
+                                ObservableCollection<string> activeInActive = new ObservableCollection<string>();
+                                activeInActive.Add(_defaultItem);
+                                activeInActive.Add("Active");
+                                activeInActive.Add("InActive");
+                                ComboBoxValidationCollection = activeInActive;
+                                break;
+                            case "Suburb":
+                                ComboBoxValidationCollection = await Task.Run(() => new SuburbModel(_eventAggregator).ReadSuburbeNames(true));
+                                break;
+                        }
+                        break;
+                    case "Suburb":
+                        switch (displayName)
+                        {
+                            case "City":
+                                ComboBoxValidationCollection = await Task.Run(() => new CityModel(_eventAggregator).ReadCityNames(false));
+                                break;
+                        }
+                        break;
+                    case "City":
+                        switch (displayName)
+                        {
+                            case "Province":
+                                ComboBoxValidationCollection = await Task.Run(() => new ProvinceModel(_eventAggregator).ReadProvinceNames(false));
+                                break;
+                        }
+                        break;
+                    case "Contract":
+                        switch (displayName)
+                        {
+                            case "Package":
+                                ComboBoxValidationCollection = await Task.Run(() => new PackageModel(_eventAggregator).ReadPackageNames(false));
+                                break;
+                            case "Status":
+                                ComboBoxValidationCollection = await Task.Run(() => new StatusModel(_eventAggregator).ReadStatuseOptions(StatusLink.Contract));
+                                break;
+                        }
+                        break;
+                    case "Package":
+                        switch (displayName)
+                        {
+                            case "Provider":
+                                ComboBoxValidationCollection = await Task.Run(() => new ServiceProviderModel(_eventAggregator).ReadProviderNames());
+                                break;
+                        }
+                        break;
+                    case "Enum":
+                        switch (displayName)
+                        {
+                            case "Cost Type":
+                                ObservableCollection<string> costTypes = new ObservableCollection<string>();
+                                costTypes.Add(_defaultItem);
+                                foreach (CostType source in Enum.GetValues(typeof(CostType)))
+                                {
+                                    costTypes.Add(source.ToString());
+                                }
+                                ComboBoxValidationCollection = costTypes;
+                                break;
+                            case "Package Type":
+                                ObservableCollection<string> packageTypes = new ObservableCollection<string>();
+                                packageTypes.Add(_defaultItem);
+                                foreach (PackageType source in Enum.GetValues(typeof(PackageType)))
+                                {
+                                    packageTypes.Add(source.ToString());
+                                }
+                                ComboBoxValidationCollection = packageTypes;
+                                break;
+                        }
+                        break;
+                    case "ClientService":
+                        switch (displayName)
+                        {
+                            case "Service":
+                                ComboBoxValidationCollection = await Task.Run(() => new ContractServiceModel(_eventAggregator).ReadContractService());
+                                break;
+                        }
+                        break;
+                    case "ClientBilling":
+                        switch (displayName)
+                        {
+                            case "Split Billing":
+                                ComboBoxValidationCollection = GetBooleanValues();
+                                break;
+                            case "Split Billing exception":
+                                ComboBoxValidationCollection = GetBooleanValues();
+                                break;
+                            case "Billing Level":
+                                ComboBoxValidationCollection = new BillingLevelModel(_eventAggregator).ReadBillingLevelNames();
+                                break;
+                            case "International Dailing":
+                                ComboBoxValidationCollection = GetBooleanValues();
+                                break;
+                            case "International Dailing Permanent":
+                                ComboBoxValidationCollection = GetBooleanValues();
+                                break;
+                            case "International Roaming":
+                                ComboBoxValidationCollection = GetBooleanValues();
+                                break;
+                            case "International Roaming Permanent":
+                                ComboBoxValidationCollection = GetBooleanValues();
+                                break;
+                        }
+                        break;
+                    case "Device":
+                        switch (displayName)
+                        {
+                            case "Make":
+                                ComboBoxValidationCollection = await Task.Run(() => new DevicesMakeModel(_eventAggregator).ReadDeviceMakesNames());
+                                break;
+                            case "Model":
+                                ComboBoxValidationCollection = await Task.Run(() => new DevicesModelModel(_eventAggregator).ReadDeviceMakeModelNames());
+                                break;
+                            case "Status":
+                                ComboBoxValidationCollection = await Task.Run(() => new StatusModel(_eventAggregator).ReadStatuseOptions(StatusLink.Device));
+                                break;
+                            case "Insured":
+                                ComboBoxValidationCollection = GetBooleanValues();
+                                break;
+                        }
+                        break;
+                    case "SimCard":
+                        switch (displayName)
+                        {
+                            case "Status":
+                                ComboBoxValidationCollection = await Task.Run(() => new StatusModel(_eventAggregator).ReadStatuseOptions(StatusLink.Sim));
+                                break;
+                        }
+                        break;
+                    default:
+                        ComboBoxValidationCollection = null;
+                        break;
+                }
+                ComboBoxValidationValue = ComboBoxValidationCollection != null ? ComboBoxValidationCollection.Where(p => p == _defaultItem).FirstOrDefault() : null;
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                       .Publish(new ApplicationMessage(this.GetType().Name,
+                                                string.Format("Error! {0}, {1}.",
+                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                MethodBase.GetCurrentMethod().Name,
+                                                ApplicationMessage.MessageTypes.SystemError));
             }
         }
 
