@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Reflection;
 
 namespace Gijima.IOBM.MobileManager.Model.Models
 {
@@ -96,6 +97,47 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
                                                                 "ReadSuburbes",
                                                                 ApplicationMessage.MessageTypes.SystemError));
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Read all or active only suburb names from the database
+        /// </summary>
+        /// <param name="activeOnly">Flag to load all or active only entities.</param>
+        /// <param name="excludeDefault">Flag to include or exclude the default entity.</param>
+        /// <returns>Collection of Suburbes</returns>
+        public ObservableCollection<string> ReadSuburbeNames(bool activeOnly, bool excludeDefault = false)
+        {
+            try
+            {
+                IEnumerable<Suburb> suburbes = null;
+
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    suburbes = ((DbQuery<Suburb>)(from suburb in db.Suburbs
+                                                  where activeOnly ? suburb.IsActive : true &&
+                                                        excludeDefault ? suburb.pkSuburbID > 0 : true
+                                                  select suburb)).Include("City")
+                                                                 .Include("City.Province").OrderBy(p => p.SuburbName).ToList();
+                }
+
+                //Converto to observabile collection of string
+                ObservableCollection<string> clientLocationsString = new ObservableCollection<string>();
+                foreach (Suburb suburb in suburbes)
+                {
+                    clientLocationsString.Add(suburb.SuburbDescription);
+                }
+                return clientLocationsString;
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
                 return null;
             }
         }

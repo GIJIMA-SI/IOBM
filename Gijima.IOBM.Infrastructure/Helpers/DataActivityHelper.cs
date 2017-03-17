@@ -52,13 +52,16 @@ namespace Gijima.IOBM.Infrastructure.Helpers
                     var currentValue = property.GetValue(currentData);
                     DataActivityLog activity = new DataActivityLog();
 
+                    if (originalValue == null)
+                        originalValue = string.Empty;
+
                     if (property.Name != "ModifiedBy" && property.Name != "ModifiedDate")
-                        if (originalValue != null && currentValue != null && !originalValue.Equals(currentValue))
+                        if (currentValue != null && !originalValue.Equals(currentValue))
                         {
                             activity.EntityID = entityID;
-                            activity.ChangedValue = originalValue.ToString();
+                            activity.ChangedValue = originalValue != null ? originalValue.ToString().ToUpper() : string.Empty;
                             activity.ActivityDescription = string.Format("{0} changed from {1} to {2} by {3} on {4}.", property.Name.ToUpper(),
-                                                                                                                       originalValue.ToString().ToUpper(),
+                                                                                                                       activity.ChangedValue,
                                                                                                                        currentValue.ToString().ToUpper(),
                                                                                                                        modifiedBy.ToUpper(), DateTime.Now.ToString());
                             // Prevent changes to Enities to be logged

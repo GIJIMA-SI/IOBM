@@ -87,37 +87,49 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Data Entity:" Style="{StaticResource UXLabelTextStyle}" Margin="0,0,5,0"></TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Search Group:" Style="{StaticResource UXLabelTextStyle}" Margin="0,0,5,0"></TextBlock>
                 <Border Grid.Row="0" Grid.Column="1" BorderThickness="1" BorderBrush="{Binding ValidDataEntity}">
                     <ComboBox x:Name="ComboBoxDataEntity" ToolTip="{Binding DataItemTooltip, UpdateSourceTrigger=PropertyChanged}" TabIndex="3" IsSynchronizedWithCurrentItem="True"
-                        ItemsSource="{Binding DataEntityCollection}" DisplayMemberPath="EntityName" Height="22"
-                        SelectedItem="{Binding SelectedDataEntity, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
+                        ItemsSource="{Binding SearchCategorieCollection}" Height="24"
+                        SelectedItem="{Binding SelectedSearchCategory, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
                     </ComboBox>
                 </Border>
-                <TextBlock Grid.Row="0" Grid.Column="3" Text="Entity field:" Style="{StaticResource UXLabelTextStyle}" Margin="0,0,5,0"></TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="3" Text="Search field:" Style="{StaticResource UXLabelTextStyle}" Margin="0,0,5,0"></TextBlock>
                 <Border Grid.Row="0" Grid.Column="4" BorderThickness="1" BorderBrush="{Binding ValidColumnName}">
                     <ComboBox x:Name="ComboBoxDataProperties" ToolTip="Select the data field to base the rule on." TabIndex="4" IsSynchronizedWithCurrentItem="True"
-                    ItemsSource="{Binding EntityColumnCollection}" Height="22"
-                    SelectedItem="{Binding SelectedColumn, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
+                    ItemsSource="{Binding SearchCollumnCollection}" Height="24"
+                    SelectedItem="{Binding SelectedColumn, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="DisplayName">
                     </ComboBox>
                 </Border>
                 <TextBlock Grid.Row="0" Grid.Column="6" Text="Operator type:" Style="{StaticResource UXLabelTextStyle}" Margin="0,0,5,0"></TextBlock>
                 <Border Grid.Row="0" Grid.Column="7" BorderThickness="1" BorderBrush="{Binding ValidOperatorType}">
-                    <ComboBox x:Name="ComboBoxOperatorType" ToolTip="Select the operator type based on the data type." TabIndex="5" IsSynchronizedWithCurrentItem="True" Margin="0,0,5,0"
+                    <!--<ComboBox x:Name="ComboBoxOperatorType" ToolTip="Select the operator type based on the data type." TabIndex="5" IsSynchronizedWithCurrentItem="True" Margin="0,0,5,0"
                         ItemsSource="{Binding OperatorTypeCollection}" Height="22"
                         SelectedItem="{Binding SelectedOperatorType, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
-                    </ComboBox>
-                    <!--<TextBox Text="{Binding SelectedOperatorType}"></TextBox>-->
+                    </ComboBox>-->
+                    <TextBox x:Name="TextBoxOperatorType" Grid.Row="0" Height="22" IsReadOnly="True" Style="{StaticResource UXTextBoxStyle}" ToolTip="Value type"
+                        Text="{Binding SelectedOperatorType, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,5,0">
+                    </TextBox>
                 </Border>
                 <Border Grid.Row="0" Grid.Column="8" BorderThickness="1" BorderBrush="{Binding ValidOperator}">
                     <ComboBox x:Name="ComboBoxOperator" ToolTip="Select the operator." TabIndex="6" IsSynchronizedWithCurrentItem="True"
-                        ItemsSource="{Binding OperatorCollection}" SelectedItem="{Binding SelectedOperator, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Height="22">
+                        ItemsSource="{Binding OperatorCollection}" SelectedItem="{Binding SelectedOperator, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Height="24">
                     </ComboBox>
                 </Border>
                 <TextBlock Grid.Row="0" Grid.Column="10" Text="Expected value:" Style="{StaticResource UXLabelTextStyle}" Margin="0,0,5,0"></TextBlock>
-                <TextBox x:Name="TextBoxValidationValue" Grid.Row="0" Grid.Column="11" TabIndex="7" Style="{StaticResource UXTextBoxStyle}" ToolTip="Enter the value to validate against."
-                    Text="{Binding SelectedValidationValue, UpdateSourceTrigger=PropertyChanged}" Margin="0,1">
-                </TextBox>
+                <Border Grid.Row="0" Grid.Column="11" BorderThickness="1" BorderBrush="{Binding ValidValidation}">
+                    <Grid>
+                        <TextBox x:Name="TextBoxValidationValue" TabIndex="7" Style="{StaticResource UXTextBoxStyle}" ToolTip="Enter the value to validate against."
+                                Text="{Binding TextBoxValidationValue, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Height="24" Visibility="{Binding TextBoxValueShow}">
+                        </TextBox>
+                        <ComboBox x:Name="ComboBoxValidationValue" TabIndex="7" ToolTip="Select the value to validate against." ItemsSource="{Binding ComboBoxValidationCollection}"
+                                SelectedItem="{Binding ComboBoxValidationValue, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding ComboBoxValueShow}">
+                        </ComboBox>
+                        <DatePicker x:Name="DatePickerValidationValue" TabIndex="7" ToolTip="Select the validation date."
+                                SelectedDate="{Binding CalendarValidationValue, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Visibility="{Binding CalendarValueShow}">
+                        </DatePicker>
+                    </Grid>
+                </Border>
             </Grid>
         </Grid>
         <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Text="Data Validation Rules" VerticalAlignment="Bottom" Margin="5,0,5,0"/>
@@ -140,10 +152,10 @@
                 <TextBlock Text="Export to Excel" VerticalAlignment="Center"/>
             </StackPanel>
         </Button>
-        <DataGrid x:Name="DataGridValidationRules" Grid.Row="7" Grid.ColumnSpan="12" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True" MinHeight="52"
+        <DataGrid x:Name="DataGridValidationRules" Grid.Row="7" Grid.ColumnSpan="12" AutoGenerateColumns="True" CanUserReorderColumns="False" CanUserSortColumns="True" MinHeight="52"
             IsReadOnly="True" TabIndex="8" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"  Margin="5"
             ItemsSource="{Binding ValidationRuleCollection}" SelectedItem="{Binding SelectedValidationRule}">
-            <DataGrid.Columns>
+            <!--<DataGrid.Columns>
                 <DataGridTextColumn Header="Group" Binding="{Binding GroupDescription}" Width="*" />
                 <DataGridTextColumn Header="Entity" Binding="{Binding EntityDescription}" Width="*" />
                 <DataGridTextColumn Header="Data Field" Binding="{Binding PropertyDescription}" Width="*" />
@@ -169,7 +181,7 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Validation Value" Binding="{Binding DataValidationValue}" Width="300" />
-            </DataGrid.Columns>
+            </DataGrid.Columns>-->
         </DataGrid>
     </Grid>
 </UserControl>

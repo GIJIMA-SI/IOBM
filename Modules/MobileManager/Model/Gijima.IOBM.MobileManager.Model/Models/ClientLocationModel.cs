@@ -1,4 +1,5 @@
 ﻿using Gijima.IOBM.Infrastructure.Events;
+using Gijima.IOBM.Infrastructure.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Prism.Events;
 using System;
@@ -7,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Reflection;
 
 namespace Gijima.IOBM.MobileManager.Model.Models
 {
@@ -15,6 +17,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         #region Properties and Attributes
 
         private IEventAggregator _eventAggregator;
+        private string _defaultItem = "-- Please Select --";
 
         #endregion
 
@@ -83,6 +86,46 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Read all or active only client location descriptions from the database
+        /// </summary>
+        /// <param name="activeOnly">Flag to load all or active only entities.</param>
+        /// <param name="excludeDefault">Flag to include or exclude the default entity.</param>
+        /// <returns>Collection of ClientLocations</returns>
+        public ObservableCollection<string> ReadClientLocationNames(bool activeOnly, bool excludeDefault = false)
+        {
+            try
+            {
+                IEnumerable<ClientLocation> clientLocations = null;
+
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    clientLocations = ((DbQuery<ClientLocation>)(from location in db.ClientLocations
+                                                                 where activeOnly ? location.IsActive : true &&
+                                                                       excludeDefault ? location.pkClientLocationID > 0 : true
+                                                                 select location)).OrderBy(p => p.LocationDescription).ToList();
+                }
+
+                //Converto to observabile collection of string
+                ObservableCollection<string> clientLocationsString = new ObservableCollection<string>();
+                foreach (ClientLocation location in clientLocations)
+                {
+                    clientLocationsString.Add(location.LocationDescription);
+                }
+                return clientLocationsString;
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
                 return null;
             }
         }

@@ -117,6 +117,44 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         }
 
         /// <summary>
+        /// Read all or active only companies from the database
+        /// </summary>
+        /// <param name="activeOnly">Flag to load all or active only entities.</param>
+        /// <param name="excludeDefault">Flag to include or exclude the default entity.</param>
+        /// <returns>Collection of Companies</returns>
+        public ObservableCollection<string> ReadCompanieNames(bool excludeDefault = false)
+        {
+            try
+            {
+                IEnumerable<Company> companies = null;
+
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    companies = ((DbQuery<Company>)(from company in db.Companies
+                                                    select company)).Include("CompanyGroup")
+                                                                    .OrderBy(p => p.CompanyName).ToList();
+                }
+                // Converto to observabile collection of string
+                ObservableCollection<string> clientLocationsString = new ObservableCollection<string>();
+                foreach (Company company in companies)
+                {
+                    clientLocationsString.Add(company.CompanyName);
+                }
+                return clientLocationsString;
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("CompanyModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ReadCompanies",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Find a company by company name from the database
         /// </summary>
         /// <param name="companyName">The company name to search for.</param>

@@ -5,6 +5,26 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="MobileManagerModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'IOBM-MobileManager.dbo.AdvancedSearchField' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="AdvancedSearchField">
+          <Key>
+            <PropertyRef Name="pkAdvancedSearchField" />
+            <PropertyRef Name="enSearchCategory" />
+            <PropertyRef Name="EntityName" />
+            <PropertyRef Name="ColumnName" />
+            <PropertyRef Name="DisplayName" />
+            <PropertyRef Name="DataType" />
+            <PropertyRef Name="ControlType" />
+          </Key>
+          <Property Name="pkAdvancedSearchField" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="enSearchCategory" Type="int" Nullable="false" />
+          <Property Name="EntityName" Type="varchar" MaxLength="25" Nullable="false" />
+          <Property Name="ColumnName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="DisplayName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="DataType" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="ControlType" Type="varchar" MaxLength="25" Nullable="false" />
+        </EntityType>
         <EntityType Name="AppSetting">
           <Key>
             <PropertyRef Name="pkAppSettingID" />
@@ -1065,6 +1085,17 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserInCompany" EntityType="Self.UserInCompany" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserInRole" EntityType="Self.UserInRole" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AdvancedSearchField" EntityType="Self.AdvancedSearchField" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [AdvancedSearchField].[pkAdvancedSearchField] AS [pkAdvancedSearchField], 
+    [AdvancedSearchField].[enSearchCategory] AS [enSearchCategory], 
+    [AdvancedSearchField].[EntityName] AS [EntityName], 
+    [AdvancedSearchField].[ColumnName] AS [ColumnName], 
+    [AdvancedSearchField].[DisplayName] AS [DisplayName], 
+    [AdvancedSearchField].[DataType] AS [DataType], 
+    [AdvancedSearchField].[ControlType] AS [ControlType]
+    FROM [dbo].[AdvancedSearchField] AS [AdvancedSearchField]</DefiningQuery>
+          </EntitySet>
           <EntitySet Name="DataUpdateSearchProperty" EntityType="Self.DataUpdateSearchProperty" store:Type="Tables" store:Schema="dbo">
             <DefiningQuery>SELECT 
     [DataUpdateSearchProperty].[pkDataUpdateSearchPropertyID] AS [pkDataUpdateSearchPropertyID], 
@@ -2099,6 +2130,7 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <EntitySet Name="DataImportProperties" EntityType="MobileManagerModel.DataImportProperty" />
           <EntitySet Name="DataUpdateProperties" EntityType="MobileManagerModel.DataUpdateProperty" />
           <EntitySet Name="DataUpdateSearchProperties" EntityType="MobileManagerModel.DataUpdateSearchProperty" />
+          <EntitySet Name="AdvancedSearchFields" EntityType="MobileManagerModel.AdvancedSearchField" />
           </EntityContainer>
         <ComplexType Name="sp_report_Invoice_Result">
           <Property Type="String" Name="ClientName" Nullable="false" MaxLength="100" />
@@ -2524,6 +2556,24 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="pkDataUpdateSearchPropertyID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="enDataEntity" Type="Int32" Nullable="false" />
           <Property Name="SearchProperties" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="AdvancedSearchField">
+          <Key>
+            <PropertyRef Name="pkAdvancedSearchField" />
+            <PropertyRef Name="enSearchCategory" />
+            <PropertyRef Name="EntityName" />
+            <PropertyRef Name="ColumnName" />
+            <PropertyRef Name="DisplayName" />
+            <PropertyRef Name="DataType" />
+            <PropertyRef Name="ControlType" />
+          </Key>
+          <Property Name="pkAdvancedSearchField" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="enSearchCategory" Type="Int32" Nullable="false" />
+          <Property Name="EntityName" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="ColumnName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DisplayName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DataType" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="ControlType" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -3159,6 +3209,19 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
                 <ScalarProperty Name="SearchProperties" ColumnName="SearchProperties" />
                 <ScalarProperty Name="enDataEntity" ColumnName="enDataEntity" />
                 <ScalarProperty Name="pkDataUpdateSearchPropertyID" ColumnName="pkDataUpdateSearchPropertyID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AdvancedSearchFields">
+            <EntityTypeMapping TypeName="MobileManagerModel.AdvancedSearchField">
+              <MappingFragment StoreEntitySet="AdvancedSearchField">
+                <ScalarProperty Name="ControlType" ColumnName="ControlType" />
+                <ScalarProperty Name="DataType" ColumnName="DataType" />
+                <ScalarProperty Name="DisplayName" ColumnName="DisplayName" />
+                <ScalarProperty Name="ColumnName" ColumnName="ColumnName" />
+                <ScalarProperty Name="EntityName" ColumnName="EntityName" />
+                <ScalarProperty Name="enSearchCategory" ColumnName="enSearchCategory" />
+                <ScalarProperty Name="pkAdvancedSearchField" ColumnName="pkAdvancedSearchField" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

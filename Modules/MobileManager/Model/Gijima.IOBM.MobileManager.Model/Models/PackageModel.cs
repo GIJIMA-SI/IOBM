@@ -1,4 +1,5 @@
 ﻿using Gijima.IOBM.Infrastructure.Events;
+using Gijima.IOBM.Infrastructure.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Prism.Events;
 using System;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Reflection;
 
 namespace Gijima.IOBM.MobileManager.Model.Models
 {
@@ -83,6 +85,44 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Read all package names from the database
+        /// </summary>
+        /// <param name="activeOnly">Flag to load all or active only entities.</param>
+        /// <returns>Collection of Packages</returns>
+        public ObservableCollection<string> ReadPackageNames(bool activeOnly)
+        {
+            try
+            {
+                IEnumerable<Package> packages = null;
+
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    packages = ((DbQuery<Package>)(from package in db.Packages
+                                                   where activeOnly ? package.IsActive : true
+                                                   select package)).OrderBy(p => p.PackageName).ToList();
+                }
+
+                //Converto to observabile collection of string
+                ObservableCollection<string> packageNames = new ObservableCollection<string>();
+                foreach (Package package in packages)
+                {
+                    packageNames.Add(package.PackageName);
+                }
+                return packageNames;
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                     .Publish(new ApplicationMessage(this.GetType().Name,
+                                              string.Format("Error! {0}, {1}.",
+                                              ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                              MethodBase.GetCurrentMethod().Name,
+                                              ApplicationMessage.MessageTypes.SystemError));
                 return null;
             }
         }

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Reflection;
 
 namespace Gijima.IOBM.MobileManager.Model.Models
 {
@@ -97,6 +98,42 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
                                                                 "ReadBillingLevels",
                                                                 ApplicationMessage.MessageTypes.SystemError));
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Read all billing level names from the database
+        /// </summary>
+        /// <returns>Collection of BillingLevels</returns>
+        public ObservableCollection<string> ReadBillingLevelNames()
+        {
+            try
+            {
+                IEnumerable<BillingLevel> billingLevels = null;
+
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    billingLevels = ((DbQuery<BillingLevel>)(from billingLevel in db.BillingLevels
+                                                             select billingLevel)).OrderBy(p => p.LevelDescription).ToList();
+                }
+
+                //Converto to observabile collection of string
+                ObservableCollection<string> billingLevelNames = new ObservableCollection<string>();
+                foreach (BillingLevel billingLevel in billingLevels)
+                {
+                    billingLevelNames.Add(billingLevel.LevelDescription);
+                }
+                return billingLevelNames;
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
                 return null;
             }
         }
