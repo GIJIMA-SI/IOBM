@@ -107,8 +107,10 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// Read all the external data entries from the database
         /// </summary>
         /// <param name="billingPeriod">The current billing period.</param>
+        /// <param name="state">Indicate pass or fialed state.</param>
+        /// <param name="excludeDefault">Flag to include or exclude the default entity.</param>
         /// <returns>Collection of ExternalData entries</returns>
-        public ObservableCollection<ExternalBillingData> ReadExternalData(string billingPeriod = null, bool state = false)
+        public ObservableCollection<ExternalBillingData> ReadExternalData(string billingPeriod = null, bool state = false, bool excludeDefault = false)
         {
             try
             {
@@ -122,6 +124,9 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         externalData = externalData.Where(p => (p.pkExternalBillingDataID == 0 || p.BillingPeriod == billingPeriod) &&
                                                                 p.PropertyValidationPassed == state);
                     }
+
+                    if (excludeDefault)
+                        externalData = externalData.Where(p => p.pkExternalBillingDataID > 0);
 
                     return new ObservableCollection<ExternalBillingData>(externalData);
                 }
@@ -163,6 +168,44 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 }
 
                 return billingData;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Read all the imported external data file properties for the specified file
+        /// </summary>
+        /// <param name="sqlTableName">The SQL table name.</param>
+        /// <returns>Data table</returns>
+        public IEnumerable<string> ReadExternalBillingDataProperties(string sqlTableName)
+        {
+            try
+            {
+                string connectionString = MobileManagerEntities.GetContext().Database.Connection.ConnectionString;
+                string sql = "SELECT * FROM [" + sqlTableName + "]";
+                DataTable billingData = new DataTable();
+                List<string> properties = new List<string>(); 
+
+                using (SqlConnection con = new SqlConnection(connectionString))
+                {
+                    con.Open();
+                    SqlCommand cmd = new SqlCommand(sql, con);
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                    {
+                        adapter.Fill(billingData);
+                    }
+                    con.Close();
+                }
+
+                foreach (DataColumn column in billingData.Columns)
+                {
+                    properties.Add(column.ColumnName);
+                }
+
+                return properties;
             }
             catch (Exception ex)
             {

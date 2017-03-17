@@ -496,9 +496,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             // and enable functionality to move to the process completed
             _eventAggregator.GetEvent<BillingProcessCompletedEvent>().Subscribe(BillingProcessCompleted_Event, true);
 
-            // Subscribe to this event to lock the started process
-            // and disable functionality to move to the process completed
-            _eventAggregator.GetEvent<BillingProcessStartedEvent>().Subscribe(BillingProcessStarted_Event, true);
+            //// Subscribe to this event to lock the started process
+            //// and disable functionality to move to the process completed
+            //_eventAggregator.GetEvent<BillingProcessStartedEvent>().Subscribe(BillingProcessStarted_Event, true);
 
             // Load the view data
             ReadDataValidationGroups();
@@ -811,8 +811,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     // Update the process progress values on the wizard's Info content
                     _eventAggregator.GetEvent<BillingProcessEvent>().Publish(BillingExecutionState.InternalDataValidation);
 
-                    // Disable the next buttton when the process gets started
-                    _eventAggregator.GetEvent<BillingProcessStartedEvent>().Publish(BillingExecutionState.InternalDataValidation);
+                    //// Disable the next buttton when the process gets started
+                    //_eventAggregator.GetEvent<BillingProcessStartedEvent>().Publish(BillingExecutionState.InternalDataValidation);
                 }
 
                 // Set the group progressbar max value

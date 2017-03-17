@@ -99,5 +99,43 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 return null;
             }
         }
+
+        /// <summary>
+        /// Delete an existing data validation property in the database
+        /// </summary>
+        /// <param name="propertyID">The property ID to delete exceptions for.</param>
+        /// <returns>True if successfull</returns>
+        public bool DeleteDataValidationExceptions(int propertyID)
+        {
+            try
+            {
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    IEnumerable<DataValidationException> exceptions = db.DataValidationExceptions.Where(p => p.fkDataValidationPropertyID == propertyID).ToList();
+
+                    if (exceptions != null && exceptions.Count() > 0)
+                    {
+                        foreach (DataValidationException exception in exceptions)
+                        {
+                            db.DataValidationExceptions.Remove(exception);
+                        }
+                        
+                        db.SaveChanges();
+                    }
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("DataValidationExceptionModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "DeleteDataValidationExceptions",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+                return false;
+            }
+        }
     }
 }

@@ -24,6 +24,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private BillingProcessModel _model = null;
         private IEventAggregator _eventAggregator;
         private SecurityHelper _securityHelper = null;
+        private BillingProcessHistory _currentProcessHistory = null;
 
         #region Commands
 
@@ -147,24 +148,24 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private int _selectedBillingYear;
 
         /// <summary>
-        /// Indicate if the billing run started
+        /// Indicate if the billing run can be started
         /// </summary>
-        public bool BillingRunStarted
+        public bool CanStartBillingProcess
         {
-            get { return _billingRunStarted; }
-            set { SetProperty(ref _billingRunStarted, value); }
+            get { return _canStartBillingProcess; }
+            set { SetProperty(ref _canStartBillingProcess, value); }
         }
-        private bool _billingRunStarted = false;
+        private bool _canStartBillingProcess = false;
 
         /// <summary>
-        /// Indicate if the billing start process completed
+        /// Indicate if the billing run started
         /// </summary>
-        public bool StartProcessCompleted
+        public bool CanMoveNext
         {
-            get { return _startProcessCompleted; }
-            set { SetProperty(ref _startProcessCompleted, value); }
+            get { return _canMoveNext; }
+            set { SetProperty(ref _canMoveNext, value); }
         }
-        private bool _startProcessCompleted = false;
+        private bool _canMoveNext = false;
 
         /// <summary>
         /// Indicate if the billing data validation process completed
@@ -248,38 +249,26 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
 
         /// <summary>
-        /// This event gets received to disable the next button 
-        /// when the process completed
+        /// This event gets received to disable the stratt button 
+        /// when the process is already started
         /// </summary>
         /// <param name="sender">The error message.</param>
-        private void BillingProcessStarted_Event(BillingExecutionState sender)
+        private void BillingCurrentHistory_Event(object sender)
         {
-            switch (sender)
-            {
-                case BillingExecutionState.StartBillingProcess:
-                    Application.Current.Dispatcher.Invoke(() => { BillingRunStarted = true; StartProcessCompleted = false; }); break;
-                case BillingExecutionState.InternalDataValidation:
-                    Application.Current.Dispatcher.Invoke(() => { DataValidationProcessCompleted = false; }); break;
+            CanStartBillingProcess = false;
 
-            }
-        }
+            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.CloseBillingProcess &&
+                _currentProcessHistory.ProcessEndDate != null && _currentProcessHistory.ProcessResult != null)
+                CanStartBillingProcess = true;
 
-        /// <summary>
-        /// This event gets received to enable the next button 
-        /// when the process completed
-        /// </summary>
-        /// <param name="sender">The error message.</param>
-        private void BillingProcessCompleted_Event(BillingExecutionState sender)
-        {
-            switch (sender)
-            {
-                case BillingExecutionState.StartBillingProcess:
-                    Application.Current.Dispatcher.Invoke(() => { BillingRunStarted = StartProcessCompleted = true; }); break;
-                case BillingExecutionState.InternalDataValidation:
-                    Application.Current.Dispatcher.Invoke(() => { BillingRunStarted = DataValidationProcessCompleted = true; }); break;
-                case BillingExecutionState.ExternalDataValidation:
-                    Application.Current.Dispatcher.Invoke(() => { BillingRunStarted = DataValidationProcessCompleted = true; }); break;
-            }
+            // Only allow to move next page if the current page process has been completed
+            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.CloseBillingProcess ||
+                ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID != BillingExecutionState.StartBillingProcess &&
+                 _currentProcessHistory.fkBillingProcessID == BillingWizardProgress && _currentProcessHistory.ProcessResult == null) ||
+                BillingWizardProgress > BillingProcessProgress)
+                CanMoveNext = false;
+            else
+                CanMoveNext = true;
         }
 
         /// <summary>
@@ -316,21 +305,15 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             InitialiseViewControls();
 
             // Initialise the view commands
-            AcceptCommand = new DelegateCommand(ExecuteAccept, CanExecuteAccept).ObservesProperty(() => BillingRunStarted)
-                                                                                .ObservesProperty(() => StartProcessCompleted);
+            AcceptCommand = new DelegateCommand(ExecuteAccept, CanExecuteAccept).ObservesProperty(() => CanStartBillingProcess);
             NextCommand = new DelegateCommand(ExecuteNextPage); 
             BackCommand = new DelegateCommand(ExecutePreviousPage);
 
             // Subscribe to this event to update the process progress values
             _eventAggregator.GetEvent<BillingProcessEvent>().Subscribe(BillingProcess_Event, true);
 
-            // Subscribe to this event to lock the completed process
-            // and enable functionality to move to the process completed
-            _eventAggregator.GetEvent<BillingProcessCompletedEvent>().Subscribe(BillingProcessCompleted_Event, true);
-
-            // Subscribe to this event to lock the started process
-            // and disable functionality to move to the process completed
-            _eventAggregator.GetEvent<BillingProcessStartedEvent>().Subscribe(BillingProcessStarted_Event, true);
+            // Subscribe to this event to disable functionality start the billing process if its already started
+            _eventAggregator.GetEvent<BillingCurrentHistoryEvent>().Subscribe(BillingCurrentHistory_Event, true);        
 
             // Subscribe to this event to update the billing process history on the wizard's Info content
             _eventAggregator.GetEvent<BillingProcessHistoryEvent>().Subscribe(BillingProcessHistory_Event, true);
@@ -344,14 +327,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// </summary>
         private void InitialiseViewControls()
         {
-            BillingWizardPageCount = 4;
             BillingWizardProgress = 1;
             BillingProcessProgress = 0;
             SelectedBillingPeriod = MobileManagerEnvironment.BillingPeriod;
             SelectedBillingMonth = Convert.ToInt32(MobileManagerEnvironment.BillingPeriod.Substring(5, 2));
             SelectedBillingYear =  Convert.ToInt32(MobileManagerEnvironment.BillingPeriod.Substring(0, 4));
-            BillingWizardDescription = string.Format("Billing step - {0} of {1}", 1, BillingWizardPageCount);
-            BillingRunStarted = false;
         }
 
         /// <summary>
@@ -362,7 +342,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             try
             {
                 BillingProcessCollection = await Task.Run(() => _model.ReadBillingProcesses());
-                BillingProcessCount = BillingProcessCollection.Count;
+                BillingProcessCount = BillingWizardPageCount = BillingProcessCollection.Count;
+                BillingWizardDescription = string.Format("Billing step - {0} of {1}", 1, BillingWizardPageCount);
 
                 // Read the process history
                 await ReadBillingProcessHistoryAsync();
@@ -390,14 +371,20 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 // Get the current process history entity
                 if (ProcessHistoryCollection != null && ProcessHistoryCollection.Count > 0)
                 {
-                    BillingProcessHistory currentProcessHistory = ProcessHistoryCollection.Where(p => p.ProcessCurrent).FirstOrDefault();
+                    _currentProcessHistory = ProcessHistoryCollection.Where(p => p.ProcessCurrent).FirstOrDefault();
 
-                    BillingProcessProgress = currentProcessHistory.fkBillingProcessID;
+                    BillingProcessProgress = _currentProcessHistory.fkBillingProcessID;
                     BillinProcessDescription = string.Format("Executing Process - {0} of {1}", BillingProcessProgress, BillingProcessCount);
 
-                    // Lock all the completed processes
-                    if (currentProcessHistory != null)
-                        await Task.Run(() => SetCurrentBillingProcessesAsync(currentProcessHistory));
+                    // Set the move next page button
+                    if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.CloseBillingProcess)
+                        CanMoveNext = false;
+                    else
+                        CanMoveNext = true;
+
+                    // Publish this event to lock the started process
+                    if (_currentProcessHistory != null)
+                        _eventAggregator.GetEvent<BillingCurrentHistoryEvent>().Publish(_currentProcessHistory);
                 }
             }
             catch (Exception ex)
@@ -435,50 +422,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
         }
 
-        /// <summary>
-        /// Set all the billing processes already completed as completed
-        /// </summary>
-        /// <param name="currentProcessHistory">The current process history entity.</param>
-        private void SetCurrentBillingProcessesAsync(BillingProcessHistory currentProcessHistory)
-        {
-            try
-            {
-                foreach (BillingProcess process in BillingProcessCollection)
-                {
-                    if (process.pkBillingProcessID < currentProcessHistory.fkBillingProcessID ||
-                        (process.pkBillingProcessID == currentProcessHistory.fkBillingProcessID &&
-                         (BillingExecutionState)process.pkBillingProcessID != BillingExecutionState.CloseBillingProcess &&
-                         currentProcessHistory.ProcessEndDate != null && currentProcessHistory.ProcessResult == true))
-                    {
-                        // Publish this event to lock the completed process and enable functinality to move to the next process
-                        _eventAggregator.GetEvent<BillingProcessCompletedEvent>().Publish((BillingExecutionState)process.pkBillingProcessID);
-                    }
-                    else if (process.pkBillingProcessID == currentProcessHistory.fkBillingProcessID &&
-                             currentProcessHistory.ProcessEndDate == null && currentProcessHistory.ProcessResult == null)
-                    {
-                        // Publish this event to lock the started process and disable functinality to move to the next process
-                        _eventAggregator.GetEvent<BillingProcessStartedEvent>().Publish((BillingExecutionState)process.pkBillingProcessID);
-                    }
-
-                    // When the current billing run is closed then allow for the new run to be strated
-                    if ((BillingExecutionState)currentProcessHistory.fkBillingProcessID == BillingExecutionState.CloseBillingProcess &&
-                        currentProcessHistory.ProcessEndDate != null && currentProcessHistory.ProcessResult != null)
-                    {
-                        Application.Current.Dispatcher.Invoke(() => { BillingRunStarted = StartProcessCompleted = false; });
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("ViewBillingViewModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "SetCompletedBillingProcessesAsync",
-                                                                ApplicationMessage.MessageTypes.SystemError));
-            }
-        }
-
         #region Lookup Data Loading
 
         #endregion
@@ -492,9 +435,14 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             BillingWizardProgress++;
             BillingWizardDescription = string.Format("Billing step - {0} of {1}", BillingWizardProgress, BillingWizardPageCount);
+            CanMoveNext = false;
 
             // Publish this event to show the data validation control header
             _eventAggregator.GetEvent<DataValiationHeaderEvent>().Publish(false);
+
+            // Publish this event to lock the started process
+            if (_currentProcessHistory != null)
+                _eventAggregator.GetEvent<BillingCurrentHistoryEvent>().Publish(_currentProcessHistory);
         }
 
         /// <summary>
@@ -504,6 +452,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             --BillingWizardProgress;
             BillingWizardDescription = string.Format("Billing step - {0} of {1}", BillingWizardProgress, BillingWizardPageCount);
+            CanMoveNext = true;
         }
 
         /// <summary>
@@ -512,7 +461,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <returns>True if valid</returns>
         private bool CanExecuteAccept()
         {
-            return BillingRunStarted || StartProcessCompleted ? false : true;
+            return CanStartBillingProcess ? true : false;
         }
 
         /// <summary>
@@ -526,7 +475,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 await CreateNewBillingProcessHistoryAsync();
 
                 // Publish this event to lock the started process and disable functinality to move to the next process
-                _eventAggregator.GetEvent<BillingProcessStartedEvent>().Publish((BillingExecutionState.InternalDataValidation));
+                CanStartBillingProcess = CanMoveNext = false;
             }
             catch (Exception ex)
             {
