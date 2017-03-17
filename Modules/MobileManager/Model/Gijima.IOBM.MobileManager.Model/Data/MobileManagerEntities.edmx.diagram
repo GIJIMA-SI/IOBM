@@ -86,7 +86,8 @@
         <EntityTypeShape EntityType="MobileManagerModel.DataImportProperty" Width="1.5" PointX="4.875" PointY="9.375" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.DataUpdateProperty" Width="1.5" PointX="4.875" PointY="9.875" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.DataUpdateSearchProperty" Width="1.5" PointX="3.25" PointY="9.875" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.AdvancedSearchField" Width="1.5" PointX="7.125" PointY="9.375" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.AdvancedSearchField" Width="1.5" PointX="7.125" PointY="9.125" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.AdvancedSearchMap" Width="1.5" PointX="7.125" PointY="9.625" IsExpanded="false" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

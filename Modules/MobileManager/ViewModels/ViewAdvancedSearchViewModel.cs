@@ -4,6 +4,8 @@ using Gijima.IOBM.Infrastructure.Structs;
 using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Gijima.IOBM.MobileManager.Model.Models;
+using Gijima.IOBM.MobileManager.Security;
+using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
 using System;
@@ -22,14 +24,18 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         #region Properties & Attributes
 
         private IEventAggregator _eventAggregator;
+        private SecurityHelper _securityHelper = null;
         private string _defaultItem = "-- Please Select --";
         private string _defaultEnum = "None";
 
         #region Commands
+
+        public DelegateCommand AddCommand { get; set; }
+
         #endregion
 
         #region Properties
-
+        
         /// <summary>
         /// The data entity display name
         /// </summary>
@@ -40,9 +46,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
         private string _dataEntityDisplayName = string.Empty;
 
-        
-        #region View Lookup Data Collection
 
+        #region View Lookup Data Collection
+        
         /// <summary>
         /// The collection of entity columns for the selected category from the database
         /// </summary>
@@ -124,7 +130,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     defaultItem.ColumnName = defaultItem.DataType = defaultItem.ColumnName = defaultItem.ControlType = string.Empty;
                     defaultItem.enSearchCategory = 0;
                     defaultItem.DisplayName = _defaultItem;
-                    
+
                     List<AdvancedSearchField> searchColumns = new List<AdvancedSearchField>();
                     searchColumns = AdvancedSearchFieldCollection.Where(p => p.enSearchCategory == EnumHelper.GetEnumFromDescription<SearchCategory>(SelectedSearchCategory).Value()).ToList();
                     searchColumns.Insert(0, defaultItem);
@@ -197,6 +203,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _calendarValueShow, value); }
         }
         private string _calendarValueShow;
+
+        /// <summary>
+        /// Operator type show visibility
+        /// </summary>
+        public string ShowOperatorType
+        {
+            get { return _showOperatorType; }
+            set { SetProperty(ref _showOperatorType, value); }
+        }
+        private string _showOperatorType;
 
         /// <summary>
         /// The selected operator
@@ -321,7 +337,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
         private Brush _validValidation = Brushes.Red;
 
-        
+
         /// <summary>
         /// Input validation properties
         /// </summary>
@@ -369,7 +385,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             _eventAggregator = eventAggregator;
             InitialiseViewControls();
+            _securityHelper = new SecurityHelper(eventAggregator);
             ReadDataEntities();
+            InitialiseValidationCFView();
         }
 
         /// <summary>
@@ -380,10 +398,23 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             ReadSearchCategories();
             ReadSearchColumnCollection();
             TextBoxValueShow = ComboBoxValueShow = CalendarValueShow = "Hidden";
+            ShowOperatorType = "Visible";
             //Set the selected SearchCategory
             SelectedSearchCategory = SearchCategorieCollection.Where(x => x == _defaultItem).FirstOrDefault();
 
             SelectedColumn = null;
+        }
+
+        /// <summary>
+        /// Initialise all the view dependencies
+        /// </summary>
+        private void InitialiseValidationCFView()
+        {
+            //Test if rule can be added
+            AddCommand = new DelegateCommand(ExecuteAdd, CanExecuteAdd).ObservesProperty(() => ValidDataEntity)
+                                                                       .ObservesProperty(() => ValidColumnName)
+                                                                       .ObservesProperty(() => ValidOperator)
+                                                                       .ObservesProperty(() => ValidValidation);
         }
 
         /// <summary>
@@ -395,17 +426,17 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             switch (Component)
             {
                 case "TextBox":
-                    TextBoxValueShow = "Visible";
+                    TextBoxValueShow = ShowOperatorType = "Visible";
                     TextBoxValidationValue = string.Empty;
                     ComboBoxValueShow = CalendarValueShow = "Hidden";
                     break;
                 case "ComboBox":
                     ComboBoxValueShow = "Visible";
                     ComboBoxValidationValue = _defaultItem;
-                    TextBoxValueShow = CalendarValueShow = "Hidden";
+                    TextBoxValueShow = CalendarValueShow = ShowOperatorType = "Hidden";
                     break;
                 case "Calendar":
-                    CalendarValueShow = "Visible";
+                    CalendarValueShow = ShowOperatorType = "Visible";
                     CalendarValidationValue = DateTime.Now;
                     ComboBoxValueShow = TextBoxValueShow = "Hidden";
                     break;
@@ -428,7 +459,94 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             return collection;
         }
 
+        /// <summary>
+        /// Returs a boolean if mapping was successful
+        /// Mapping is accessed in the ref path list
+        /// </summary>
+        /// <param name="allMappings"></param>
+        /// <param name="mappingToSearch"></param>
+        /// <param name="searchingFor"></param>
+        /// <param name="path"></param>
+        /// <param name="keys"></param>
+        /// <returns></returns>
+        public bool GetMappingPath(List<Mapping> allMappings, string mappingToSearch, string searchingFor, ref List<string> path, ref List<int> keys)
+        {
+            Mapping map = allMappings.Where(p => p.Me == mappingToSearch).FirstOrDefault();
+            List<string> newEntities = new List<string>();
+
+            foreach (AdvancedSearchMap advancedSearchMap in map.Connections)
+            {
+                string otherEntity = advancedSearchMap.FromEntity == mappingToSearch ? advancedSearchMap.ToEntity : advancedSearchMap.FromEntity;
+                if (otherEntity == searchingFor)
+                {
+                    path.Add(otherEntity);
+                    return true;
+                }
+                else
+                {
+                    if (!keys.Any(p => p == advancedSearchMap.pkAdvancedSearchMapID))
+                    {
+                        newEntities.Add(otherEntity);
+                        keys.Add(advancedSearchMap.pkAdvancedSearchMapID);
+                        path.Add(otherEntity);
+                    }
+                }
+
+                foreach (string newMapping in newEntities)
+                {
+                    if (GetMappingPath(allMappings, newMapping, searchingFor, ref path, ref keys))
+                        return true;
+                    if (newMapping == otherEntity)
+                        path.Remove(otherEntity);
+                }
+
+            }
+            return false;
+        }
+
         #region Lookup Data Loading
+
+        /// <summary>
+        /// Computes the mapping for the requested tables
+        /// </summary>
+        /// <param name="Entity1"></param>
+        /// <param name="Column1"></param>
+        /// <param name="Entity2"></param>
+        /// <param name="Column2"></param>
+        public void CalculateMapping(string Entity1, string Column1, string Entity2, string Column2)
+        {
+            
+            if (Column1.StartsWith("fk"))
+            {
+                IEnumerable<AdvancedSearchMap> advancedSearchMapping = new AdvancedSearchMapModel(_eventAggregator).ReadAdvancedSearchMappings();
+                List<string> allEntities = new AdvancedSearchFieldModel(_eventAggregator).DistinctEntityName();
+                List<Mapping> allMappings = new List<Mapping>();
+
+                foreach (string entity in allEntities)
+                {
+                    Mapping mapping = new Mapping();
+                    mapping.Me = entity;
+
+                    foreach (AdvancedSearchMap advancedSearchMap in advancedSearchMapping)
+                    {
+                        if (advancedSearchMap.FromEntity == entity || advancedSearchMap.ToEntity == entity)
+                        {
+                            mapping.Connections.Add(advancedSearchMap);
+                        }
+                    }
+                    allMappings.Add(mapping);
+                }
+
+                List<string> path = new List<string>();
+                Mapping map = allMappings.Where(p => p.Me == Entity1).FirstOrDefault();
+                List<int> keys = new List<int>();
+                path.Add(Entity1);
+                bool found = GetMappingPath(allMappings, Entity1, Entity2, ref path, ref keys);
+
+            }
+            else
+            { }
+        }
 
         /// <summary>
         /// Read all the advanced search entity names from the enum class
@@ -510,7 +628,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                              ApplicationMessage.MessageTypes.SystemError));
             }
         }
-        
+
         /// <summary>
         /// Load all the data type operators from the string, 
         /// numeric and date OperatorType enum's
@@ -742,8 +860,74 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         #endregion
 
         #region Command Execution
+
+        /// <summary>
+        /// Set add command buttons enabled/disabled state
+        /// </summary>
+        /// <returns></returns>
+        private bool CanExecuteAdd()
+        {
+            bool result = true;
+            result =  _securityHelper.IsUserInRole(SecurityRole.Administrator.Value()) || _securityHelper.IsUserInRole(SecurityRole.DataManager.Value());
+
+            if (result)
+            {
+                result = ValidDataEntity == Brushes.Silver && ValidColumnName == Brushes.Silver && ValidValidation == Brushes.Silver ? true : false;
+            }
+
+            if (result)
+            {
+                result = ShowOperatorType == "Visible" && ValidOperator == Brushes.Silver || ShowOperatorType == "Hidden" ? true : false;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Execute when the add command button is clicked 
+        /// </summary>
+        private void ExecuteAdd()
+        {
+            
+        }
+
         #endregion
 
         #endregion
+    }
+
+    /// <summary>
+    /// A class to keep data on the mapping
+    /// to compute till path is found
+    /// </summary>
+    public class Mapping
+    {
+        /// <summary>
+        /// The AdvancedSearch object name
+        /// </summary>
+        public string Me
+        {
+            get { return _me; }
+            set { _me = value; }
+        }
+        private string _me;
+
+        /// <summary>
+        /// All the joins to me
+        /// </summary>
+        public List<AdvancedSearchMap> Connections
+        {
+            get { return _connections; }
+            set { _connections = value; }
+        }
+        private List<AdvancedSearchMap> _connections;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public Mapping()
+        {
+            Connections = new List<AdvancedSearchMap>();
+        }
     }
 }

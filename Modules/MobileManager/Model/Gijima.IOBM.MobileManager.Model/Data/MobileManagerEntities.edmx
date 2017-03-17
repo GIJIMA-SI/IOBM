@@ -25,6 +25,14 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.AdvancedSearchField' does n
           <Property Name="DataType" Type="varchar" MaxLength="10" Nullable="false" />
           <Property Name="ControlType" Type="varchar" MaxLength="25" Nullable="false" />
         </EntityType>
+        <EntityType Name="AdvancedSearchMap">
+          <Key>
+            <PropertyRef Name="pkAdvancedSearchMapID" />
+          </Key>
+          <Property Name="pkAdvancedSearchMapID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FromEntity" Type="varchar" MaxLength="25" Nullable="false" />
+          <Property Name="ToEntity" Type="varchar" MaxLength="25" Nullable="false" />
+        </EntityType>
         <EntityType Name="AppSetting">
           <Key>
             <PropertyRef Name="pkAppSettingID" />
@@ -1042,6 +1050,7 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Parameter Name="invoiceID" Type="int" Mode="In" />
         </Function>
         <EntityContainer Name="MobileManagerModelStoreContainer">
+          <EntitySet Name="AdvancedSearchMap" EntityType="Self.AdvancedSearchMap" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AppSetting" EntityType="Self.AppSetting" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AuditLog" EntityType="Self.AuditLog" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BillingLevel" EntityType="Self.BillingLevel" Schema="dbo" store:Type="Tables" />
@@ -2131,6 +2140,7 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <EntitySet Name="DataUpdateProperties" EntityType="MobileManagerModel.DataUpdateProperty" />
           <EntitySet Name="DataUpdateSearchProperties" EntityType="MobileManagerModel.DataUpdateSearchProperty" />
           <EntitySet Name="AdvancedSearchFields" EntityType="MobileManagerModel.AdvancedSearchField" />
+          <EntitySet Name="AdvancedSearchMaps" EntityType="MobileManagerModel.AdvancedSearchMap" />
           </EntityContainer>
         <ComplexType Name="sp_report_Invoice_Result">
           <Property Type="String" Name="ClientName" Nullable="false" MaxLength="100" />
@@ -2574,6 +2584,14 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="DisplayName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="DataType" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
           <Property Name="ControlType" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="AdvancedSearchMap">
+          <Key>
+            <PropertyRef Name="pkAdvancedSearchMapID" />
+          </Key>
+          <Property Name="pkAdvancedSearchMapID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FromEntity" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="ToEntity" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -3222,6 +3240,15 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
                 <ScalarProperty Name="EntityName" ColumnName="EntityName" />
                 <ScalarProperty Name="enSearchCategory" ColumnName="enSearchCategory" />
                 <ScalarProperty Name="pkAdvancedSearchField" ColumnName="pkAdvancedSearchField" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AdvancedSearchMaps">
+            <EntityTypeMapping TypeName="MobileManagerModel.AdvancedSearchMap">
+              <MappingFragment StoreEntitySet="AdvancedSearchMap">
+                <ScalarProperty Name="ToEntity" ColumnName="ToEntity" />
+                <ScalarProperty Name="FromEntity" ColumnName="FromEntity" />
+                <ScalarProperty Name="pkAdvancedSearchMapID" ColumnName="pkAdvancedSearchMapID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

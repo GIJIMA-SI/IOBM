@@ -46,17 +46,9 @@
                         Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding CancelCommand}">
                         <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico" Margin="2"/>
                     </Button>
-                    <Button x:Name="ButtonAdd" ToolTip="Add a new data validation rule." TabIndex="10" Margin="0,0,2,0"
-                        Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding AddCommand}">
-                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/508.png" Margin="2,2,2,2"/>
-                    </Button>
-                    <Button x:Name="ButtonDelete" ToolTip="Delete the selected data validation rule." TabIndex="11" Margin="0,0,2,0"
-                        Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding DeleteCommand}">
-                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/278.png" Margin="2,2,2,2"/>
-                    </Button>
-                    <Button x:Name="ButtonSave" ToolTip="Save the data validation rule." TabIndex="12" Margin="0"
-                        Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding SaveCommand}">
-                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/save_32.ico" Margin="2"/>
+                    <Button x:Name="ButtonSearch" ToolTip="Search with the provided rules" TabIndex="12" Margin="0"
+                        Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding SearchCommand}">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/search_32.ico" Margin="2"/>
                     </Button>
                 </StackPanel>
             </Grid>
@@ -101,18 +93,14 @@
                     SelectedItem="{Binding SelectedColumn, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="DisplayName">
                     </ComboBox>
                 </Border>
-                <TextBlock Grid.Row="0" Grid.Column="6" Text="Operator type:" Style="{StaticResource UXLabelTextStyle}" Margin="0,0,5,0"></TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="6" Visibility="{Binding ShowOperatorType}" Text="Operator type:" Style="{StaticResource UXLabelTextStyle}" Margin="0,0,5,0"></TextBlock>
                 <Border Grid.Row="0" Grid.Column="7" BorderThickness="1" BorderBrush="{Binding ValidOperatorType}">
-                    <!--<ComboBox x:Name="ComboBoxOperatorType" ToolTip="Select the operator type based on the data type." TabIndex="5" IsSynchronizedWithCurrentItem="True" Margin="0,0,5,0"
-                        ItemsSource="{Binding OperatorTypeCollection}" Height="22"
-                        SelectedItem="{Binding SelectedOperatorType, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
-                    </ComboBox>-->
-                    <TextBox x:Name="TextBoxOperatorType" Grid.Row="0" Height="22" IsReadOnly="True" Style="{StaticResource UXTextBoxStyle}" ToolTip="Value type"
+                    <TextBox x:Name="TextBoxOperatorType" Grid.Row="0" Visibility="{Binding ShowOperatorType}" Height="22" IsReadOnly="True" Style="{StaticResource UXTextBoxStyle}" ToolTip="Value type"
                         Text="{Binding SelectedOperatorType, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,5,0">
                     </TextBox>
                 </Border>
-                <Border Grid.Row="0" Grid.Column="8" BorderThickness="1" BorderBrush="{Binding ValidOperator}">
-                    <ComboBox x:Name="ComboBoxOperator" ToolTip="Select the operator." TabIndex="6" IsSynchronizedWithCurrentItem="True"
+                <Border Grid.Row="0" Grid.Column="8" BorderThickness="1" Visibility="{Binding ShowOperatorType}" BorderBrush="{Binding ValidOperator}">
+                    <ComboBox x:Name="ComboBoxOperator" ToolTip="Select the operator." Visibility="{Binding ShowOperatorType}" TabIndex="6" IsSynchronizedWithCurrentItem="True"
                         ItemsSource="{Binding OperatorCollection}" SelectedItem="{Binding SelectedOperator, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Height="24">
                     </ComboBox>
                 </Border>
@@ -138,9 +126,13 @@
                         Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding CancelCommand}">
                 <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico" Margin="2"/>
             </Button>
-            <Button x:Name="ButtonClearSelected" ToolTip="Delete the selected data validation rule." TabIndex="11" Margin="0,0,2,0"
+            <!--<Button x:Name="ButtonClearSelected" ToolTip="Delete the selected data validation rule." TabIndex="11" Margin="0,0,2,0"
                         Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding DeleteCommand}">
                 <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/278.png" Margin="2,2,2,2"/>
+            </Button>-->
+            <Button x:Name="ButtonAdd" ToolTip="Add a new data validation rule." TabIndex="10" Margin="0,0,2,0"
+                        Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding AddCommand}">
+                <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/508.png" Margin="2,2,2,2"/>
             </Button>
         </StackPanel>
         <ListBox Grid.Row="4" Margin="5"></ListBox>
