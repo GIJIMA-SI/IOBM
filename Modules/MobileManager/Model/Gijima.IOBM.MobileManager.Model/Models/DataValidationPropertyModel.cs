@@ -1,8 +1,8 @@
 ﻿using Gijima.IOBM.Infrastructure.Events;
 using Gijima.IOBM.Infrastructure.Structs;
+using Gijima.IOBM.MobileManager.Common.Events;
 using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
-using Gijima.IOBM.MobileManager.Model.Helpers;
 using Prism.Events;
 using System;
 using System.Collections.Generic;
@@ -196,6 +196,159 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                                 string.Format("Error! {0}, {1}.",
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
                                                                 "ReadExternalDataPropertiesAsync",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Delete an existing data validation property in the database
+        /// </summary>
+        /// <param name="validationProperty">The data validation property to delete.</param>
+        /// <returns>True if successfull</returns>
+        public bool DeleteDataValidationProperty(DataValidationProperty validationProperty)
+        {
+            try
+            {
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    // First delete all the exceptions link to the property
+                    if (new DataValidationExceptionModel(_eventAggregator).DeleteDataValidationExceptions(validationProperty.pkDataValidationPropertyID))
+                    {
+                        // Get the property to delete
+                        DataValidationProperty propertyToDelete = db.DataValidationProperties.Where(p => p.pkDataValidationPropertyID == validationProperty.pkDataValidationPropertyID).FirstOrDefault();
+
+                        if (propertyToDelete != null)
+                        {
+                            db.DataValidationProperties.Remove(propertyToDelete);
+                            db.SaveChanges();
+                        }
+                    }
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("DataValidationPropertyModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "DeleteDataValidationProperty",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Validate the external data validation rules based on the specified data file properties
+        /// </summary>
+        /// <param name="externalBillingData">The external billing data entity to validate against.</param>
+        /// <returns>True if successfull</returns>
+        public bool ValidateExtDataValidationRules(ExternalBillingData externalBillingData)
+        {
+            try
+            {
+                DataValidationException validationResult = null;
+                bool result = true;
+                bool invalidRule = false;
+
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    // Get all the properties of the external data file
+                    IEnumerable<string> externalFileProperties = new ExternalBillingDataModel(_eventAggregator).ReadExternalBillingDataProperties(externalBillingData.TableName);
+
+                    if (externalFileProperties.Count() > 0)
+                    {
+                        // Get all the data validation properties for the external data file
+                        IEnumerable<DataValidationProperty> dataValidationProperties = new DataValidationPropertyModel(_eventAggregator).ReadExtDataValidationProperties(DataValidationGroupName.ExternalData.Value(), externalBillingData.pkExternalBillingDataID);
+
+                        foreach (DataValidationProperty property in dataValidationProperties)
+                        {
+                            result = true;
+
+                            // Initialise the progress values
+                            _eventAggregator.GetEvent<ProgressBarInfoEvent>().Publish(new ProgressBarInfo()
+                            {
+                                CurrentValue = 1,
+                                MaxValue = dataValidationProperties.Count(),
+                            });
+
+                            // Validate if an existing data validation property
+                            // exists in the external data file, If it does not exist
+                            // then check if there is a rule linked to it. If there is a
+                            // rule linked to it then show rule exception error else delete the 
+                            // data validation property 
+                            if (!externalFileProperties.Contains(property.ExtDataValidationProperty))
+                            {
+                                // Check to see if any rules are linked to the property
+                                if (db.DataValidationRules.Any(p => p.enDataValidationGroupName == property.enDataValidationGroupName &&
+                                                                    p.DataValidationEntityID == property.enDataValidationEntity &&
+                                                                    p.fkDataValidationPropertyID == property.pkDataValidationPropertyID))
+                                {
+                                    result = false;
+                                    invalidRule = true;
+                                }
+
+                                // If no rules are linked
+                                // then delete the property
+                                if (result)
+                                    DeleteDataValidationProperty(property);
+                            }
+
+                            // Update the validation result values
+                            validationResult = new DataValidationException();
+                            if (result)
+                            {
+                                validationResult = new DataValidationException()
+                                {
+                                    fkBillingProcessID = BillingExecutionState.ExternalDataRuleValidation.Value(),
+                                    fkDataValidationPropertyID = property.pkDataValidationPropertyID,
+                                    BillingPeriod = string.Format("{0}{1}", DateTime.Now.Month.ToString().PadLeft(2, '0'), DateTime.Now.Year),
+                                    enDataValidationGroupName = DataValidationGroupName.ExternalData.Value(),
+                                    DataValidationEntityID = (int)property.enDataValidationEntity,
+                                    Result = true
+                                };
+
+                                _eventAggregator.GetEvent<DataValiationResultEvent>().Publish(validationResult);
+                            }
+                            else
+                            {
+                                validationResult = new DataValidationException()
+                                {
+                                    fkBillingProcessID = BillingExecutionState.ExternalDataRuleValidation.Value(),
+                                    fkDataValidationPropertyID = property.pkDataValidationPropertyID,
+                                    BillingPeriod = string.Format("{0}{1}", DateTime.Now.Month.ToString().PadLeft(2, '0'), DateTime.Now.Year),
+                                    enDataValidationGroupName = DataValidationGroupName.ExternalData.Value(),
+                                    DataValidationEntityID = (int)property.enDataValidationEntity,
+                                    CanApplyRule = false,
+                                    Message = string.Format("The data validation rule based on the {0} property in the {1} file is invalid. Please update or delete the rule.",
+                                                            property.ExtDataValidationProperty.ToUpper(), externalBillingData.TableName),
+                                    Result = false
+                                };
+
+                                _eventAggregator.GetEvent<DataValiationResultEvent>().Publish(validationResult);
+                            }
+
+                            // Update the progress values for the last property
+                            _eventAggregator.GetEvent<ProgressBarInfoEvent>().Publish(new ProgressBarInfo()
+                            {
+                                CurrentValue = dataValidationProperties.Count(),
+                                MaxValue = dataValidationProperties.Count(),
+                            });
+                        }
+                    }
+                }
+
+                return invalidRule ? false : true;
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("DataValidationPropertyModel",
+                                                                string.Format("Error! {0} {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ValidateExtDataValidationRules",
                                                                 ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }

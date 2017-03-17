@@ -31,9 +31,9 @@
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Row="0" Grid.Column="0" Grid.RowSpan="4" Margin="0,10,0,0">
             <Button x:Name="ButtonStartStop" ToolTip="{Binding StartStopButtonToolTip, UpdateSourceTrigger=PropertyChanged}" TabIndex="1" Margin="0,0,0,10" 
-                Style="{StaticResource UXImageTextButtonStyle}" Width="Auto" Command="{Binding StartStopImportCommand}">
+                Style="{StaticResource UXImageTextButtonStyle}" Width="Auto" Command="{Binding StartStopImportCommand}" IsEnabled="{Binding CanStartStopImport}">
                 <StackPanel Orientation="Horizontal" Width="118">
-                    <Image Source="{Binding StartStopButtonImage, UpdateSourceTrigger=PropertyChanged}" Margin="0,1,10,1"/>
+                    <Image Source="{Binding StartStopButtonImage, UpdateSourceTrigger=PropertyChanged}" Margin="0,1,6,1"/>
                     <TextBlock Text="{Binding StartStopButtonText, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
@@ -82,7 +82,7 @@
                 <ComboBox  Grid.Row="2" Grid.Column="1" ToolTip="Select the company linked to billing data." TabIndex="3" IsSynchronizedWithCurrentItem="True"
                     ItemsSource="{Binding CompanyCollection}" DisplayMemberPath="CompanyName"
                     SelectedItem="{Binding SelectedCompany, UpdateSourceTrigger=PropertyChanged}" Height="22">
-                 </ComboBox>
+                </ComboBox>
                 <TextBlock Grid.Row="2" Grid.Column="3" Text="Data provider:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
                 <Border Grid.Row="2" Grid.Column="4" BorderThickness="1" BorderBrush="{Binding ValidDataProvider}">
                     <ComboBox ToolTip="Select the external data provider." TabIndex="4" IsSynchronizedWithCurrentItem="True"

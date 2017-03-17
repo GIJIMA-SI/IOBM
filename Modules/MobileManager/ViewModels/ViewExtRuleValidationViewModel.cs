@@ -20,13 +20,14 @@ using System.Windows.Media;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
 {
-    public class ViewExtDataValidationViewModel : BindableBase, IDataErrorInfo
+    public class ViewExtRuleValidationViewModel : BindableBase, IDataErrorInfo
     {
         #region Properties & Attributes
 
         private DataValidationRuleModel _model = null;
         private IEventAggregator _eventAggregator;
         private SecurityHelper _securityHelper = null;
+        private BillingProcessHistory _currentProcessHistory = null;
         private string _billingPeriod = string.Format("{0}{1}", DateTime.Now.Month.ToString().PadLeft(2, '0'), DateTime.Now.Year);
 
         #region Commands
@@ -34,21 +35,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         public DelegateCommand StartValidationCommand { get; set; }
         public DelegateCommand StopValidationCommand { get; set; }
         public DelegateCommand ExportCommand { get; set; }
-        public DelegateCommand ExceptExceptionCommand { get; set; }
 
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Indicate if the header must be shown
-        /// </summary>
-        public Visibility ShowDataValidationHeader
-        {
-            get { return _showHeader; }
-            set { SetProperty(ref _showHeader, value); }
-        }
-        private Visibility _showHeader = Visibility.Visible;
 
         /// <summary>
         /// Indicate if the validation has been started
@@ -61,44 +51,54 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private bool _validationStarted = false;
 
         /// <summary>
-        /// The validation data rule progessbar description
+        /// Indicate if the billing run can be started
         /// </summary>
-        public string ValidationDataRuleDescription
+        public bool CanStartBillingProcess
         {
-            get { return _validationDataRuleDescription; }
-            set { SetProperty(ref _validationDataRuleDescription, value); }
+            get { return _canStartBillingProcess; }
+            set { SetProperty(ref _canStartBillingProcess, value); }
         }
-        private string _validationDataRuleDescription;
+        private bool _canStartBillingProcess = false;
 
         /// <summary>
-        /// The validation data rule progessbar value
+        /// The validation data file progessbar description
         /// </summary>
-        public int ValidationDataRuleProgress
+        public string ValidationDataFileDescription
         {
-            get { return _validationDataRuleProgress; }
-            set { SetProperty(ref _validationDataRuleProgress, value); }
+            get { return _validationDataFileDescription; }
+            set { SetProperty(ref _validationDataFileDescription, value); }
         }
-        private int _validationDataRuleProgress;
+        private string _validationDataFileDescription;
 
         /// <summary>
-        /// The validation rule entity progessbar description
+        /// The validation data file progessbar value
         /// </summary>
-        public string ValidationRuleEntityDescription
+        public int ValidationDataFileProgress
         {
-            get { return _validationRuleEntityDescription; }
-            set { SetProperty(ref _validationRuleEntityDescription, value); }
+            get { return _validationDataFileProgress; }
+            set { SetProperty(ref _validationDataFileProgress, value); }
         }
-        private string _validationRuleEntityDescription;
+        private int _validationDataFileProgress;
 
         /// <summary>
-        /// The validation rule entity progessbar value
+        /// The validation rule progessbar description
         /// </summary>
-        public int ValidationRuleEntityProgress
+        public string ValidationRuleDescription
         {
-            get { return _validationRuleEntityProgress; }
-            set { SetProperty(ref _validationRuleEntityProgress, value); }
+            get { return _validationRuleDescription; }
+            set { SetProperty(ref _validationRuleDescription, value); }
         }
-        private int _validationRuleEntityProgress;
+        private string _validationRuleDescription;
+
+        /// <summary>
+        /// The validation rule progessbar value
+        /// </summary>
+        public int ValidationRuleProgress
+        {
+            get { return _validationRuleProgress; }
+            set { SetProperty(ref _validationRuleProgress, value); }
+        }
+        private int _validationRuleProgress;
 
         /// <summary>
         /// The instruction to display on the validation page
@@ -111,64 +111,64 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private string _validationPageInstruction = string.Empty;
 
         /// <summary>
-        /// The number of validation rules
+        /// The number of validation data files
         /// </summary>
-        public int ValidationDataRuleCount
+        public int ValidationDataFileCount
         {
-            get { return _validationDataRuleCount; }
-            set { SetProperty(ref _validationDataRuleCount, value); }
+            get { return _validationDataFileCount; }
+            set { SetProperty(ref _validationDataFileCount, value); }
         }
-        private int _validationDataRuleCount;
+        private int _validationDataFileCount;
 
         /// <summary>
         /// The number of validation rules
         /// </summary>
-        public int ValidationRuleEntityCount
+        public int ValidationRuleCount
         {
-            get { return _validationRuleEntityCount; }
-            set { SetProperty(ref _validationRuleEntityCount, value); }
+            get { return _validationRuleCount; }
+            set { SetProperty(ref _validationRuleCount, value); }
         }
-        private int _validationRuleEntityCount;
+        private int _validationRuleCount;
+
+        /// <summary>
+        /// The number of validation data files that passed validation
+        /// </summary>
+        public int ValidationDataFilesPassed
+        {
+            get { return _validationDataFilesPassed; }
+            set { SetProperty(ref _validationDataFilesPassed, value); }
+        }
+        private int _validationDataFilesPassed;
+
+        /// <summary>
+        /// The number of validation data files that failed validation
+        /// </summary>
+        public int ValidationDataFilesFailed
+        {
+            get { return _validationDataFilesFailed; }
+            set { SetProperty(ref _validationDataFilesFailed, value); }
+        }
+        private int _validationDataFilesFailed;
 
         /// <summary>
         /// The number of validation data rules that passed validation
         /// </summary>
-        public int ValidationDataRulesPassed
+        public int ValidationRulesPassed
         {
-            get { return _validationDataRulesPassed; }
-            set { SetProperty(ref _validationDataRulesPassed, value); }
+            get { return _validationRulesPassed; }
+            set { SetProperty(ref _validationRulesPassed, value); }
         }
-        private int _validationDataRulesPassed;
+        private int _validationRulesPassed;
 
         /// <summary>
         /// The number of validation data rules that failed validation
         /// </summary>
-        public int ValidationDataRulesFailed
+        public int ValidationRulesFailed
         {
-            get { return _validationDataRulesFailed; }
-            set { SetProperty(ref _validationDataRulesFailed, value); }
+            get { return _validationRulesFailed; }
+            set { SetProperty(ref _validationRulesFailed, value); }
         }
-        private int _validationDataRulesFailed;
-
-        /// <summary>
-        /// The number of validation data rules that passed validation
-        /// </summary>
-        public int ValidationRuleEntitiesPassed
-        {
-            get { return _validationRuleEntitiesPassed; }
-            set { SetProperty(ref _validationRuleEntitiesPassed, value); }
-        }
-        private int _validationRuleEntitiesPassed;
-
-        /// <summary>
-        /// The number of validation data rules that failed validation
-        /// </summary>
-        public int ValidationRuleEntitiesFailed
-        {
-            get { return _validationRuleEntitiesFailed; }
-            set { SetProperty(ref _validationRuleEntitiesFailed, value); }
-        }
-        private int _validationRuleEntitiesFailed;
+        private int _validationRulesFailed;
 
         /// <summary>
         /// The selected exceptions
@@ -195,14 +195,24 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private DataValidationException _selectedException = null;
 
         /// <summary>
-        /// Indicate if the current billing process completed
+        /// The collection of external billing entries
         /// </summary>
-        public bool BillingProcessCompleted
+        public ObservableCollection<ExternalBillingData> ExternalDataCollection
         {
-            get { return _billingProcessCompleted; }
-            set { SetProperty(ref _billingProcessCompleted, value); }
+            get { return _externalDataCollection; }
+            set { SetProperty(ref _externalDataCollection, value); }
         }
-        private bool _billingProcessCompleted = false;
+        private ObservableCollection<ExternalBillingData> _externalDataCollection = null;
+
+        /// <summary>
+        /// The collection of validation properties from the database
+        /// </summary>
+        public ObservableCollection<DataValidationProperty> ValidationPropertyCollection
+        {
+            get { return _validationPropertyCollection; }
+            set { SetProperty(ref _validationPropertyCollection, value); }
+        }
+        private ObservableCollection<DataValidationProperty> _validationPropertyCollection = null;
 
         /// <summary>
         /// The selected exceptions to fix
@@ -215,16 +225,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private ObservableCollection<DataValidationException> _exceptionsToFix = null;
 
         /// <summary>
-        /// The collection of validation rules from the database
-        /// </summary>
-        public ObservableCollection<DataValidationRule> ValidationRuleCollection
-        {
-            get { return _validationRuleCollection; }
-            set { SetProperty(ref _validationRuleCollection, value); }
-        }
-        private ObservableCollection<DataValidationRule> _validationRuleCollection = null;
-
-        /// <summary>
         /// The collection of data validation exception Info
         /// </summary>
         public ObservableCollection<DataValidationException> ValidationErrorCollection
@@ -233,62 +233,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _validationErrorCollection, value); }
         }
         private ObservableCollection<DataValidationException> _validationErrorCollection = null;
-        
-        /// <summary>
-        /// The collection of data validation exception Info
-        /// </summary>
-        public DataTable ImportedDataCollection
-        {
-            get { return _importedDataCollection; }
-            set { SetProperty(ref _importedDataCollection, value); }
-        }
-        private DataTable _importedDataCollection = null;
 
         #region View Lookup Data Collections
-
-        /// <summary>
-        /// The collection of external billing entries
-        /// </summary>
-        public ObservableCollection<ExternalBillingData> ExternalDataCollection
-        {
-            get { return _externalDataCollection; }
-            set { SetProperty(ref _externalDataCollection, value); }
-        }
-        private ObservableCollection<ExternalBillingData> _externalDataCollection = null;
 
         #endregion
 
         #region Required Fields
 
-        /// <summary>
-        /// The selected external billing file
-        /// </summary>
-        public ExternalBillingData SelectedExternalData
-        {
-            get { return _selectedExternalData; }
-            set
-            {
-                SetProperty(ref _selectedExternalData, value);
-                InitialiseViewControls();
-                if (value != null && value.pkExternalBillingDataID > 0)
-                     Task.Run(() => ReadImportedExternalDataAsync());
-            }
-        }
-        private ExternalBillingData _selectedExternalData = null;
-
         #endregion
 
         #region Input Validation
-
-        /// <summary>
-        /// Set the required field border colour
-        /// </summary>
-        public Brush ValidExternalData
-        {
-            get { return _validExternalData; }
-            set { SetProperty(ref _validExternalData, value); }
-        }
-        private Brush _validExternalData = Brushes.Red;
 
         /// <summary>
         /// Input validate error message
@@ -311,11 +265,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             get
             {
                 string result = string.Empty;
-                switch (columnName)
-                {
-                    case "SelectedExternalData":
-                        ValidExternalData = SelectedExternalData != null && SelectedExternalData.pkExternalBillingDataID < 1 ? Brushes.Red : Brushes.Silver; break;
-                }
                 return result;
             }
         }
@@ -347,14 +296,19 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
 
         /// <summary>
-        /// This event gets received to enable the next button 
-        /// when the process completed
+        /// This event gets received to disable the next button 
+        /// when the process is not completed
         /// </summary>
         /// <param name="sender">The error message.</param>
-        private void BillingProcessCompleted_Event(BillingExecutionState sender)
+        private void BillingCurrentHistory_Event(object sender)
         {
-            if (sender == BillingExecutionState.ExternalDataValidation)
-                Application.Current.Dispatcher.Invoke(() => { BillingProcessCompleted = true; });
+            _currentProcessHistory = (BillingProcessHistory)sender;
+
+            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataRuleValidation &&
+                _currentProcessHistory.ProcessResult != null)
+                CanStartBillingProcess = false;
+            else
+                CanStartBillingProcess = true;
         }
 
         #endregion
@@ -364,29 +318,26 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Constructor
         /// </summary>
-        public ViewExtDataValidationViewModel(IEventAggregator eventAggregator)
+        public ViewExtRuleValidationViewModel(IEventAggregator eventAggregator)
         {
             _eventAggregator = eventAggregator;
             _securityHelper = new SecurityHelper(eventAggregator);
-            InitialiseDataValidationView();
+            InitialiseExtRuleValidationView();
         }
 
         /// <summary>
         /// Initialise all the view dependencies
         /// </summary>
-        private async void InitialiseDataValidationView()
+        private async void InitialiseExtRuleValidationView()
         {
             _model = new DataValidationRuleModel(_eventAggregator);
             InitialiseViewControls();
 
             // Initialise the view commands 
-            StartValidationCommand = new DelegateCommand(ExecuteStartValidation, CanStartValidation).ObservesProperty(() => ValidationRuleCollection)
-                                                                                                    .ObservesProperty(() => SelectedExternalData)
-                                                                                                    .ObservesProperty(() => BillingProcessCompleted);
-            StopValidationCommand = new DelegateCommand(ExecuteStopValidation, CanStopValidation).ObservesProperty(() => ValidationStarted)
-                                                                                                 .ObservesProperty(() => ValidationRuleEntitiesFailed);
+            StartValidationCommand = new DelegateCommand(ExecuteStartValidation, CanStartValidation).ObservesProperty(() => ExternalDataCollection)
+                                                                                                    .ObservesProperty(() => CanStartBillingProcess);
+            StopValidationCommand = new DelegateCommand(ExecuteStopValidation, CanStopValidation);
             ExportCommand = new DelegateCommand(ExecuteExport, CanExport).ObservesProperty(() => ExceptionsToFix);
-            ExceptExceptionCommand = new DelegateCommand(ExecuteApplyRuleFix, CanApplyRuleFix).ObservesProperty(() => ExceptionsToFix);
 
             // Subscribe to this event to update the progressbar
             _eventAggregator.GetEvent<ProgressBarInfoEvent>().Subscribe(ProgressBarInfo_Event, true);
@@ -394,14 +345,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             // Subscribe to this event to display the data validation errors
             _eventAggregator.GetEvent<DataValiationResultEvent>().Subscribe(DataValiationResult_Event, true);
 
-            // Subscribe to this event to lock the completed process
-            // and enable functionality to move to the process completed
-            _eventAggregator.GetEvent<BillingProcessCompletedEvent>().Subscribe(BillingProcessCompleted_Event, true);
+            // Subscribe to this event to disable functionality start the billing process if its already started
+            _eventAggregator.GetEvent<BillingCurrentHistoryEvent>().Subscribe(BillingCurrentHistory_Event, true);
 
             // Load the view data
             await ReadExternalBillingDataAsync();
-            await ReadValidationRulesAsync();
-            await ReadValidationRuleExceptionsAsync();
         }
 
         /// <summary>
@@ -409,74 +357,32 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// </summary>
         private void InitialiseViewControls()
         {
-            ValidationPageInstruction = "Please start the process to validate the external billing data based on data rules configured for each external data provider.";
-            ValidationDataRuleDescription = string.Format("Validating data rule - {0} of {1}", 0, 0);
-            ValidationRuleEntityDescription = string.Format("Validating data rule entity - {0} of {1}", 0, 0);
-            ValidationDataRuleProgress = ValidationRuleEntityProgress = 0;
-            ValidationDataRuleCount = ValidationRuleEntityCount = 0;
-            ValidationDataRulesPassed = ValidationRuleEntitiesPassed = 0;
-            ValidationDataRulesFailed = ValidationRuleEntitiesFailed = 0;
+            ValidationPageInstruction = "Please start the process to validate the external billing data rules based on the external data file properties.";
+            ValidationDataFileDescription = string.Format("Validating data file - {0} of {1}", 0, 0);
+            ValidationRuleDescription = string.Format("Validating data rule - {0} of {1}", 0, 0);
+            ValidationDataFileProgress = ValidationRuleProgress = 0;
+            ValidationDataFileCount = ValidationRuleCount = 0;
+            ValidationDataFilesPassed = ValidationRulesPassed = 0;
+            ValidationDataFilesFailed = ValidationRulesFailed = 0;
             ValidationErrorCollection = null;
-            ImportedDataCollection = null;
         }
 
         /// <summary>
-        /// Load all the validation rules based on the selected group from the database
+        /// Load all the external billing data entries from the database
         /// </summary>
-        /// <param name="validationGroup">The valiation group to read the rules for.</param>
-        private async Task ReadValidationRulesAsync()
+        private async Task ReadExternalBillingDataAsync()
         {
             try
             {
-                ValidationRuleCollection = await Task.Run(() => _model.ReadDataValidationRules(DataValidationProcess.ExternalBilling, DataValidationGroupName.ExternalData));
+                ExternalDataCollection = await Task.Run(() => new ExternalBillingDataModel(_eventAggregator).ReadExternalData(MobileManagerEnvironment.BillingPeriod, false, true));
             }
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("ViewExtDataValidationViewModel",
+                                .Publish(new ApplicationMessage("ViewExtRuleValidationViewModel",
                                                                 string.Format("Error! {0}, {1}.",
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "ReadValidationRulesAsync",
-                                                                ApplicationMessage.MessageTypes.SystemError));
-            }
-        }
-
-        /// <summary>
-        /// Load all the validation rule exceptions if any from the database
-        /// </summary>
-        private async Task ReadValidationRuleExceptionsAsync()
-        {
-            try
-            {
-                ValidationErrorCollection = await Task.Run(() => new DataValidationExceptionModel(_eventAggregator).ReadDataValidationExceptions(_billingPeriod, DataValidationProcess.ExternalBilling.Value()));
-            }
-            catch (Exception ex)
-            {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("ViewExtDataValidationViewModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "ReadValidationRuleExceptionsAsync",
-                                                                ApplicationMessage.MessageTypes.SystemError));
-            }
-        }
-
-        /// <summary>
-        /// Load all the imported external data for the selected billing file from the database
-        /// </summary>
-        private void ReadImportedExternalDataAsync()
-        {
-            try
-            {
-                ImportedDataCollection = new ExternalBillingDataModel(_eventAggregator).ReadExternalBillingData(SelectedExternalData.TableName);
-            }
-            catch (Exception ex)
-            {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("ViewExtDataValidationViewModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "ReadValidationRuleExceptionsAsync",
+                                                                "ReadExternalBillingData",
                                                                 ApplicationMessage.MessageTypes.SystemError));
             }
         }
@@ -496,11 +402,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
                 if (resultInfo.Result == true)
                 {
-                    ValidationRuleEntitiesPassed++;
+                    ValidationRulesPassed++;
                 }
                 else
                 {
-                    ValidationRuleEntitiesFailed++;
+                    ValidationRulesFailed++;
                     ValidationErrorCollection.Add(resultInfo);
                 }
             }
@@ -524,10 +430,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             try
             {
                 ProgressBarInfo progressInfo = (ProgressBarInfo)progressBarInfo;
-                ValidationRuleEntityCount = progressInfo.MaxValue;
-                ValidationRuleEntityProgress = progressInfo.CurrentValue;
-                ValidationRuleEntityDescription = string.Format("Validating data rule entity - {0} of {1}", ValidationRuleEntityProgress,
-                                                                                                            progressInfo.MaxValue);
+                ValidationRuleCount = progressInfo.MaxValue;
+                ValidationRuleProgress = progressInfo.CurrentValue;
+                ValidationRuleDescription = string.Format("Validating data rule - {0} of {1}", ValidationRuleProgress,
+                                                                                               progressInfo.MaxValue);
             }
             catch (Exception ex)
             {
@@ -590,11 +496,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Create a new billing process history entry
         /// </summary>
-        private async Task CreateBillingProcessHistoryAsync()
+        private void CreateBillingProcessHistory()
         {
             try
             {
-                bool result = await Task.Run(() => new BillingProcessModel(_eventAggregator).CreateBillingProcessHistory(BillingExecutionState.ExternalDataValidation));
+                bool result = new BillingProcessModel(_eventAggregator).CreateBillingProcessHistory(BillingExecutionState.ExternalDataRuleValidation);
 
                 // Publish this event to update the billing process history on the wizard's Info content
                 _eventAggregator.GetEvent<BillingProcessHistoryEvent>().Publish(result);
@@ -614,11 +520,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// Create a new billing process history entry
         /// </summary>
         /// <param name="billingProcess">The billing process to complete.</param> 
-        private async Task CompleteBillingProcessHistoryAsync(BillingExecutionState billingProcess)
+        private void CompleteBillingProcessHistory(BillingExecutionState billingProcess)
         {
             try
             {
-                bool result = await Task.Run(() => new BillingProcessModel(_eventAggregator).CompleteBillingProcessHistory(billingProcess, true));
+                bool result = new BillingProcessModel(_eventAggregator).CompleteBillingProcessHistory(billingProcess, true);
 
                 if (result)
                 {
@@ -645,11 +551,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Save all the data rule exceptions to the database
         /// </summary>
-        private async Task CreateValidationRuleExceptionsAsync()
+        private void CreateValidationRuleExceptions()
         {
             try
             {
-                bool result = await Task.Run(() => new DataValidationExceptionModel(_eventAggregator).CreateDataValidationExceptions(ValidationErrorCollection));
+                bool result = new DataValidationExceptionModel(_eventAggregator).CreateDataValidationExceptions(ValidationErrorCollection);
             }
             catch (Exception ex)
             {
@@ -664,26 +570,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
         #region Lookup Data Loading
 
-        /// <summary>
-        /// Load all the external billing data entries from the database
-        /// </summary>
-        private async Task ReadExternalBillingDataAsync()
-        {
-            try
-            {
-                ExternalDataCollection = await Task.Run(() => new ExternalBillingDataModel(_eventAggregator).ReadExternalData(MobileManagerEnvironment.BillingPeriod));
-            }
-            catch (Exception ex)
-            {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("ViewExtDataValidationViewModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "ReadExternalBillingData",
-                                                                ApplicationMessage.MessageTypes.SystemError));
-            }
-        }
-
         #endregion
 
         #region Command Execution
@@ -694,7 +580,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <returns></returns>
         private bool CanStartValidation()
         {
-            return BillingProcessCompleted == false && SelectedExternalData != null && SelectedExternalData.pkExternalBillingDataID > 0 ? true : false;
+            return ExternalDataCollection != null && ExternalDataCollection.Count > 0 && CanStartBillingProcess;
         }
 
         /// <summary>
@@ -705,70 +591,69 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             string groupDescription = string.Empty;
             InitialiseViewControls();
             ValidationStarted = true;
+            string dataFileName = string.Empty;
 
             try
             {
-                // Set the previous data validation process as complete
-                await CompleteBillingProcessHistoryAsync(BillingExecutionState.StartBillingProcess);
-
                 // Create a new history entry everytime the process get started
-                await CreateBillingProcessHistoryAsync();
+                CreateBillingProcessHistory();
+
+                // Get the new current process history
+                BillingProcessHistory currentProcess = new BillingProcessModel(_eventAggregator).ReadBillingProcessCurrentHistory();
 
                 // Update the process progress values on the wizard's Info content
-                _eventAggregator.GetEvent<BillingProcessEvent>().Publish(BillingExecutionState.ExternalDataValidation);
+                _eventAggregator.GetEvent<BillingProcessEvent>().Publish(BillingExecutionState.ExternalDataRuleValidation);
 
-                //// Disable the next buttton when the process gets started
-                //_eventAggregator.GetEvent<BillingProcessStartedEvent>().Publish(BillingExecutionState.ExternalDataValidation);
+                // Change the start buttton to complete when the process gets started
+                _eventAggregator.GetEvent<BillingCurrentHistoryEvent>().Publish(currentProcess);
 
-                // Read the validation rules for the specified
-                // group from the database
-                await ReadValidationRulesAsync();
-
-                if (ValidationRuleCollection != null && ValidationRuleCollection.Count > 0)
+                if (ExternalDataCollection != null && ExternalDataCollection.Count > 0)
                 {
-                    int entityCount = ValidationRuleCollection.GroupBy(p => p.DataValidationEntityID).Count();
-
                     // Set the entity and data rule progressbars max values
-                    ValidationDataRuleCount = ValidationRuleCollection.Count;
+                    ValidationDataFileCount = ExternalDataCollection.Count;
 
-                    foreach (DataValidationRule rule in ValidationRuleCollection)
+                    foreach (ExternalBillingData dataFile in ExternalDataCollection)
                     {
+                        dataFileName = dataFile.TableName.ToUpper();
+
                         // Allow the user to stop the validation
                         if (!ValidationStarted)
                             break;
-                        
+
                         // Set the data rule progresssbar description
-                        ValidationDataRuleDescription = string.Format("Validating data rule {0} - {1} of {2}", rule.PropertyDescription.ToUpper(),
-                                                                                                               ++ValidationDataRuleProgress,
-                                                                                                               ValidationRuleCollection.Count);
+                        ValidationDataFileDescription = string.Format("Validating data file {0} - {1} of {2}", dataFileName,
+                                                                                                               ++ValidationDataFileProgress,
+                                                                                                               ExternalDataCollection.Count);
 
                         // Validate the data rule and update
                         // the progress values accodingly
-                        if (await Task.Run(() => _model.ValidateDataValidationRule(rule)))
-                            ++ValidationDataRulesPassed;
+                        if (await Task.Run(() => new DataValidationPropertyModel(_eventAggregator).ValidateExtDataValidationRules(dataFile)))
+                            ++ValidationDataFilesPassed;
                         else
-                            ++ValidationDataRulesFailed;
+                            ++ValidationDataFilesFailed;
 
+                        // Allow the user to stop the validation
+                        if (!ValidationStarted)
+                            break;
                     }
                 }
-
-                    //// Allow the user to stop the validation
-                    //if (!ValidationStarted)
-                    //    break;
 
                 // If NO validations exceptions found the set 
                 // the data validation process as complete
                 // else save the exceptions to the database
-                if (ValidationRuleCollection != null && ValidationErrorCollection != null && ValidationRuleCollection.Count > 0)
+                if (ExternalDataCollection != null && ValidationErrorCollection != null && ExternalDataCollection.Count > 0)
                 {
                     if (ValidationErrorCollection.Count == 0)
-                        await CompleteBillingProcessHistoryAsync(BillingExecutionState.ExternalDataValidation);
+                        CompleteBillingProcessHistory(BillingExecutionState.ExternalDataRuleValidation);
                     else
-                        await CreateValidationRuleExceptionsAsync();
+                        CreateValidationRuleExceptions();
                 }
 
                 // Disable the stop button
                 ValidationStarted = false;
+
+                // Change the start buttton to complete when the process gets started
+                _eventAggregator.GetEvent<BillingCurrentHistoryEvent>().Publish(currentProcess);
             }
             catch (Exception ex)
             {
@@ -787,7 +672,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <returns></returns>
         private bool CanStopValidation()
         {
-            return ValidationStarted && ValidationRuleEntitiesFailed > 0;
+            return ValidationStarted && ValidationRulesFailed > 0;
         }
 
         /// <summary>
@@ -849,43 +734,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
         }
 
-        /// <summary>
-        /// Set view command buttons enabled/disabled state
-        /// </summary>
-        /// <returns></returns>
-        private bool CanApplyRuleFix()
-        {
-            return ExceptionsToFix != null && ExceptionsToFix.Any(p => p.CanApplyRule == true) && !ExceptionsToFix.Any(p => p.CanApplyRule == false);
-        }
-
-        /// <summary>
-        /// Execute when the apply rule command button is clicked 
-        /// </summary>
-        private async void ExecuteApplyRuleFix()
-        {
-            try
-            {
-                // Apply the data rule to each exception and remove the fixed
-                // exceptions to the exceptions collection                  
-                foreach (DataValidationException exception in ExceptionsToFix)
-                {
-                    if (await Task.Run(() => _model.ApplyDataRule(exception)))
-                        ValidationErrorCollection.Remove(exception);
-                }
-            }
-            catch (Exception ex)
-            {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("ViewExtDataValidationViewModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "ExecuteApplyRuleFix",
-                                                                ApplicationMessage.MessageTypes.SystemError));
-            }
-        }
-
         #endregion
 
         #endregion
     }
 }
+

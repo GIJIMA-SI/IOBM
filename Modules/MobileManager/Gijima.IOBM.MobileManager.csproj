@@ -148,10 +148,14 @@
     <Compile Include="ViewModels\ViewDeviceMakeViewModel.cs" />
     <Compile Include="ViewModels\ViewDeviceModelViewModel.cs" />
     <Compile Include="ViewModels\ViewExtDataValidationViewModel.cs" />
+    <Compile Include="ViewModels\ViewExtRuleValidationViewModel.cs" />
     <Compile Include="ViewModels\ViewMobileManagerViewModel.cs" />
     <Compile Include="ViewModels\ViewCellularViewModel.cs" />
     <Compile Include="ViewModels\ViewDeviceViewModel.cs" />
     <Compile Include="ViewModels\ViewReportsViewModel.cs" />
+    <Compile Include="Views\Billing\ViewExtRuleValidation.xaml.cs">
+      <DependentUpon>ViewExtRuleValidation.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Common\ViewAdvancedSearch.xaml.cs">
       <DependentUpon>ViewAdvancedSearch.xaml</DependentUpon>
     </Compile>
@@ -274,6 +278,10 @@
     <Compile Include="Views\Maintenance\ViewSuburb.xaml.cs">
       <DependentUpon>ViewSuburb.xaml</DependentUpon>
     </Compile>
+    <Page Include="Views\Billing\ViewExtRuleValidation.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Common\ViewAdvancedSearch.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

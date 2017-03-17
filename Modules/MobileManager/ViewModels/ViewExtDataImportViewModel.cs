@@ -17,6 +17,9 @@ using System.Windows;
 using System.Threading;
 using Gijima.IOBM.Infrastructure.Structs;
 using Gijima.IOBM.MobileManager.Security;
+using Gijima.IOBM.MobileManager.Common.Events;
+using Gijima.IOBM.MobileManager.Common.Structs;
+using System.Reflection;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
 {
@@ -27,6 +30,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private IEventAggregator _eventAggregator;
         private ExternalBillingDataModel _model = null;
         private MSOfficeHelper _officeHelper = null;
+        private BillingProcessHistory _currentProcessHistory = null;
         private string _defaultItem = "-- Please Select --";
 
         #region Commands
@@ -38,16 +42,26 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         #endregion
 
         #region Properties       
+        
+        /// <summary>
+        /// Indicate if the billing run can be started
+        /// </summary>
+        public bool CanStartBillingProcess
+        {
+            get { return _canStartBillingProcess; }
+            set { SetProperty(ref _canStartBillingProcess, value); }
+        }
+        private bool _canStartBillingProcess = false;
 
         /// <summary>
-        /// Indicate if the current billing process completed
+        /// Enable disable StartStopImport button
         /// </summary>
-        public bool BillingProcessCompleted
+        public bool CanStartStopImport
         {
-            get { return _billingProcessCompleted; }
-            set { SetProperty(ref _billingProcessCompleted, value); }
+            get { return _canStartStopImport; }
+            set { SetProperty(ref _canStartStopImport, value); }
         }
-        private bool _billingProcessCompleted = false;
+        private bool _canStartStopImport = false;
 
         /// <summary>
         /// The StartStop button tooltip
@@ -57,7 +71,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             get { return string.Format("{0} the external data import process", _startStopButtonToolTip); }
             set { SetProperty(ref _startStopButtonToolTip, value); }
         }
-        private string _startStopButtonToolTip = "Start";
+        private string _startStopButtonToolTip = "Complete";
 
         /// <summary>
         /// The StartStop button text
@@ -67,7 +81,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             get { return _startStopButtonText; }
             set { SetProperty(ref _startStopButtonText, value); }
         }
-        private string _startStopButtonText = "Start Imports";
+        private string _startStopButtonText = "Complete Imports";
 
         /// <summary>
         /// The StartStop button image
@@ -77,7 +91,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             get { return string.Format("/Gijima.IOBM.MobileManager;component/Assets/Images/{0}", _startStopButtonImage); }
             set { SetProperty(ref _startStopButtonImage, value); }
         }
-        private string _startStopButtonImage = "062.png";
+        private string _startStopButtonImage = "stop_32.ico";
 
         /// <summary>
         /// The instruction to display on the data import page
@@ -333,6 +347,32 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
         #region Event Handlers
 
+        /// <summary>
+        /// This event gets received to disable the next button 
+        /// when the process is not completed
+        /// </summary>
+        /// <param name="sender">The error message.</param>
+        private void BillingCurrentHistory_Event(object sender)
+        {
+            _currentProcessHistory = (BillingProcessHistory)sender;
+            CanStartBillingProcess = true;
+
+            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.StartBillingProcess)
+            {
+                CanStartStopImport = true;
+                StartStopButtonToolTip = "Start";
+                StartStopButtonText = "Start Imports";
+                StartStopButtonImage = "062.png";
+            }
+            else
+            {
+                CanStartBillingProcess = false;
+                StartStopButtonToolTip = "Complete";
+                StartStopButtonText = "Complete Imports";
+                StartStopButtonImage = "stop_32.ico";
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -355,10 +395,14 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             InitialiseViewControls();
 
             // Initialise the view commands
-            StartStopImportCommand = new DelegateCommand(ExecuteStartStopImport, CanExecuteStartStopImport);
-            OpenFileCommand = new DelegateCommand(ExecuteOpenFileCommand, CanExecuteOpenFile);
+            StartStopImportCommand = new DelegateCommand(ExecuteStartStopImport);
+            OpenFileCommand = new DelegateCommand(ExecuteOpenFileCommand, CanExecuteOpenFile).ObservesProperty(() => CanStartBillingProcess);
             ImportCommand = new DelegateCommand(ExecuteImport, CanExecuteImport).ObservesProperty(() => ValidDataSheet)
                                                                                 .ObservesProperty(() => SelectedDataProvider);
+
+            // Subscribe to this event to disable functionality start the billing process if its already started
+            _eventAggregator.GetEvent<BillingCurrentHistoryEvent>().Subscribe(BillingCurrentHistory_Event, true);
+
             await ReadCompaniesAsync();
             await ReadServiceProvidersAsync();
         }
@@ -469,6 +513,54 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
         }
 
+        /// <summary>
+        /// Create a new billing process history entry
+        /// </summary>
+        private void CreateBillingProcessHistory()
+        {
+            try
+            {
+                bool result = new BillingProcessModel(_eventAggregator).CreateBillingProcessHistory(BillingExecutionState.ExternalDataImport);
+
+                // Publish this event to update the billing process history on the wizard's Info content
+                _eventAggregator.GetEvent<BillingProcessHistoryEvent>().Publish(result);
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage(this.GetType().Name,
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                MethodBase.GetCurrentMethod().Name,
+                                                                ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
+
+        /// <summary>
+        /// Create a new billing process history entry
+        /// </summary>
+        /// <param name="billingProcess">The billing process to complete.</param>/// 
+        private void CompleteBillingProcessHistory(BillingExecutionState billingProcess)
+        {
+            try
+            {
+                bool result = new BillingProcessModel(_eventAggregator).CompleteBillingProcessHistory(billingProcess, true);
+
+                if (result)
+                    // Publish this event to update the billing process history on the wizard's Info content
+                    _eventAggregator.GetEvent<BillingProcessHistoryEvent>().Publish(result);
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage(this.GetType().Name,
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                MethodBase.GetCurrentMethod().Name,
+                                                                ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
+
         #region Lookup Data Loading
 
         /// <summary>
@@ -516,31 +608,46 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         #region Command Execution
 
         /// <summary>
-        /// Set view command buttons enabled/disabled state
-        /// </summary>
-        /// <returns></returns>
-        private bool CanExecuteStartStopImport()
-        {
-            return BillingProcessCompleted == false ? true : false;
-        }
-
-        /// <summary>
         /// Execute when the start stop command button is clicked 
         /// </summary>
         private void ExecuteStartStopImport()
         {
             try
             {
+                if (CanStartBillingProcess)
+                {
+                    // Set the previous data validation process as complete
+                    CompleteBillingProcessHistory(BillingExecutionState.StartBillingProcess);
 
+                    // Create a new history entry everytime the process get started
+                    CreateBillingProcessHistory();
+                }
+                else
+                {
+                    // Set the external data import process as complete
+                    CompleteBillingProcessHistory(BillingExecutionState.ExternalDataImport);
+
+                    // Disable the start stop button
+                    CanStartStopImport = false;
+                }
+
+                // Get the new current process history
+                BillingProcessHistory currentProcess = new BillingProcessModel(_eventAggregator).ReadBillingProcessCurrentHistory();
+
+                // Update the process progress values on the wizard's Info content
+                _eventAggregator.GetEvent<BillingProcessEvent>().Publish(BillingExecutionState.ExternalDataImport);
+
+                // Change the start buttton to complete when the process gets started
+                _eventAggregator.GetEvent<BillingCurrentHistoryEvent>().Publish(currentProcess);
             }
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                .Publish(new ApplicationMessage("ViewDataImportExtViewModel",
-                                                string.Format("Error! {0}, {1}.",
-                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                "ExecuteOpenFileCommand",
-                                                ApplicationMessage.MessageTypes.SystemError));
+                                .Publish(new ApplicationMessage(this.GetType().Name,
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                MethodBase.GetCurrentMethod().Name,
+                                                                ApplicationMessage.MessageTypes.SystemError));
             }
         }
 
@@ -550,7 +657,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <returns></returns>
         private bool CanExecuteOpenFile()
         {
-            return ValidDataSheet == Brushes.Silver && SelectedDataProvider != null && SelectedDataProvider.pkServiceProviderID > 0;
+            return _currentProcessHistory != null && 
+                   (BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataImport &&
+                   _currentProcessHistory.ProcessResult == null;
         }
 
         /// <summary>
