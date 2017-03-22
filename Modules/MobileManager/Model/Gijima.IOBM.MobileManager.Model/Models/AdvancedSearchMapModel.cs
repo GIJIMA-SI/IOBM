@@ -18,25 +18,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         {
             _eventAggregator = EventAggregator;
         }
-
-        public string GetJoinsBetween(string Entity1, string Column1, string Entity2, string Column2)
-        {
-            
-            string joinLink = "";
-
-            if (Column1.StartsWith("fk"))
-            {
-                string mainTable = Column1.Replace("fk", "").Replace("ID", "");
-                joinLink = $"SELECT * FROM {mainTable} INNER JOIN {Entity1} ON {Entity1}.{Column1} = {mainTable}.pk{mainTable}ID ";
-            }
-            else
-            { joinLink = $"SELECT * FROM {Entity1} "; }
-
-
-
-            return joinLink;
-        }
-
+        
         /// <summary>
         /// Returns a list of all the AdvancedSearchMap rows
         /// </summary>

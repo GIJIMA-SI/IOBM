@@ -135,7 +135,9 @@
                 <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/508.png" Margin="2,2,2,2"/>
             </Button>
         </StackPanel>
-        <ListBox Grid.Row="4" Margin="5"></ListBox>
+        <Border Grid.Row="4" Margin="5" BorderThickness="1" BorderBrush="{Binding ValidValidationRules}">
+            <ListBox x:Name="ListBoxValidationRules" ItemsSource="{Binding ValidationRulesCollection, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"></ListBox>
+        </Border>
         <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Text="Data Rules Results" VerticalAlignment="Bottom" Margin="5,0,5,0"/>
         <Button x:Name="ButtonExport" Grid.Row="6" Grid.Column="6" ToolTip="Export the exceptions to Excel." TabIndex="5" Margin="0,0,5,0" 
                     Style="{StaticResource UXImageTextButtonStyle}" Width="150" HorizontalAlignment="Right" Command="{Binding ExportCommand}">
