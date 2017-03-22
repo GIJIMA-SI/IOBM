@@ -73,6 +73,9 @@
     <Compile Include="Data\AdvancedSearchField.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Data\AdvancedSearchMap.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="Data\AppSetting.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
@@ -234,6 +237,7 @@
     </Compile>
     <Compile Include="Helpers\EDMHelper.cs" />
     <Compile Include="Models\AdvancedSearchFieldModel.cs" />
+    <Compile Include="Models\AdvancedSearchMapModel.cs" />
     <Compile Include="Models\AppSettingModel.cs" />
     <Compile Include="Models\AuditLogModel.cs" />
     <Compile Include="Models\BillingLevelModel.cs" />

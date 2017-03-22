@@ -12,15 +12,10 @@ namespace Gijima.IOBM.MobileManager.Model.Data
     using System;
     using System.Collections.Generic;
     
-    public partial class AdvancedSearchField
+    public partial class AdvancedSearchMap
     {
-        public int pkAdvancedSearchField { get; set; }
-        public int enSearchCategory { get; set; }
-        public string EntityName { get; set; }
-        public string ColumnName { get; set; }
-        public string DisplayName { get; set; }
-        public string DataType { get; set; }
-        public string ControlType { get; set; }
-        public string OtherEntityColumnName { get; set; }
+        public int pkAdvancedSearchMapID { get; set; }
+        public string FromEntity { get; set; }
+        public string ToEntity { get; set; }
     }
 }

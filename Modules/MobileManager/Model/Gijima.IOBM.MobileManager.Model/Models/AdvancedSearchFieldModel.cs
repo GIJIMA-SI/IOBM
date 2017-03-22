@@ -3,6 +3,7 @@ using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,7 +42,21 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 return new ObservableCollection<AdvancedSearchField>(advancedSearchFields);
             }
         }
-        
+
+        /// <summary>
+        /// Get all the different entity names used
+        /// </summary>
+        /// <returns></returns>
+        public List<string> DistinctEntityName()
+        {
+            using (var db = MobileManagerEntities.GetContext())
+            {
+                List<string> advancedSearchFields = ((DbQuery<string>)(from advancedSearchField in db.AdvancedSearchFields
+                                                                                    select advancedSearchField.EntityName)).Distinct().ToList();
+                return advancedSearchFields;
+            }
+        }
+
         #endregion
     }
 }

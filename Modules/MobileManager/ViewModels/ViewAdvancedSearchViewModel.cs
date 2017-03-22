@@ -4,6 +4,8 @@ using Gijima.IOBM.Infrastructure.Structs;
 using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Gijima.IOBM.MobileManager.Model.Models;
+using Gijima.IOBM.MobileManager.Security;
+using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
 using System;
@@ -22,10 +24,15 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         #region Properties & Attributes
 
         private IEventAggregator _eventAggregator;
+        private SecurityHelper _securityHelper = null;
         private string _defaultItem = "-- Please Select --";
         private string _defaultEnum = "None";
 
         #region Commands
+
+        public DelegateCommand AddCommand { get; set; }
+        public DelegateCommand SearchCommand { get; set; }
+
         #endregion
 
         #region Properties
@@ -40,7 +47,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
         private string _dataEntityDisplayName = string.Empty;
 
-        
+
         #region View Lookup Data Collection
 
         /// <summary>
@@ -104,6 +111,57 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
         private ObservableCollection<string> _comboBoxValidationCollection;
 
+        /// <summary>
+        /// Collection of all the validation rules that will be showed 
+        /// in the listbox to the user
+        /// </summary>
+        public ObservableCollection<string> ValidationRulesCollection
+        {
+            get { return _validationRulesCollection; }
+            set { SetProperty(ref _validationRulesCollection, value); }
+        }
+        private ObservableCollection<string> _validationRulesCollection = new ObservableCollection<string>();
+
+        /// <summary>
+        /// Collection of join code
+        /// </summary>
+        public ObservableCollection<string> JoinCollection
+        {
+            get { return _joinCollection; }
+            set { SetProperty(ref _joinCollection, value); }
+        }
+        private ObservableCollection<string> _joinCollection;
+
+        /// <summary>
+        /// Collection of the joins as an AdvancedSearchField
+        /// </summary>
+        public ObservableCollection<AdvancedSearchField> AdvancedSearchFieldJoinCollection
+        {
+            get { return _advancedSearchFieldJoinCollection; }
+            set { SetProperty(ref _advancedSearchFieldJoinCollection, value); }
+        }
+        private ObservableCollection<AdvancedSearchField> _advancedSearchFieldJoinCollection;
+
+        /// <summary>
+        /// Collection of all the where cirteria the user specified
+        /// </summary>
+        public List<WhereCriteria> WhereCriteriaCollection
+        {
+            get { return _whereCriteriaCollection; }
+            set { _whereCriteriaCollection = value; }
+        }
+        private List<WhereCriteria> _whereCriteriaCollection = new List<WhereCriteria>();
+
+        /// <summary>
+        /// Collection of all the where cirteria the user specified
+        /// </summary>
+        public List<string> WhereCollection
+        {
+            get { return _whereCollection; }
+            set { _whereCollection = value; }
+        }
+        private List<string> _whereCollection;
+
         #endregion
 
         #region Required Fields
@@ -124,7 +182,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     defaultItem.ColumnName = defaultItem.DataType = defaultItem.ColumnName = defaultItem.ControlType = string.Empty;
                     defaultItem.enSearchCategory = 0;
                     defaultItem.DisplayName = _defaultItem;
-                    
+
                     List<AdvancedSearchField> searchColumns = new List<AdvancedSearchField>();
                     searchColumns = AdvancedSearchFieldCollection.Where(p => p.enSearchCategory == EnumHelper.GetEnumFromDescription<SearchCategory>(SelectedSearchCategory).Value()).ToList();
                     searchColumns.Insert(0, defaultItem);
@@ -197,6 +255,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _calendarValueShow, value); }
         }
         private string _calendarValueShow;
+
+        /// <summary>
+        /// Operator type show visibility
+        /// </summary>
+        public string ShowOperatorType
+        {
+            get { return _showOperatorType; }
+            set { SetProperty(ref _showOperatorType, value); }
+        }
+        private string _showOperatorType;
 
         /// <summary>
         /// The selected operator
@@ -321,7 +389,13 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
         private Brush _validValidation = Brushes.Red;
 
-        
+        public Brush ValidValidationRules
+        {
+            get { return _validValidationRules; }
+            set { SetProperty(ref _validValidationRules, value); }
+        }
+        private Brush _validValidationRules = Brushes.Red;
+
         /// <summary>
         /// Input validation properties
         /// </summary>
@@ -348,6 +422,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         ValidValidation = ComboBoxValueShow == "Visible" && ComboBoxValidationValue != null && ComboBoxValidationValue == _defaultItem ? Brushes.Red : Brushes.Silver; break;
                     case "CalendarValidationValue":
                         ValidValidation = CalendarValueShow == "Visible" && CalendarValidationValue == DateTime.MinValue ? Brushes.Red : Brushes.Silver; break;
+                    case "ValidationRulesCollection":
+                        ValidValidationRules = ValidationRulesCollection != null && ValidationRulesCollection.Count > 0 ? Brushes.Silver : Brushes.Red; break;
                 }
                 return result;
             }
@@ -369,7 +445,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             _eventAggregator = eventAggregator;
             InitialiseViewControls();
+            _securityHelper = new SecurityHelper(eventAggregator);
             ReadDataEntities();
+            InitialiseValidationCFView();
         }
 
         /// <summary>
@@ -379,11 +457,206 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             ReadSearchCategories();
             ReadSearchColumnCollection();
-            TextBoxValueShow = ComboBoxValueShow = CalendarValueShow = "Hidden";
+            InitialiseCriteriaField();
+            AdvancedSearchFieldJoinCollection = new ObservableCollection<AdvancedSearchField>();
+            JoinCollection = new ObservableCollection<string>();
+            ValidationRulesCollection = new ObservableCollection<string>();
+        }
+
+        /// <summary>
+        /// Initialise all the view dependencies
+        /// </summary>
+        private void InitialiseValidationCFView()
+        {
+            //Test if rule can be added
+            AddCommand = new DelegateCommand(ExecuteAdd, CanExecuteAdd).ObservesProperty(() => ValidDataEntity)
+                                                                       .ObservesProperty(() => ValidColumnName)
+                                                                       .ObservesProperty(() => ValidOperator)
+                                                                       .ObservesProperty(() => ValidValidation);
+            SearchCommand = new DelegateCommand(ExecuteSearch, CanExecuteSearch).ObservesProperty(() => ValidValidationRules);
+        }
+
+        /// <summary>
+        /// Initialise the critera fields
+        /// </summary>
+        public void InitialiseCriteriaField()
+        {
             //Set the selected SearchCategory
             SelectedSearchCategory = SearchCategorieCollection.Where(x => x == _defaultItem).FirstOrDefault();
 
             SelectedColumn = null;
+            SelectedOperator = null;
+            OperatorCollection = null;
+            SearchCollumnCollection = null;
+            SelectedOperatorType = "";
+
+            TextBoxValueShow = ComboBoxValueShow = CalendarValueShow = "Hidden";
+            ShowOperatorType = "Visible";
+        }
+
+        /// <summary>
+        /// Creates all the joins
+        /// </summary>
+        public void CalculateJoins()
+        {
+            JoinCollection = new ObservableCollection<string>();
+            AdvancedSearchField firstSearchField = AdvancedSearchFieldJoinCollection.First();
+
+            foreach (AdvancedSearchField searchField in AdvancedSearchFieldJoinCollection)
+            {
+                if (searchField != firstSearchField)
+                {
+                    if (searchField.ColumnName.StartsWith("fk"))
+                    {
+                        List<string> allEntities = new AdvancedSearchFieldModel(_eventAggregator).DistinctEntityName();
+                        string entityName = searchField.ColumnName.Replace("fk", "").Replace("ID", "");
+
+                        if (!allEntities.Any(p => p == entityName))
+                        {
+                            string currentJoin = $"INNER JOIN {entityName} ON {searchField.EntityName}.fk{entityName}ID = {entityName}.pk{entityName}ID ";
+                            if (!JoinCollection.Any(p => p == currentJoin))
+                                JoinCollection.Add(currentJoin);
+                            CalculateMapping(firstSearchField.EntityName, firstSearchField.ColumnName, searchField.EntityName, searchField.ColumnName);
+                        }
+                        else
+                            CalculateMapping(firstSearchField.EntityName, firstSearchField.ColumnName, searchField.EntityName, searchField.ColumnName);
+                    }
+                    else
+                        CalculateMapping(firstSearchField.EntityName, firstSearchField.ColumnName, searchField.EntityName, searchField.ColumnName);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Create all the wheres
+        /// </summary>
+        public string CalculateWheres()
+        {
+            string whereClause = "";
+            foreach (WhereCriteria whereCriteria in WhereCriteriaCollection)
+            {
+                if (whereCriteria == WhereCriteriaCollection.First())
+                {
+                    List<string> allEntities = new AdvancedSearchFieldModel(_eventAggregator).DistinctEntityName();
+                    string entityName = whereCriteria.SearchField.ColumnName.Replace("fk", "").Replace("ID", "");
+
+                    if (!allEntities.Any(p => p == entityName))
+                    {
+                        whereClause = $"WHERE {entityName}.{whereCriteria.SearchField.OtherEntityColumnName} {GetSqlStatement(whereCriteria.SearchField.DataType, whereCriteria.OperatorValue, whereCriteria.SearchValue)} ";
+                    }
+                    else
+                    {
+                        whereClause = $"WHERE {entityName}.{whereCriteria.SearchField.ColumnName} {GetSqlStatement(whereCriteria.SearchField.DataType, whereCriteria.OperatorValue, whereCriteria.SearchValue)} ";
+                    }
+                }
+                else
+                {
+                    List<string> allEntities = new AdvancedSearchFieldModel(_eventAggregator).DistinctEntityName();
+                    string entityName = whereCriteria.SearchField.ColumnName.Replace("fk", "").Replace("ID", "");
+
+                    if (whereCriteria.SearchField.ColumnName.StartsWith("fk"))
+                    {
+                        whereClause = whereClause + $"AND {entityName}.{whereCriteria.SearchField.OtherEntityColumnName} {GetSqlStatement(whereCriteria.SearchField.DataType, whereCriteria.OperatorValue, whereCriteria.SearchValue)} ";
+                    }
+                    else
+                    {
+                        whereClause = whereClause + $"AND {entityName}.{whereCriteria.SearchField.ColumnName} {GetSqlStatement(whereCriteria.SearchField.DataType, whereCriteria.OperatorValue, whereCriteria.SearchValue)} ";
+                    }
+                }
+            }
+            return whereClause;
+        }
+
+        /// <summary>
+        /// Determine what operator type was used and build the statement
+        /// </summary>
+        /// <param name="DataType"></param>
+        /// <param name="OperatorType"></param>
+        /// <param name="SearchValue"></param>
+        /// <returns></returns>
+        public string GetSqlStatement(string DataType, string OperatorType, string SearchValue)
+        {
+            if (DataType == "String")
+            {
+                switch (OperatorType)
+                {
+                    case "PreFix":
+                        return $"LIKE '%{SearchValue}'";
+                    case "PostFix":
+                        return $"LIKE '{SearchValue}%'";
+                    case "Contains":
+                        return $"LIKE '%{SearchValue}%'";
+                    case "Equal":
+                        return $"= '{SearchValue}'";
+                    default:
+                        return $"= '{SearchValue}'";
+                }
+            }
+            else if (DataType == "Numeric")
+            {
+                switch (OperatorType)
+                {
+                    case "Equal":
+                        return $"= {SearchValue}";
+                    case "Greater":
+                        return $"> {SearchValue}";
+                    case "Smaller":
+                        return $"< {SearchValue}";
+                    case "GreaterEqual":
+                        return $">= {SearchValue}";
+                    case "SmallerEqual":
+                        return $"<= {SearchValue}";
+                    default:
+                        return $"= '{SearchValue}'";
+                }
+            }
+            else if (DataType == "Date")
+            {
+                switch (OperatorType)
+                {
+                    case "Equal":
+                        return $"= '{SearchValue}'";
+                    case "Min":
+                        return $"> '{SearchValue}'";
+                    case "Max":
+                        return $"< '{SearchValue}'";
+                    default:
+                        return $"= '{SearchValue}'";
+                }
+            }
+            else if (DataType == "Boolean")
+            {
+                switch (OperatorType)
+                {
+                    case "True":
+                        return $"= {SearchValue}";
+                    case "False":
+                        return $"= {SearchValue}";
+                    default:
+                        return $"= '{SearchValue}'";
+                }
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Compiles the final select statement
+        /// </summary>
+        /// <param name="WhereClause"></param>
+        /// <returns></returns>
+        public string CreateFinalQuery(string WhereClause)
+        {
+            string finalSelect = $"SELECT * FROM {WhereCriteriaCollection.First().SearchField.EntityName} ";
+
+            foreach (string join in JoinCollection)
+            {
+                finalSelect = finalSelect + join;
+            }
+            finalSelect = finalSelect + WhereClause;
+            return finalSelect;
         }
 
         /// <summary>
@@ -395,17 +668,17 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             switch (Component)
             {
                 case "TextBox":
-                    TextBoxValueShow = "Visible";
+                    TextBoxValueShow = ShowOperatorType = "Visible";
                     TextBoxValidationValue = string.Empty;
                     ComboBoxValueShow = CalendarValueShow = "Hidden";
                     break;
                 case "ComboBox":
                     ComboBoxValueShow = "Visible";
                     ComboBoxValidationValue = _defaultItem;
-                    TextBoxValueShow = CalendarValueShow = "Hidden";
+                    TextBoxValueShow = CalendarValueShow = ShowOperatorType = "Hidden";
                     break;
                 case "Calendar":
-                    CalendarValueShow = "Visible";
+                    CalendarValueShow = ShowOperatorType = "Visible";
                     CalendarValidationValue = DateTime.Now;
                     ComboBoxValueShow = TextBoxValueShow = "Hidden";
                     break;
@@ -428,7 +701,110 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             return collection;
         }
 
+        /// <summary>
+        /// Returs a boolean if mapping was successful
+        /// Mapping is accessed in the ref path list
+        /// </summary>
+        /// <param name="allMappings"></param>
+        /// <param name="mappingToSearch"></param>
+        /// <param name="searchingFor"></param>
+        /// <param name="path"></param>
+        /// <param name="keys"></param>
+        /// <returns></returns>
+        public bool GetMappingPath(List<Mapping> allMappings, string mappingToSearch, string searchingFor, ref List<string> path, ref List<int> keys)
+        {
+            Mapping map = allMappings.Where(p => p.Me == mappingToSearch).FirstOrDefault();
+            List<string> newEntities = new List<string>();
+
+            foreach (AdvancedSearchMap advancedSearchMap in map.Connections)
+            {
+                string otherEntity = advancedSearchMap.FromEntity == mappingToSearch ? advancedSearchMap.ToEntity : advancedSearchMap.FromEntity;
+                if (otherEntity == searchingFor)
+                {
+                    path.Add(otherEntity);
+                    return true;
+                }
+                else
+                {
+                    if (!keys.Any(p => p == advancedSearchMap.pkAdvancedSearchMapID))
+                    {
+                        newEntities.Add(otherEntity);
+                        keys.Add(advancedSearchMap.pkAdvancedSearchMapID);
+                        path.Add(otherEntity);
+                    }
+                }
+
+                foreach (string newMapping in newEntities)
+                {
+                    if (GetMappingPath(allMappings, newMapping, searchingFor, ref path, ref keys))
+                        return true;
+                    if (newMapping == otherEntity)
+                        path.Remove(otherEntity);
+                }
+
+            }
+            return false;
+        }
+
         #region Lookup Data Loading
+
+        /// <summary>
+        /// Computes the mapping for the requested tables
+        /// </summary>
+        /// <param name="Entity1"></param>
+        /// <param name="Column1"></param>
+        /// <param name="Entity2"></param>
+        /// <param name="Column2"></param>
+        public void CalculateMapping(string Entity1, string Column1, string Entity2, string Column2)
+        {
+            //Gets all the fields of the advanced search tables
+            IEnumerable<AdvancedSearchMap> advancedSearchMapping = new AdvancedSearchMapModel(_eventAggregator).ReadAdvancedSearchMappings();
+            List<string> allEntities = new AdvancedSearchFieldModel(_eventAggregator).DistinctEntityName();
+
+            List<Mapping> allMappings = new List<Mapping>();
+
+            //Maps all the connection of each table if
+            //the table is mentioned in AdvancedSearchField
+            //To be used to in the mapping process
+            foreach (string entity in allEntities)
+            {
+                Mapping mapping = new Mapping();
+                mapping.Me = entity;
+
+                foreach (AdvancedSearchMap advancedSearchMap in advancedSearchMapping)
+                {
+                    if (advancedSearchMap.FromEntity == entity || advancedSearchMap.ToEntity == entity)
+                    {
+                        mapping.Connections.Add(advancedSearchMap);
+                    }
+                }
+                allMappings.Add(mapping);
+            }
+
+            List<string> path = new List<string>();
+            Mapping map = allMappings.Where(p => p.Me == Entity1).FirstOrDefault();
+            List<int> keys = new List<int>();
+            path.Add(Entity1);
+            bool found = GetMappingPath(allMappings, Entity1, Entity2, ref path, ref keys);
+
+            if (found)
+            {
+                foreach (string entity in path)
+                {
+                    if (entity != path.Last())
+                    {
+                        string currentItem = entity;
+                        string nextItem = path[path.IndexOf(entity) + 1];
+
+                        AdvancedSearchMap directionMap = advancedSearchMapping.Where(p => (p.FromEntity == currentItem && p.ToEntity == nextItem) || (p.FromEntity == nextItem && p.ToEntity == currentItem))
+                                                                              .FirstOrDefault();
+                        string currentJoin = $"INNER JOIN {directionMap.FromEntity} ON {directionMap.FromEntity}.fk{directionMap.ToEntity}ID = {directionMap.ToEntity}.pk{directionMap.ToEntity}ID ";
+                        if (!JoinCollection.Any(p => p == currentJoin))
+                            JoinCollection.Add(currentJoin);
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Read all the advanced search entity names from the enum class
@@ -510,7 +886,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                              ApplicationMessage.MessageTypes.SystemError));
             }
         }
-        
+
         /// <summary>
         /// Load all the data type operators from the string, 
         /// numeric and date OperatorType enum's
@@ -742,8 +1118,180 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         #endregion
 
         #region Command Execution
+
+        /// <summary>
+        /// Set add command button enabled/disabled state
+        /// </summary>
+        /// <returns></returns>
+        private bool CanExecuteAdd()
+        {
+            bool result = true;
+            result = _securityHelper.IsUserInRole(SecurityRole.Administrator.Value()) || _securityHelper.IsUserInRole(SecurityRole.DataManager.Value());
+
+            if (result)
+            {
+                result = ValidDataEntity == Brushes.Silver && ValidColumnName == Brushes.Silver && ValidValidation == Brushes.Silver ? true : false;
+            }
+
+            if (result)
+            {
+                result = ShowOperatorType == "Visible" && ValidOperator == Brushes.Silver || ShowOperatorType == "Hidden" ? true : false;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Set search command button enabled/disabled state
+        /// </summary>
+        /// <returns></returns>
+        private bool CanExecuteSearch()
+        {
+            bool result = true;
+            result = _securityHelper.IsUserInRole(SecurityRole.Administrator.Value()) || _securityHelper.IsUserInRole(SecurityRole.DataManager.Value());
+
+            if (result)
+            {
+                result = ValidValidationRules == Brushes.Silver ? true : false;
+            }
+            
+            return result;
+        }
+
+        /// <summary>
+        /// Execute when the add command button is clicked 
+        /// </summary>
+        private void ExecuteAdd()
+        {
+            string validationRule = "";
+
+            if (SelectedColumn.ControlType == "ComboBox")
+                validationRule = $"{SelectedSearchCategory} WHERE {SelectedColumn.DisplayName} = {ComboBoxValidationValue}.";
+            else if (SelectedColumn.ControlType == "Calendar")
+                validationRule = $"{SelectedSearchCategory} WHERE {SelectedColumn.DisplayName} {SelectedOperator} {CalendarValidationValue}.";
+            else
+                validationRule = $"{SelectedSearchCategory} WHERE {SelectedColumn.DisplayName} {SelectedOperator} {TextBoxValidationValue}.";
+
+            AdvancedSearchFieldJoinCollection.Add(SelectedColumn);
+
+            //Builds the where criteria to add to the collection
+            WhereCriteria whereCriteria = new WhereCriteria();
+            whereCriteria.SearchField = SelectedColumn;
+            
+            if (SelectedColumn.ControlType == "TextBox")
+            {
+                whereCriteria.SearchValue = TextBoxValidationValue;
+                whereCriteria.OperatorValue = "=";
+            }
+            else if (SelectedColumn.ControlType == "ComboBox")
+            {
+                whereCriteria.SearchValue = ComboBoxValidationValue;
+                whereCriteria.OperatorValue = SelectedOperator.ToString();
+            }
+            else if (SelectedColumn.ControlType == "Calendar")
+            {
+                whereCriteria.SearchValue = CalendarValidationValue.ToString();
+                whereCriteria.OperatorValue = SelectedOperator.ToString();
+            }
+            WhereCriteriaCollection.Add(whereCriteria);
+
+            ValidationRulesCollection.Add(validationRule);
+            //Sets ValidationRulesCollection to temp observable collection
+            //else it doesn't trigger the update on the form to check the border
+            ObservableCollection<string> tempRulesCollection = ValidationRulesCollection;
+            ValidationRulesCollection = new ObservableCollection<string>(tempRulesCollection);
+
+            InitialiseCriteriaField();
+        }
+
+        /// <summary>
+        /// Execute when the search command button is clicked 
+        /// </summary>
+        private void ExecuteSearch()
+        {
+            CalculateJoins();
+            string finalQuery = CreateFinalQuery(CalculateWheres());
+        }
+
         #endregion
 
         #endregion
+    }
+
+    /// <summary>
+    /// A class to keep data on the mapping
+    /// to compute till path is found
+    /// </summary>
+    public class Mapping
+    {
+        /// <summary>
+        /// The AdvancedSearch object name
+        /// </summary>
+        public string Me
+        {
+            get { return _me; }
+            set { _me = value; }
+        }
+        private string _me;
+
+        /// <summary>
+        /// All the joins to me
+        /// </summary>
+        public List<AdvancedSearchMap> Connections
+        {
+            get { return _connections; }
+            set { _connections = value; }
+        }
+        private List<AdvancedSearchMap> _connections;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public Mapping()
+        {
+            Connections = new List<AdvancedSearchMap>();
+        }
+    }
+    /// <summary>
+    /// A class to keep all the where information so it can be
+    /// built when search is called
+    /// </summary>
+    public class WhereCriteria
+    {
+        /// <summary>
+        /// The AdvancedSearchField row
+        /// </summary>
+        public AdvancedSearchField SearchField
+        {
+            get { return _searchField; }
+            set { _searchField = value; }
+        }
+        private AdvancedSearchField _searchField;
+        /// <summary>
+        /// The operator value eg."PreFix"
+        /// </summary>
+        public string OperatorValue
+        {
+            get { return _operatorValue; }
+            set { _operatorValue = value; }
+        }
+        private string _operatorValue;
+        /// <summary>
+        /// The actual value the user entered
+        /// </summary>
+        public string SearchValue
+        {
+            get { return _searchValue; }
+            set { _searchValue = value; }
+        }
+        private string _searchValue;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public WhereCriteria()
+        {
+            
+        }
     }
 }
