@@ -10,6 +10,8 @@ using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
@@ -27,6 +29,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private DataValidationRuleModel _model = null;
         private IEventAggregator _eventAggregator;
         private SecurityHelper _securityHelper = null;
+        private BillingProcessHistory _currentProcessHistory = null;
+        private IEnumerable<DataValidationRule> _selectedValidationRules = null;
         private string _billingPeriod = string.Format("{0}{1}", DateTime.Now.Month.ToString().PadLeft(2, '0'), DateTime.Now.Year);
 
         #region Commands
@@ -59,6 +63,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _validationStarted, value); }
         }
         private bool _validationStarted = false;
+
+        /// <summary>
+        /// Indicate if the billing run can be started
+        /// </summary>
+        public bool CanStartBillingProcess
+        {
+            get { return _canStartBillingProcess; }
+            set { SetProperty(ref _canStartBillingProcess, value); }
+        }
+        private bool _canStartBillingProcess = false;
 
         /// <summary>
         /// The validation data rule progessbar description
@@ -195,16 +209,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private DataValidationException _selectedException = null;
 
         /// <summary>
-        /// Indicate if the current billing process completed
-        /// </summary>
-        public bool BillingProcessCompleted
-        {
-            get { return _billingProcessCompleted; }
-            set { SetProperty(ref _billingProcessCompleted, value); }
-        }
-        private bool _billingProcessCompleted = false;
-
-        /// <summary>
         /// The selected exceptions to fix
         /// </summary>
         private ObservableCollection<DataValidationException> ExceptionsToFix
@@ -271,7 +275,15 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 SetProperty(ref _selectedExternalData, value);
                 InitialiseViewControls();
                 if (value != null && value.pkExternalBillingDataID > 0)
-                     Task.Run(() => ReadImportedExternalDataAsync());
+                {
+                    Task.Run(() => ReadImportedExternalDataAsync());
+                    Task.Run(() => ReadValidationRuleExceptionsAsync());
+                }
+
+                // Disable start button if there are no rule
+                // for the selected data file
+                _selectedValidationRules = ValidationRuleCollection.Where(p => p.DataValidationEntityID == value.pkExternalBillingDataID);
+                CanStartBillingProcess = _selectedValidationRules.Count() > 0;
             }
         }
         private ExternalBillingData _selectedExternalData = null;
@@ -347,14 +359,20 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
 
         /// <summary>
-        /// This event gets received to enable the next button 
-        /// when the process completed
+        /// This event gets received to disable the next button 
+        /// when the process is not completed
         /// </summary>
         /// <param name="sender">The error message.</param>
-        private void BillingProcessCompleted_Event(BillingExecutionState sender)
+        private void BillingCurrentHistory_Event(object sender)
         {
-            if (sender == BillingExecutionState.ExternalDataValidation)
-                Application.Current.Dispatcher.Invoke(() => { BillingProcessCompleted = true; });
+            _currentProcessHistory = (BillingProcessHistory)sender;
+
+            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.InternalDataValidation)
+                CanStartBillingProcess = _currentProcessHistory.ProcessResult != null ? true : false;
+            else if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataValidation)
+                CanStartBillingProcess = _currentProcessHistory.ProcessResult == null ? true : false;
+            else
+                CanStartBillingProcess = false;
         }
 
         #endregion
@@ -382,7 +400,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             // Initialise the view commands 
             StartValidationCommand = new DelegateCommand(ExecuteStartValidation, CanStartValidation).ObservesProperty(() => ValidationRuleCollection)
                                                                                                     .ObservesProperty(() => SelectedExternalData)
-                                                                                                    .ObservesProperty(() => BillingProcessCompleted);
+                                                                                                    .ObservesProperty(() => CanStartBillingProcess);
             StopValidationCommand = new DelegateCommand(ExecuteStopValidation, CanStopValidation).ObservesProperty(() => ValidationStarted)
                                                                                                  .ObservesProperty(() => ValidationRuleEntitiesFailed);
             ExportCommand = new DelegateCommand(ExecuteExport, CanExport).ObservesProperty(() => ExceptionsToFix);
@@ -394,14 +412,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             // Subscribe to this event to display the data validation errors
             _eventAggregator.GetEvent<DataValiationResultEvent>().Subscribe(DataValiationResult_Event, true);
 
-            // Subscribe to this event to lock the completed process
-            // and enable functionality to move to the process completed
-            _eventAggregator.GetEvent<BillingProcessCompletedEvent>().Subscribe(BillingProcessCompleted_Event, true);
+            // Subscribe to this event to disable functionality start the billing process if its already started
+            _eventAggregator.GetEvent<BillingCurrentHistoryEvent>().Subscribe(BillingCurrentHistory_Event, true);
 
             // Load the view data
             await ReadExternalBillingDataAsync();
             await ReadValidationRulesAsync();
-            await ReadValidationRuleExceptionsAsync();
         }
 
         /// <summary>
@@ -444,11 +460,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Load all the validation rule exceptions if any from the database
         /// </summary>
-        private async Task ReadValidationRuleExceptionsAsync()
+        private void ReadValidationRuleExceptionsAsync()
         {
             try
             {
-                ValidationErrorCollection = await Task.Run(() => new DataValidationExceptionModel(_eventAggregator).ReadDataValidationExceptions(_billingPeriod, DataValidationProcess.ExternalBilling.Value()));
+                ValidationErrorCollection = new DataValidationExceptionModel(_eventAggregator).ReadDataValidationExceptions(_billingPeriod, DataValidationProcess.ExternalBilling.Value());
             }
             catch (Exception ex)
             {
@@ -694,7 +710,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <returns></returns>
         private bool CanStartValidation()
         {
-            return BillingProcessCompleted == false && SelectedExternalData != null && SelectedExternalData.pkExternalBillingDataID > 0 ? true : false;
+            return SelectedExternalData != null && SelectedExternalData.pkExternalBillingDataID > 0 &&
+                   ValidationRuleCollection != null && ValidationRuleCollection.Count > 0 && CanStartBillingProcess;
         }
 
         /// <summary>
@@ -708,28 +725,22 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
             try
             {
-                // Set the previous data validation process as complete
-                await CompleteBillingProcessHistoryAsync(BillingExecutionState.StartBillingProcess);
-
                 // Create a new history entry everytime the process get started
                 await CreateBillingProcessHistoryAsync();
+
+                // Get the new current process history
+                BillingProcessHistory currentProcess = new BillingProcessModel(_eventAggregator).ReadBillingProcessCurrentHistory();
 
                 // Update the process progress values on the wizard's Info content
                 _eventAggregator.GetEvent<BillingProcessEvent>().Publish(BillingExecutionState.ExternalDataValidation);
 
-                //// Disable the next buttton when the process gets started
-                //_eventAggregator.GetEvent<BillingProcessStartedEvent>().Publish(BillingExecutionState.ExternalDataValidation);
-
-                // Read the validation rules for the specified
-                // group from the database
-                await ReadValidationRulesAsync();
+                // Change the start buttton to complete when the process gets started
+                _eventAggregator.GetEvent<BillingCurrentHistoryEvent>().Publish(currentProcess);
 
                 if (ValidationRuleCollection != null && ValidationRuleCollection.Count > 0)
                 {
-                    int entityCount = ValidationRuleCollection.GroupBy(p => p.DataValidationEntityID).Count();
-
                     // Set the entity and data rule progressbars max values
-                    ValidationDataRuleCount = ValidationRuleCollection.Count;
+                    //ValidationDataRuleCount = entityCount = ValidationRuleCollection.Count;
 
                     foreach (DataValidationRule rule in ValidationRuleCollection)
                     {

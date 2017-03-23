@@ -16,7 +16,6 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
 {
@@ -304,11 +303,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             _currentProcessHistory = (BillingProcessHistory)sender;
 
-            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataRuleValidation &&
-                _currentProcessHistory.ProcessResult != null)
-                CanStartBillingProcess = false;
+            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataImport)
+                CanStartBillingProcess = _currentProcessHistory.ProcessResult != null ? true : false;
+            else if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataRuleValidation)
+                CanStartBillingProcess = _currentProcessHistory.ProcessResult == null ? true : false;
             else
-                CanStartBillingProcess = true;
+                CanStartBillingProcess = false;
         }
 
         #endregion
@@ -534,7 +534,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     // Publish this event to lock the completed process and enable 
                     // functinality to move to the next process
                     if (billingProcess == BillingExecutionState.ExternalDataValidation)
-                        _eventAggregator.GetEvent<BillingProcessCompletedEvent>().Publish(BillingExecutionState.ExternalDataValidation);
+                        _eventAggregator.GetEvent<BillingProcessCompletedEvent>().Publish(BillingExecutionState.ExternalDataRuleValidation);
                 }
             }
             catch (Exception ex)

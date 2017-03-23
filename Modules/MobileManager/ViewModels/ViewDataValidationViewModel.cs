@@ -27,7 +27,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private DataValidationRuleModel _model = null;
         private IEventAggregator _eventAggregator;
         private SecurityHelper _securityHelper = null;
-        DataValidationProcess _validationProcess = DataValidationProcess.None;
+        private BillingProcessHistory _currentProcessHistory = null;
+        private DataValidationProcess _validationProcess = DataValidationProcess.None;
         private string _billingPeriod = MobileManagerEnvironment.BillingPeriod;
 
         #region Commands
@@ -61,6 +62,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _validationStarted, value); }
         }
         private bool _validationStarted = false;
+
+        /// <summary>
+        /// Indicate if the billing run can be started
+        /// </summary>
+        public bool CanStartBillingProcess
+        {
+            get { return _canStartBillingProcess; }
+            set { SetProperty(ref _canStartBillingProcess, value); }
+        }
+        private bool _canStartBillingProcess = false;
 
         /// <summary>
         /// The validation group progessbar description
@@ -420,25 +431,20 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
 
         /// <summary>
-        /// This event gets received to enable the next button 
-        /// when the process completed
-        /// </summary>
-        /// <param name="sender">The error message.</param>
-        private void BillingProcessCompleted_Event(BillingExecutionState sender)
-        {
-            if (sender == BillingExecutionState.InternalDataValidation)
-                Application.Current.Dispatcher.Invoke(() => { BillingProcessCompleted = true; });
-        }
-
-        /// <summary>
         /// This event gets received to disable the next button 
-        /// when the process completed
+        /// when the process is not completed
         /// </summary>
         /// <param name="sender">The error message.</param>
-        private void BillingProcessStarted_Event(BillingExecutionState sender)
+        private void BillingCurrentHistory_Event(object sender)
         {
-            if (sender == BillingExecutionState.InternalDataValidation)
-                Application.Current.Dispatcher.Invoke(() => { BillingProcessCompleted = false; });
+            _currentProcessHistory = (BillingProcessHistory)sender;
+
+            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataRuleValidation)
+                CanStartBillingProcess = _currentProcessHistory.ProcessResult != null ? true : false;
+            else if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.InternalDataValidation)
+                CanStartBillingProcess = _currentProcessHistory.ProcessResult == null ? true : false;
+            else
+                CanStartBillingProcess = false;
         }
 
         /// <summary>
@@ -474,7 +480,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
             // Initialise the view commands 
             StartValidationCommand = new DelegateCommand(ExecuteStartValidation, CanStartValidation).ObservesProperty(() => ValidationRuleCollection)
-                                                                                                    .ObservesProperty(() => BillingProcessCompleted);
+                                                                                                    .ObservesProperty(() => CanStartBillingProcess);
             StopValidationCommand = new DelegateCommand(ExecuteStopValidation, CanStopValidation).ObservesProperty(() => ValidationStarted)
                                                                                                  .ObservesProperty(() => ValidationRuleEntitiesFailed);
             ExportCommand = new DelegateCommand(ExecuteExport, CanExport).ObservesProperty(() => ExceptionsToFix);
@@ -492,13 +498,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             // Subscribe to this event to display or hide the data validation control header
             _eventAggregator.GetEvent<DataValiationHeaderEvent>().Subscribe(ShowDataValidationHeader_Event, true);
 
-            // Subscribe to this event to lock the completed process
-            // and enable functionality to move to the process completed
-            _eventAggregator.GetEvent<BillingProcessCompletedEvent>().Subscribe(BillingProcessCompleted_Event, true);
-
-            //// Subscribe to this event to lock the started process
-            //// and disable functionality to move to the process completed
-            //_eventAggregator.GetEvent<BillingProcessStartedEvent>().Subscribe(BillingProcessStarted_Event, true);
+            // Subscribe to this event to disable functionality start the billing process if its already started
+            _eventAggregator.GetEvent<BillingCurrentHistoryEvent>().Subscribe(BillingCurrentHistory_Event, true);
 
             // Load the view data
             ReadDataValidationGroups();
@@ -784,7 +785,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private bool CanStartValidation()
         {
             return _validationProcess != DataValidationProcess.None && ValidationGroupCollection != null &&
-                   ValidationGroupCollection.Count > 0 && BillingProcessCompleted == false ? true : false;
+                   ValidationGroupCollection.Count > 0 && CanStartBillingProcess;
         }
 
         /// <summary>
@@ -799,6 +800,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
             try
             {
+                BillingProcessHistory currentProcess = _currentProcessHistory;
+
                 // Update billing related values
                 if (_validationProcess == DataValidationProcess.SystemBilling)
                 {
@@ -808,11 +811,14 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     // Create a new history entry everytime the process get started
                     await CreateBillingProcessHistoryAsync();
 
+                    // Get the new current process history
+                    currentProcess = new BillingProcessModel(_eventAggregator).ReadBillingProcessCurrentHistory();
+
                     // Update the process progress values on the wizard's Info content
                     _eventAggregator.GetEvent<BillingProcessEvent>().Publish(BillingExecutionState.InternalDataValidation);
 
-                    //// Disable the next buttton when the process gets started
-                    //_eventAggregator.GetEvent<BillingProcessStartedEvent>().Publish(BillingExecutionState.InternalDataValidation);
+                    // Change the start buttton to complete when the process gets started
+                    _eventAggregator.GetEvent<BillingCurrentHistoryEvent>().Publish(currentProcess);
                 }
 
                 // Set the group progressbar max value
@@ -903,6 +909,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
                 // Disable the stop button
                 ValidationStarted = false;
+
+                // Change the start buttton to complete when the process gets started
+                _eventAggregator.GetEvent<BillingCurrentHistoryEvent>().Publish(currentProcess);
             }
             catch (Exception ex)
             {
