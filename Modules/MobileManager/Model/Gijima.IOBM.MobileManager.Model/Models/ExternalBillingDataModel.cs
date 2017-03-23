@@ -122,7 +122,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     if (billingPeriod != null)
                     {
                         externalData = externalData.Where(p => (p.pkExternalBillingDataID == 0 || p.BillingPeriod == billingPeriod) &&
-                                                                p.PropertyValidationPassed == state);
+                                                                p.DataValidationPassed == state);
                     }
 
                     if (excludeDefault)
@@ -214,10 +214,72 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         }
 
         /// <summary>
+        /// Read all the imported external data file properties for the specified file
+        /// </summary>
+        /// <param name="sqlTableName">The SQL table name.</param>
+        /// <returns>Data table</returns>
+        public IEnumerable<string> ReadExternalDataDuplicates(string sqlTableName, string fieldName)
+        {
+            try
+            {
+                string connectionString = MobileManagerEntities.GetContext().Database.Connection.ConnectionString;
+                string sql = "SELECT [" + fieldName + "], COUNT([" + fieldName + "]) AS DUPS FROM [" + sqlTableName + "] GROUP BY [" + fieldName + "]";
+                DataTable billingData = new DataTable();
+
+                using (SqlConnection con = new SqlConnection(connectionString))
+                {
+                    con.Open();
+                    SqlCommand cmd = new SqlCommand(sql, con);
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                    {
+                        adapter.Fill(billingData);
+                    }
+                    con.Close();
+                }
+
+                return billingData.AsEnumerable().Where(p => p.Field<int>("DUPS") > 1).Select(p => p.Field<string>("Account Number"));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Read all the imported external data file properties for the specified file
+        /// </summary>
+        /// <param name="sqlTableName">The SQL table name.</param>
+        /// <returns>Data table</returns>
+        public bool UpdateExternalDataState(string sqlTableName, string billingPeriod, bool state)
+        {
+            try
+            {
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    ExternalBillingData externalData = db.ExternalBillingDatas.Where(p => p.TableName == sqlTableName &&
+                                                                                          p.BillingPeriod == billingPeriod).FirstOrDefault();
+
+                    if (externalData != null)
+                    {
+                        externalData.DataValidationPassed = state;
+                        db.SaveChanges();
+                        return true;
+                    }
+
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Read all the external data entries from the database
         /// </summary>
         /// <returns>Collection of ExternalData entries</returns>
-        public short GetDataValidationDataType(Type dataType)
+        private short GetDataValidationDataType(Type dataType)
         {
             switch (dataType.ToString())
             {

@@ -219,5 +219,32 @@ namespace Gijima.IOBM.Infrastructure.Helpers
                 return false;
             }
         }
+
+        /// <summary>
+        /// Compare values based on the specified boolean operator
+        /// </summary>
+        /// <param name="valueToCompare">The value to compare.</param>
+        /// <param name="valueToCompareTo">The value to compare to.</param>
+        /// <returns>True if successfull</returns>
+        public bool CompareRangeValues(string valueToCompare, string valueToCompareTo)
+        {
+            try
+            {
+                string[] valuesToCompareTo = valueToCompareTo.Split(';');
+
+                for (int i = 0; i < valuesToCompareTo.Length; i++)
+                {
+                    if (valuesToCompareTo[i].ToString().ToUpper() == valueToCompare.ToUpper())
+                        return true;
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                return false;
+            }
+        }
     }
 }

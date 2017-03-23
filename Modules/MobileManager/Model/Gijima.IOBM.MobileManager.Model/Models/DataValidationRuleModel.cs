@@ -780,6 +780,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             try
             {
                 DataValidationException validationResult = null;
+                OperatorType operatorType = (OperatorType)validationRule.enOperatorType;
                 string entityName = string.Empty;
                 string entityValue = string.Empty;
                 string ruleValue = string.Empty;
@@ -819,46 +820,9 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                 MaxValue = _externalData.Rows.Count,
                             });
 
-                            // Validate the data rule values for each simcard         
-                            foreach (DataRow row in _externalData.Rows)
+                            if (operatorType == OperatorType.RuleOperator && (RuleOperator)validationRule.enOperator == RuleOperator.Duplicate)
                             {
-                                ++rowIdx;
-                                entityName = property.ExtDataValidationProperty.ToUpper();
-                                entityValue = row[property.ExtDataValidationProperty].ToString();
-
-                                switch ((OperatorType)validationRule.enOperatorType)
-                                {
-                                    case OperatorType.StringOperator:
-                                        ruleValue = string.Format("{0} {1} {2}", property.ExtDataValidationProperty.ToUpper(),
-                                                                                 ((StringOperator)validationRule.enOperator).ToString(),
-                                                                                 validationRule.DataValidationValue);
-                                        result = _dataComparer.CompareStringValues((StringOperator)validationRule.enOperator,
-                                                                                   entityValue,
-                                                                                   validationRule.DataValidationValue);
-                                        break;
-                                    case OperatorType.DateOperator:
-                                        ruleValue = string.Format("{0} {1} {2}", property.ExtDataValidationProperty.ToUpper(),
-                                                                                 ((DateOperator)validationRule.enOperator).ToString(),
-                                                                                 validationRule.DataValidationValue);
-                                        break;
-                                    case OperatorType.NumericOperator:
-                                        ruleValue = string.Format("{0} {1} {2}", property.ExtDataValidationProperty.ToUpper(),
-                                                                                 ((NumericOperator)validationRule.enOperator).ToString(),
-                                                                                 validationRule.DataValidationValue);
-                                        result = _dataComparer.CompareNumericValues((NumericOperator)validationRule.enOperator,
-                                                                                    entityValue,
-                                                                                    validationRule.DataValidationValue);
-                                        break;
-                                    case OperatorType.BooleanOperator:
-                                        ruleValue = string.Format("{0} {1} {2}", property.ExtDataValidationProperty.ToUpper(),
-                                                                                 ((BooleanOperator)validationRule.enOperator).ToString(),
-                                                                                 validationRule.DataValidationValue);
-                                        result = _dataComparer.CompareBooleanValues((BooleanOperator)validationRule.enOperator,
-                                                                                    entityValue);
-                                        break;
-                                    default:
-                                        break;
-                                }
+                                IEnumerable<string> duplicates = new ExternalBillingDataModel(_eventAggregator).ReadExternalDataDuplicates(extBillingDetail.TableName, property.ExtDataValidationProperty);
 
                                 // Update the progress values for each simcard
                                 _eventAggregator.GetEvent<ProgressBarInfoEvent>().Publish(new ProgressBarInfo()
@@ -869,13 +833,14 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                                 // Update the validation result values
                                 validationResult = new DataValidationException();
-                                if (result)
+                                if (duplicates.Count() == 0)
                                 {
                                     validationResult = new DataValidationException()
                                     {
-                                        fkDataValidationPropertyID = validationRule.fkDataValidationPropertyID,
+                                        fkBillingProcessID = BillingExecutionState.ExternalDataValidation.Value(),
                                         enDataValidationGroupName = validationRule.enDataValidationGroupName,
                                         DataValidationEntityID = validationRule.DataValidationEntityID,
+                                        fkDataValidationPropertyID = validationRule.fkDataValidationPropertyID,
                                         Result = true
                                     };
 
@@ -883,19 +848,121 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                 }
                                 else
                                 {
-                                    validationResult = new DataValidationException()
+                                    foreach (string dup in duplicates)
                                     {
-                                        fkDataValidationPropertyID = validationRule.pkDataValidationRuleID,
-                                        enDataValidationGroupName = validationRule.enDataValidationGroupName,
-                                        DataValidationEntityID = validationRule.DataValidationEntityID,
-                                        CanApplyRule = false,
-                                        Message = string.Format("{0} failed for {1} - current value ({2}) - expected ({3}).",
-                                                                property.ExtDataValidationProperty.ToUpper(), validationRule.EntityDescription,
-                                                                entityValue, ruleValue),
-                                        Result = false
-                                    };
+                                        validationResult = new DataValidationException()
+                                        {
+                                            fkBillingProcessID = BillingExecutionState.ExternalDataValidation.Value(),
+                                            enDataValidationGroupName = validationRule.enDataValidationGroupName,
+                                            DataValidationEntityID = validationRule.DataValidationEntityID,
+                                            fkDataValidationPropertyID = validationRule.fkDataValidationPropertyID,
+                                            CanApplyRule = false,
+                                            Message = string.Format("Duplicates found for {0} {1}.",
+                                                                    property.ExtDataValidationProperty.ToUpper(), dup.ToUpper()),
+                                            Result = false
+                                        };
 
-                                    _eventAggregator.GetEvent<DataValiationResultEvent>().Publish(validationResult);
+                                        _eventAggregator.GetEvent<DataValiationResultEvent>().Publish(validationResult);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                // Validate the data rule values for each simcard         
+                                foreach (DataRow row in _externalData.Rows)
+                                {
+                                    ++rowIdx;
+                                    entityName = property.ExtDataValidationProperty.ToUpper();
+                                    entityValue = row[property.ExtDataValidationProperty].ToString();
+
+                                    switch (operatorType)
+                                    {
+                                        case OperatorType.StringOperator:
+                                            ruleValue = string.Format("{0} {1} {2}", property.ExtDataValidationProperty.ToUpper(),
+                                                                                     ((StringOperator)validationRule.enOperator).ToString(),
+                                                                                     validationRule.DataValidationValue);
+                                            result = _dataComparer.CompareStringValues((StringOperator)validationRule.enOperator,
+                                                                                       entityValue,
+                                                                                       validationRule.DataValidationValue);
+                                            break;
+                                        case OperatorType.DateOperator:
+                                            ruleValue = string.Format("{0} {1} {2}", property.ExtDataValidationProperty.ToUpper(),
+                                                                                     ((DateOperator)validationRule.enOperator).ToString(),
+                                                                                     validationRule.DataValidationValue);
+                                            break;
+                                        case OperatorType.NumericOperator:
+                                            ruleValue = string.Format("{0} {1} {2}", property.ExtDataValidationProperty.ToUpper(),
+                                                                                     ((NumericOperator)validationRule.enOperator).ToString(),
+                                                                                     validationRule.DataValidationValue);
+                                            result = _dataComparer.CompareNumericValues((NumericOperator)validationRule.enOperator,
+                                                                                        entityValue,
+                                                                                        validationRule.DataValidationValue);
+                                            break;
+                                        case OperatorType.BooleanOperator:
+                                            ruleValue = string.Format("{0} {1} {2}", property.ExtDataValidationProperty.ToUpper(),
+                                                                                     ((BooleanOperator)validationRule.enOperator).ToString(),
+                                                                                     validationRule.DataValidationValue);
+                                            result = _dataComparer.CompareBooleanValues((BooleanOperator)validationRule.enOperator,
+                                                                                        entityValue);
+                                            break;
+                                        case OperatorType.RuleOperator:
+                                            if (((RuleOperator)validationRule.enOperator == RuleOperator.Range))
+                                            {
+                                                ruleValue = string.Format("{0} {1} {2}", property.ExtDataValidationProperty.ToUpper(),
+                                                                                         ((RuleOperator)validationRule.enOperator).ToString(),
+                                                                                         validationRule.DataValidationValue);
+
+                                                result = _dataComparer.CompareRangeValues(entityValue,
+                                                                                          validationRule.DataValidationValue);
+                                            }
+                                            break;
+                                        default:
+                                            ruleValue = string.Format("{0} {1} {2}", property.ExtDataValidationProperty.ToUpper(),
+                                                                                     ((BooleanOperator)validationRule.enOperator).ToString(),
+                                                                                     validationRule.DataValidationValue);
+                                            result = false;
+                                            break;
+                                    }
+
+                                    // Update the progress values for each simcard
+                                    _eventAggregator.GetEvent<ProgressBarInfoEvent>().Publish(new ProgressBarInfo()
+                                    {
+                                        CurrentValue = rowIdx,
+                                        MaxValue = _externalData.Rows.Count,
+                                    });
+
+                                    // Update the validation result values
+                                    validationResult = new DataValidationException();
+                                    if (result)
+                                    {
+                                        validationResult = new DataValidationException()
+                                        {
+                                            fkBillingProcessID = BillingExecutionState.ExternalDataValidation.Value(),
+                                            enDataValidationGroupName = validationRule.enDataValidationGroupName,
+                                            DataValidationEntityID = validationRule.DataValidationEntityID,
+                                            fkDataValidationPropertyID = validationRule.fkDataValidationPropertyID,
+                                            Result = true
+                                        };
+
+                                        _eventAggregator.GetEvent<DataValiationResultEvent>().Publish(validationResult);
+                                    }
+                                    else
+                                    {
+                                        validationResult = new DataValidationException()
+                                        {
+                                            fkBillingProcessID = BillingExecutionState.ExternalDataValidation.Value(),
+                                            enDataValidationGroupName = validationRule.enDataValidationGroupName,
+                                            DataValidationEntityID = validationRule.DataValidationEntityID,
+                                            fkDataValidationPropertyID = validationRule.fkDataValidationPropertyID,
+                                            CanApplyRule = false,
+                                            Message = string.Format("{0} failed for {1} - current value ({2}) - expected ({3}).",
+                                                                    property.ExtDataValidationProperty.ToUpper(), validationRule.EntityDescription,
+                                                                    entityValue, ruleValue),
+                                            Result = false
+                                        };
+
+                                        _eventAggregator.GetEvent<DataValiationResultEvent>().Publish(validationResult);
+                                    }
                                 }
                             }
 

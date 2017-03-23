@@ -282,7 +282,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <param name="sender">The error message.</param>
         private void ProgressBarInfo_Event(object sender)
         {
-            Application.Current.Dispatcher.Invoke(() => { UpdateProgressBarValues(sender); });
+            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataRuleValidation)
+                Application.Current.Dispatcher.Invoke(() => { UpdateProgressBarValues(sender); });
         }
 
         /// <summary>
@@ -291,7 +292,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <param name="sender">The error message.</param>
         private void DataValiationResult_Event(object sender)
         {
-            Application.Current.Dispatcher.Invoke(() => { DisplayDataValidationResults(sender); });
+            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataRuleValidation)
+                Application.Current.Dispatcher.Invoke(() => { DisplayDataValidationResults(sender); });
         }
 
         /// <summary>
