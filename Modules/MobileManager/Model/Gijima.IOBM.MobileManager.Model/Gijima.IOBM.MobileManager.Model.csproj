@@ -177,6 +177,7 @@
     <Compile Include="Data\InvoiceDetail.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Data\Mapping.cs" />
     <Compile Include="Data\MobileManagerContext.cs" />
     <Compile Include="Data\MobileManagerEntities.Context.cs">
       <AutoGen>True</AutoGen>
@@ -235,9 +236,11 @@
     <Compile Include="Data\UserInRole.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Data\WhereCriteria.cs" />
     <Compile Include="Helpers\EDMHelper.cs" />
     <Compile Include="Models\AdvancedSearchFieldModel.cs" />
     <Compile Include="Models\AdvancedSearchMapModel.cs" />
+    <Compile Include="Models\AdvancedSearchModel.cs" />
     <Compile Include="Models\AppSettingModel.cs" />
     <Compile Include="Models\AuditLogModel.cs" />
     <Compile Include="Models\BillingLevelModel.cs" />
