@@ -123,7 +123,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AdvancedSearchEntities.cs" />
     <Compile Include="MobileManagerController.cs" />
     <Compile Include="MobileManagerModule.cs" />
     <Compile Include="ViewModels\ViewAccountViewModel.cs" />

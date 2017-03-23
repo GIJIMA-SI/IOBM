@@ -43,7 +43,7 @@
                 <TextBlock Text="Advanced Search View" Style="{StaticResource UXHeaderTextStyle}"></TextBlock>
                 <StackPanel Grid.Row="0" Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,1,10,0">
                     <Button x:Name="ButtonCancel" ToolTip="Cancel the current operation." TabIndex="9" Margin="0,0,2,0" 
-                        Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding CancelCommand}">
+                        Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding ClearCriteriaCommand}">
                         <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico" Margin="2"/>
                     </Button>
                     <Button x:Name="ButtonSearch" ToolTip="Search with the provided rules" TabIndex="12" Margin="0"
@@ -123,7 +123,7 @@
         <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Text="Data Validation Rules" VerticalAlignment="Bottom" Margin="5,0,5,0"/>
         <StackPanel Grid.Row="3" Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,5,0">
             <Button x:Name="ButtonClearAll" ToolTip="Cancel the current operation." TabIndex="9" Margin="0,0,2,0" 
-                        Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding CancelCommand}">
+                        Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding ClearSearchCriteriaCommand}">
                 <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico" Margin="2"/>
             </Button>
             <!--<Button x:Name="ButtonClearSelected" ToolTip="Delete the selected data validation rule." TabIndex="11" Margin="0,0,2,0"
@@ -148,34 +148,7 @@
         </Button>
         <DataGrid x:Name="DataGridValidationRules" Grid.Row="7" Grid.ColumnSpan="12" AutoGenerateColumns="True" CanUserReorderColumns="False" CanUserSortColumns="True" MinHeight="52"
             IsReadOnly="True" TabIndex="8" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"  Margin="5"
-            ItemsSource="{Binding ValidationRuleCollection}" SelectedItem="{Binding SelectedValidationRule}">
-            <!--<DataGrid.Columns>
-                <DataGridTextColumn Header="Group" Binding="{Binding GroupDescription}" Width="*" />
-                <DataGridTextColumn Header="Entity" Binding="{Binding EntityDescription}" Width="*" />
-                <DataGridTextColumn Header="Data Field" Binding="{Binding PropertyDescription}" Width="*" />
-                <DataGridTextColumn Header="Data Type" Binding="{Binding DataTypeDescription}" Width="Auto">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="HorizontalAlignment" Value="Center" />
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-                <DataGridTextColumn Header="Operator Type" Binding="{Binding OperatorTypeDescription}" Width="Auto">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="HorizontalAlignment" Value="Center" />
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-                <DataGridTextColumn Header="Operator" Binding="{Binding OperatorDescription}" Width="Auto">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="HorizontalAlignment" Value="Center" />
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-                <DataGridTextColumn Header="Validation Value" Binding="{Binding DataValidationValue}" Width="300" />
-            </DataGrid.Columns>-->
+            ItemsSource="{Binding QueryDataCollection}" SelectedItem="{Binding SelectedValidationRule}">
         </DataGrid>
     </Grid>
 </UserControl>
