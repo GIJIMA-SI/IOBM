@@ -15,9 +15,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Media;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
@@ -37,7 +40,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         public DelegateCommand StartValidationCommand { get; set; }
         public DelegateCommand StopValidationCommand { get; set; }
         public DelegateCommand ExportCommand { get; set; }
-        public DelegateCommand ExceptExceptionCommand { get; set; }
+        public DelegateCommand RefreshDataCommand { get; set; }
+        public DelegateCommand AcceptExceptionCommand { get; set; }
 
         #endregion
 
@@ -198,6 +202,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private string _selectedExceptions;
 
         /// <summary>
+        /// The selected data import file
+        /// </summary>
+        public OpenFileDialog SelectedImportFile
+        {
+            get { return _selectedImportFile; }
+            set { SetProperty(ref _selectedImportFile, value); }
+        }
+        private OpenFileDialog _selectedImportFile;
+
+        /// <summary>
         /// The current selected exception
         /// </summary>
         private DataValidationException SelectedException
@@ -346,7 +360,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <param name="sender">The error message.</param>
         private void ProgressBarInfo_Event(object sender)
         {
-            Application.Current.Dispatcher.Invoke(() => { UpdateProgressBarValues(sender); });
+            System.Windows.Application.Current.Dispatcher.Invoke(() => { UpdateProgressBarValues(sender); });
         }
 
         /// <summary>
@@ -355,7 +369,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <param name="sender">The error message.</param>
         private void DataValiationResult_Event(object sender)
         {
-            Application.Current.Dispatcher.Invoke(() => { DisplayDataValidationResults(sender); });
+            System.Windows.Application.Current.Dispatcher.Invoke(() => { DisplayDataValidationResults(sender); });
         }
 
         /// <summary>
@@ -400,11 +414,13 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             // Initialise the view commands 
             StartValidationCommand = new DelegateCommand(ExecuteStartValidation, CanStartValidation).ObservesProperty(() => ValidationRuleCollection)
                                                                                                     .ObservesProperty(() => SelectedExternalData)
-                                                                                                    .ObservesProperty(() => CanStartBillingProcess);
-            StopValidationCommand = new DelegateCommand(ExecuteStopValidation, CanStopValidation).ObservesProperty(() => ValidationStarted)
-                                                                                                 .ObservesProperty(() => ValidationRuleEntitiesFailed);
+                                                                                                    .ObservesProperty(() => CanStartBillingProcess)
+                                                                                                    .ObservesProperty(() => ValidationStarted);
+            StopValidationCommand = new DelegateCommand(ExecuteStopValidation, CanStopValidation).ObservesProperty(() => ValidationStarted);
             ExportCommand = new DelegateCommand(ExecuteExport, CanExport).ObservesProperty(() => ExceptionsToFix);
-            ExceptExceptionCommand = new DelegateCommand(ExecuteApplyRuleFix, CanApplyRuleFix).ObservesProperty(() => ExceptionsToFix);
+            RefreshDataCommand = new DelegateCommand(ExecuteRefreshData, CanRefreshData).ObservesProperty(() => ValidationErrorCollection)
+                                                                                        .ObservesProperty(() => ValidationStarted);
+            AcceptExceptionCommand = new DelegateCommand(ExecuteAcceptException, CanAcceptException).ObservesProperty(() => ExceptionsToFix);
 
             // Subscribe to this event to update the progressbar
             _eventAggregator.GetEvent<ProgressBarInfoEvent>().Subscribe(ProgressBarInfo_Event, true);
@@ -463,7 +479,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
-                ValidationErrorCollection = new DataValidationExceptionModel(_eventAggregator).ReadDataValidationExceptions(MobileManagerEnvironment.BillingPeriod, BillingExecutionState.ExternalDataValidation.Value(), SelectedExternalData.pkExternalBillingDataID);
+                System.Windows.Application.Current.Dispatcher.Invoke(() => {
+                    ValidationErrorCollection =
+                    new DataValidationExceptionModel(_eventAggregator).ReadDataValidationExceptions(MobileManagerEnvironment.BillingPeriod,
+                                                                                                    BillingExecutionState.ExternalDataValidation.Value(),
+                                                                                                    SelectedExternalData.pkExternalBillingDataID); });
             }
             catch (Exception ex)
             {
@@ -699,6 +719,49 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
         }
 
+        /// <summary>
+        /// Import the data from the selected workbook sheet
+        /// </summary>
+        /// <param name="workSheet">The info of the worksheet to import</param>
+        private void ImportWorkSheetDataAsync(WorkSheetInfo workSheetInfo)
+        {
+            try
+            {
+                ImportedDataCollection = null;
+
+                // Update the worksheet data
+                ImportedDataCollection = new MSOfficeHelper().ReadSheetDataIntoDataTable(workSheetInfo.WorkBookName, workSheetInfo.SheetName);
+
+                // Write the imported data to the database
+                ExternalBillingData extData = new ExternalBillingData();
+                extData.TableName = SelectedExternalData.TableName;
+                extData.SheetName = SelectedExternalData.SheetName;
+                extData.BillingPeriod = MobileManagerEnvironment.BillingPeriod;
+                extData.DataFileLocation = Path.GetDirectoryName(SelectedImportFile.FileName);
+                extData.DataFileName = SelectedImportFile.SafeFileName;
+                extData.ModifiedBy = SecurityHelper.LoggedInUserFullName;
+                extData.DateModified = DateTime.Now;
+
+                if (!new ExternalBillingDataModel(_eventAggregator).CreateExternalData(SelectedExternalData.TableName, extData, ImportedDataCollection))
+                {
+                    _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                    .Publish(new ApplicationMessage("ViewExtDataValidationViewModel",
+                                                "The imported data did not save.",
+                                                "ImportWorkSheetDataAsync",
+                                                ApplicationMessage.MessageTypes.ProcessError));
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ViewExtDataValidationViewModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ImportWorkSheetDataAsync",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
+
         #endregion
 
         #region Command Execution
@@ -710,7 +773,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private bool CanStartValidation()
         {
             return SelectedExternalData != null && SelectedExternalData.pkExternalBillingDataID > 0 &&
-                   ValidationRuleCollection != null && ValidationRuleCollection.Count > 0 && CanStartBillingProcess;
+                   ValidationRuleCollection != null && ValidationRuleCollection.Count > 0 && CanStartBillingProcess && !ValidationStarted;
         }
 
         /// <summary>
@@ -752,6 +815,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         ValidationDataRuleDescription = string.Format("Validating data rule {0} - {1} of {2}", rule.PropertyDescription.ToUpper(),
                                                                                                                ++ValidationDataRuleProgress,
                                                                                                                _selectedValidationRules.Count());
+
+                        Thread.Sleep(1000);
 
                         // Validate the data rule
                         await Task.Run(() => _model.ValidateDataValidationRule(rule));
@@ -881,24 +946,57 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// Set view command buttons enabled/disabled state
         /// </summary>
         /// <returns></returns>
-        private bool CanApplyRuleFix()
+        private bool CanRefreshData()
         {
-            return ExceptionsToFix != null && ExceptionsToFix.Any(p => p.CanApplyRule == true) && !ExceptionsToFix.Any(p => p.CanApplyRule == false);
+            return SelectedExternalData != null && SelectedExternalData.pkExternalBillingDataID > 0 &&
+                   ValidationErrorCollection != null && ValidationErrorCollection.Count > 0 && !ValidationStarted;
         }
 
         /// <summary>
         /// Execute when the apply rule command button is clicked 
         /// </summary>
-        private async void ExecuteApplyRuleFix()
+        private void ExecuteRefreshData()
         {
             try
             {
-                // Apply the data rule to each exception and remove the fixed
-                // exceptions to the exceptions collection                  
-                foreach (DataValidationException exception in ExceptionsToFix)
+                OpenFileDialog dialog = new System.Windows.Forms.OpenFileDialog();
+                dialog.Filter = "Excel files (*.xlsx)|*.xlsx";
+                DialogResult result = dialog.ShowDialog();
+                WorkSheetInfo workSheetInfo = null;
+
+                if (result.ToString() == "OK")
                 {
-                    if (await Task.Run(() => _model.ApplyDataRule(exception)))
-                        ValidationErrorCollection.Remove(exception);
+                    MSOfficeHelper officeHelper = new MSOfficeHelper();
+                    SelectedImportFile = dialog;
+
+                    // Get all the excel workbook sheets
+                    List<WorkSheetInfo> workSheets = officeHelper.ReadWorkBookInfoFromExcel(dialog.FileName).ToList();
+
+                    // Find the worksheet from the original import
+                    foreach (WorkSheetInfo sheetInfo in workSheets)
+                    {
+                        if (sheetInfo.SheetName == SelectedExternalData.SheetName)
+                        {
+                            workSheetInfo = sheetInfo;
+                            break;
+                        }
+                    }
+
+                    // If worksheet is not found show
+                    // message and stop refresh process
+                    if (workSheetInfo == null)
+                    {
+                        _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                        .Publish(new ApplicationMessage("ViewExtDataValidationViewModel",
+                                                                        string.Format("Error! Worksheet {0} not found.",
+                                                                        SelectedExternalData.SheetName),
+                                                                        "ExecuteRefreshData",
+                                                                        ApplicationMessage.MessageTypes.ProcessError));
+                        return;
+                    }
+
+                    // Re-Import the selected import data
+                    Task.Run(() => ImportWorkSheetDataAsync(workSheetInfo));
                 }
             }
             catch (Exception ex)
@@ -907,7 +1005,57 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                 .Publish(new ApplicationMessage("ViewExtDataValidationViewModel",
                                                                 string.Format("Error! {0}, {1}.",
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "ExecuteApplyRuleFix",
+                                                                "ExecuteRefreshData",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
+
+        /// <summary>
+        /// Set view command buttons enabled/disabled state
+        /// </summary>
+        /// <returns></returns>
+        private bool CanAcceptException()
+        {
+            return ExceptionsToFix != null && ExceptionsToFix.Count > 0;
+        }
+
+        /// <summary>
+        /// Execute when the apply rule command button is clicked 
+        /// </summary>
+        private async void ExecuteAcceptException()
+        {
+            try
+            {
+                // Delete all the selected exceptions from
+                // the exceptions collection                  
+                if (new DataValidationExceptionModel(_eventAggregator).DeleteDataValidationExceptions(ExceptionsToFix))
+                {
+                    // Refresh the exceptions
+                    ReadValidationRuleExceptionsAsync();
+
+                    // If NO validations exceptions found the set 
+                    // the data validation process as complete
+                    // else save the exceptions to the database
+                    if (ValidationErrorCollection != null && ValidationErrorCollection.Count == 0)
+                    {
+                        // Update the validationstate of the selected import file
+                        if (new ExternalBillingDataModel(_eventAggregator).UpdateExternalDataState(SelectedExternalData.TableName, MobileManagerEnvironment.BillingPeriod, true))
+                            await ReadExternalBillingDataAsync();
+
+                        // Only complete the external billing validation process
+                        // if all the external billing data files been processed
+                        if (ExternalDataCollection.Count() <= 1)
+                            await CompleteBillingProcessHistoryAsync(BillingExecutionState.ExternalDataValidation);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ViewExtDataValidationViewModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ExecuteAcceptException",
                                                                 ApplicationMessage.MessageTypes.SystemError));
             }
         }

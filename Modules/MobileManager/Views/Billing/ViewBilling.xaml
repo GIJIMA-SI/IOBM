@@ -192,6 +192,20 @@
                     <Billing:ViewExtDataValidation Grid.Row="2" Grid.Column="0"/>
                 </Grid>
             </xctk:WizardPage>
+            <xctk:WizardPage x:Name="WizardPage6" ExteriorPanelBackground="White" Title="Billing Wizard" Description="This Wizard page exposes functionality to export the billing data for each provider." 
+                CanSelectNextPage="{Binding CanMoveNext, UpdateSourceTrigger=PropertyChanged}" NextPage="{Binding ElementName=LastPage}" PreviousPage="{Binding ElementName=WizardPage5}">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Billing:ViewBillingDataExport Grid.Row="2" Grid.Column="0"/>
+                </Grid>
+            </xctk:WizardPage>
             <xctk:WizardPage x:Name="LastPage" PageType="Blank" Visibility="Collapsed"
                                    Title="Last Page"
                                    Description="This is the last page in the process"

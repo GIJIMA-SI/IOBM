@@ -60,7 +60,6 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public virtual DbSet<UserInRole> UserInRoles { get; set; }
         public virtual DbSet<DataValidationException> DataValidationExceptions { get; set; }
         public virtual DbSet<Contract> Contracts { get; set; }
-        public virtual DbSet<ExternalBillingData> ExternalBillingDatas { get; set; }
         public virtual DbSet<ClientService> ClientServices { get; set; }
         public virtual DbSet<ContractService> ContractServices { get; set; }
         public virtual DbSet<Company> Companies { get; set; }
@@ -73,6 +72,7 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public virtual DbSet<DataUpdateSearchProperty> DataUpdateSearchProperties { get; set; }
         public virtual DbSet<AdvancedSearchMap> AdvancedSearchMaps { get; set; }
         public virtual DbSet<AdvancedSearchField> AdvancedSearchFields { get; set; }
+        public virtual DbSet<ExternalBillingData> ExternalBillingDatas { get; set; }
     
         public virtual ObjectResult<sp_report_Invoice_Result> sp_report_Invoice(Nullable<int> invoiceID)
         {

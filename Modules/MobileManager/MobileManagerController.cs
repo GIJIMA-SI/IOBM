@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Gijima.IOBM.MobileManager.Model.Models;
 using Gijima.IOBM.MobileManager.Common.Events;
+using Gijima.IOBM.MobileManager.Common.Structs;
 
 namespace Gijima.IOBM.MobileManager
 {
@@ -174,8 +175,11 @@ namespace Gijima.IOBM.MobileManager
                 // Set the current billing period and billing state based on the 
                 // current billing process history entry
                 MobileManagerEnvironment.BillingPeriod = billingProcess.BillingPeriod;
-                MobileManagerEnvironment.IsBillingPeriodOpen = billingProcess.ProcessResult == null ? true : false;
-                
+                if ((BillingExecutionState)billingProcess.fkBillingProcessID == BillingExecutionState.CloseBillingProcess)
+                    MobileManagerEnvironment.IsBillingPeriodOpen = billingProcess.ProcessResult == null ? true : false;
+                else
+                    MobileManagerEnvironment.IsBillingPeriodOpen = true;
+
                 // Publish the event to update the billing period on the UI
                 _eventAggregator.GetEvent<BillingPeriodEvent>().Publish(null);
             }

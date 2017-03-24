@@ -103,7 +103,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         }
 
         /// <summary>
-        /// Delete an existing data validation property in the database
+        /// Delete all existing data validation exceptions linked to the propertyID in the database
         /// </summary>
         /// <param name="propertyID">The property ID to delete exceptions for.</param>
         /// <returns>True if successfull</returns>
@@ -125,6 +125,43 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         db.SaveChanges();
                     }
 
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("DataValidationExceptionModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "DeleteDataValidationExceptions",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Delete all the selected data validation axception in the database
+        /// </summary>
+        /// <param name="validationRuleExceptions">List of data validation exceptions to delete.</param>
+        /// <returns>True if successfull</returns>
+        public bool DeleteDataValidationExceptions(IEnumerable<DataValidationException> validationRuleExceptions)
+        {
+            try
+            {
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    DataValidationException exceptionToDelete = null;
+
+                    foreach (DataValidationException exception in validationRuleExceptions)
+                    {
+                        exceptionToDelete = db.DataValidationExceptions.Where(p => p.pkDataValidationExceptionID == exception.pkDataValidationExceptionID).FirstOrDefault();
+
+                        if (exceptionToDelete != null)
+                            db.DataValidationExceptions.Remove(exceptionToDelete);
+                    }
+
+                    db.SaveChanges();
                     return true;
                 }
             }
