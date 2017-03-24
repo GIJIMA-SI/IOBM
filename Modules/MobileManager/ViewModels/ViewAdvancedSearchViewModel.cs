@@ -599,9 +599,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 switch (OperatorType)
                 {
                     case "PreFix":
-                        return $"LIKE '%{SearchValue}'";
-                    case "PostFix":
                         return $"LIKE '{SearchValue}%'";
+                    case "PostFix":
+                        return $"LIKE '%{SearchValue}'";
                     case "Contains":
                         return $"LIKE '%{SearchValue}%'";
                     case "Equal":
@@ -990,8 +990,15 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                             case "Site":
                                 ComboBoxValidationCollection = await Task.Run(() => new ClientLocationModel(_eventAggregator).ReadClientLocationNames(true));
                                 break;
-                            case "Private OR Company":
+                            case "Company":
                                 ComboBoxValidationCollection = await Task.Run(() => new CompanyModel(_eventAggregator).ReadCompanieNames(true));
+                                break;
+                            case "Private OR Company":
+                                ObservableCollection<string> companyOrPrivate = new ObservableCollection<string>();
+                                companyOrPrivate.Add(_defaultItem);
+                                companyOrPrivate.Add("Company");
+                                companyOrPrivate.Add("Private");
+                                ComboBoxValidationCollection = companyOrPrivate;
                                 break;
                             case "State":
                                 ObservableCollection<string> activeInActive = new ObservableCollection<string>();
@@ -1240,6 +1247,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 {
                     //Convert active form display values
                     whereCriteria.SearchValue = ComboBoxValidationValue.ToString() == "Active" ? "True" : "False";
+                }
+                else if(ComboBoxValidationValue.ToString() == "Company" || ComboBoxValidationValue.ToString() == "Private")
+                {
+                    //Convert active form display values
+                    whereCriteria.SearchValue = ComboBoxValidationValue.ToString() == "Company" ? "False" : "True";
                 }
                 else
                 {
