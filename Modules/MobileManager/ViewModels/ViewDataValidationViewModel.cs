@@ -418,7 +418,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <param name="sender">The error message.</param>
         private void ProgressBarInfo_Event(object sender)
         {
-            Application.Current.Dispatcher.Invoke(() => { UpdateProgressBarValues(sender); });
+            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.InternalDataValidation)
+                Application.Current.Dispatcher.Invoke(() => { UpdateProgressBarValues(sender); });
         }
 
         /// <summary>
@@ -427,7 +428,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <param name="sender">The error message.</param>
         private void DataValiationResult_Event(object sender)
         {
-            Application.Current.Dispatcher.Invoke(() => { DisplayDataValidationResults(sender); });
+            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.InternalDataValidation)
+                Application.Current.Dispatcher.Invoke(() => { DisplayDataValidationResults(sender); });
         }
 
         /// <summary>
@@ -578,7 +580,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
-                ValidationErrorCollection = await Task.Run(() => new DataValidationExceptionModel(_eventAggregator).ReadDataValidationExceptions(_billingPeriod, _validationProcess.Value()));
+                ValidationErrorCollection = await Task.Run(() => new DataValidationExceptionModel(_eventAggregator).ReadDataValidationExceptions(_billingPeriod, BillingExecutionState.InternalDataValidation.Value(),0));
             }
             catch (Exception ex)
             {

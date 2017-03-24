@@ -58,6 +58,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     // Add the new exceptions for the billing period
                     foreach (DataValidationException exception in validationRuleExceptions)
                     {
+                        exception.BillingPeriod = billingPeriod;
                         db.DataValidationExceptions.Add(exception);
                     }
                     db.SaveChanges();
@@ -77,7 +78,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// </summary>
         /// <param name="billingPeriod">The billing period to read exceptions for.</param>
         /// <returns>Collection of DataValidationExceptions</returns>
-        public ObservableCollection<DataValidationException> ReadDataValidationExceptions(string billingPeriod, int validationProcess)
+        public ObservableCollection<DataValidationException> ReadDataValidationExceptions(string billingPeriod, int validationProcess, int entityID)
         {
             try
             {
@@ -87,7 +88,8 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 {
                     validationRuleExceptions = ((DbQuery<DataValidationException>)(from ruleException in db.DataValidationExceptions
                                                                                    where ruleException.BillingPeriod == billingPeriod &&
-                                                                                         ruleException.fkBillingProcessID == validationProcess
+                                                                                         ruleException.fkBillingProcessID == validationProcess &&
+                                                                                         ruleException.DataValidationEntityID == entityID
                                                                                    select ruleException)).ToList();
 
                     return new ObservableCollection<DataValidationException>(validationRuleExceptions);

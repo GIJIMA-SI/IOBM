@@ -1157,17 +1157,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private bool CanExecuteAdd()
         {
             bool result = true;
-            result = _securityHelper.IsUserInRole(SecurityRole.Administrator.Value()) || _securityHelper.IsUserInRole(SecurityRole.DataManager.Value());
+
+            result = ValidDataEntity == Brushes.Silver && ValidColumnName == Brushes.Silver && ValidValidation == Brushes.Silver ? true : false;
 
             if (result)
-            {
-                result = ValidDataEntity == Brushes.Silver && ValidColumnName == Brushes.Silver && ValidValidation == Brushes.Silver ? true : false;
-            }
-
-            if (result)
-            {
                 result = ShowOperatorType == "Visible" && ValidOperator == Brushes.Silver || ShowOperatorType == "Hidden" ? true : false;
-            }
 
             return result;
         }
@@ -1178,15 +1172,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <returns></returns>
         private bool CanExecuteSearch()
         {
-            bool result = true;
-            result = _securityHelper.IsUserInRole(SecurityRole.Administrator.Value()) || _securityHelper.IsUserInRole(SecurityRole.DataManager.Value());
-
-            if (result)
-            {
-                result = ValidValidationRules == Brushes.Silver ? true : false;
-            }
-
-            return result;
+            return ValidValidationRules == Brushes.Silver ? true : false;
         }
 
         /// <summary>

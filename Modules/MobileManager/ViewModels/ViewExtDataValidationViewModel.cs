@@ -31,7 +31,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private SecurityHelper _securityHelper = null;
         private BillingProcessHistory _currentProcessHistory = null;
         private IEnumerable<DataValidationRule> _selectedValidationRules = null;
-        private string _billingPeriod = string.Format("{0}{1}", DateTime.Now.Month.ToString().PadLeft(2, '0'), DateTime.Now.Year);
 
         #region Commands
 
@@ -274,6 +273,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             {
                 SetProperty(ref _selectedExternalData, value);
                 InitialiseViewControls();
+                ImportedDataCollection = null;
                 if (value != null && value.pkExternalBillingDataID > 0)
                 {
                     Task.Run(() => ReadImportedExternalDataAsync());
@@ -433,7 +433,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             ValidationDataRulesPassed = ValidationRuleEntitiesPassed = 0;
             ValidationDataRulesFailed = ValidationRuleEntitiesFailed = 0;
             ValidationErrorCollection = null;
-            ImportedDataCollection = null;
         }
 
         /// <summary>
@@ -464,7 +463,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
-                ValidationErrorCollection = new DataValidationExceptionModel(_eventAggregator).ReadDataValidationExceptions(_billingPeriod, DataValidationProcess.ExternalBilling.Value());
+                ValidationErrorCollection = new DataValidationExceptionModel(_eventAggregator).ReadDataValidationExceptions(MobileManagerEnvironment.BillingPeriod, BillingExecutionState.ExternalDataValidation.Value(), SelectedExternalData.pkExternalBillingDataID);
             }
             catch (Exception ex)
             {
@@ -722,6 +721,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             string groupDescription = string.Empty;
             InitialiseViewControls();
             ValidationStarted = true;
+            int exceptionCount = 0;
 
             try
             {
@@ -737,35 +737,41 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 // Change the start buttton to complete when the process gets started
                 _eventAggregator.GetEvent<BillingCurrentHistoryEvent>().Publish(currentProcess);
 
-                if (ValidationRuleCollection != null && ValidationRuleCollection.Count > 0)
+                if (_selectedValidationRules != null && _selectedValidationRules.Count() > 0)
                 {
                     // Set the entity and data rule progressbars max values
-                    //ValidationDataRuleCount = entityCount = ValidationRuleCollection.Count;
+                    ValidationDataRuleCount = _selectedValidationRules.Count();
 
-                    foreach (DataValidationRule rule in ValidationRuleCollection)
+                    foreach (DataValidationRule rule in _selectedValidationRules)
                     {
                         // Allow the user to stop the validation
                         if (!ValidationStarted)
                             break;
-                        
+
                         // Set the data rule progresssbar description
                         ValidationDataRuleDescription = string.Format("Validating data rule {0} - {1} of {2}", rule.PropertyDescription.ToUpper(),
                                                                                                                ++ValidationDataRuleProgress,
-                                                                                                               ValidationRuleCollection.Count);
+                                                                                                               _selectedValidationRules.Count());
 
-                        // Validate the data rule and update
-                        // the progress values accodingly
-                        if (await Task.Run(() => _model.ValidateDataValidationRule(rule)))
-                            ++ValidationDataRulesPassed;
-                        else
+                        // Validate the data rule
+                        await Task.Run(() => _model.ValidateDataValidationRule(rule));
+
+                        // Update the progress values
+                        if (ValidationErrorCollection.Count > exceptionCount)
+                        {
+                            exceptionCount = ValidationErrorCollection.Count;
                             ++ValidationDataRulesFailed;
+                        }
+                        else
+                        {
+                            ++ValidationDataRulesPassed;
+                        }
 
+                        // Allow the user to stop the validation
+                        if (!ValidationStarted)
+                            break;
                     }
                 }
-
-                    //// Allow the user to stop the validation
-                    //if (!ValidationStarted)
-                    //    break;
 
                 // If NO validations exceptions found the set 
                 // the data validation process as complete
@@ -773,9 +779,20 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 if (ValidationRuleCollection != null && ValidationErrorCollection != null && ValidationRuleCollection.Count > 0)
                 {
                     if (ValidationErrorCollection.Count == 0)
-                        await CompleteBillingProcessHistoryAsync(BillingExecutionState.ExternalDataValidation);
+                    {
+                        // Update the validationstate of the selected import file
+                        if (new ExternalBillingDataModel(_eventAggregator).UpdateExternalDataState(SelectedExternalData.TableName, MobileManagerEnvironment.BillingPeriod, true))
+                            await ReadExternalBillingDataAsync();
+
+                        // Only complete the external billing validation process
+                        // if all the external billing data files been processed
+                        if (ExternalDataCollection.Count() <= 1)
+                            await CompleteBillingProcessHistoryAsync(BillingExecutionState.ExternalDataValidation);
+                    }
                     else
+                    {
                         await CreateValidationRuleExceptionsAsync();
+                    }
                 }
 
                 // Disable the stop button
@@ -798,7 +815,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <returns></returns>
         private bool CanStopValidation()
         {
-            return ValidationStarted && ValidationRuleEntitiesFailed > 0;
+            return ValidationStarted;
         }
 
         /// <summary>
