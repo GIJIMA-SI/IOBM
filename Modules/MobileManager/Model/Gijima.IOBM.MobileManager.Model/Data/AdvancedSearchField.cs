@@ -22,5 +22,6 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public string DataType { get; set; }
         public string ControlType { get; set; }
         public string OtherEntityColumnName { get; set; }
+        public string FinalEntityColumnName { get; set; }
     }
 }

@@ -55,10 +55,8 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 foreach (DataColumn column in queryData.Columns)
                 {
                     if (column.ColumnName.StartsWith("fk") || column.ColumnName.StartsWith("pk") ||
-                        column.ColumnName.StartsWith("en") || column.ColumnName == "IsActive" ||
-                        column.ColumnName == "ModifiedBy" || column.ColumnName == "ModifiedDate" || 
-                        column.ColumnName == "IsActive1" || column.ColumnName == "ModifiedBy1" || 
-                        column.ColumnName == "ModifiedDate1")
+                        column.ColumnName.StartsWith("en") || column.ColumnName.StartsWith("IsActive") ||
+                        column.ColumnName.StartsWith("ModifiedBy") || column.ColumnName.StartsWith("ModifiedDate"))
                     { columnsToRemove.Add(column); }
                 }
                 //Remove all unwanted columns

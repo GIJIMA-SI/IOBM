@@ -216,7 +216,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set
             {
                 SetProperty(ref _selectedEntity, value);
-                ReadDataEntities();
             }
         }
         private string _selectedEntity = EnumHelper.GetDescriptionFromEnum(DataValidationGroupName.None);
@@ -461,7 +460,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             _eventAggregator = eventAggregator;
             InitialiseViewControls();
             _securityHelper = new SecurityHelper(eventAggregator);
-            ReadDataEntities();
             InitialiseValidationCFView();
         }
 
@@ -539,13 +537,31 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 {
                     if (searchField.ColumnName.StartsWith("fk"))
                     {
-                        List<string> allEntities = new AdvancedSearchFieldModel(_eventAggregator).DistinctEntityName();
-                        string entityName = searchField.ColumnName.Replace("fk", "").Replace("ID", "");
-                        
-                        CalculateMapping("Client", searchField.EntityName);
-                        string currentJoin = $"INNER JOIN {entityName} ON {searchField.EntityName}.fk{entityName}ID = {entityName}.pk{entityName}ID ";
-                        if (!JoinCollection.Any(p => p.StartsWith(currentJoin.Substring(0, currentJoin.IndexOf(" ON ")))))
-                            JoinCollection.Add(currentJoin);
+                        //Check if there is more than one join to do hence FinalEntityColumnName
+                        if (searchField.OtherEntityColumnName.StartsWith("fk"))
+                        {
+                            string joinEntityName = searchField.ColumnName.Replace("fk", "").Replace("ID", "");
+                            string finalEntityName = searchField.OtherEntityColumnName.Replace("fk", "").Replace("ID", "");
+
+                            CalculateMapping("Client", searchField.EntityName);
+                            string currentJoin = $"INNER JOIN {joinEntityName} ON {searchField.EntityName}.fk{joinEntityName}ID = {joinEntityName}.pk{joinEntityName}ID ";
+                            string finalJoin = $"INNER JOIN {finalEntityName} ON {joinEntityName}.fk{finalEntityName}ID = {finalEntityName}.pk{finalEntityName}ID ";
+
+                            //Add the joins
+                            if (!JoinCollection.Any(p => p.StartsWith(currentJoin.Substring(0, currentJoin.IndexOf(" ON ")))))
+                                JoinCollection.Add(currentJoin);
+                            if (!JoinCollection.Any(p => p.StartsWith(finalJoin.Substring(0, finalJoin.IndexOf(" ON ")))))
+                                JoinCollection.Add(finalJoin);
+                        }
+                        else
+                        {
+                            string entityName = searchField.ColumnName.Replace("fk", "").Replace("ID", "");
+
+                            CalculateMapping("Client", searchField.EntityName);
+                            string currentJoin = $"INNER JOIN {entityName} ON {searchField.EntityName}.fk{entityName}ID = {entityName}.pk{entityName}ID ";
+                            if (!JoinCollection.Any(p => p.StartsWith(currentJoin.Substring(0, currentJoin.IndexOf(" ON ")))))
+                                JoinCollection.Add(currentJoin);
+                        }
                     }
                     else
                         CalculateMapping("Client", searchField.EntityName);
@@ -571,12 +587,19 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             WhereCollection = new List<string>();
             foreach (WhereCriteria whereCriteria in WhereCriteriaCollection)
             {
-                List<string> allEntities = new AdvancedSearchFieldModel(_eventAggregator).DistinctEntityName();
-                string entityName = whereCriteria.SearchField.ColumnName.Replace("fk", "").Replace("ID", "");
-
+                //Check if there is more than one join to do hence FinalEntityColumnName
                 if (whereCriteria.SearchField.ColumnName.StartsWith("fk"))
                 {
-                    WhereCollection.Add($" {entityName}.{whereCriteria.SearchField.OtherEntityColumnName} {GetSqlStatement(whereCriteria.SearchField.DataType, whereCriteria.OperatorValue, whereCriteria.SearchValue)} ");
+                    if (whereCriteria.SearchField.OtherEntityColumnName.StartsWith("fk"))
+                    {
+                        string finalEntityName = whereCriteria.SearchField.OtherEntityColumnName.Replace("fk", "").Replace("ID", "");
+                        WhereCollection.Add($" {finalEntityName}.{whereCriteria.SearchField.FinalEntityColumnName} {GetSqlStatement(whereCriteria.SearchField.DataType, whereCriteria.OperatorValue, whereCriteria.SearchValue)} ");
+                    }
+                    else
+                    {
+                        string entityName = whereCriteria.SearchField.ColumnName.Replace("fk", "").Replace("ID", "");
+                        WhereCollection.Add($" {entityName}.{whereCriteria.SearchField.OtherEntityColumnName} {GetSqlStatement(whereCriteria.SearchField.DataType, whereCriteria.OperatorValue, whereCriteria.SearchValue)} ");
+                    }
                 }
                 else
                 {
@@ -832,55 +855,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 }
             }
         }
-
-        /// <summary>
-        /// Read all the advanced search entity names from the enum class
-        /// </summary>
-        public void ReadDataEntities()
-        {
-            IEnumerable<string> enumEntities = Enum.GetValues(typeof(AdvancedDataBaseEntity)).Cast<AdvancedDataBaseEntity>().Select(v => v.ToString()).ToList();
-            string[] names = Enum.GetNames(typeof(AdvancedDataBaseEntity)).ToArray<string>();
-            ObservableCollection<string> entities = new ObservableCollection<string>();
-
-            foreach (string entity in enumEntities)
-            {
-                entities.Add(entity);
-            }
-
-            //DataEntityCollection = entities;
-        }
-
-        /// <summary>
-        /// Load all the data entities for the selected group from the database
-        /// </summary>
-        private void ReadEntityColumnNames()
-        {
-            try
-            {
-                DataEntityDisplayName = "Audit Log";
-                //DataEntityCollection = new ObservableCollection<string>(new AuditLogModel(_eventAggregator).ReadColumnNames());
-
-                switch (EnumHelper.GetEnumFromDescription<AdvancedDataBaseEntity>(SelectedEntity))
-                {
-                    case AdvancedDataBaseEntity.AuditLog:
-                        DataEntityDisplayName = "Audit Log";
-                        //DataEntityCollection = new ObservableCollection<string>(new AuditLogModel(_eventAggregator).ReadColumnNames());
-                        break;
-                }
-
-                //SelectedDataEntity = _defaultItem;
-            }
-            catch (Exception ex)
-            {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                .Publish(new ApplicationMessage("ViewDataValidationCFViewModel",
-                                                                string.Format("Error! {0}, {1}.",
-                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "ReadDataEntitiesAsync",
-                                                                ApplicationMessage.MessageTypes.SystemError));
-            }
-        }
-
+        
         /// <summary>
         /// Populate the package types combobox from the PackageType enum
         /// </summary>
