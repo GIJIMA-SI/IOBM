@@ -6,7 +6,7 @@
     <edmx:StorageModels>
     <Schema Namespace="MobileManagerModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <!--Errors Found During Generation:
-warning 6002: The table/view 'IOBM-MobileManager.dbo.AdvancedSearchField' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+warning 6002: The table/view 'IOBM-MobileManager_Dev.dbo.AdvancedSearchField' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="AdvancedSearchField">
           <Key>
             <PropertyRef Name="pkAdvancedSearchField" />
@@ -295,16 +295,16 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.AdvancedSearchField' does n
             <PropertyRef Name="pkDataUpdateRuleID" />
           </Key>
           <Property Name="pkDataUpdateRuleID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="enDataBaseEntity" Type="smallint" Nullable="false" />
-          <Property Name="enDataUpdateEntity" Type="smallint" Nullable="false" />
           <Property Name="enDataUpdateColumn" Type="smallint" Nullable="false" />
+          <Property Name="enDataUpdateEntity" Type="smallint" Nullable="false" />
+          <Property Name="enDataBaseEntity" Type="smallint" Nullable="false" />
           <Property Name="SearchEntities" Type="varchar" MaxLength="250" />
           <Property Name="ModifiedBy" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="DateModified" Type="smalldatetime" Nullable="false" />
           <Property Name="IsActive" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errors Found During Generation:
-warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+warning 6002: The table/view 'IOBM-MobileManager_Dev.dbo.DataUpdateSearchProperty' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="DataUpdateSearchProperty">
           <Key>
             <PropertyRef Name="pkDataUpdateSearchPropertyID" />
@@ -355,7 +355,7 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="fkDataValidationPropertyID" Type="int" Nullable="false" />
           <Property Name="enOperatorType" Type="smallint" Nullable="false" />
           <Property Name="enOperator" Type="smallint" Nullable="false" />
-          <Property Name="DataValidationValue" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="DataValidationValue" Type="varchar(max)" Nullable="false" />
           <Property Name="ModifiedBy" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="ModifiedDate" Type="datetime" Nullable="false" />
         </EntityType>
@@ -381,8 +381,8 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             <PropertyRef Name="pkDeviceIMENumberID" />
           </Key>
           <Property Name="pkDeviceIMENumberID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="IMENumber" Type="varchar" MaxLength="30" Nullable="false" />
           <Property Name="fkDeviceID" Type="int" Nullable="false" />
+          <Property Name="IMENumber" Type="varchar" MaxLength="30" Nullable="false" />
           <Property Name="ModifiedBy" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="ModifiedDate" Type="datetime" Nullable="false" />
         </EntityType>
@@ -413,10 +413,12 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           </Key>
           <Property Name="pkExternalBillingDataID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TableName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="SheetName" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="BillingPeriod" Type="varchar" MaxLength="7" Nullable="false" />
           <Property Name="PropertyValidationPassed" Type="bit" Nullable="false" />
           <Property Name="DataValidationPassed" Type="bit" Nullable="false" />
-          <Property Name="DataFileName" Type="varchar" MaxLength="100" />
+          <Property Name="DataFileLocation" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="DataFileName" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="ModifiedBy" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="DateModified" Type="smalldatetime" Nullable="false" />
         </EntityType>
@@ -702,18 +704,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_ClientService_ClientService">
-          <End Role="ContractService" Type="Self.ContractService" Multiplicity="1" />
-          <End Role="ClientService" Type="Self.ClientService" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ContractService">
-              <PropertyRef Name="pkContractServiceID" />
-            </Principal>
-            <Dependent Role="ClientService">
-              <PropertyRef Name="fkContractServiceID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_ClientService_Contract">
           <End Role="Contract" Type="Self.Contract" Multiplicity="1" />
           <End Role="ClientService" Type="Self.ClientService" Multiplicity="*" />
@@ -723,6 +713,18 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             </Principal>
             <Dependent Role="ClientService">
               <PropertyRef Name="fkContractID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ClientService_ContractService">
+          <End Role="ContractService" Type="Self.ContractService" Multiplicity="1" />
+          <End Role="ClientService" Type="Self.ClientService" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ContractService">
+              <PropertyRef Name="pkContractServiceID" />
+            </Principal>
+            <Dependent Role="ClientService">
+              <PropertyRef Name="fkContractServiceID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1150,12 +1152,12 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             <End Role="CompanyBillingLevel" EntitySet="CompanyBillingLevel" />
             <End Role="ClientBilling" EntitySet="ClientBilling" />
           </AssociationSet>
-          <AssociationSet Name="FK_ClientService_ClientService" Association="Self.FK_ClientService_ClientService">
-            <End Role="ContractService" EntitySet="ContractService" />
-            <End Role="ClientService" EntitySet="ClientService" />
-          </AssociationSet>
           <AssociationSet Name="FK_ClientService_Contract" Association="Self.FK_ClientService_Contract">
             <End Role="Contract" EntitySet="Contract" />
+            <End Role="ClientService" EntitySet="ClientService" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ClientService_ContractService" Association="Self.FK_ClientService_ContractService">
+            <End Role="ContractService" EntitySet="ContractService" />
             <End Role="ClientService" EntitySet="ClientService" />
           </AssociationSet>
           <AssociationSet Name="FK_Company_CompanyGroup" Association="Self.FK_Company_CompanyGroup">
@@ -1497,7 +1499,7 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="fkDataValidationPropertyID" Type="Int32" Nullable="false" />
           <Property Name="enOperatorType" Type="Int16" Nullable="false" />
           <Property Name="enOperator" Type="Int16" Nullable="false" />
-          <Property Name="DataValidationValue" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="DataValidationValue" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="ModifiedBy" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
           <NavigationProperty Name="DataValidationProperty" Relationship="Self.FK_DataValidationRule_DataValidationProperty" FromRole="DataValidationRule" ToRole="DataValidationProperty" />
@@ -2086,7 +2088,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             <End Role="Status" EntitySet="Status" />
             <End Role="Contract" EntitySet="Contracts" />
           </AssociationSet>
-          <EntitySet Name="ExternalBillingDatas" EntityType="MobileManagerModel.ExternalBillingData" />
           <EntitySet Name="ClientServices" EntityType="MobileManagerModel.ClientService" />
           <EntitySet Name="ContractServices" EntityType="MobileManagerModel.ContractService" />
           <AssociationSet Name="FK_ClientService_ClientService" Association="MobileManagerModel.FK_ClientService_ClientService">
@@ -2147,6 +2148,7 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <EntitySet Name="DataUpdateSearchProperties" EntityType="MobileManagerModel.DataUpdateSearchProperty" />
           <EntitySet Name="AdvancedSearchMaps" EntityType="MobileManagerModel.AdvancedSearchMap" />
           <EntitySet Name="AdvancedSearchFields" EntityType="MobileManagerModel.AdvancedSearchField" />
+          <EntitySet Name="ExternalBillingDatas" EntityType="MobileManagerModel.ExternalBillingData" />
           </EntityContainer>
         <ComplexType Name="sp_report_Invoice_Result">
           <Property Type="String" Name="ClientName" Nullable="false" MaxLength="100" />
@@ -2281,19 +2283,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="ExternalBillingData">
-          <Key>
-            <PropertyRef Name="pkExternalBillingDataID" />
-          </Key>
-          <Property Name="pkExternalBillingDataID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TableName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="BillingPeriod" Type="String" Nullable="false" MaxLength="7" FixedLength="false" Unicode="false" />
-          <Property Name="PropertyValidationPassed" Type="Boolean" Nullable="false" />
-          <Property Name="DataValidationPassed" Type="Boolean" Nullable="false" />
-          <Property Name="DataFileName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="ModifiedBy" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="DateModified" Type="DateTime" Nullable="false" Precision="0" />
-        </EntityType>
         <EntityType Name="ClientService">
           <Key>
             <PropertyRef Name="pkClientServiceID" />
@@ -2602,6 +2591,21 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="ControlType" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
           <Property Name="OtherEntityColumnName" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
           <Property Name="FinalEntityColumnName" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="ExternalBillingData">
+          <Key>
+            <PropertyRef Name="pkExternalBillingDataID" />
+          </Key>
+          <Property Name="pkExternalBillingDataID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TableName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="SheetName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="BillingPeriod" Type="String" Nullable="false" MaxLength="7" FixedLength="false" Unicode="false" />
+          <Property Name="PropertyValidationPassed" Type="Boolean" Nullable="false" />
+          <Property Name="DataValidationPassed" Type="Boolean" Nullable="false" />
+          <Property Name="DataFileLocation" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="DataFileName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedBy" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DateModified" Type="DateTime" Nullable="false" Precision="0" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -3097,20 +3101,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="ExternalBillingDatas">
-            <EntityTypeMapping TypeName="MobileManagerModel.ExternalBillingData">
-              <MappingFragment StoreEntitySet="ExternalBillingData">
-                <ScalarProperty Name="DateModified" ColumnName="DateModified" />
-                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
-                <ScalarProperty Name="DataFileName" ColumnName="DataFileName" />
-                <ScalarProperty Name="DataValidationPassed" ColumnName="DataValidationPassed" />
-                <ScalarProperty Name="PropertyValidationPassed" ColumnName="PropertyValidationPassed" />
-                <ScalarProperty Name="BillingPeriod" ColumnName="BillingPeriod" />
-                <ScalarProperty Name="TableName" ColumnName="TableName" />
-                <ScalarProperty Name="pkExternalBillingDataID" ColumnName="pkExternalBillingDataID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="ClientServices">
             <EntityTypeMapping TypeName="MobileManagerModel.ClientService">
               <MappingFragment StoreEntitySet="ClientService">
@@ -3261,6 +3251,22 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
                 <ScalarProperty Name="EntityName" ColumnName="EntityName" />
                 <ScalarProperty Name="enSearchCategory" ColumnName="enSearchCategory" />
                 <ScalarProperty Name="pkAdvancedSearchField" ColumnName="pkAdvancedSearchField" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ExternalBillingDatas">
+            <EntityTypeMapping TypeName="MobileManagerModel.ExternalBillingData">
+              <MappingFragment StoreEntitySet="ExternalBillingData">
+                <ScalarProperty Name="DateModified" ColumnName="DateModified" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="DataFileName" ColumnName="DataFileName" />
+                <ScalarProperty Name="DataFileLocation" ColumnName="DataFileLocation" />
+                <ScalarProperty Name="DataValidationPassed" ColumnName="DataValidationPassed" />
+                <ScalarProperty Name="PropertyValidationPassed" ColumnName="PropertyValidationPassed" />
+                <ScalarProperty Name="BillingPeriod" ColumnName="BillingPeriod" />
+                <ScalarProperty Name="SheetName" ColumnName="SheetName" />
+                <ScalarProperty Name="TableName" ColumnName="TableName" />
+                <ScalarProperty Name="pkExternalBillingDataID" ColumnName="pkExternalBillingDataID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

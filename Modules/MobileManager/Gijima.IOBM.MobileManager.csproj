@@ -152,6 +152,9 @@
     <Compile Include="ViewModels\ViewCellularViewModel.cs" />
     <Compile Include="ViewModels\ViewDeviceViewModel.cs" />
     <Compile Include="ViewModels\ViewReportsViewModel.cs" />
+    <Compile Include="Views\Billing\ViewBillingDataExport.xaml.cs">
+      <DependentUpon>ViewBillingDataExport.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Billing\ViewExtRuleValidation.xaml.cs">
       <DependentUpon>ViewExtRuleValidation.xaml</DependentUpon>
     </Compile>
@@ -277,6 +280,10 @@
     <Compile Include="Views\Maintenance\ViewSuburb.xaml.cs">
       <DependentUpon>ViewSuburb.xaml</DependentUpon>
     </Compile>
+    <Page Include="Views\Billing\ViewBillingDataExport.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Billing\ViewExtRuleValidation.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

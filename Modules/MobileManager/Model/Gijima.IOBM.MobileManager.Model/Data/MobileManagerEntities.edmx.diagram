@@ -63,7 +63,6 @@
         <AssociationConnector Association="MobileManagerModel.FK_Contract_Package" />
         <AssociationConnector Association="MobileManagerModel.FK_Contract_PackageSetup" />
         <AssociationConnector Association="MobileManagerModel.FK_Contract_Status" />
-        <EntityTypeShape EntityType="MobileManagerModel.ExternalBillingData" Width="1.5" PointX="9" PointY="1.625" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.ClientService" Width="1.5" PointX="0.625" PointY="10.375" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.ContractService" Width="1.5" PointX="0.625" PointY="9.25" IsExpanded="false" />
         <AssociationConnector Association="MobileManagerModel.FK_ClientService_ClientService" />
@@ -86,8 +85,9 @@
         <EntityTypeShape EntityType="MobileManagerModel.DataImportProperty" Width="1.5" PointX="4.875" PointY="9.375" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.DataUpdateProperty" Width="1.5" PointX="4.875" PointY="9.875" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.DataUpdateSearchProperty" Width="1.5" PointX="3.25" PointY="9.875" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.AdvancedSearchMap" Width="1.5" PointX="7.125" PointY="8.75" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.AdvancedSearchField" Width="1.5" PointX="7.125" PointY="8.25" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.AdvancedSearchMap" Width="1.5" PointX="7.125" PointY="9.625" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.AdvancedSearchField" Width="1.5" PointX="7.125" PointY="9" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.ExternalBillingData" Width="1.5" PointX="9.625" PointY="7.125" IsExpanded="false" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

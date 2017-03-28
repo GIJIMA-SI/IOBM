@@ -13,13 +13,14 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
-using System.Windows;
 using System.Threading;
 using Gijima.IOBM.Infrastructure.Structs;
 using Gijima.IOBM.MobileManager.Security;
 using Gijima.IOBM.MobileManager.Common.Events;
 using Gijima.IOBM.MobileManager.Common.Structs;
 using System.Reflection;
+using System.Windows.Forms;
+using System.IO;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
 {
@@ -29,7 +30,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
         private IEventAggregator _eventAggregator;
         private ExternalBillingDataModel _model = null;
-        private MSOfficeHelper _officeHelper = null;
         private BillingProcessHistory _currentProcessHistory = null;
         private string _defaultItem = "-- Please Select --";
 
@@ -222,12 +222,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// The selected data import file
         /// </summary>
-        public string SelectedImportFile
+        public OpenFileDialog SelectedImportFile
         {
             get { return _selectedImportFile; }
             set { SetProperty(ref _selectedImportFile, value); }
         }
-        private string _selectedImportFile = string.Empty;
+        private OpenFileDialog _selectedImportFile;
 
         /// <summary>
         /// The selected data import sheet
@@ -328,7 +328,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 switch (columnName)
                 {
                     case "SelectedImportFile":
-                        ValidImportFile = string.IsNullOrEmpty(SelectedImportFile) ? Brushes.Red : Brushes.Silver; break;
+                        ValidImportFile = string.IsNullOrEmpty(SelectedImportFile.SafeFileName) ? Brushes.Red : Brushes.Silver; break;
                     case "SelectedDataSheet":
                         ValidDataSheet = SelectedDataSheet == null || SelectedDataSheet.SheetName == _defaultItem ? Brushes.Red : Brushes.Silver; break;
                     case "SelectedDataProvider":
@@ -357,7 +357,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             _currentProcessHistory = (BillingProcessHistory)sender;
             CanStartBillingProcess = true;
 
-            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.StartBillingProcess)
+            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.StartBillingProcess ||
+                ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataImport &&
+                 _currentProcessHistory.ProcessResult == null))
             {
                 CanStartStopImport = true;
                 StartStopButtonToolTip = "Start";
@@ -443,6 +445,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
+                MSOfficeHelper officeHelper = new MSOfficeHelper();
                 InitialiseImportControls();
 
                 if (SelectedDataSheet != null && SelectedDataSheet.WorkBookName != null)
@@ -458,16 +461,13 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         sqlTableName = string.Format("External{0}_{1}", SelectedDataProvider.ServiceProviderName.ToUpper().Replace(" ", "").Replace("-", "").Trim(),
                                                                         SelectedCompany.CompanyName.ToUpper().Replace(" ", "").Trim());
 
-                    if (_officeHelper == null)
-                        _officeHelper = new MSOfficeHelper();
-
                     // Update the worksheet data
-                    sheetData = _officeHelper.ReadSheetDataIntoDataTable(SelectedDataSheet.WorkBookName, SelectedDataSheet.SheetName);
+                    sheetData = officeHelper.ReadSheetDataIntoDataTable(SelectedDataSheet.WorkBookName, SelectedDataSheet.SheetName);
 
                     // This is to fake the progress bar for importing
                     for (int i = 1; i <= SelectedDataSheet.RowCount; i++)
                     {
-                        Application.Current.Dispatcher.Invoke(() =>
+                        System.Windows.Application.Current.Dispatcher.Invoke(() =>
                         {
                             ImportUpdateProgress = i;
                             ImportUpdatesPassed = i;
@@ -483,8 +483,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     // Write the imported data to the database
                     ExternalBillingData extData = new ExternalBillingData();
                     extData.TableName = sqlTableName;
+                    extData.SheetName = SelectedDataSheet.SheetName;
                     extData.BillingPeriod = MobileManagerEnvironment.BillingPeriod;
-                    extData.DataFileName = SelectedImportFile;
+                    extData.PropertyValidationPassed = false;
+                    extData.DataValidationPassed = false;
+                    extData.DataFileLocation = Path.GetDirectoryName(SelectedImportFile.FileName);
+                    extData.DataFileName = SelectedImportFile.SafeFileName;
                     extData.ModifiedBy = SecurityHelper.LoggedInUserFullName;
                     extData.DateModified = DateTime.Now;
 
@@ -678,7 +682,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 if (result.ToString() == "OK")
                 {
                     MSOfficeHelper officeHelper = new MSOfficeHelper();
-                    SelectedImportFile = dialog.SafeFileName;
+                    SelectedImportFile = dialog;
 
                     // Get all the excel workbook sheets
                     List<WorkSheetInfo> workSheets = officeHelper.ReadWorkBookInfoFromExcel(dialog.FileName).ToList();

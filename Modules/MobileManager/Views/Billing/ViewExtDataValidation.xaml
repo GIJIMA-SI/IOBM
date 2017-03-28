@@ -117,18 +117,25 @@
             ItemsSource="{Binding ImportedDataCollection}">
         </DataGrid>
         <StackPanel Grid.Row="8" Grid.Column="0" Grid.RowSpan="10" VerticalAlignment="Bottom">
-            <Button x:Name="ButtonExport" ToolTip="Export the exceptions to Excel." TabIndex="6" Margin="0,0,0,10" 
+            <Button x:Name="ButtonExport" ToolTip="Export the exceptions to Excel." TabIndex="6" Margin="0,0,0,5" 
                 Style="{StaticResource UXImageTextButtonStyle}" Width="Auto" Command="{Binding ExportCommand}">
                 <StackPanel Orientation="Horizontal" Width="118">
                     <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/Excel-icon.png" Margin="0,1,10,1"/>
                     <TextBlock Text="Export to Excel" VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
-            <Button x:Name="ButtonExceptException" ToolTip="Except the exception as correct." TabIndex="7" 
-                Style="{StaticResource UXImageTextButtonStyle}" Width="Auto" Command="{Binding ExceptExceptionCommand}">
+            <Button x:Name="ButtonRefreshData" ToolTip="Re-Import the external billing data." TabIndex="8" Margin="0,0,0,5"
+                Style="{StaticResource UXImageTextButtonStyle}" Width="Auto" Command="{Binding RefreshDataCommand}">
+                <StackPanel Orientation="Horizontal" Width="118">
+                    <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/289.png" Margin="0,1,10,1"/>
+                    <TextBlock Text="Refresh Data" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+            <Button x:Name="ButtonAcceptException" ToolTip="Accept the exception as correct." TabIndex="9" 
+                Style="{StaticResource UXImageTextButtonStyle}" Width="Auto" Command="{Binding AcceptExceptionCommand}">
                 <StackPanel Orientation="Horizontal" Width="118">
                     <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/T (263).ico" Margin="0,1,10,1"/>
-                    <TextBlock Text="Except Exception" VerticalAlignment="Center"/>
+                    <TextBlock Text="Accept Exception" VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
         </StackPanel>
