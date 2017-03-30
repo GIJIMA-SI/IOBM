@@ -10,7 +10,6 @@ using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -843,7 +842,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 // else save the exceptions to the database
                 if (ValidationRuleCollection != null && ValidationErrorCollection != null && ValidationRuleCollection.Count > 0)
                 {
-                    if (ValidationErrorCollection.Count == 0)
+                    if (ValidationDataRuleProgress == ValidationDataRuleCount && ValidationErrorCollection.Count == 0)
                     {
                         // Update the validationstate of the selected import file
                         if (new ExternalBillingDataModel(_eventAggregator).UpdateExternalDataState(SelectedExternalData.TableName, MobileManagerEnvironment.BillingPeriod, true))

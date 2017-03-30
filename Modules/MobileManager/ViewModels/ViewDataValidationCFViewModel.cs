@@ -9,6 +9,7 @@ using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
@@ -41,6 +42,26 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Holds the selected (current) validation rule entity
+        /// </summary>
+        public Visibility InternalValidation
+        {
+            get { return _internalValidation; }
+            set { SetProperty(ref _internalValidation, value); }
+        }
+        private Visibility _internalValidation = Visibility.Visible;
+
+        /// <summary>
+        /// Holds the selected (current) validation rule entity
+        /// </summary>
+        public Visibility ExternalValidation
+        {
+            get { return _externalValidation; }
+            set { SetProperty(ref _externalValidation, value); }
+        }
+        private Visibility _externalValidation = Visibility.Collapsed;
 
         /// <summary>
         /// Holds the selected (current) validation rule entity
@@ -274,6 +295,26 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private ObservableCollection<DataValidationProperty> _dataPropertyCollection;
 
         /// <summary>
+        /// The collection of external DataPropertyCollection from the database
+        /// </summary>
+        public Dictionary<string, object> ExtDataPropertyCollection
+        {
+            get { return _extDataPropertyCollection; }
+            set { SetProperty(ref _extDataPropertyCollection, value); }
+        }
+        private Dictionary<string, object> _extDataPropertyCollection = null;
+
+        /// <summary>
+        /// The collection of the selected external DataPropertyCollection
+        /// </summary>
+        public Dictionary<string, object> SelectedExtDataPropertyCollection
+        {
+            get { return _selectedExtDataPropertyCollection; }
+            set { SetProperty(ref _selectedExtDataPropertyCollection, value); }
+        }
+        private Dictionary<string, object> _selectedExtDataPropertyCollection = null;
+
+        /// <summary>
         /// The collection of operators types from the OperatorType enum's
         /// </summary>
         public ObservableCollection<string> OperatorTypeCollection
@@ -313,6 +354,17 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
                 if (_dataValidationProcess != DataValidationProcess.None)
                     ReadDataValidationGroups();
+
+                if (_dataValidationProcess == DataValidationProcess.ExternalBilling)
+                {
+                    InternalValidation = Visibility.Collapsed;
+                    ExternalValidation = Visibility.Visible;
+                }
+                else
+                {
+                    InternalValidation = Visibility.Visible;
+                    ExternalValidation = Visibility.Collapsed;
+                }
             }
         }
         private string _selectedProcess = EnumHelper.GetDescriptionFromEnum(DataValidationProcess.System);
@@ -791,8 +843,15 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                             if (SelectedDataEntity != null && SelectedDataEntity.ToString() != _defaultItem && ((ExternalBillingData)SelectedDataEntity).TableName != _defaultItem)
                             {
                                 int dataEntityID = ((ExternalBillingData)SelectedDataEntity).pkExternalBillingDataID;
-                                DataPropertyDisplayName = "ExtDataValidationProperty";
-                                DataPropertyCollection = new ObservableCollection<DataValidationProperty>(new DataValidationPropertyModel(_eventAggregator).ReadExtDataValidationProperties(_dataValidationGroup.Value(), dataEntityID));
+                                IEnumerable<DataValidationProperty> properties = new DataValidationPropertyModel(_eventAggregator).ReadExtDataValidationProperties(_dataValidationGroup.Value(), dataEntityID);
+                                ExtDataPropertyCollection = new Dictionary<string, object>();
+
+                                foreach (DataValidationProperty property in properties)
+                                {
+                                    ExtDataPropertyCollection.Add(property.ExtDataValidationProperty, property.pkDataValidationPropertyID);
+                                }
+
+                                ExtDataPropertyCollection = new Dictionary<string, object>(ExtDataPropertyCollection);
                             }
                             break;
                         default:

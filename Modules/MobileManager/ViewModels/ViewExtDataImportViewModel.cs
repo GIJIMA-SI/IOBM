@@ -30,7 +30,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
         private IEventAggregator _eventAggregator;
         private ExternalBillingDataModel _model = null;
-        private BillingProcessHistory _currentProcessHistory = null;
         private string _defaultItem = "-- Please Select --";
 
         #region Commands
@@ -43,16 +42,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
         #region Properties       
         
-        /// <summary>
-        /// Indicate if the billing run can be started
-        /// </summary>
-        public bool CanStartBillingProcess
-        {
-            get { return _canStartBillingProcess; }
-            set { SetProperty(ref _canStartBillingProcess, value); }
-        }
-        private bool _canStartBillingProcess = false;
-
         /// <summary>
         /// Enable disable StartStopImport button
         /// </summary>
@@ -152,6 +141,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _importUpdatesFailed, value); }
         }
         private int _importUpdatesFailed;
+
+        /// <summary>
+        /// The current process history
+        /// </summary>
+        public BillingProcessHistory CurrentProcessHistory
+        {
+            get { return _currentProcessHistory; }
+            set { SetProperty(ref _currentProcessHistory, value); }
+        }
+        private BillingProcessHistory _currentProcessHistory = null;
 
         /// <summary>
         /// The selected company
@@ -354,21 +353,19 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <param name="sender">The error message.</param>
         private void BillingCurrentHistory_Event(object sender)
         {
-            _currentProcessHistory = (BillingProcessHistory)sender;
-            CanStartBillingProcess = true;
+            CurrentProcessHistory = (BillingProcessHistory)sender;
+            CanStartStopImport = true;
 
-            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.StartBillingProcess ||
-                ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataImport &&
-                 _currentProcessHistory.ProcessResult == null))
+            if ((BillingExecutionState)CurrentProcessHistory.fkBillingProcessID == BillingExecutionState.InternalDataValidation &&
+                CurrentProcessHistory.ProcessResult != null)
             {
-                CanStartStopImport = true;
                 StartStopButtonToolTip = "Start";
                 StartStopButtonText = "Start Imports";
                 StartStopButtonImage = "062.png";
             }
             else
             {
-                CanStartBillingProcess = false;
+                CanStartStopImport = false;
                 StartStopButtonToolTip = "Complete";
                 StartStopButtonText = "Complete Imports";
                 StartStopButtonImage = "stop_32.ico";
@@ -395,10 +392,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private async void InitialiseDataImportView()
         {
             InitialiseViewControls();
-
+            
             // Initialise the view commands
-            StartStopImportCommand = new DelegateCommand(ExecuteStartStopImport);
-            OpenFileCommand = new DelegateCommand(ExecuteOpenFileCommand, CanExecuteOpenFile).ObservesProperty(() => CanStartBillingProcess);
+            StartStopImportCommand = new DelegateCommand(ExecuteStartStopImport, CanExecuteStartStopImport).ObservesProperty(() => CurrentProcessHistory);
+            OpenFileCommand = new DelegateCommand(ExecuteOpenFileCommand, CanExecuteOpenFile).ObservesProperty(() => CanStartStopImport);
             ImportCommand = new DelegateCommand(ExecuteImport, CanExecuteImport).ObservesProperty(() => ValidDataSheet)
                                                                                 .ObservesProperty(() => SelectedDataProvider);
 
@@ -612,28 +609,31 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         #region Command Execution
 
         /// <summary>
+        /// Set view command buttons enabled/disabled state
+        /// </summary>
+        /// <returns></returns>
+        private bool CanExecuteStartStopImport()
+        {
+            return (CurrentProcessHistory != null &&
+                    (BillingExecutionState)CurrentProcessHistory.fkBillingProcessID == BillingExecutionState.InternalDataValidation &&
+                   CurrentProcessHistory.ProcessResult != null) ||
+                   (CurrentProcessHistory != null && 
+                   (BillingExecutionState)CurrentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataImport &&
+                   CurrentProcessHistory.ProcessResult == null);
+        }
+
+        /// <summary>
         /// Execute when the start stop command button is clicked 
         /// </summary>
         private void ExecuteStartStopImport()
         {
             try
             {
-                if (CanStartBillingProcess)
-                {
-                    // Set the previous data validation process as complete
-                    CompleteBillingProcessHistory(BillingExecutionState.StartBillingProcess);
-
-                    // Create a new history entry everytime the process get started
+                // Create or complete the process
+                if (CanStartStopImport)
                     CreateBillingProcessHistory();
-                }
                 else
-                {
-                    // Set the external data import process as complete
                     CompleteBillingProcessHistory(BillingExecutionState.ExternalDataImport);
-
-                    // Disable the start stop button
-                    CanStartStopImport = false;
-                }
 
                 // Get the new current process history
                 BillingProcessHistory currentProcess = new BillingProcessModel(_eventAggregator).ReadBillingProcessCurrentHistory();
@@ -661,9 +661,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <returns></returns>
         private bool CanExecuteOpenFile()
         {
-            return _currentProcessHistory != null && 
-                   (BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataImport &&
-                   _currentProcessHistory.ProcessResult == null;
+            return !CanStartStopImport && CurrentProcessHistory != null && CurrentProcessHistory.ProcessResult == null;
         }
 
         /// <summary>

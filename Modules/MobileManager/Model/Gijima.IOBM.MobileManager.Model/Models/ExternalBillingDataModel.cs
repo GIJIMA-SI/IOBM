@@ -237,7 +237,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     con.Close();
                 }
 
-                return billingData.AsEnumerable().Where(p => p.Field<int>("DUPS") > 1).Select(p => p.Field<string>("Account Number"));
+                return billingData.AsEnumerable().Where(p => p.Field<int>("DUPS") > 1).Select(p => p.Field<string>(fieldName));
             }
             catch (Exception ex)
             {
