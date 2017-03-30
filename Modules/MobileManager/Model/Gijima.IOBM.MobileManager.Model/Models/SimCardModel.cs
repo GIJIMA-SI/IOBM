@@ -47,18 +47,26 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// <returns>True if successfull</returns>
         public bool CreateSimCard(SimCard simCard)
         {
+            // Get the available status ID to be used in re-allaction valdation
+            int availableSatusID;
+            // Get the available re-allocated ID to be used to update device
+            int reAllocatedID;
+            //Simcard that can be re - allocated
+            SimCard availableSimCard;
+
             try
             {
                 using (var db = MobileManagerEntities.GetContext())
                 {
-                    // Get the re-allacted status ID to be used in re-allaction valdation
-                    int reAllocatedStatusID = db.Status.Where(p => p.StatusDescription == "REALLOCATED").First().pkStatusID;
+                    availableSatusID = db.Status.Where(p => p.StatusDescription == "AVAILABLE").First().pkStatusID;
+                    reAllocatedID = db.Status.Where(p => p.StatusDescription == "REALLOCATED").First().pkStatusID;
 
                     // If a sim card gets re-allocated ensure that all the required properties 
                     // is valid to allow re-alloaction
                     if (db.SimCards.Any(p => p.CellNumber == simCard.CellNumber &&
                                              p.PUKNumber.ToUpper().Trim() == simCard.PUKNumber.ToUpper().Trim() &&
-                                             p.fkStatusID != reAllocatedStatusID))
+                                             p.fkStatusID != availableSatusID &&
+                                             p.IsActive == true))
                     {
                         _eventAggregator.GetEvent<ApplicationMessageEvent>()
                                         .Publish(new ApplicationMessage("SimCardModel",
@@ -66,6 +74,27 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                                         "CreateSimCard",
                                                                         ApplicationMessage.MessageTypes.Information));
                         return false;
+                    }
+
+                    availableSimCard = db.SimCards.Where(p => p.CellNumber == simCard.CellNumber && p.PUKNumber == simCard.PUKNumber && p.IsActive == false && p.fkStatusID == availableSatusID).FirstOrDefault();
+                }
+                
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    //Re-alocate the simcard
+                    if (db.SimCards.Any(p => p.CellNumber == simCard.CellNumber && p.PUKNumber == simCard.PUKNumber && p.IsActive == false && p.fkStatusID == availableSatusID))
+                    {
+                        if (availableSimCard == null)
+                            return false;
+
+                        SimCard reAllocatedSimCard = db.SimCards.Where(p => p.CellNumber == simCard.CellNumber && p.PUKNumber == simCard.PUKNumber && p.IsActive == false && p.fkStatusID == availableSatusID).FirstOrDefault();
+                        reAllocatedSimCard.fkStatusID = reAllocatedID;
+
+                        _activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<SimCard>(availableSimCard, reAllocatedSimCard, reAllocatedSimCard.fkContractID.Value, db));
+
+                        db.SimCards.Add(simCard);
+                        db.SaveChanges();
+                        return true;
                     }
 
                     if (!db.SimCards.Any(p => p.CellNumber == simCard.CellNumber && p.PUKNumber == simCard.PUKNumber))
@@ -683,16 +712,28 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// </summary>
         /// <param name="contractID">The contract linked to the simcards</param>
         /// <param name="context">The context inside the transaction</param>
-        public void DeleteSimcardsForClient(int contractID, MobileManagerEntities db)
+        public void ChangeSimcardsStatusForClient(int contractID, int statusID, MobileManagerEntities db)
         {
             try
             {
                 IEnumerable<SimCard> simCards = db.SimCards.Where(p => p.fkContractID == contractID);
 
-                foreach (SimCard simCard in simCards)
+                if (statusID == Statuses.AVAILABLE.Value())
                 {
-                    simCard.fkStatusID = Statuses.INACTIVE.Value();
-                    simCard.IsActive = false;
+                    foreach (SimCard simCard in simCards)
+                    {
+                        if (simCard.IsActive == true)
+                            simCard.fkStatusID = Statuses.AVAILABLE.Value();
+                        simCard.IsActive = false;
+                    }
+                }
+                else
+                {
+                    foreach (SimCard simCard in simCards)
+                    {
+                        simCard.fkStatusID = Statuses.INACTIVE.Value();
+                        simCard.IsActive = false;
+                    }
                 }
 
                 db.SaveChanges();

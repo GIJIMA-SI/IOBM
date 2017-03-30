@@ -17,6 +17,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
@@ -603,7 +604,17 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 }
                 else
                 {
-                    WhereCollection.Add($" {whereCriteria.SearchField.EntityName}.{whereCriteria.SearchField.ColumnName} {GetSqlStatement(whereCriteria.SearchField.DataType, whereCriteria.OperatorValue, whereCriteria.SearchValue)} ");
+                    // Exceptional where clauses
+                    if (whereCriteria.SearchField.DisplayName == "Insured")
+                    {
+                        if (whereCriteria.SearchValue == "True")
+                            WhereCollection.Add($" {whereCriteria.SearchField.EntityName}.{whereCriteria.SearchField.ColumnName} > 0 ");
+                        else
+                            WhereCollection.Add($" {whereCriteria.SearchField.EntityName}.{whereCriteria.SearchField.ColumnName} = 0 ");
+                    }
+                    else
+                        WhereCollection.Add($" {whereCriteria.SearchField.EntityName}.{whereCriteria.SearchField.ColumnName} {GetSqlStatement(whereCriteria.SearchField.DataType, whereCriteria.OperatorValue, whereCriteria.SearchValue)} ");
+                    
                 }
             }
         }
@@ -855,7 +866,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 }
             }
         }
-        
+
         /// <summary>
         /// Populate the package types combobox from the PackageType enum
         /// </summary>
@@ -908,7 +919,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                             {
                                 if (source != StringOperator.Format && source != StringOperator.LengthEqual &&
                                     source != StringOperator.LengthGreater && source != StringOperator.LenghtSmaller)
-                                OperatorCollection.Add(source.ToString());
+                                    OperatorCollection.Add(source.ToString());
                             }
                             break;
                         case OperatorType.NumericOperator:
@@ -1223,7 +1234,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     //Convert active form display values
                     whereCriteria.SearchValue = ComboBoxValidationValue.ToString() == "Active" ? "True" : "False";
                 }
-                else if(ComboBoxValidationValue.ToString() == "Company" || ComboBoxValidationValue.ToString() == "Private")
+                else if (ComboBoxValidationValue.ToString() == "Company" || ComboBoxValidationValue.ToString() == "Private")
                 {
                     //Convert active form display values
                     whereCriteria.SearchValue = ComboBoxValidationValue.ToString() == "Company" ? "False" : "True";
@@ -1267,9 +1278,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 {
                     MSOfficeHelper officeHelper = new MSOfficeHelper();
                     string fileName = string.Format("{0}\\Advanced Search Results - {1}.xlsx", dialog.SelectedPath, String.Format("{0:dd MMM yyyy HH.mm}", DateTime.Now));
-                    
+
                     officeHelper.ExportDataTableToExcel(QueryDataCollection, fileName);
                 }
+
+                MessageBox.Show("Results exported successfully!", "Saved", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {

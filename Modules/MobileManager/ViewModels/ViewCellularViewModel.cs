@@ -91,6 +91,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
                         // Set the contract properties
                         SelectedContract = value.Contract != null ? value.Contract : null;
+                        SelectedContractStartDate = value.Contract != null && value.Contract.ContractStartDate != null ? value.Contract.ContractStartDate.Value : DateTime.MinValue;
+                        SelectedContractEndDate = value.Contract != null && value.Contract.ContractEndDate != null ? value.Contract.ContractEndDate.Value : DateTime.MinValue;
                         if (StatusCollection != null)
                             SelectedStatus = value.Contract != null ? StatusCollection.Where(p => p.pkStatusID == value.Contract.fkStatusID).FirstOrDefault()
                                                                     : StatusCollection.Where(p => p.pkStatusID == 0).FirstOrDefault();
@@ -106,8 +108,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         SelectedPackageSMSNumber = value.Contract != null && value.Contract.PackageSetup != null ? value.Contract.PackageSetup.SMSNumber.ToString() : "0";
                         SelectedPackageTalkTime = value.Contract != null && value.Contract.PackageSetup != null ? value.Contract.PackageSetup.TalkTimeMinutes.ToString() : "0";
                         SelectedPackageSPULValue = value.Contract != null && value.Contract.PackageSetup != null ? value.Contract.PackageSetup.SPULValue.ToString() : "0";
-                        SelectedContractStartDate = value.Contract != null && value.Contract.ContractStartDate != null ? value.Contract.ContractStartDate.Value : DateTime.MinValue;
-                        SelectedContractEndDate = value.Contract != null && value.Contract.ContractEndDate != null ? value.Contract.ContractEndDate.Value : DateTime.MinValue;
                         string[] paymentCancelPeriod = null;
                         if (SelectedContract != null && value.Contract.PaymentCancelPeriod != null)
                         {
@@ -697,11 +697,22 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             get { return _selectedStatus; }
             set
             {
+                //Check if the contract can be set to available
+                if (value.StatusDescription == Statuses.AVAILABLE.ToString())
+                {
+                    if (SelectedContractEndDate <= DateTime.Now)
+                    {
+                        MessageBoxResult msgResult = MessageBox.Show("The contract end date has expired!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                }
+
                 SetProperty(ref _selectedStatus, value);
                 ValidPaymentYear = ValidPaymentMonth = SelectedStatus != null && SelectedStatus.StatusDescription != Statuses.ACTIVE.ToString() ? Brushes.Red : Brushes.Silver;
                 SelectedClientState = SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString() ? true : false;
                 if (SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString())
                     SelectedBillingYear = SelectedBillingMonth = string.Empty;
+
             }
         }
         private Status _selectedStatus;
@@ -1663,7 +1674,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
                 foreach (ClientService service in services)
                 {
-                    SelectedContractServiceCollection.Add(service.ContractService.ServiceDescription , service.fkContractServiceID);
+                    SelectedContractServiceCollection.Add(service.ContractService.ServiceDescription, service.fkContractServiceID);
                 }
 
                 SelectedContractServiceCollection = new Dictionary<string, object>(SelectedContractServiceCollection);
@@ -2050,8 +2061,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             if (result)
                 result = SelectedClient != null && SelectedClientLocation != null && SelectedClientLocation.pkClientLocationID > 0 &&
                          SelectedCompany != null && SelectedCompany.pkCompanyID > 0 && SelectedSuburb != null && SelectedSuburb.pkSuburbID > 0 &&
-                         !string.IsNullOrEmpty(SelectedCellNumber) && (SelectedCellNumber.Length == 10 || SelectedCellNumber.Length == 14) && 
-                         !string.IsNullOrEmpty(SelectedClientName) && !string.IsNullOrEmpty(SelectedClientIDNumber) && 
+                         !string.IsNullOrEmpty(SelectedCellNumber) && (SelectedCellNumber.Length == 10 || SelectedCellNumber.Length == 14) &&
+                         !string.IsNullOrEmpty(SelectedClientName) && !string.IsNullOrEmpty(SelectedClientIDNumber) &&
                          (SaIDNumber ? SelectedClientIDNumber.Length == 13 : true || OtherIDNumber ? !string.IsNullOrWhiteSpace(SelectedClientIDNumber) : true) &&
                          !string.IsNullOrEmpty(SelectedClientWBSNumber) &&
                          !string.IsNullOrEmpty(SelectedClientCostCode) && !string.IsNullOrEmpty(SelectedClientAddressLine) &&
@@ -2099,8 +2110,17 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 // will be set to in-active
                 if (!SelectedClientState)
                 {
-                    MessageBoxResult msgResult = MessageBox.Show("Warning! Please note that all the active\ndevices and simcards will be set to in-acitve.\nDo you want to continue?",
+                    MessageBoxResult msgResult;
+                    if (SelectedStatus.pkStatusID == StatusCollection.Where(p => p.pkStatusID == Statuses.AVAILABLE.Value()).FirstOrDefault().pkStatusID)
+                    {
+                        msgResult = MessageBox.Show("Warning! Please note that all the active\ndevices and simcards will be set to AVAILABLE.\nDo you want to continue?",
                                                                  "Client Save", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    }
+                    else
+                    {
+                        msgResult = MessageBox.Show("Warning! Please note that all the active\ndevices and simcards will be set to IN-ACTIVE.\nDo you want to continue?",
+                                                                 "Client Save", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    }
 
                     if (msgResult == MessageBoxResult.No)
                         return;
@@ -2211,7 +2231,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 {
                     _eventAggregator.GetEvent<ApplicationMessageEvent>()
                                     .Publish(new ApplicationMessage("ViewCellularViewModel",
-                                                                    "The client data did not saved.",
+                                                                    "The client data did not save.",
                                                                     "ExecuteSave",
                                                                     ApplicationMessage.MessageTypes.ProcessError));
                 }

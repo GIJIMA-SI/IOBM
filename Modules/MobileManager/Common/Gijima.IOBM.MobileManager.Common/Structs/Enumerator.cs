@@ -106,7 +106,8 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
         PREPAID = 171,
         REPAIRED = 1181,
         XLOAN = 1182,
-        INACTIVE = 1211
+        INACTIVE = 1211,
+        AVAILABLE = 1171
     }
 
     /// <summary>

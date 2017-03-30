@@ -12,12 +12,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
-using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Reflection;
 using System.Transactions;
-using System.Windows.Documents;
 
 namespace Gijima.IOBM.MobileManager.Model.Models
 {
@@ -49,44 +47,82 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// <returns>True if successfull</returns>
         public bool CreateDevice(Device device)
         {
+            //Search with a flag to know if device already exist
+            bool deviceExist = false;
+            //devices with the IME number
+            IEnumerable<Device> devices = null;
+            // Get the available status ID to be used in re-allaction valdation
+            int availableSatusID;
+            // Get the available re-allocated ID to be used to update device
+            int reAllocatedID;
+
             try
             {
                 using (var db = MobileManagerEntities.GetContext())
                 {
-                    // Get the re-allacted status ID to be used in re-allaction valdation
-                    int reAllocatedStatusID = db.Status.Where(p => p.StatusDescription == "REALLOCATED").First().pkStatusID;
+                    availableSatusID = db.Status.Where(p => p.StatusDescription == "AVAILABLE").First().pkStatusID;
+                    reAllocatedID = db.Status.Where(p => p.StatusDescription == "REALLOCATED").First().pkStatusID;
 
-                    int replacedStatusID = db.Status.Where(p => p.StatusDescription == "REPLACED").First().pkStatusID;
-                    int stolenStatusID = db.Status.Where(p => p.StatusDescription == "STOLEN").First().pkStatusID;
-                    int upgradedStatusID = db.Status.Where(p => p.StatusDescription == "UPGRADED").First().pkStatusID;
+                    //Check if device is still issued to antoher client
+                    foreach (DeviceIMENumber deviceIMENumber in device.DeviceIMENumbers)
+                    {
+                        DeviceIMENumber existingNumber = db.DeviceIMENumbers.Where(p => p.IMENumber == deviceIMENumber.IMENumber).FirstOrDefault();
+                        if (db.Devices.Any(p => p.pkDeviceID == existingNumber.fkDeviceID &&
+                                        p.fkStatusID != availableSatusID &&
+                                        p.IsActive == true))
+                        {
+                            _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                    .Publish(new ApplicationMessage("DevicesModel",
+                                                                    "The device is still allocated to another client.",
+                                                                    "CreateDevice",
+                                                                    ApplicationMessage.MessageTypes.Information));
+                            return false;
+                        }
+                    }
+                    //Get the device to be re allocated
+                    foreach (DeviceIMENumber deviceIMENumber in device.DeviceIMENumbers)
+                    {
+                        devices = ((DbQuery<Device>)(from listDevice in db.Devices
+                                                     join imeNumbers in db.DeviceIMENumbers
+                                                     on listDevice.pkDeviceID equals imeNumbers.fkDeviceID
+                                                     where imeNumbers.IMENumber.Equals(deviceIMENumber.IMENumber) &&
+                                                           listDevice.fkStatusID.Equals(availableSatusID)
+                                                     select listDevice)).ToList();
+                        if (devices != null && devices.Count() > 0)
+                            break;
+                    }
+                }
 
+                using (var db = MobileManagerEntities.GetContext())
+                {
                     // If a device gets re-allocated ensure that all the required properties 
                     // is valid to allow re-alloaction
-                    foreach (DeviceIMENumber imeNumber in device.DeviceIMENumbers)
+                    if (devices != null && devices.Count() > 0)
                     {
-                        DeviceIMENumber existingNumber = db.DeviceIMENumbers.Where(p => p.IMENumber == imeNumber.IMENumber).FirstOrDefault();
-                        if (existingNumber != null)
-                        {
-                            if (db.Devices.Any(p => p.pkDeviceID == existingNumber.fkDeviceID &&
-                                            p.fkStatusID != reAllocatedStatusID &&
-                                            p.IsActive == true))
-                            {
-                                _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                        .Publish(new ApplicationMessage("DevicesModel",
-                                                                        "The device is still allocated to another client.",
-                                                                        "CreateDevice",
-                                                                        ApplicationMessage.MessageTypes.Information));
-                                return false;
-                            }
-                        }
+                        int pkDeviceID = devices.FirstOrDefault().pkDeviceID;
+                        Device availableDevice = db.Devices.Where(p => p.pkDeviceID == pkDeviceID).FirstOrDefault();
+                        availableDevice.fkStatusID = db.Status.Where(p => p.pkStatusID == reAllocatedID).FirstOrDefault().pkStatusID;
 
+                        // Log the data values that changed
+                        _activityLogger.CreateDataChangeAudits<Device>(_dataActivityHelper.GetDataChangeActivities<Device>(devices.FirstOrDefault(), availableDevice, availableDevice.fkContractID, db));
+
+                        db.Devices.Add(device);
+                        db.SaveChanges();
+
+                        return true;
+                    }
+                    
+                    //Check if the device IMENumber already exist
+                    foreach (DeviceIMENumber deviceIMENumber in device.DeviceIMENumbers)
+                    {
+                        if (db.DeviceIMENumbers.Any(p => p.IMENumber == deviceIMENumber.IMENumber) &&
+                            db.Devices.Where(p => p.pkDeviceID == db.DeviceIMENumbers.Where(x => x.IMENumber == deviceIMENumber.IMENumber).FirstOrDefault().fkDeviceID).FirstOrDefault().IsActive == true)
+                        {
+                            deviceExist = true;
+                        }
                     }
 
-                    if (!db.Devices.Any(p => p.fkDeviceMakeID == device.fkDeviceMakeID &&
-                                             p.fkDeviceModelID == device.fkDeviceModelID &&
-                                             p.fkContractID == device.fkContractID &&
-                                             (p.fkStatusID != reAllocatedStatusID || p.fkStatusID != replacedStatusID || p.fkStatusID != stolenStatusID || p.fkStatusID != upgradedStatusID) &&
-                                             p.IsActive == false))
+                    if (!deviceExist)
                     {
                         db.Devices.Add(device);
                         db.SaveChanges();
@@ -160,7 +196,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 {
                     //Set all client previous devices inactive for the contract
                     //Requested by Charl
-                    DeleteDevicesForClient(device.fkContractID, db);
+                    ChangeDevicesStatusForClient(device.fkContractID, Statuses.INACTIVE.Value(), db);
                     db.Devices.Add(device);
                     db.SaveChanges();
 
@@ -499,16 +535,28 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// </summary>
         /// <param name="contractID">The contract linked to the devices</param>
         /// <param name="context">The context inside the transaction</param>
-        public void DeleteDevicesForClient(int contractID, MobileManagerEntities db)
+        public void ChangeDevicesStatusForClient(int contractID, int statusID, MobileManagerEntities db)
         {
             try
             {
                 IEnumerable<Device> devices = db.Devices.Where(p => p.fkContractID == contractID);
 
-                foreach (Device device in devices)
+                if (statusID == Statuses.AVAILABLE.Value())
                 {
-                    device.fkStatusID = Statuses.INACTIVE.Value();
-                    device.IsActive = false;
+                    foreach (Device device in devices)
+                    {
+                        if (device.IsActive == true)
+                            device.fkStatusID = Statuses.AVAILABLE.Value();
+                        device.IsActive = false;
+                    }
+                }
+                else
+                {
+                    foreach (Device device in devices)
+                    {
+                        device.fkStatusID = Statuses.INACTIVE.Value();
+                        device.IsActive = false;
+                    }
                 }
 
                 db.SaveChanges();
