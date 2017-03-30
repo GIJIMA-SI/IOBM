@@ -187,7 +187,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private ObservableCollection<string> _mappedPropertyCollection = null;
 
         /// <summary>
-        /// Collection of columns that can be maped more than once
+        /// Collection of columns that can be mapped more than once
         /// </summary>
         public ObservableCollection<MultipleEntry> MultipleEntriesColection
         {
@@ -195,7 +195,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _multipleEntriesColection, value); }
         }
         private ObservableCollection<MultipleEntry> _multipleEntriesColection;
-
+        
         #endregion
 
         #region Required Fields
@@ -647,22 +647,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             {
                 if (MappedPropertyCollection != null)
                 {
-                    //Test if all multiple entries is selcted
-                    bool mulitpleEntriesTest = true;
-                    if (MultipleEntriesColection.Count > 0)
-                    {
-                        foreach (MultipleEntry multipleEntry in MultipleEntriesColection)
-                        {
-                            if (multipleEntry.NumberMappings == 0)
-                            {
-                                mulitpleEntriesTest = false;
-                            }
-                        }
-                    }
-
-                    CanUpdate = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem && DestinationColumnCollection.Count <= (MultipleEntriesColection.Count + 1) && mulitpleEntriesTest ? true : false;
-                    ValidMapping = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem &&
-                           DestinationColumnCollection.Count <= (MultipleEntriesColection.Count + 1) && mulitpleEntriesTest ? Brushes.Silver : Brushes.Red;
+                    CanUpdate = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem && MappedPropertyCollection.Count > 0 ? true : false;
+                    
+                    ValidMapping = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem &&  MappedPropertyCollection.Count > 0 ? Brushes.Silver : Brushes.Red;
                 }
             }
         }
@@ -725,7 +712,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
             DestinationSearchCollection = new DataUpdateSearchPropertyModel(_eventAggregator).GetSearchProperties(destinationEntity);
             DestinationColumnCollection = new DataUpdatePropertyModel(_eventAggregator).GetPropertiesDescription(destinationEntity);
-
+            
             SelectedDestinationSearch = _defaultItem;
             SelectedDestinationProperty = _defaultItem;
         }
@@ -799,7 +786,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 SelectedMappedProperty = string.Format("{0} = {1}", SelectedSourceProperty, SelectedDestinationProperty);
                 MappedPropertyCollection.Add(SelectedMappedProperty);
                 SourceColumnCollection.Remove(SelectedSourceProperty);
-
+                
                 //Test if the item selected my have multiple mappings
                 if (new DataUpdatePropertyModel(_eventAggregator).HasMultipleProperty(SelectedDestinationProperty, EnumHelper.GetEnumFromDescription<DataUpdateEntity>(SelectedDestinationEntity).Value()))
                 {
@@ -809,8 +796,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 {
                     DestinationColumnCollection.Remove(SelectedDestinationProperty);
                 }
-
-                SelectedSourceProperty = SelectedDestinationProperty = _defaultItem;
+                
+                //SelectedSourceProperty = SelectedDestinationProperty = _defaultItem;
                 CanStartUpdate();
             }
             catch (Exception ex)
@@ -844,7 +831,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 MappedPropertyCollection.Remove(SelectedMappedProperty);
                 SourceColumnCollection.Add(mappedProperties[0].Trim());
                 SelectedMappedProperty = null;
-
+                
                 //Test the selected option for multiple entries
                 if (new DataUpdatePropertyModel(_eventAggregator).HasMultipleProperty(mappedProperties[1].Trim(), EnumHelper.GetEnumFromDescription<DataUpdateEntity>(SelectedDestinationEntity).Value()))
                 {
@@ -854,6 +841,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 {
                     DestinationColumnCollection.Add(mappedProperties[1].Trim());
                 }
+                
                 CanStartUpdate();
             }
             catch (Exception ex)
@@ -906,6 +894,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                                                                    row,
                                                                                                                    EnumHelper.GetEnumFromDescription<DataUpdateEntity>(SelectedDestinationEntity).Value(),
                                                                                                                    out errorMessage)); break;
+                        case DataUpdateEntity.Client:
+                            result = await Task.Run(() => new SimCardModel(_eventAggregator).CreateSimCardImport(searchCriteria,
+                                                                                                                 MappedPropertyCollection,
+                                                                                                                 row,
+                                                                                                                 EnumHelper.GetEnumFromDescription<DataUpdateEntity>(SelectedDestinationEntity).Value(),
+                                                                                                                 out errorMessage)); break;
                         case DataUpdateEntity.SimCard:
                             result = await Task.Run(() => new SimCardModel(_eventAggregator).CreateSimCardImport(searchCriteria,
                                                                                                                  MappedPropertyCollection,

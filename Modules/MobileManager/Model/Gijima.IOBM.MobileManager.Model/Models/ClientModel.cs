@@ -58,7 +58,14 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 {
                     using (var db = MobileManagerEntities.GetContext())
                     {
-                        Client existingClient = db.Clients.Where(p => p.PrimaryCellNumber == client.PrimaryCellNumber && p.IsActive).FirstOrDefault();
+                        // Get the available status ID to be used in re-allaction valdation
+                        int availableSatusID = db.Status.Where(p => p.StatusDescription == "AVAILABLE").First().pkStatusID;
+                        
+
+                        Client existingClient = ((DbQuery<Client>)(from exClient in db.Clients
+                                                                   where exClient.PrimaryCellNumber == client.PrimaryCellNumber && 
+                                                                         exClient.IsActive == true
+                                                                   select exClient)).Include("Contract").FirstOrDefault();
 
                         if (existingClient != null)
                         {
@@ -71,6 +78,22 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         }
                         else
                         {
+                            Client existingClientForReAllocation = ((DbQuery<Client>)(from exClient in db.Clients
+                                                                                      join exContract in db.Contracts
+                                                                                      on exClient.fkContractID equals exContract.pkContractID 
+                                                                       where exClient.PrimaryCellNumber == client.PrimaryCellNumber &&
+                                                                             exContract.fkStatusID == availableSatusID
+                                                                       select exClient)).FirstOrDefault();
+
+                            if (existingClientForReAllocation != null) // Re-allocation check
+                            {
+                                //Check the reallocation
+                                if (!new ContractModel(_eventAggregator).CheckContractForReAllocation(client.PrimaryCellNumber))
+                                {
+                                    return false;
+                                }
+                            }
+
                             // Save the client entity data
                             client.IsActive = true;
                             db.Clients.Add(client);
@@ -262,8 +285,8 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                             // devices and simcards for client in-active
                             if (!client.IsActive)
                             {
-                                new DevicesModel(_eventAggregator).DeleteDevicesForClient(client.fkContractID, db);
-                                new SimCardModel(_eventAggregator).DeleteSimcardsForClient(client.fkContractID, db);
+                                new DevicesModel(_eventAggregator).ChangeDevicesStatusForClient(client.fkContractID, client.Contract.fkStatusID ,db);
+                                new SimCardModel(_eventAggregator).ChangeSimcardsStatusForClient(client.fkContractID, client.Contract.fkStatusID, db);
                             }
 
                             // Prevent primary key confilcts when using attach property
@@ -272,7 +295,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                             db.Clients.Attach(client);
                             db.Entry(client).State = System.Data.Entity.EntityState.Modified;
-
+                            
                             db.Contracts.Attach(client.Contract);
                             db.Entry(client.Contract).State = System.Data.Entity.EntityState.Modified;
 
@@ -284,6 +307,26 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                             db.ClientBillings.Attach(client.ClientBilling);
                             db.Entry(client.ClientBilling).State = System.Data.Entity.EntityState.Modified;
+
+                            // Get the available status ID to be used in re-allaction valdation
+                            int availableSatusID = db.Status.Where(p => p.StatusDescription == "AVAILABLE").First().pkStatusID;
+
+                            // Check if the client is available for reAllocation
+                            Client existingClientForReAllocation = ((DbQuery<Client>)(from exClient in db.Clients
+                                                                                      join exContract in db.Contracts
+                                                                                      on exClient.fkContractID equals exContract.pkContractID
+                                                                                      where exClient.PrimaryCellNumber == client.PrimaryCellNumber &&
+                                                                                            exContract.fkStatusID == availableSatusID
+                                                                                      select exClient)).FirstOrDefault();
+
+                            if (existingClientForReAllocation != null) // Re-allocation check
+                            {
+                                //Check the reallocation
+                                if (!new ContractModel(_eventAggregator).CheckContractForReAllocation(client.PrimaryCellNumber))
+                                {
+                                    return false;
+                                }
+                            }
 
                             db.SaveChanges();
 

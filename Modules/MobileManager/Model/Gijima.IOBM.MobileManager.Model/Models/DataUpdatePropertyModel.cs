@@ -60,7 +60,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 {
                     properties.Add(property.PropertyDescription);
                 }
-                return properties;
+                return new ObservableCollection<string>(properties.OrderBy(i => i));
             }
         }
 

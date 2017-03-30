@@ -17,7 +17,7 @@
         <EntityTypeShape EntityType="MobileManagerModel.CompanyBillingLevel" Width="1.5" PointX="0.625" PointY="4.25" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.CompanyGroup" Width="1.5" PointX="3.25" PointY="7.125" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.DataImportRule" Width="1.5" PointX="11.75" PointY="7.75" IsExpanded="false" />
-        <EntityTypeShape EntityType="MobileManagerModel.DataUpdateRule" Width="1.5" PointX="7.625" PointY="10.5" IsExpanded="false" />
+        <EntityTypeShape EntityType="MobileManagerModel.DataUpdateRule" Width="1.5" PointX="7.125" PointY="9.875" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.DataValidationProperty" Width="1.5" PointX="14.75" PointY="9.375" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.DataValidationRule" Width="1.5" PointX="14" PointY="8.625" IsExpanded="false" />
         <EntityTypeShape EntityType="MobileManagerModel.DeviceMake" Width="1.5" PointX="6.5" PointY="1.125" IsExpanded="false" />

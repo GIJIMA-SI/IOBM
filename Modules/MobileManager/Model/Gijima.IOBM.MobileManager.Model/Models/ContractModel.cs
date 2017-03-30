@@ -11,8 +11,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Reflection;
 using System.Transactions;
+using System.Windows;
 
 namespace Gijima.IOBM.MobileManager.Model.Models
 {
@@ -42,6 +45,116 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             _eventAggregator = eventAggreagator;
             _activityLogger = new AuditLogModel(_eventAggregator);
             _dataActivityHelper = new DataActivityHelper(_eventAggregator);
+        }
+
+        /// <summary>
+        /// Check if the contract can be re allocated
+        /// </summary>
+        /// <param name="primaryCellNumber"></param>
+        /// <returns></returns>
+        public bool CheckContractForReAllocation(string primaryCellNumber)
+        {
+            try
+            {
+                // Get the available status ID to be used in re-allaction valdation
+                int availableSatusID;
+                // Get the available re-allocated ID to be used to update device
+                int reAllocatedID;
+
+                Contract existingContractForReAllocation;
+
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    availableSatusID = db.Status.Where(p => p.StatusDescription == "AVAILABLE").First().pkStatusID;
+                    reAllocatedID = db.Status.Where(p => p.StatusDescription == "REALLOCATED").First().pkStatusID;
+
+                    existingContractForReAllocation = ((DbQuery<Contract>)(from exClient in db.Clients
+                                                                       join exContract in db.Contracts
+                                                                       on exClient.fkContractID equals exContract.pkContractID
+                                                                       where exClient.PrimaryCellNumber == primaryCellNumber &&
+                                                                                    exContract.fkStatusID == availableSatusID
+                                                                       select exContract)).FirstOrDefault();
+                }
+
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    Contract existingContractForReAllocationReAllocated = ((DbQuery<Contract>)(from exClient in db.Clients
+                                                                       join exContract in db.Contracts
+                                                                       on exClient.fkContractID equals exContract.pkContractID
+                                                                       where exClient.PrimaryCellNumber == primaryCellNumber &&
+                                                                                    exContract.fkStatusID == availableSatusID
+                                                                       select exContract)).FirstOrDefault();
+
+                    existingContractForReAllocationReAllocated.fkStatusID = reAllocatedID;
+                    
+                    //log the activity
+                    _activityLogger.CreateDataChangeAudits<Contract>(_dataActivityHelper.GetDataChangeActivities<Contract>(existingContractForReAllocation,
+                                                                                                                           existingContractForReAllocationReAllocated,
+                                                                                                                           existingContractForReAllocationReAllocated.pkContractID,
+                                                                                                                           db));
+
+                    db.SaveChanges();
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                   .Publish(new ApplicationMessage(this.GetType().Name,
+                                            string.Format("Error! {0}, {1}.",
+                                            ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                            MethodBase.GetCurrentMethod().Name,
+                                            ApplicationMessage.MessageTypes.SystemError));
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Set the available contract status to reallocated
+        /// </summary>
+        /// <param name="accountNumber"></param>
+        /// <returns></returns>
+        public bool SetAvailableContractStatusToReAllocated(string accountNumber)
+        {
+            try
+            {
+                Contract availableContract;
+
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    availableContract = db.Contracts.Where(p => p.AccountNumber == accountNumber && p.fkStatusID == Statuses.AVAILABLE.Value()).FirstOrDefault();
+                }
+
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    if (availableContract != null)
+                    {
+                        Contract reAllocatedContract = db.Contracts.Where(p => p.AccountNumber == accountNumber && p.fkStatusID == Statuses.AVAILABLE.Value()).FirstOrDefault();
+                        reAllocatedContract.fkStatusID = db.Status.Where(p => p.StatusDescription == "REALLOCATED").First().pkStatusID;
+
+                        _activityLogger.CreateDataChangeAudits<Contract>(_dataActivityHelper.GetDataChangeActivities<Contract>(availableContract,
+                                                                                                                                            reAllocatedContract,
+                                                                                                                                            reAllocatedContract.pkContractID,
+                                                                                                                                            db));
+                        db.SaveChanges();
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                   .Publish(new ApplicationMessage(this.GetType().Name,
+                                            string.Format("Error! {0}, {1}.",
+                                            ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                            MethodBase.GetCurrentMethod().Name,
+                                            ApplicationMessage.MessageTypes.SystemError));
+                return false;
+            }
         }
 
         /// <summary>

@@ -17,6 +17,7 @@ warning 6002: The table/view 'IOBM-MobileManager_Dev.dbo.AdvancedSearchField' do
             <PropertyRef Name="DataType" />
             <PropertyRef Name="ControlType" />
             <PropertyRef Name="OtherEntityColumnName" />
+            <PropertyRef Name="FinalEntityColumnName" />
           </Key>
           <Property Name="pkAdvancedSearchField" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="enSearchCategory" Type="int" Nullable="false" />
@@ -26,6 +27,7 @@ warning 6002: The table/view 'IOBM-MobileManager_Dev.dbo.AdvancedSearchField' do
           <Property Name="DataType" Type="varchar" MaxLength="10" Nullable="false" />
           <Property Name="ControlType" Type="varchar" MaxLength="25" Nullable="false" />
           <Property Name="OtherEntityColumnName" Type="varchar" MaxLength="25" Nullable="false" />
+          <Property Name="FinalEntityColumnName" Type="varchar" MaxLength="25" Nullable="false" />
         </EntityType>
         <EntityType Name="AdvancedSearchMap">
           <Key>
@@ -1107,7 +1109,8 @@ warning 6002: The table/view 'IOBM-MobileManager_Dev.dbo.DataUpdateSearchPropert
     [AdvancedSearchField].[DisplayName] AS [DisplayName], 
     [AdvancedSearchField].[DataType] AS [DataType], 
     [AdvancedSearchField].[ControlType] AS [ControlType], 
-    [AdvancedSearchField].[OtherEntityColumnName] AS [OtherEntityColumnName]
+    [AdvancedSearchField].[OtherEntityColumnName] AS [OtherEntityColumnName], 
+    [AdvancedSearchField].[FinalEntityColumnName] AS [FinalEntityColumnName]
     FROM [dbo].[AdvancedSearchField] AS [AdvancedSearchField]</DefiningQuery>
           </EntitySet>
           <EntitySet Name="DataUpdateSearchProperty" EntityType="Self.DataUpdateSearchProperty" store:Type="Tables" store:Schema="dbo">
@@ -2577,6 +2580,7 @@ warning 6002: The table/view 'IOBM-MobileManager_Dev.dbo.DataUpdateSearchPropert
             <PropertyRef Name="DataType" />
             <PropertyRef Name="ControlType" />
             <PropertyRef Name="OtherEntityColumnName" />
+            <PropertyRef Name="FinalEntityColumnName" />
           </Key>
           <Property Name="pkAdvancedSearchField" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="enSearchCategory" Type="Int32" Nullable="false" />
@@ -2586,6 +2590,7 @@ warning 6002: The table/view 'IOBM-MobileManager_Dev.dbo.DataUpdateSearchPropert
           <Property Name="DataType" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
           <Property Name="ControlType" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
           <Property Name="OtherEntityColumnName" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="FinalEntityColumnName" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="ExternalBillingData">
           <Key>
@@ -3237,6 +3242,7 @@ warning 6002: The table/view 'IOBM-MobileManager_Dev.dbo.DataUpdateSearchPropert
           <EntitySetMapping Name="AdvancedSearchFields">
             <EntityTypeMapping TypeName="MobileManagerModel.AdvancedSearchField">
               <MappingFragment StoreEntitySet="AdvancedSearchField">
+                <ScalarProperty Name="FinalEntityColumnName" ColumnName="FinalEntityColumnName" />
                 <ScalarProperty Name="OtherEntityColumnName" ColumnName="OtherEntityColumnName" />
                 <ScalarProperty Name="ControlType" ColumnName="ControlType" />
                 <ScalarProperty Name="DataType" ColumnName="DataType" />

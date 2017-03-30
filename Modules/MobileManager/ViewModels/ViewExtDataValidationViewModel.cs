@@ -295,8 +295,13 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
                 // Disable start button if there are no rule
                 // for the selected data file
-                _selectedValidationRules = ValidationRuleCollection.Where(p => p.DataValidationEntityID == value.pkExternalBillingDataID);
-                CanStartBillingProcess = _selectedValidationRules.Count() > 0;
+                // if added by Elmer - threw null refrence exception 
+                // on ValidationRuleCollection
+                if (ValidationRuleCollection != null)
+                {
+                    _selectedValidationRules = ValidationRuleCollection.Where(p => p.DataValidationEntityID == value.pkExternalBillingDataID);
+                    CanStartBillingProcess = _selectedValidationRules.Count() > 0;
+                }
             }
         }
         private ExternalBillingData _selectedExternalData = null;
