@@ -1,4 +1,5 @@
 ﻿<UserControl x:Class="Gijima.IOBM.MobileManager.Views.ViewDataValidationCF"
+             xmlns:WPF="clr-namespace:Gijima.Controls.WPF;assembly=Gijima.Controls.WPF"  
              xmlns:local="clr-namespace:Gijima.IOBM.MobileManager.Views"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -105,12 +106,18 @@
                     </ComboBox>
                 </Border>
                 <TextBlock Grid.Row="0" Grid.Column="6" Text="Data field:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <Border Grid.Row="0" Grid.Column="7" BorderThickness="1" BorderBrush="{Binding ValidDataProperty}">
-                    <ComboBox x:Name="ComboBoxDataProperties" ToolTip="Select the data field to base the rule on." TabIndex="4" IsSynchronizedWithCurrentItem="True"
-                    ItemsSource="{Binding DataPropertyCollection}" DisplayMemberPath="{Binding DataPropertyDisplayName, UpdateSourceTrigger=PropertyChanged}" Height="22"
-                    SelectedItem="{Binding SelectedDataProperty, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
+                <Border Grid.Row="0" Grid.Column="7" BorderThickness="1" BorderBrush="{Binding ValidDataProperty}" Visibility="{Binding InternalValidation, UpdateSourceTrigger=PropertyChanged}" >
+                    <ComboBox x:Name="ComboBoxIntDataProperties" ToolTip="Select the data field to base the rule on." TabIndex="4" IsSynchronizedWithCurrentItem="True" 
+                        ItemsSource="{Binding DataPropertyCollection}" DisplayMemberPath="{Binding DataPropertyDisplayName, UpdateSourceTrigger=PropertyChanged}" Height="22"
+                        SelectedItem="{Binding SelectedDataProperty, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
                     </ComboBox>
                 </Border>
+                <Border Grid.Row="0" Grid.Column="7" BorderThickness="1" BorderBrush="{Binding ValidDataProperty}" Visibility="{Binding ExternalValidation, UpdateSourceTrigger=PropertyChanged}" >
+                    <WPF:MultiSelectComboBoxUX x:Name="ComboBoxExtDataProperties"  Grid.Column="0" ToolTip="Select the data field to base the rule on." TabIndex="4" Height="22"
+                        ItemsSource="{Binding ExtDataPropertyCollection, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                        SelectedItems="{Binding SelectedExtDataPropertyCollection, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DefaultText="-- Please Select --">
+                    </WPF:MultiSelectComboBoxUX>
+                </Border>                
                 <TextBlock Grid.Row="0" Grid.Column="9" Text="Operator type:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
                 <Border Grid.Row="0" Grid.Column="10" BorderThickness="1" BorderBrush="{Binding ValidOperatorType}">
                     <ComboBox x:Name="ComboBoxOperatorType" ToolTip="Select the operator type based on the data type." TabIndex="5" IsSynchronizedWithCurrentItem="True"
@@ -158,7 +165,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Validation Value" Binding="{Binding DataValidationValue}" Width="300" />
+                <DataGridTextColumn Header="Validation Value" Binding="{Binding DataValidationValue}" Width="Auto" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

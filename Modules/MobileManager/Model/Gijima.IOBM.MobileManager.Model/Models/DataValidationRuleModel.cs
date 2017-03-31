@@ -889,6 +889,10 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                             ruleValue = string.Format("{0} {1} {2}", property.ExtDataValidationProperty.ToUpper(),
                                                                                      ((DateOperator)validationRule.enOperator).ToString(),
                                                                                      validationRule.DataValidationValue);
+
+                                            result = _dataComparer.CompareDateValues((DateOperator)validationRule.enOperator,
+                                                                                     entityValue,
+                                                                                     validationRule.DataValidationValue);
                                             break;
                                         case OperatorType.NumericOperator:
                                             ruleValue = string.Format("{0} {1} {2}", property.ExtDataValidationProperty.ToUpper(),
@@ -984,7 +988,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                 .Publish(new ApplicationMessage("DataValidationRuleModel",
                                                                 string.Format("Error! {0} {1}.",
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                                                "ValidateSimCardData",
+                                                                "ValidateExternalBillingData",
                                                                 ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }

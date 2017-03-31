@@ -150,9 +150,9 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
     public enum BillingExecutionState
     {
         StartBillingProcess = 1,
-        ExternalDataImport = 2,
-        ExternalDataRuleValidation = 3,
-        InternalDataValidation = 4,
+        InternalDataValidation = 2,
+        ExternalDataImport = 3,
+        ExternalDataRuleValidation = 4,
         ExternalDataValidation = 5,
         BillingDataExport = 6,
         BillingResultAudit = 7,

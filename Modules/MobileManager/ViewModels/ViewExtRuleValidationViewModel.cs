@@ -26,7 +26,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private DataValidationRuleModel _model = null;
         private IEventAggregator _eventAggregator;
         private SecurityHelper _securityHelper = null;
-        private BillingProcessHistory _currentProcessHistory = null;
         private string _billingPeriod = string.Format("{0}{1}", DateTime.Now.Month.ToString().PadLeft(2, '0'), DateTime.Now.Year);
 
         #region Commands
@@ -184,6 +183,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private string _selectedExceptions;
 
         /// <summary>
+        /// The current billing process
+        /// </summary>
+        private BillingProcessHistory CurrentProcessHistory
+        {
+            get { return _currentProcessHistory; }
+            set { SetProperty(ref _currentProcessHistory, value); }
+        }
+        private BillingProcessHistory _currentProcessHistory = null;
+
+        /// <summary>
         /// The current selected exception
         /// </summary>
         private DataValidationException SelectedException
@@ -282,7 +291,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <param name="sender">The error message.</param>
         private void ProgressBarInfo_Event(object sender)
         {
-            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataRuleValidation)
+            if ((BillingExecutionState)CurrentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataRuleValidation)
                 Application.Current.Dispatcher.Invoke(() => { UpdateProgressBarValues(sender); });
         }
 
@@ -292,7 +301,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <param name="sender">The error message.</param>
         private void DataValiationResult_Event(object sender)
         {
-            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataRuleValidation)
+            if ((BillingExecutionState)CurrentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataRuleValidation)
                 Application.Current.Dispatcher.Invoke(() => { DisplayDataValidationResults(sender); });
         }
 
@@ -303,12 +312,13 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <param name="sender">The error message.</param>
         private void BillingCurrentHistory_Event(object sender)
         {
-            _currentProcessHistory = (BillingProcessHistory)sender;
+            CurrentProcessHistory = null;
+            CurrentProcessHistory = (BillingProcessHistory)sender;
 
-            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataImport)
-                CanStartBillingProcess = _currentProcessHistory.ProcessResult != null ? true : false;
-            else if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataRuleValidation)
-                CanStartBillingProcess = _currentProcessHistory.ProcessResult == null ? true : false;
+            if ((BillingExecutionState)CurrentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataImport)
+                CanStartBillingProcess = CurrentProcessHistory.ProcessResult != null ? true : false;
+            else if ((BillingExecutionState)CurrentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataRuleValidation)
+                CanStartBillingProcess = CurrentProcessHistory.ProcessResult == null ? true : false;
             else
                 CanStartBillingProcess = false;
         }
@@ -337,7 +347,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
             // Initialise the view commands 
             StartValidationCommand = new DelegateCommand(ExecuteStartValidation, CanStartValidation).ObservesProperty(() => ExternalDataCollection)
-                                                                                                    .ObservesProperty(() => CanStartBillingProcess);
+                                                                                                    .ObservesProperty(() => CurrentProcessHistory);
             StopValidationCommand = new DelegateCommand(ExecuteStopValidation, CanStopValidation);
             ExportCommand = new DelegateCommand(ExecuteExport, CanExport).ObservesProperty(() => ExceptionsToFix);
 

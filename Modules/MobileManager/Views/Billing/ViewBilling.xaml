@@ -136,36 +136,8 @@
                     </Button>
                 </Grid>
             </xctk:WizardPage>
-            <xctk:WizardPage x:Name="WizardPage2" ExteriorPanelBackground="White" Title="Billing Wizard" Description="This Wizard page exposes functionality to import the external billing data for each external data provider." 
+            <xctk:WizardPage x:Name="WizardPage2" ExteriorPanelBackground="White" Title="Billing Wizard" Description="This Wizard page exposes functionality to execute the data validation process and to correct any resulting exceptions." 
                 CanSelectNextPage="{Binding CanMoveNext, UpdateSourceTrigger=PropertyChanged}" NextPage="{Binding ElementName=WizardPage3}" PreviousPage="{Binding ElementName=WizardPage1}">
-                <Grid Margin="5">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="10" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Billing:ViewExtDataImport Grid.Row="2" Grid.Column="0"/>
-                </Grid>
-            </xctk:WizardPage>
-            <xctk:WizardPage x:Name="WizardPage3" ExteriorPanelBackground="White" Title="Billing Wizard" Description="This Wizard page exposes functionality to execute the external data rule validation process and to correct any resulting exceptions." 
-                CanSelectNextPage="{Binding CanMoveNext, UpdateSourceTrigger=PropertyChanged}" NextPage="{Binding ElementName=WizardPage4}" PreviousPage="{Binding ElementName=WizardPage2}">
-                <Grid Margin="5">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="10" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <local:ViewExtRuleValidation Grid.Row="2" Grid.Column="0"/>
-                </Grid>
-            </xctk:WizardPage>
-            <xctk:WizardPage x:Name="WizardPage4" ExteriorPanelBackground="White" Title="Billing Wizard" Description="This Wizard page exposes functionality to execute the data validation process and to correct any resulting exceptions." 
-                CanSelectNextPage="{Binding CanMoveNext, UpdateSourceTrigger=PropertyChanged}" NextPage="{Binding ElementName=WizardPage5}" PreviousPage="{Binding ElementName=WizardPage3}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="10" />
@@ -178,8 +150,36 @@
                     <local:ViewDataValidation Grid.Row="2" Grid.Column="0"/>
                 </Grid>
             </xctk:WizardPage>
+            <xctk:WizardPage x:Name="WizardPage3" ExteriorPanelBackground="White" Title="Billing Wizard" Description="This Wizard page exposes functionality to import the external billing data for each external data provider." 
+                CanSelectNextPage="{Binding CanMoveNext, UpdateSourceTrigger=PropertyChanged}" NextPage="{Binding ElementName=WizardPage4}" PreviousPage="{Binding ElementName=WizardPage2}">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Billing:ViewExtDataImport Grid.Row="2" Grid.Column="0"/>
+                </Grid>
+            </xctk:WizardPage>
+            <xctk:WizardPage x:Name="WizardPage4" ExteriorPanelBackground="White" Title="Billing Wizard" Description="This Wizard page exposes functionality to execute the external data rule validation process and to correct any resulting exceptions." 
+                CanSelectNextPage="{Binding CanMoveNext, UpdateSourceTrigger=PropertyChanged}" NextPage="{Binding ElementName=WizardPage5}" PreviousPage="{Binding ElementName=WizardPage3}">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <local:ViewExtRuleValidation Grid.Row="2" Grid.Column="0"/>
+                </Grid>
+            </xctk:WizardPage>
             <xctk:WizardPage x:Name="WizardPage5" ExteriorPanelBackground="White" Title="Billing Wizard" Description="This Wizard page exposes functionality to validate and manage the external billing data for each external data provider." 
-                CanSelectNextPage="{Binding CanMoveNext, UpdateSourceTrigger=PropertyChanged}" NextPage="{Binding ElementName=LastPage}" PreviousPage="{Binding ElementName=WizardPage4}">
+                CanSelectNextPage="{Binding CanMoveNext, UpdateSourceTrigger=PropertyChanged}" NextPage="{Binding ElementName=WizardPage6}" PreviousPage="{Binding ElementName=WizardPage4}">
                 <Grid Margin="5">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="10" />

@@ -223,6 +223,51 @@ namespace Gijima.IOBM.Infrastructure.Helpers
         /// <summary>
         /// Compare values based on the specified boolean operator
         /// </summary>
+        /// <param name="dateOperatorOperator">The dateOperator operator to use in the validation.</param>
+        /// <param name="valueToCompare">The value to compare.</param>
+        /// <param name="valueToCompareTo">The value to compare to.</param>
+        /// <returns>True if successfull</returns>
+        public bool CompareDateValues(DateOperator dateOperator, string valueToCompare, string valueToCompareTo)
+        {
+            try
+            {
+                DateTime parsedValueToCompare;
+
+                if (!DateTime.TryParse(valueToCompare, out parsedValueToCompare))
+                    return false;
+
+                if (!DateTime.TryParse(valueToCompareTo, out parsedValueToCompare))
+                    return false;
+
+                DateTime x = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                DateTime y = x.AddMonths(1).AddDays(-1);
+
+                switch (dateOperator)
+                {
+                    case DateOperator.Current:
+                        return Convert.ToDateTime(valueToCompare).Date == DateTime.Now.Date ? true : false;
+                    case DateOperator.Max:
+                        return Convert.ToDateTime(valueToCompare).Date == DateTime.MaxValue ? true : false;
+                    case DateOperator.Min:
+                        return Convert.ToDateTime(valueToCompare).Date == DateTime.MinValue ? true : false;
+                    case DateOperator.MonthStart:
+                        return Convert.ToDateTime(valueToCompare).Date == Convert.ToDateTime(string.Format("01/{0}/{1}", DateTime.Now.Month.ToString(), DateTime.Now.Year.ToString())) ? true : false;
+                    case DateOperator.Equal:
+                        return Convert.ToDateTime(valueToCompare).Date == Convert.ToDateTime(valueToCompareTo).Date ? true : false;
+                    default:
+                        return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Compare values based on the specified boolean operator
+        /// </summary>
         /// <param name="valueToCompare">The value to compare.</param>
         /// <param name="valueToCompareTo">The value to compare to.</param>
         /// <returns>True if successfull</returns>

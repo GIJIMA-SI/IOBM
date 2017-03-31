@@ -441,9 +441,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             _currentProcessHistory = (BillingProcessHistory)sender;
 
-            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.ExternalDataRuleValidation)
-                CanStartBillingProcess = _currentProcessHistory.ProcessResult != null ? true : false;
-            else if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.InternalDataValidation)
+            if ((BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.StartBillingProcess || 
+                (BillingExecutionState)_currentProcessHistory.fkBillingProcessID == BillingExecutionState.InternalDataValidation)
                 CanStartBillingProcess = _currentProcessHistory.ProcessResult == null ? true : false;
             else
                 CanStartBillingProcess = false;

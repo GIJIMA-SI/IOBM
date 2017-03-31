@@ -98,7 +98,6 @@ namespace Gijima.DataImport.MSOffice
                         }
 
                         sheetInfo.WorkBookName = workBook;
-                        sheetInfo.ColumnCount = worksheet.Elements<Columns>().First().Count();
                         sheetInfo.RowCount = sheetData.Elements<Row>().Count();
                         sheetInfo.ImportDuration = (int)Math.Round(duration.TotalSeconds, 0);
                         sheetInfo.ColumnNames = columnNames.ToList();
