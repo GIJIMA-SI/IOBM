@@ -613,7 +613,11 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
         [Description("Device Data")]
         Device = 1,
         [Description("Sim Data")]
-        SimCard = 2
+        SimCard = 2,
+        [Description("Client & Contract Data")]
+        Client = 3,
+        [Description("Billing Data")]
+        ClientBilling = 4
     }
 
     #endregion

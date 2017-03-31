@@ -148,7 +148,7 @@
         </Button>
         <DataGrid x:Name="DataGridValidationRules" Grid.Row="7" Grid.ColumnSpan="12" AutoGenerateColumns="True" CanUserReorderColumns="False" CanUserSortColumns="True" MinHeight="52"
             IsReadOnly="True" TabIndex="8" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"  Margin="5"
-            ItemsSource="{Binding QueryDataCollection}" SelectedItem="{Binding SelectedValidationRule}">
+            ItemsSource="{Binding QueryDataCollection}" SelectedItem="{Binding SelectedValidationRule}" SelectionUnit="Cell">
         </DataGrid>
     </Grid>
 </UserControl>

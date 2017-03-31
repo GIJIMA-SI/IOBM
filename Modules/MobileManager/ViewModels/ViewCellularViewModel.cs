@@ -697,20 +697,14 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             get { return _selectedStatus; }
             set
             {
-                //Check if the contract can be set to available
-                if (value.StatusDescription == Statuses.AVAILABLE.ToString())
-                {
-                    if (SelectedContractEndDate <= DateTime.Now)
-                    {
-                        MessageBoxResult msgResult = MessageBox.Show("The contract end date has expired!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-                }
-
                 SetProperty(ref _selectedStatus, value);
-                ValidPaymentYear = ValidPaymentMonth = SelectedStatus != null && SelectedStatus.StatusDescription != Statuses.ACTIVE.ToString() ? Brushes.Red : Brushes.Silver;
-                SelectedClientState = SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString() ? true : false;
-                if (SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString())
+                ValidPaymentYear = ValidPaymentMonth = SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString()
+                                                                              || (SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA && SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString())
+                                                                              ? Brushes.Silver : Brushes.Red;
+                SelectedClientState = SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString()
+                                                             || (SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA && SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString())
+                                                             ? true : false;
+                if (SelectedStatus != null && (SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString() || (SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString() && SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA)))
                     SelectedBillingYear = SelectedBillingMonth = string.Empty;
 
             }
@@ -728,6 +722,15 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 SetProperty(ref _selectedPackage, value);
                 SetPackageDefaults();
                 ReadCompanyBillingLevels();
+                //ValidPaymentYear = ValidPaymentMonth = SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString()
+                //|| (SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA && SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString())
+                //? Brushes.Silver : Brushes.Red;
+                ValidPaymentYear = ValidPaymentMonth = SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString()
+                                                                              || (SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA && SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString())
+                                                                              ? Brushes.Silver : Brushes.Red;
+                //Check for voice or data 
+                if (SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString() && SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA)
+                    SelectedBillingYear = SelectedBillingMonth = string.Empty;
             }
         }
         private Package _selectedPackage;
@@ -1394,17 +1397,18 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         ValidRoamingToDate = SplitBilling && SelectedIntRoaming && !SelectedPermanentRoaming && (SelectedRoamingToDate.Date < SelectedRoamingFromDate.Date ||
                                              SelectedRoamingToDate.Date == DateTime.MinValue.Date) ? Brushes.Red : Brushes.Silver; break;
                     case "SelectedBillingMonth":
-                        if (SelectedStatus != null && SelectedStatus.StatusDescription != Statuses.ACTIVE.ToString())
+                        if (SelectedStatus != null && (SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString() || (SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA && SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString())))
+                            ValidPaymentMonth = Brushes.Silver;
+                        else
                             ValidPaymentMonth = string.IsNullOrEmpty(SelectedBillingMonth) ||
                                                 (Convert.ToInt32(SelectedBillingMonth) < _currentBillingMonth && Convert.ToInt32(SelectedBillingYear) == _currentBillingYear) ? Brushes.Red : Brushes.Silver;
-                        else
-                            ValidPaymentMonth = Brushes.Silver;
                         break;
                     case "SelectedBillingYear":
-                        if (SelectedStatus != null && SelectedStatus.StatusDescription != Statuses.ACTIVE.ToString())
-                            ValidPaymentYear = string.IsNullOrEmpty(SelectedBillingYear) ? Brushes.Red : Brushes.Silver;
-                        else
+                        if (SelectedStatus != null && (SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString() || (SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA && SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString())))
                             ValidPaymentYear = Brushes.Silver;
+                        else
+                            ValidPaymentYear = string.IsNullOrEmpty(SelectedBillingYear) ? Brushes.Red : Brushes.Silver;
+                        
                         break;
                 }
                 return result;
@@ -2070,11 +2074,25 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
             // Validate contract data
             if (result)
-                result = SelectedPackage != null && SelectedStatus != null && SelectedCostType != CostType.NONE.ToString() &&
-                         !string.IsNullOrEmpty(SelectedContractAccNumber) && SelectedContractStartDate.Date > DateTime.MinValue.Date &&
-                         SelectedContractEndDate.Date > DateTime.MinValue.Date &&
-                         (SelectedStatus.StatusDescription != Statuses.ACTIVE.ToString() ? !string.IsNullOrWhiteSpace(SelectedBillingYear) && !string.IsNullOrWhiteSpace(SelectedBillingMonth) : true);
-
+            {
+                if (SelectedStatus == null || StatusCollection == null || SelectedStatus == StatusCollection.FirstOrDefault())
+                {
+                    result = false;
+                }
+                else
+                {
+                    result = SelectedPackage != null &&
+                             SelectedStatus != null &&
+                             SelectedCostType != CostType.NONE.ToString() &&
+                             !string.IsNullOrEmpty(SelectedContractAccNumber) &&
+                             SelectedContractStartDate.Date > DateTime.MinValue.Date &&
+                             SelectedContractEndDate.Date > DateTime.MinValue.Date &&
+                             (SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString() ||
+                                    (SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString() && SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA))
+                             ? true : !string.IsNullOrWhiteSpace(SelectedBillingYear) && !string.IsNullOrWhiteSpace(SelectedBillingMonth);
+                }
+            }
+            
             // Validate billing data
             if (result && SplitBilling && !SelectedClient.IsPrivate)
                 result = SelectedClientBilling != null && (SplitBilling || NoSplitBilling) &&
