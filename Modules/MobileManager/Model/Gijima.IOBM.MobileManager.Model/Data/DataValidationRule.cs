@@ -21,6 +21,7 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public int fkDataValidationPropertyID { get; set; }
         public short enOperatorType { get; set; }
         public short enOperator { get; set; }
+        public string CalculationParameters { get; set; }
         public string DataValidationValue { get; set; }
         public string ModifiedBy { get; set; }
         public System.DateTime ModifiedDate { get; set; }

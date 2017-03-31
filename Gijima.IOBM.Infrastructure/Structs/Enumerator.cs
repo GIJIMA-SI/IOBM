@@ -139,7 +139,8 @@ namespace Gijima.IOBM.Infrastructure.Structs
     {
         None = 0,
         Duplicate = 1,
-        Range
+        Range,
+        Sum
     }
 
     /// <summary>

@@ -117,10 +117,33 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     }
 
                     if (_dataValidationGroup == DataValidationGroupName.ExternalData)
-                        SelectedDataProperty = DataPropertyCollection.Where(p => p.ExtDataValidationProperty == value.PropertyDescription).FirstOrDefault();
+                    {
+                        SelectedExtDataPropertyCollection = new Dictionary<string, object>();
+
+                        if (value.OperatorDescription == RuleOperator.Sum.ToString())
+                        {
+                            string[] properties = value.CalculationParameters.Split(';');
+
+                            foreach (string property in properties)
+                            {
+                                SelectedExtDataPropertyCollection.Add(ExtDataPropertyCollection.Where(p => p.Value.ToString() == property).First().Key,
+                                                                      ExtDataPropertyCollection.Where(p => p.Value.ToString() == property).First().Value);
+                            }
+                        }
+                        else
+                        {
+                            SelectedExtDataPropertyCollection.Add(ExtDataPropertyCollection.Where(p => p.Value.ToString() == value.fkDataValidationPropertyID.ToString()).First().Key,
+                                                                  ExtDataPropertyCollection.Where(p => p.Value.ToString() == value.fkDataValidationPropertyID.ToString()).First().Value);
+                        }
+
+
+                        SelectedExtDataPropertyCollection = new Dictionary<string, object>(SelectedExtDataPropertyCollection);
+                    }
                     else
+                    {
                         SelectedDataProperty = DataPropertyCollection != null ? DataPropertyCollection.First(p => p.pkDataValidationPropertyID == value.fkDataValidationPropertyID) :
                                                DataPropertyCollection != null ? DataPropertyCollection.First(p => p.pkDataValidationPropertyID == 0) : null;
+                    }
                     SelectedOperatorType = value.OperatorTypeDescription;
                     SelectedOperator = value.OperatorDescription;
                     SelectedValidationValue = value.DataValidationValue;
@@ -305,16 +328,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private Dictionary<string, object> _extDataPropertyCollection = null;
 
         /// <summary>
-        /// The collection of the selected external DataPropertyCollection
-        /// </summary>
-        public Dictionary<string, object> SelectedExtDataPropertyCollection
-        {
-            get { return _selectedExtDataPropertyCollection; }
-            set { SetProperty(ref _selectedExtDataPropertyCollection, value); }
-        }
-        private Dictionary<string, object> _selectedExtDataPropertyCollection = null;
-
-        /// <summary>
         /// The collection of operators types from the OperatorType enum's
         /// </summary>
         public ObservableCollection<string> OperatorTypeCollection
@@ -432,6 +445,20 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private DataValidationProperty _selectedDataProperty = null;
 
         /// <summary>
+        /// The collection of the selected external DataPropertyCollection
+        /// </summary>
+        public Dictionary<string, object> SelectedExtDataPropertyCollection
+        {
+            get { return _selectedExtDataPropertyCollection; }
+            set
+            {
+                SetProperty(ref _selectedExtDataPropertyCollection, value);
+                ReadOperatorTypes();
+            }
+        }
+        private Dictionary<string, object> _selectedExtDataPropertyCollection = null;
+
+        /// <summary>
         /// The selected operator
         /// </summary>
         public string SelectedOperatorType
@@ -544,13 +571,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 {
                     case "SelectedEntityGroup":
                         ValidEntityGroup = string.IsNullOrEmpty(SelectedEntityGroup) || SelectedEntityGroup == _defaultItem ? Brushes.Red : Brushes.Silver;
-                        //if (ValidEntityGroup == Brushes.Silver)
-                        //    switch (EnumHelper.GetEnumFromDescription<DataValidationGroupName>(SelectedEntityGroup))
-                        //    {
-                        //        case DataValidationGroupName.Device:
-                        //        case DataValidationGroupName.SimCard:
-                        //            ValidDataEntity = Brushes.Silver; break;
-                        //    }
                         break;
                     case "SelectedDataEntity":
                         if (SelectedEntityGroup != null && SelectedEntityGroup != _defaultItem &&
@@ -569,11 +589,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                             ValidDataEntity = Brushes.Red;
                         break;
                     case "SelectedDataProperty":
-                        if (_dataValidationGroup == DataValidationGroupName.ExternalData)
-                            ValidDataProperty = SelectedDataProperty != null && SelectedDataProperty.ToString() != _defaultItem ? Brushes.Silver : Brushes.Red;
-                        else
-                            ValidDataProperty = SelectedDataProperty != null && SelectedDataProperty.ToString() != _defaultItem && 
-                                                ((DataValidationProperty)SelectedDataProperty).pkDataValidationPropertyID > 0 ? Brushes.Silver : Brushes.Red;
+                        ValidDataProperty = SelectedDataProperty != null && SelectedDataProperty.ToString() != _defaultItem && 
+                                            ((DataValidationProperty)SelectedDataProperty).pkDataValidationPropertyID > 0 ? Brushes.Silver : Brushes.Red;
+                        break;
+                    case "SelectedExtDataPropertyCollection":
+                        ValidDataProperty = SelectedExtDataPropertyCollection != null ? Brushes.Silver : Brushes.Red;
                         break;
                     case "SelectedOperatorType":
                         ValidOperatorType = string.IsNullOrEmpty(SelectedOperatorType) || SelectedOperatorType == _defaultEnum ? Brushes.Red : Brushes.Silver; break;
@@ -631,6 +651,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             SelectedDataEntity = null;
             SelectedDataProperty = null;
+            SelectedExtDataPropertyCollection = new Dictionary<string, object>(); 
             SelectedOperator = null;
             SelectedValidationValue = string.Empty;
             ValidationRuleCollection = null;
@@ -730,32 +751,45 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             {
                 OperatorTypeCollection = new ObservableCollection<string>();
 
-                if (SelectedDataProperty != null && SelectedDataProperty.pkDataValidationPropertyID > 0)
+                if (_dataValidationProcess == DataValidationProcess.ExternalBilling)
                 {
-                    switch ((DataTypeName)SelectedDataProperty.enDataType)
+                    if (SelectedExtDataPropertyCollection != null)
                     {
-                        case DataTypeName.Integer:
-                        case DataTypeName.Decimal:
-                        case DataTypeName.Float:
-                        case DataTypeName.Long:
-                        case DataTypeName.Short:
-                            OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(OperatorType.None));
-                            OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(OperatorType.NumericOperator));
-                            break;
-                        case DataTypeName.DateTime:
-                            OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(OperatorType.None));
-                            OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(OperatorType.DateOperator));
-                            break;
-                        case DataTypeName.Bool:
-                            OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(OperatorType.None));
-                            OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(OperatorType.BooleanOperator));
-                            break;
-                        default:
-                            foreach (OperatorType source in Enum.GetValues(typeof(OperatorType)))
-                            {
-                                OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(source));
-                            }
-                            break;
+                        foreach (OperatorType source in Enum.GetValues(typeof(OperatorType)))
+                        {
+                            OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(source));
+                        }
+                    }
+                }
+                else
+                {
+                    if (SelectedDataProperty != null && SelectedDataProperty.pkDataValidationPropertyID > 0)
+                    {
+                        switch ((DataTypeName)SelectedDataProperty.enDataType)
+                        {
+                            case DataTypeName.Integer:
+                            case DataTypeName.Decimal:
+                            case DataTypeName.Float:
+                            case DataTypeName.Long:
+                            case DataTypeName.Short:
+                                OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(OperatorType.None));
+                                OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(OperatorType.NumericOperator));
+                                break;
+                            case DataTypeName.DateTime:
+                                OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(OperatorType.None));
+                                OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(OperatorType.DateOperator));
+                                break;
+                            case DataTypeName.Bool:
+                                OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(OperatorType.None));
+                                OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(OperatorType.BooleanOperator));
+                                break;
+                            default:
+                                foreach (OperatorType source in Enum.GetValues(typeof(OperatorType)))
+                                {
+                                    OperatorTypeCollection.Add(EnumHelper.GetDescriptionFromEnum(source));
+                                }
+                                break;
+                        }
                     }
                 }
 
@@ -1021,15 +1055,30 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             try
             { 
                 bool result = false;
-                DataTypeName dataType = (DataTypeName)((DataValidationProperty)SelectedDataProperty).enDataType;
 
                 if (SelectedValidationRule == null)
                     SelectedValidationRule = new DataValidationRule();
 
                 SelectedValidationRule.enDataValidationProcess = _dataValidationProcess.Value();
                 SelectedValidationRule.enDataValidationGroupName = _dataValidationGroup.Value();
-                SelectedValidationRule.fkDataValidationPropertyID = ((DataValidationProperty)SelectedDataProperty).pkDataValidationPropertyID;
                 SelectedValidationRule.DataValidationValue = SelectedValidationValue.ToUpper();
+                SelectedValidationRule.enOperatorType = EnumHelper.GetEnumFromDescription<OperatorType>(SelectedOperatorType).Value();
+
+                if ((OperatorType)SelectedValidationRule.enOperatorType == OperatorType.RuleOperator)
+                {
+                    SelectedValidationRule.fkDataValidationPropertyID = (int)SelectedExtDataPropertyCollection.First().Value;
+                    SelectedValidationRule.CalculationParameters = string.Empty;
+                    foreach (KeyValuePair<string, object> property in SelectedExtDataPropertyCollection)
+                    {
+                        SelectedValidationRule.CalculationParameters += string.Format("{0};", property.Value);
+                    }
+                    SelectedValidationRule.CalculationParameters = SelectedValidationRule.CalculationParameters.TrimEnd(';');
+                }
+                else
+                {
+                    SelectedValidationRule.fkDataValidationPropertyID = SelectedDataProperty.pkDataValidationPropertyID;
+                    SelectedValidationRule.CalculationParameters = string.Empty;
+                }
 
                 switch (_dataValidationGroup)
                 {
@@ -1049,7 +1098,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         break;
                 }
 
-                SelectedValidationRule.enOperatorType = EnumHelper.GetEnumFromDescription<OperatorType>(SelectedOperatorType).Value();
                 switch ((OperatorType)SelectedValidationRule.enOperatorType)
                 {
                     case OperatorType.StringOperator:

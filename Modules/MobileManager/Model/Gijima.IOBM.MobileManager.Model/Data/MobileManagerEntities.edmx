@@ -355,6 +355,7 @@ warning 6002: The table/view 'IOBM-MobileManager_Dev.dbo.DataUpdateSearchPropert
           <Property Name="fkDataValidationPropertyID" Type="int" Nullable="false" />
           <Property Name="enOperatorType" Type="smallint" Nullable="false" />
           <Property Name="enOperator" Type="smallint" Nullable="false" />
+          <Property Name="CalculationParameters" Type="varchar" MaxLength="100" />
           <Property Name="DataValidationValue" Type="varchar(max)" Nullable="false" />
           <Property Name="ModifiedBy" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="ModifiedDate" Type="datetime" Nullable="false" />
@@ -1485,24 +1486,8 @@ warning 6002: The table/view 'IOBM-MobileManager_Dev.dbo.DataUpdateSearchPropert
           <Property Name="ModifiedBy" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="DataValidationRules" Relationship="Self.FK_DataValidationRule_DataValidationProperty" FromRole="DataValidationProperty" ToRole="DataValidationRule" />
           <NavigationProperty Name="DataValidationExceptions" Relationship="MobileManagerModel.FK_DataValidationException_DataValidationProperty" FromRole="DataValidationProperty" ToRole="DataValidationException" />
-        </EntityType>
-        <EntityType Name="DataValidationRule">
-          <Key>
-            <PropertyRef Name="pkDataValidationRuleID" />
-          </Key>
-          <Property Name="pkDataValidationRuleID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="enDataValidationProcess" Type="Int16" Nullable="false" />
-          <Property Name="enDataValidationGroupName" Type="Int16" Nullable="false" />
-          <Property Name="DataValidationEntityID" Type="Int32" Nullable="false" />
-          <Property Name="fkDataValidationPropertyID" Type="Int32" Nullable="false" />
-          <Property Name="enOperatorType" Type="Int16" Nullable="false" />
-          <Property Name="enOperator" Type="Int16" Nullable="false" />
-          <Property Name="DataValidationValue" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="ModifiedBy" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
-          <NavigationProperty Name="DataValidationProperty" Relationship="Self.FK_DataValidationRule_DataValidationProperty" FromRole="DataValidationRule" ToRole="DataValidationProperty" />
+          <NavigationProperty Name="DataValidationRules" Relationship="MobileManagerModel.FK_DataValidationRule_DataValidationProperty" FromRole="DataValidationProperty" ToRole="DataValidationRule" />
         </EntityType>
         <EntityType Name="DeviceMake">
           <Key>
@@ -1843,18 +1828,6 @@ warning 6002: The table/view 'IOBM-MobileManager_Dev.dbo.DataUpdateSearchPropert
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_DataValidationRule_DataValidationProperty">
-          <End Role="DataValidationProperty" Type="Self.DataValidationProperty" Multiplicity="1" />
-          <End Role="DataValidationRule" Type="Self.DataValidationRule" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="DataValidationProperty">
-              <PropertyRef Name="pkDataValidationPropertyID" />
-            </Principal>
-            <Dependent Role="DataValidationRule">
-              <PropertyRef Name="fkDataValidationPropertyID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_DeviceModel_DeviceMake">
           <End Role="DeviceMake" Type="Self.DeviceMake" Multiplicity="1" />
           <End Role="DeviceModel" Type="Self.DeviceModel" Multiplicity="*" />
@@ -1966,7 +1939,6 @@ warning 6002: The table/view 'IOBM-MobileManager_Dev.dbo.DataUpdateSearchPropert
           <EntitySet Name="DataImportRules" EntityType="Self.DataImportRule" />
           <EntitySet Name="DataUpdateRules" EntityType="Self.DataUpdateRule" />
           <EntitySet Name="DataValidationProperties" EntityType="Self.DataValidationProperty" />
-          <EntitySet Name="DataValidationRules" EntityType="Self.DataValidationRule" />
           <EntitySet Name="DeviceMakes" EntityType="Self.DeviceMake" />
           <EntitySet Name="DeviceModels" EntityType="Self.DeviceModel" />
           <EntitySet Name="Invoices" EntityType="Self.Invoice" />
@@ -2022,10 +1994,6 @@ warning 6002: The table/view 'IOBM-MobileManager_Dev.dbo.DataUpdateSearchPropert
           <AssociationSet Name="FK_CompanyBillingLevel_CompanyGroup" Association="Self.FK_CompanyBillingLevel_CompanyGroup">
             <End Role="CompanyGroup" EntitySet="CompanyGroups" />
             <End Role="CompanyBillingLevel" EntitySet="CompanyBillingLevels" />
-          </AssociationSet>
-          <AssociationSet Name="FK_DataValidationRule_DataValidationProperty" Association="Self.FK_DataValidationRule_DataValidationProperty">
-            <End Role="DataValidationProperty" EntitySet="DataValidationProperties" />
-            <End Role="DataValidationRule" EntitySet="DataValidationRules" />
           </AssociationSet>
           <AssociationSet Name="FK_DeviceModel_DeviceMake" Association="Self.FK_DeviceModel_DeviceMake">
             <End Role="DeviceMake" EntitySet="DeviceMakes" />
@@ -2149,6 +2117,11 @@ warning 6002: The table/view 'IOBM-MobileManager_Dev.dbo.DataUpdateSearchPropert
           <EntitySet Name="AdvancedSearchMaps" EntityType="MobileManagerModel.AdvancedSearchMap" />
           <EntitySet Name="AdvancedSearchFields" EntityType="MobileManagerModel.AdvancedSearchField" />
           <EntitySet Name="ExternalBillingDatas" EntityType="MobileManagerModel.ExternalBillingData" />
+          <EntitySet Name="DataValidationRules" EntityType="MobileManagerModel.DataValidationRule" />
+          <AssociationSet Name="FK_DataValidationRule_DataValidationProperty" Association="MobileManagerModel.FK_DataValidationRule_DataValidationProperty">
+            <End Role="DataValidationProperty" EntitySet="DataValidationProperties" />
+            <End Role="DataValidationRule" EntitySet="DataValidationRules" />
+          </AssociationSet>
           </EntityContainer>
         <ComplexType Name="sp_report_Invoice_Result">
           <Property Type="String" Name="ClientName" Nullable="false" MaxLength="100" />
@@ -2607,6 +2580,35 @@ warning 6002: The table/view 'IOBM-MobileManager_Dev.dbo.DataUpdateSearchPropert
           <Property Name="ModifiedBy" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="DateModified" Type="DateTime" Nullable="false" Precision="0" />
         </EntityType>
+        <EntityType Name="DataValidationRule">
+          <Key>
+            <PropertyRef Name="pkDataValidationRuleID" />
+          </Key>
+          <Property Name="pkDataValidationRuleID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="enDataValidationProcess" Type="Int16" Nullable="false" />
+          <Property Name="enDataValidationGroupName" Type="Int16" Nullable="false" />
+          <Property Name="DataValidationEntityID" Type="Int32" Nullable="false" />
+          <Property Name="fkDataValidationPropertyID" Type="Int32" Nullable="false" />
+          <Property Name="enOperatorType" Type="Int16" Nullable="false" />
+          <Property Name="enOperator" Type="Int16" Nullable="false" />
+          <Property Name="CalculationParameters" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="DataValidationValue" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedBy" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="DataValidationProperty" Relationship="MobileManagerModel.FK_DataValidationRule_DataValidationProperty" FromRole="DataValidationRule" ToRole="DataValidationProperty" />
+        </EntityType>
+        <Association Name="FK_DataValidationRule_DataValidationProperty">
+          <End Type="MobileManagerModel.DataValidationProperty" Role="DataValidationProperty" Multiplicity="1" />
+          <End Type="MobileManagerModel.DataValidationRule" Role="DataValidationRule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="DataValidationProperty">
+              <PropertyRef Name="pkDataValidationPropertyID" />
+            </Principal>
+            <Dependent Role="DataValidationRule">
+              <PropertyRef Name="fkDataValidationPropertyID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2817,22 +2819,6 @@ warning 6002: The table/view 'IOBM-MobileManager_Dev.dbo.DataUpdateSearchPropert
                 <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
                 <ScalarProperty Name="ModifiedDate" ColumnName="ModifiedDate" />
                 <ScalarProperty Name="IsActive" ColumnName="IsActive" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="DataValidationRules">
-            <EntityTypeMapping TypeName="MobileManagerModel.DataValidationRule">
-              <MappingFragment StoreEntitySet="DataValidationRule">
-                <ScalarProperty Name="pkDataValidationRuleID" ColumnName="pkDataValidationRuleID" />
-                <ScalarProperty Name="enDataValidationProcess" ColumnName="enDataValidationProcess" />
-                <ScalarProperty Name="enDataValidationGroupName" ColumnName="enDataValidationGroupName" />
-                <ScalarProperty Name="DataValidationEntityID" ColumnName="DataValidationEntityID" />
-                <ScalarProperty Name="fkDataValidationPropertyID" ColumnName="fkDataValidationPropertyID" />
-                <ScalarProperty Name="enOperatorType" ColumnName="enOperatorType" />
-                <ScalarProperty Name="enOperator" ColumnName="enOperator" />
-                <ScalarProperty Name="DataValidationValue" ColumnName="DataValidationValue" />
-                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
-                <ScalarProperty Name="ModifiedDate" ColumnName="ModifiedDate" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -3267,6 +3253,23 @@ warning 6002: The table/view 'IOBM-MobileManager_Dev.dbo.DataUpdateSearchPropert
                 <ScalarProperty Name="SheetName" ColumnName="SheetName" />
                 <ScalarProperty Name="TableName" ColumnName="TableName" />
                 <ScalarProperty Name="pkExternalBillingDataID" ColumnName="pkExternalBillingDataID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DataValidationRules">
+            <EntityTypeMapping TypeName="MobileManagerModel.DataValidationRule">
+              <MappingFragment StoreEntitySet="DataValidationRule">
+                <ScalarProperty Name="ModifiedDate" ColumnName="ModifiedDate" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="DataValidationValue" ColumnName="DataValidationValue" />
+                <ScalarProperty Name="CalculationParameters" ColumnName="CalculationParameters" />
+                <ScalarProperty Name="enOperator" ColumnName="enOperator" />
+                <ScalarProperty Name="enOperatorType" ColumnName="enOperatorType" />
+                <ScalarProperty Name="fkDataValidationPropertyID" ColumnName="fkDataValidationPropertyID" />
+                <ScalarProperty Name="DataValidationEntityID" ColumnName="DataValidationEntityID" />
+                <ScalarProperty Name="enDataValidationGroupName" ColumnName="enDataValidationGroupName" />
+                <ScalarProperty Name="enDataValidationProcess" ColumnName="enDataValidationProcess" />
+                <ScalarProperty Name="pkDataValidationRuleID" ColumnName="pkDataValidationRuleID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

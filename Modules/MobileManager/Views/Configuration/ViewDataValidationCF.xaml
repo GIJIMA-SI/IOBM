@@ -113,9 +113,9 @@
                     </ComboBox>
                 </Border>
                 <Border Grid.Row="0" Grid.Column="7" BorderThickness="1" BorderBrush="{Binding ValidDataProperty}" Visibility="{Binding ExternalValidation, UpdateSourceTrigger=PropertyChanged}" >
-                    <WPF:MultiSelectComboBoxUX x:Name="ComboBoxExtDataProperties"  Grid.Column="0" ToolTip="Select the data field to base the rule on." TabIndex="4" Height="22"
+                    <WPF:MultiSelectComboBoxUX x:Name="ComboBoxExtDataProperties" Grid.Column="0" ToolTip="Select the data field to base the rule on." TabIndex="4" Height="22"
                         ItemsSource="{Binding ExtDataPropertyCollection, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
-                        SelectedItems="{Binding SelectedExtDataPropertyCollection, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DefaultText="-- Please Select --">
+                        SelectedItems="{Binding SelectedExtDataPropertyCollection, Mode=TwoWay, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
                     </WPF:MultiSelectComboBoxUX>
                 </Border>                
                 <TextBlock Grid.Row="0" Grid.Column="9" Text="Operator type:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
