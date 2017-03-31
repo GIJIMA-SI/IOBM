@@ -67,7 +67,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     foreach (DeviceIMENumber deviceIMENumber in device.DeviceIMENumbers)
                     {
                         DeviceIMENumber existingNumber = db.DeviceIMENumbers.Where(p => p.IMENumber == deviceIMENumber.IMENumber).FirstOrDefault();
-                        if (db.Devices.Any(p => p.pkDeviceID == existingNumber.fkDeviceID &&
+                        if (existingNumber != null && db.Devices.Any(p => p.pkDeviceID == existingNumber.fkDeviceID &&
                                         p.fkStatusID != availableSatusID &&
                                         p.IsActive == true))
                         {
