@@ -138,7 +138,7 @@
                 </ComboBox>
                 <TextBlock Grid.Row="3" Grid.Column="0" Text="Destination:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
                 <ComboBox Grid.Row="3" Grid.Column="1" ToolTip="Select the destination property to map." TabIndex="7" IsSynchronizedWithCurrentItem="True" Height="22" 
-                    IsEnabled="{Binding ValidSelectedDestinationEntity}" ItemsSource="{Binding DestinationColumnCollection}" 
+                    IsEnabled="{Binding ValidSelectedDestinationEntity}" ItemsSource="{Binding DestinationComboBoxItemCollection, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
                     SelectedItem="{Binding SelectedDestinationProperty, UpdateSourceTrigger=PropertyChanged}">
                 </ComboBox>
                 <StackPanel Grid.Row="1" Grid.Column="3" Grid.RowSpan="3">
@@ -173,13 +173,22 @@
             </Grid.ColumnDefinitions>
             <TextBlock x:Name="TextBlockImportUpdateProgress" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Bottom" Style="{StaticResource UXLabelTextStyle}"                
                 Text="{Binding ImportUpdateDescription, UpdateSourceTrigger=PropertyChanged}"/>
-            <Button x:Name="ButtonStartUpdate" Grid.Row="0" Grid.Column="4" HorizontalAlignment="Right" ToolTip="Import the data from the selected data sheet." TabIndex="12"
-                IsEnabled="{Binding CanImport}" Width="80" Style="{StaticResource UXImageTextButtonStyle}" Margin="0,0,0,3" Command="{Binding ImportCommand}">
-                <StackPanel Orientation="Horizontal" ToolTip="Update the selected data.">
-                    <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/374.png" Margin="0,1,10,1"/>
-                    <TextBlock Text="Import" VerticalAlignment="Center"/>
-                </StackPanel>
-            </Button>
+            <StackPanel x:Name="UpdateStackPanel" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="4" Orientation="Horizontal" Margin="0,0,0,4">
+                <Button x:Name="ButtonExport" ToolTip="Export the exceptions to Excel." TabIndex="11" 
+                    Style="{StaticResource UXImageTextButtonStyle}" Width="120" Command="{Binding ExportCommand}" Margin="0,0,4,0">
+                    <StackPanel Orientation="Horizontal" Width="118">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/Excel-icon.png" Margin="0,1,10,1"/>
+                        <TextBlock Text="Export to Excel" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="ButtonStartImport" ToolTip="Import the data from the selected data sheet." TabIndex="12"
+                    IsEnabled="{Binding CanImport}" Width="80" Style="{StaticResource UXImageTextButtonStyle}" Command="{Binding ImportCommand}">
+                    <StackPanel Orientation="Horizontal" ToolTip="Import the selected data.">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/374.png" Margin="0,1,10,1"/>
+                        <TextBlock Text="Import" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
             <TextBlock Grid.Row="0" Grid.Column="4" Text="Import Exceptions" Margin="0,0,100,0" VerticalAlignment="Bottom"/>
             <ListView  Grid.Row="1" Grid.Column="4" Grid.RowSpan="4" TabIndex="4"
                 ItemsSource="{Binding ExceptionsCollection, UpdateSourceTrigger=PropertyChanged}">

@@ -1,13 +1,21 @@
 ﻿using Gijima.IOBM.Infrastructure.Events;
+using Gijima.IOBM.Infrastructure.Helpers;
 using Gijima.IOBM.Infrastructure.Structs;
+using Gijima.IOBM.MobileManager.Common.Helpers;
+using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
+using Gijima.IOBM.MobileManager.Model.Helpers;
+using Gijima.IOBM.Security;
 using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Data;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Reflection;
+using System.Transactions;
 
 namespace Gijima.IOBM.MobileManager.Model.Models
 {
@@ -16,6 +24,8 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         #region Properties and Attributes
 
         private IEventAggregator _eventAggregator;
+        private AuditLogModel _activityLogger = null;
+        private DataActivityHelper _dataActivityHelper = null;
 
         #endregion
 
@@ -26,6 +36,8 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         public PackageModel(IEventAggregator eventAggreagator)
         {
             _eventAggregator = eventAggreagator;
+            _activityLogger = new AuditLogModel(_eventAggregator);
+            _dataActivityHelper = new DataActivityHelper(_eventAggregator);
         }
 
         /// <summary>
@@ -194,6 +206,176 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Update the packages in the system update window
+        /// </summary>
+        /// <param name="searchEntity"></param>
+        /// <param name="searchCriteria"></param>
+        /// <param name="mappedProperties"></param>
+        /// <param name="importValues"></param>
+        /// <param name="errorMessage"></param>
+        /// <returns></returns>
+        public bool UpdatePackageUpdate(string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, short enSelectedEntity, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            string[] importProperties = null;
+            string sourceProperty = string.Empty;
+            object sourceValue = null;
+            Package existingPackage = null;
+            Package packageToUpdate = null;
+            bool mustUpdate = false;
+            bool dataChanged = false;
+            bool result = false;
+            
+            try
+            {
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    existingPackage = db.Packages.Where(p => p.PackageName.ToUpper() == searchCriteria.ToUpper()).FirstOrDefault();
+
+                    if (existingPackage == null)
+                    {
+                        errorMessage = string.Format("Package with name {0} not found.", searchCriteria);
+                        return false;
+                    }
+                }
+
+                using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
+                {
+
+                    using (var db = MobileManagerEntities.GetContext())
+                    {
+                        packageToUpdate = db.Packages.Where(p => p.PackageName.ToUpper() == searchCriteria.ToUpper()).FirstOrDefault();
+
+
+                        // Get the sql table structure of the entity
+                        PropertyDescriptor[] properties = EDMHelper.GetEntityStructure<Package>();
+
+                        foreach (PropertyDescriptor property in properties)
+                        {
+                            mustUpdate = false;
+
+                            // Get the source property and source value 
+                            // mapped the simcard entity property
+                            foreach (string mappedProperty in mappedProperties)
+                            {
+                                string[] arrMappedProperty = mappedProperty.Split('=');
+                                string propertyName = new DataUpdatePropertyModel(_eventAggregator).GetPropertyName(arrMappedProperty[1].Trim(), enSelectedEntity);
+                                if (propertyName == property.Name)
+                                {
+                                    importProperties = mappedProperty.Split('=');
+                                    sourceProperty = importProperties[0].Trim();
+                                    sourceValue = importValues[sourceProperty];
+                                    dataChanged = mustUpdate = true;
+                                    break;
+                                }
+                            }
+
+                            // Always update these values
+                            if (dataChanged && (property.Name == "ModifiedBy" || property.Name == "ModifiedDate" || property.Name == "IsActive"))
+                                mustUpdate = true;
+
+                            if (mustUpdate)
+                            {
+                                //If an error occur it will tell in what column what value
+                                errorMessage = $"Error column '{sourceProperty.ToString()}' with value '{sourceValue.ToString()}' ";
+
+                                // Validate the source status and get
+                                // the value for the fkStatusID
+                                if (property.Name == "fkStatusID")
+                                {
+                                    Status status = db.Status.Where(p => p.StatusDescription.ToUpper() == sourceValue.ToString().ToUpper()).FirstOrDefault();
+
+                                    if (status == null)
+                                    {
+                                        errorMessage = $"Status {sourceValue.ToString()} not found.";
+                                        return false;
+                                    }
+                                    
+                                    sourceValue = status.pkStatusID;
+                                }
+
+                                // Validate the source service provider and get
+                                // the value for the fkServiceProviderID
+                                if (property.Name == "fkServiceProviderID")
+                                {
+                                    ServiceProvider serviceProvider = db.ServiceProviders.Where(p => p.ServiceProviderName.ToUpper() == sourceValue.ToString().ToUpper()).FirstOrDefault();
+
+                                    if (serviceProvider == null)
+                                    {
+                                        errorMessage = $"Service provider {sourceValue.ToString()} not found.";
+                                        return false;
+                                    }
+
+                                    sourceValue = serviceProvider.pkServiceProviderID;
+                                }
+
+                                // Validate the source package type and get
+                                // the value for the enPackageType
+                                if (property.Name == "enPackageType")
+                                {
+                                    int packageType = -1;
+                                    packageType = EnumHelper.GetEnumFromDescription<PackageType>(sourceValue.ToString().ToUpper()).Value();
+
+                                    if (packageType == -1)
+                                    {
+                                        errorMessage = $"Package type {sourceValue.ToString()} not found.";
+                                        return false;
+                                    }
+                                    sourceValue = packageType.ToString(); ;
+                                }
+
+                                // Set the default values
+                                if (property.Name == "ModifiedBy")
+                                    sourceValue = SecurityHelper.LoggedInFullName;
+                                if (property.Name == "ModifiedDate")
+                                    sourceValue = DateTime.Now;
+                                if (property.Name == "IsActive")
+                                    sourceValue = true;
+
+                                // Convert the db type into the type of the property in our entity
+                                if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                                    sourceValue = Convert.ChangeType(sourceValue, property.PropertyType.GetGenericArguments()[0]);
+                                else if (property.PropertyType == typeof(System.Guid))
+                                    sourceValue = new Guid(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Byte[]))
+                                    sourceValue = Convert.FromBase64String(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.DateTime))
+                                    sourceValue = Convert.ToDateTime(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Boolean))
+                                    sourceValue = Convert.ToBoolean(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Int32))
+                                    sourceValue = Convert.ToInt32(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Decimal))
+                                    sourceValue = Convert.ToDecimal(sourceValue.ToString());
+                                else
+                                    sourceValue = Convert.ChangeType(sourceValue, property.PropertyType);
+
+                                // Set the value of the property with the value from the db
+                                property.SetValue(packageToUpdate, sourceValue);
+                            }
+                        }
+
+                        if (dataChanged)
+                        {
+                            // Add the data activity log
+                            //_activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<SimCard>(existingPackage, packageToUpdate, packageToUpdate, db));
+
+                            db.SaveChanges();
+                            tc.Complete();
+                            result = true;
+                        }
+                    }
+                }
+
+                return result;
+            }
+            catch
+            {
                 return false;
             }
         }

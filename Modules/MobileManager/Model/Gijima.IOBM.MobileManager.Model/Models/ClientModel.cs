@@ -5,6 +5,7 @@ using Gijima.IOBM.MobileManager.Common.Helpers;
 using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Gijima.IOBM.MobileManager.Model.Helpers;
+using Gijima.IOBM.Security;
 using Prism.Events;
 using System;
 using System.Collections.Generic;
@@ -505,6 +506,209 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
                                                                 "UpdateClientServices",
                                                                 ApplicationMessage.MessageTypes.SystemError));
+                return false;
+            }
+        }
+
+        public bool UpdateClientUpdate(string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, short enSelectedEntity, string selectedDestinationSearch, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            string[] importProperties = null;
+            string sourceProperty = string.Empty;
+            object sourceValue = null;
+            Client existingClient = null;
+            Client clientToUpdate = null;
+            bool mustUpdate = false;
+            bool dataChanged = false;
+            bool result = false;
+            bool state = true;
+            
+            try
+            {
+                
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    if (selectedDestinationSearch.Replace(" ", "") == "PrimaryCellNumber")
+                    {
+                        existingClient = db.Clients.Where(p => p.PrimaryCellNumber == searchCriteria).FirstOrDefault();
+                        if (existingClient == null)
+                        {
+                            errorMessage = string.Format("Client with cell number {0} not found.", searchCriteria);
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        //Make sure the employee number is 8 digits long
+                        while (searchCriteria.Length < 8)
+                        {
+                            searchCriteria = "0" + searchCriteria;
+                        }
+                        existingClient = db.Clients.Where(p => p.EmployeeNumber == searchCriteria).FirstOrDefault();
+                        if (existingClient == null)
+                        {
+                            errorMessage = string.Format("Client with employee number {0} not found.", searchCriteria);
+                            return false;
+                        }
+                    }
+
+                }
+
+                using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
+                {
+
+                    using (var db = MobileManagerEntities.GetContext())
+                    {
+                        clientToUpdate = db.Clients.Where(p => p.pkClientID == existingClient.pkClientID).FirstOrDefault();
+
+                        // Get the sql table structure of the entity
+                        PropertyDescriptor[] properties = EDMHelper.GetEntityStructure <Client>();
+
+                        foreach (PropertyDescriptor property in properties)
+                        {
+                            mustUpdate = false;
+                            // Get the source property and source value 
+                            // mapped the simcard entity property
+                            foreach (string mappedProperty in mappedProperties)
+                            {
+                                string[] arrMappedProperty = mappedProperty.Split('=');
+                                string propertyName = new DataUpdatePropertyModel(_eventAggregator).GetPropertyName(arrMappedProperty[1].Trim(), enSelectedEntity);
+                                if (propertyName == property.Name)
+                                {
+                                    importProperties = mappedProperty.Split('=');
+                                    sourceProperty = importProperties[0].Trim();
+                                    sourceValue = importValues[sourceProperty];
+                                    dataChanged = mustUpdate = true;
+                                    break;
+                                }
+                            }
+
+                            // Always update these values
+                            if (dataChanged && (property.Name == "ModifiedBy" || property.Name == "ModifiedDate" || property.Name == "IsActive"))
+                                mustUpdate = true;
+
+                            if (mustUpdate)
+                            {
+                                //If an error occur it will tell in what column what value
+                                errorMessage = $"Error column '{sourceProperty.ToString()}' with value '{sourceValue.ToString()}' ";
+
+                                // Validate the source suburb and get
+                                // the value for the fkSuburbID
+                                if (property.Name == "fkSuburbID")
+                                {
+                                    Suburb suburb = db.Suburbs.Where(p => p.SuburbName == sourceValue.ToString().ToUpper()).FirstOrDefault();
+
+                                    if (suburb == null)
+                                    {
+                                        errorMessage = "Suburb not found for nr." + searchCriteria;
+                                        return false;
+                                    }
+                                    sourceValue = suburb.pkSuburbID;
+                                }
+                                //Validate the source company
+                                //and validate te value for the fkCompanyID
+                                if (property.Name == "fkCompanyID")
+                                {
+                                    Company company = db.Companies.Where(p => p.CompanyName == sourceValue.ToString()).FirstOrDefault();
+                                    if (company == null)
+                                    {
+                                        errorMessage = "Company not found for nr." + searchCriteria;
+                                        return false;
+                                    }
+                                    sourceValue = company.pkCompanyID;
+                                }
+                                //Validate the source location and set the fkClientLocationID
+                                // to the location ID
+                                if (property.Name == "fkClientLocationID")
+                                {
+                                    ClientLocation clientLocation = db.ClientLocations.Where(p => p.LocationDescription == sourceValue.ToString()).FirstOrDefault();
+                                    if (clientLocation == null)
+                                    {
+                                        errorMessage = "Location not found for nr." + searchCriteria;
+                                        return false;
+                                    }
+                                    sourceValue = clientLocation.pkClientLocationID;
+                                }
+                                //Validate the IsPrivate value
+                                //and conver string to bool
+                                if (property.Name == "IsPrivate")
+                                {
+                                    if (sourceValue.ToString().ToUpper() == "PRIVATE")
+                                        sourceValue = true;
+                                    else if (sourceValue.ToString().ToUpper() == "Company")
+                                        sourceValue = false;
+                                    else
+                                    {
+                                        errorMessage = "Type not found (Should be 'Private' or 'Company'). ";
+                                        return false;
+                                    }
+                                }
+                                
+                                // Set the default values
+                                if (property.Name == "ModifiedBy")
+                                    sourceValue = SecurityHelper.LoggedInFullName;
+                                if (property.Name == "ModifiedDate")
+                                    sourceValue = DateTime.Now;
+                                if (property.Name == "IsActive")
+                                    sourceValue = state;
+
+                                // Convert the db type into the type of the property in our entity
+                                if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                                {
+                                    try
+                                    { sourceValue = Convert.ChangeType(sourceValue, property.PropertyType.GetGenericArguments()[0]); }
+                                    catch
+                                    { sourceValue = null; }
+                                }
+                                else if (property.PropertyType == typeof(System.DateTime))
+                                {
+                                    //Excel date format convertion
+                                    try
+                                    { sourceValue = Convert.ToDateTime(DateTime.FromOADate(Convert.ToDouble(sourceValue.ToString()))); }
+                                    catch { }
+                                    try
+                                    { sourceValue = Convert.ToDateTime(Convert.ToDateTime(sourceValue.ToString())); }
+                                    catch
+                                    { return false;}
+                                }
+                                else if (property.PropertyType == typeof(System.Guid))
+                                    sourceValue = new Guid(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Byte[]))
+                                    sourceValue = Convert.FromBase64String(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Boolean))
+                                    sourceValue = Convert.ToBoolean(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Int32))
+                                    sourceValue = Convert.ToInt32(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Decimal))
+                                    sourceValue = Convert.ToDecimal(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Double))
+                                    sourceValue = Convert.ToDouble(sourceValue.ToString());
+                                else
+                                    sourceValue = Convert.ChangeType(sourceValue, property.PropertyType);
+
+                                // Set the value of the property with the value from the db
+                                property.SetValue(clientToUpdate, sourceValue);
+                            }
+                        }
+
+                        if (dataChanged)
+                        {
+                            errorMessage = "Logging error please try the update again if error persist contact the development team.";
+                            
+                            // Add the data activity log
+                            result = _activityLogger.CreateDataChangeAudits<Client>(_dataActivityHelper.GetDataChangeActivities<Client>(existingClient,
+                                                                                                                                        clientToUpdate,
+                                                                                                                                        clientToUpdate.fkContractID,
+                                                                                                                                        db));
+                            db.SaveChanges();
+                            tc.Complete();
+                        }
+                    }
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
                 return false;
             }
         }

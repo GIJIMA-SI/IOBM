@@ -272,23 +272,27 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             string sourceProperty = string.Empty;
             object sourceValue = null;
             Contract existingContract = null;
-            Contract contractToImport = null;
+            Contract contractToUpdate = null;
+            Client existingClient = null;
+            Client clientToUpdate = null;
             bool mustUpdate = false;
             bool dataChanged = false;
             bool result = false;
             bool state = true;
-            string errorHelp = "";
-
+            
             try
             {
                 using (var db = MobileManagerEntities.GetContext())
                 {
                     existingContract = db.Contracts.Where(p => p.CellNumber == searchCriteria).FirstOrDefault();
-                    if (existingContract == null)
+                    existingClient = db.Clients.Where(p => p.PrimaryCellNumber == searchCriteria).FirstOrDefault();
+
+                    if (existingContract == null || existingClient == null)
                     {
                         errorMessage = string.Format("Cell number {0} not found.", searchCriteria);
                         return false;
                     }
+
                 }
 
                 using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
@@ -296,8 +300,9 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                     using (var db = MobileManagerEntities.GetContext())
                     {
-                        contractToImport = db.Contracts.Where(p => p.pkContractID == existingContract.pkContractID).FirstOrDefault();
-                        
+                        contractToUpdate = db.Contracts.Where(p => p.CellNumber == searchCriteria).FirstOrDefault();
+                        clientToUpdate = db.Clients.Where(p => p.PrimaryCellNumber == searchCriteria).FirstOrDefault();
+
                         //Updates the package setup for the client
                         bool packageSetupComplete = new PackageSetupModel(_eventAggregator).UpdatePackageSetupUpdate(searchCriteria,
                                                                                          mappedProperties,
@@ -317,7 +322,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                             {
                                 if (newServices)
                                 {
-                                    new ClientServiceModel(_eventAggregator).DeleteClientServices(contractToImport.pkContractID, db);
+                                    new ClientServiceModel(_eventAggregator).DeleteClientServices(contractToUpdate.pkContractID, db);
                                     newServices = false;
                                 }
                                 string[] arrMapping = mapping.Split('=');
@@ -337,11 +342,11 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                 }
                                 
                                 ClientService clientService = new ClientService();
-                                clientService.fkContractID = contractToImport.pkContractID;
+                                clientService.fkContractID = contractToUpdate.pkContractID;
                                 clientService.fkContractServiceID = serviceID;
                                 clientService.ModifiedBy = SecurityHelper.LoggedInFullName;
                                 clientService.ModifiedDate = DateTime.Now;
-                                contractToImport.ClientServices.Add(clientService);
+                                contractToUpdate.ClientServices.Add(clientService);
                             }
                         }
 
@@ -351,7 +356,6 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         foreach (PropertyDescriptor property in properties)
                         {
                             mustUpdate = false;
-                            errorHelp = property.Name.ToString();
                             // Get the source property and source value 
                             // mapped the simcard entity property
                             foreach (string mappedProperty in mappedProperties)
@@ -374,6 +378,9 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                             if (mustUpdate)
                             {
+                                //If an error occur it will tell in what column what value
+                                errorMessage = $"Error column '{sourceProperty.ToString()}' with value '{sourceValue.ToString()}' ";
+
                                 // Validate the source status and get
                                 // the value for the fkStatusID
                                 if (property.Name == "fkStatusID")
@@ -386,11 +393,16 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                         return false;
                                     }
 
-                                    // Set the device to in-active 
-                                    // if the status is not issued
+                                    // Set the contract and client to in-active 
+                                    // if the status is not active
                                     if (status.StatusDescription != "ACTIVE")
+                                    {
                                         state = false;
-
+                                        clientToUpdate.IsActive = state;
+                                    }
+                                    else
+                                        clientToUpdate.IsActive = state;
+                                    
                                     sourceValue = status.pkStatusID;
                                 }
                                 // Validate the source package and get
@@ -411,7 +423,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                 // the value for the enCostType
                                 if (property.Name == "enCostType")
                                 {
-                                    sourceValue = EnumHelper.GetEnumFromDescription<CostType>("AMORTIZED").Value();
+                                    sourceValue = EnumHelper.GetEnumFromDescription<CostType>(sourceValue.ToString()).Value();
                                 }
                                 // Validate the date and get
                                 // the correct date format
@@ -427,6 +439,22 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                         sourceValue = Convert.ToDateTime(Convert.ToDateTime(sourceValue.ToString()));
                                     else
                                         sourceValue = Convert.ToDateTime(DateTime.FromOADate(Convert.ToDouble(sourceValue.ToString())));
+                                }
+                                //Check when a payment cancel period is provider
+                                //that it is in the correct format.
+                                if (property.Name == "PaymentCancelPeriod")
+                                {
+                                    try
+                                    {
+                                        int year = Convert.ToInt32(sourceValue.ToString().Substring(0,4));
+                                        int month = Convert.ToInt32(sourceValue.ToString().Substring(5, 2));
+                                        sourceValue = $"{sourceValue.ToString().Substring(0, 4)}/{sourceValue.ToString().Substring(5, 2)}";
+                                    }
+                                    catch
+                                    {
+                                        errorMessage = "Error: Payment cancel should be in format yyyy/mm (2050/09). ";
+                                        return false;
+                                    }
                                 }
 
                                 // Set the default values
@@ -447,10 +475,14 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                 }
                                 else if (property.PropertyType == typeof(System.DateTime))
                                 {
+                                    //Excel date format convertion
                                     try
                                     { sourceValue = Convert.ToDateTime(DateTime.FromOADate(Convert.ToDouble(sourceValue.ToString()))); }
-                                    catch
+                                    catch { }
+                                    try
                                     { sourceValue = Convert.ToDateTime(Convert.ToDateTime(sourceValue.ToString())); }
+                                    catch
+                                    { return false; }
                                 }
                                 else if (property.PropertyType == typeof(System.Guid))
                                     sourceValue = new Guid(sourceValue.ToString());
@@ -468,17 +500,23 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                     sourceValue = Convert.ChangeType(sourceValue, property.PropertyType);
 
                                 // Set the value of the property with the value from the db
-                                property.SetValue(contractToImport, sourceValue);
+                                property.SetValue(contractToUpdate, sourceValue);
                             }
                         }
 
                         if (dataChanged)
                         {
+                            errorMessage = "Logging error please try the update again if error persist contact the development team.";
                             // Add the data activity log
                             result = _activityLogger.CreateDataChangeAudits<Contract>(_dataActivityHelper.GetDataChangeActivities<Contract>(existingContract,
-                                                                                                                                            contractToImport,
+                                                                                                                                            contractToUpdate,
                                                                                                                                             db.Clients.Where(p => p.PrimaryCellNumber == searchCriteria).FirstOrDefault().fkContractID,
                                                                                                                                             db));
+                            // Update the clients status if changed
+                            result = _activityLogger.CreateDataChangeAudits<Client>(_dataActivityHelper.GetDataChangeActivities<Client>(existingClient,
+                                                                                                                                        clientToUpdate,
+                                                                                                                                        clientToUpdate.fkContractID,
+                                                                                                                                        db));
                             db.SaveChanges();
                             tc.Complete();
                         }
@@ -488,7 +526,6 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             }
             catch (Exception ex)
             {
-                errorMessage = searchCriteria + ", " + errorHelp + ": " + ex.Message;
                 return false;
             }
         }

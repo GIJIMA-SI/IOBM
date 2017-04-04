@@ -177,11 +177,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                         p.fkStatusID != reAllocatedStatusID &&
                                         p.IsActive == true))
                         {
-                            _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                    .Publish(new ApplicationMessage("DevicesModel",
-                                                                    "The device is still allocated to another client.",
-                                                                    "CreateDevice",
-                                                                    ApplicationMessage.MessageTypes.Information));
+                            errorMessage = "The device is still allocated to another client.";
                             return false;
                         }
                     }
@@ -210,12 +206,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             }
             catch (Exception ex)
             {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                    .Publish(new ApplicationMessage(this.GetType().Name,
-                                             string.Format("Error! {0}, {1}.",
-                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                             MethodBase.GetCurrentMethod().Name,
-                                             ApplicationMessage.MessageTypes.SystemError));
+                errorMessage = ex.Message;
                 return false;
             }
         }
@@ -309,6 +300,10 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                             if (mustImport)
                             {
+                                //If an error occur it will tell in what column what value
+                                errorMessage = $"Error column '{sourceProperty.ToString()}' with " +
+                                    $"value '{sourceValue.ToString()}' ";
+
                                 // Validate the source status and get
                                 // the value for the fkStatusID
                                 if (property.Name == "fkStatusID")
@@ -402,7 +397,8 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                         if (dataChanged)
                         {
-                            CreateDevice(deviceToImport, db, ref errorMessage);
+                            if (!CreateDevice(deviceToImport, db, ref errorMessage))
+                                return false;
                             // Add the data activity log
                             //result = _activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<SimCard>(existingSimCard, simCardToImport, simCardToImport.fkContractID.Value, db));
 
@@ -411,14 +407,180 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         }
                     }
                 }
-                if (errorMessage == string.Empty)
-                    return true;
-                else
-                    return false;
+                return true;
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
+                return false;
+            }
+        }
+
+       /// <summary>
+       /// Update devices in system update
+       /// </summary>
+       /// <param name="searchCriteria"></param>
+       /// <param name="mappedProperties"></param>
+       /// <param name="importValues"></param>
+       /// <param name="enSelectedEntity"></param>
+       /// <param name="errorMessage"></param>
+       /// <returns></returns>
+        public bool UpdateDeviceUpdate(string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, short enSelectedEntity, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            string[] importProperties = null;
+            string sourceProperty = string.Empty;
+            object sourceValue = null;
+            Device existingDevice = null;
+            Device deviceToUpdate = null;
+            bool mustUpdate = false;
+            bool dataChanged = false;
+            bool result = false;
+
+            try
+            {
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    existingDevice = db.Devices.Where(p => p.fkContractID == db.Contracts.Where(x => x.CellNumber == searchCriteria).FirstOrDefault().pkContractID).FirstOrDefault();
+
+                    if (existingDevice == null)
+                    {
+                        errorMessage = string.Format("Device not found on cell number {0}.", searchCriteria);
+                        return false;
+                    }
+                }
+
+                using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
+                {
+
+                    using (var db = MobileManagerEntities.GetContext())
+                    {
+                        deviceToUpdate = db.Devices.Where(p => p.fkContractID == db.Contracts.Where(x => x.CellNumber == searchCriteria).FirstOrDefault().pkContractID).FirstOrDefault();
+
+
+                        // Get the sql table structure of the entity
+                        PropertyDescriptor[] properties = EDMHelper.GetEntityStructure<Device>();
+
+                        foreach (PropertyDescriptor property in properties)
+                        {
+                            mustUpdate = false;
+
+                            // Get the source property and source value 
+                            // mapped the device entity property
+                            foreach (string mappedProperty in mappedProperties)
+                            {
+                                string[] arrMappedProperty = mappedProperty.Split('=');
+                                string propertyName = new DataUpdatePropertyModel(_eventAggregator).GetPropertyName(arrMappedProperty[1].Trim(), enSelectedEntity);
+                                if (propertyName == property.Name)
+                                {
+                                    importProperties = mappedProperty.Split('=');
+                                    sourceProperty = importProperties[0].Trim();
+                                    sourceValue = importValues[sourceProperty];
+                                    dataChanged = mustUpdate = true;
+                                    break;
+                                }
+                            }
+
+                            // Always update these values
+                            if (dataChanged && (property.Name == "ModifiedBy" || property.Name == "ModifiedDate" || property.Name == "IsActive"))
+                                mustUpdate = true;
+
+                            if (mustUpdate)
+                            {
+                                //If an error occur it will tell in what column what value
+                                errorMessage = $"Error column '{sourceProperty.ToString()}' with value '{sourceValue.ToString()}' ";
+
+                                // Validate the source status and get
+                                // the value for the fkStatusID
+                                if (property.Name == "fkStatusID")
+                                {
+                                    Status status = db.Status.Where(p => p.StatusDescription.ToUpper() == sourceValue.ToString().ToUpper()).FirstOrDefault();
+
+                                    if (status == null)
+                                    {
+                                        errorMessage = $"Status {sourceValue.ToString()} not found.";
+                                        return false;
+                                    }
+
+                                    sourceValue = status.pkStatusID;
+                                }
+
+                                // Validate the source device make and get
+                                // the value for the fkDeviceMakeID
+                                if (property.Name == "fkDeviceMakeID")
+                                {
+                                    ServiceProvider serviceProvider = db.ServiceProviders.Where(p => p.ServiceProviderName.ToUpper() == sourceValue.ToString().ToUpper()).FirstOrDefault();
+
+                                    if (serviceProvider == null)
+                                    {
+                                        errorMessage = $"Service provider {sourceValue.ToString()} not found.";
+                                        return false;
+                                    }
+
+                                    sourceValue = serviceProvider.pkServiceProviderID;
+                                }
+
+                                // Validate the source package type and get
+                                // the value for the enPackageType
+                                if (property.Name == "enPackageType")
+                                {
+                                    int packageType = -1;
+                                    packageType = EnumHelper.GetEnumFromDescription<PackageType>(sourceValue.ToString().ToUpper()).Value();
+
+                                    if (packageType == -1)
+                                    {
+                                        errorMessage = $"Package type {sourceValue.ToString()} not found.";
+                                        return false;
+                                    }
+                                    sourceValue = packageType.ToString(); ;
+                                }
+
+                                // Set the default values
+                                if (property.Name == "ModifiedBy")
+                                    sourceValue = SecurityHelper.LoggedInFullName;
+                                if (property.Name == "ModifiedDate")
+                                    sourceValue = DateTime.Now;
+                                if (property.Name == "IsActive")
+                                    sourceValue = true;
+
+                                // Convert the db type into the type of the property in our entity
+                                if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                                    sourceValue = Convert.ChangeType(sourceValue, property.PropertyType.GetGenericArguments()[0]);
+                                else if (property.PropertyType == typeof(System.Guid))
+                                    sourceValue = new Guid(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Byte[]))
+                                    sourceValue = Convert.FromBase64String(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.DateTime))
+                                    sourceValue = Convert.ToDateTime(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Boolean))
+                                    sourceValue = Convert.ToBoolean(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Int32))
+                                    sourceValue = Convert.ToInt32(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Decimal))
+                                    sourceValue = Convert.ToDecimal(sourceValue.ToString());
+                                else
+                                    sourceValue = Convert.ChangeType(sourceValue, property.PropertyType);
+
+                                // Set the value of the property with the value from the db
+                                property.SetValue(deviceToUpdate, existingDevice);
+                            }
+                        }
+
+                        if (dataChanged)
+                        {
+                            // Add the data activity log
+                            //result = _activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<SimCard>(existingSimCard, packageToUpdate, packageToUpdate, db));
+
+                            db.SaveChanges();
+                            tc.Complete();
+                            result = true;
+                        }
+                    }
+                }
+
+                return result;
+            }
+            catch
+            {
                 return false;
             }
         }

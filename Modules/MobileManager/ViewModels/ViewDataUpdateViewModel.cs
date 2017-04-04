@@ -1,5 +1,4 @@
 ﻿using Gijima.IOBM.Infrastructure.Events;
-using Gijima.IOBM.MobileManager.Model.Data;
 using Gijima.IOBM.MobileManager.Model.Models;
 using Gijima.IOBM.MobileManager.Security;
 using Prism.Commands;
@@ -39,6 +38,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         public DelegateCommand UpdateCommand { get; set; }
         public DelegateCommand MapCommand { get; set; }
         public DelegateCommand UnMapCommand { get; set; }
+        public DelegateCommand ExportCommand { get; set; }
 
         #endregion
 
@@ -244,7 +244,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     {
                         if (new DataUpdatePropertyModel(_eventAggregator).HasMultipleProperty(column, EnumHelper.GetEnumFromDescription<DataUpdateEntity>(value).Value()))
                         {
-                            MultipleEntriesColection.Add(new MultipleEntry(column));
+                            MultipleEntriesColection.Add(new MultipleEntry(column, false));
                         }
                     }
                 }
@@ -527,7 +527,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Initialise all the view dependencies
         /// </summary>
-        private async void InitialiseDataUpdateView()
+        private void InitialiseDataUpdateView()
         {
             InitialiseViewControls();
 
@@ -537,6 +537,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             MapCommand = new DelegateCommand(ExecuteMap, CanMap).ObservesProperty(() => SelectedSourceProperty)
                                                                 .ObservesProperty(() => SelectedDestinationProperty);
             UnMapCommand = new DelegateCommand(ExecuteUnMap, CanUnMap).ObservesProperty(() => SelectedMappedProperty);
+            ExportCommand = new DelegateCommand(ExecuteExport, CanExecuteExport).ObservesProperty(() => ExceptionsCollection);
 
             // Load the view data
             ReadDataUpdateRulesAsync();
@@ -565,7 +566,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// </summary>
         private void InitialiseUpdateControls()
         {
-            UpdateUpdateDescription = string.Format("Updateing - {0} of {1}", 0, 0);
+            UpdateUpdateDescription = string.Format("Updating - {0} of {1}", 0, 0);
             UpdateUpdateCount = 1;
             UpdateUpdateProgress = UpdateUpdatesPassed = UpdateUpdatesFailed = 0;
             ValidUpdateData = false;
@@ -602,14 +603,14 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     // Update the worksheet data
                     sheetData = _officeHelper.ReadSheetDataIntoDataTable(SelectedDataSheet.WorkBookName, SelectedDataSheet.SheetName);
 
-                    // This is to fake the progress bar for updateing
+                    // This is to fake the progress bar for updating
                     for (int i = 1; i <= SelectedDataSheet.RowCount; i++)
                     {
                         Application.Current.Dispatcher.Invoke(() =>
                         {
                             UpdateUpdateProgress = i;
                             UpdateUpdatesPassed = i;
-                            UpdateUpdateDescription = string.Format("Updateing - {0} of {1}", UpdateUpdateProgress, SelectedDataSheet.RowCount);
+                            UpdateUpdateDescription = string.Format("Updating - {0} of {1}", UpdateUpdateProgress, SelectedDataSheet.RowCount);
 
                             if (i % 2 == 0)
                                 Thread.Sleep(1);
@@ -774,6 +775,56 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
 
         /// <summary>
+        /// Check if the ExportToExcel button may be enabled
+        /// </summary>
+        /// <returns></returns>
+        public bool CanExecuteExport()
+        {
+            return ExceptionsCollection != null && ExceptionsCollection.Count() > 0 ? true : false;
+        }
+
+        /// <summary>
+        /// Execute when the export to excel command button is clicked 
+        /// </summary>
+        private void ExecuteExport()
+        {
+            try
+            {
+                System.Windows.Forms.FolderBrowserDialog dialog = new System.Windows.Forms.FolderBrowserDialog();
+                //dialog.RootFolder = Environment.SpecialFolder.MyDocuments;
+                dialog.ShowNewFolderButton = true;
+                System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+
+                if (result.ToString() == "OK")
+                {
+                    MSOfficeHelper officeHelper = new MSOfficeHelper();
+                    string fileName = string.Format("{0}\\Data Update Errors - {1}.xlsx", dialog.SelectedPath, String.Format("{0:dd MMM yyyy HH.mm}", DateTime.Now));
+
+                    //Creates a temp datatable to collect the errors and export
+                    DataTable tempDataTable = new DataTable();
+                    tempDataTable.Columns.Add("Exception List");
+                    foreach (string myError in ExceptionsCollection)
+                    {
+                        tempDataTable.Rows.Add(myError);
+                    }
+
+                    officeHelper.ExportDataTableToExcel(tempDataTable, fileName);
+                }
+
+                MessageBox.Show("Results exported successfully!", "Saved", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
+
+        /// <summary>
         /// Execute when the Map command button is clicked 
         /// </summary>
         private void ExecuteMap()
@@ -862,6 +913,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
+                //Clear the previous error list
+                ExceptionsCollection = new ObservableCollection<string>();
+
                 UpdateUpdateDescription = string.Format("Updating {0} - {1} of {2}", "", 0, 0);
                 UpdateUpdateProgress = UpdateUpdatesPassed = UpdateUpdatesFailed = 0;
                 UpdateUpdateCount = UpdateDataCollection.Rows.Count;
@@ -871,7 +925,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 int rowIdx = 1;
 
                 // Convert enum description back to the enum
-                SearchEntity searchEntity = ((SearchEntity)Enum.Parse(typeof(SearchEntity), SelectedDestinationSearch));
+                SearchEntity searchEntity = ((SearchEntity)Enum.Parse(typeof(SearchEntity), SelectedDestinationSearch.Replace(" ", "")));
 
                 foreach (DataRow row in UpdateDataCollection.Rows)
                 {
@@ -895,10 +949,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                                                                    EnumHelper.GetEnumFromDescription<DataUpdateEntity>(SelectedDestinationEntity).Value(),
                                                                                                                    out errorMessage)); break;
                         case DataUpdateEntity.Client:
-                            result = await Task.Run(() => new SimCardModel(_eventAggregator).CreateSimCardImport(searchCriteria,
+                            result = await Task.Run(() => new ClientModel(_eventAggregator).UpdateClientUpdate(searchCriteria,
                                                                                                                  MappedPropertyCollection,
                                                                                                                  row,
                                                                                                                  EnumHelper.GetEnumFromDescription<DataUpdateEntity>(SelectedDestinationEntity).Value(),
+                                                                                                                 SelectedDestinationSearch,
                                                                                                                  out errorMessage)); break;
                         case DataUpdateEntity.SimCard:
                             result = await Task.Run(() => new SimCardModel(_eventAggregator).CreateSimCardImport(searchCriteria,
@@ -906,6 +961,18 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                                                                  row,
                                                                                                                  EnumHelper.GetEnumFromDescription<DataUpdateEntity>(SelectedDestinationEntity).Value(),
                                                                                                                  out errorMessage)); break;
+                        case DataUpdateEntity.Package:
+                            result = await Task.Run(() => new PackageModel(_eventAggregator).UpdatePackageUpdate(searchCriteria,
+                                                                                                                 MappedPropertyCollection,
+                                                                                                                 row,
+                                                                                                                 EnumHelper.GetEnumFromDescription<DataUpdateEntity>(SelectedDestinationEntity).Value(),
+                                                                                                                 out errorMessage)); break;
+                        case DataUpdateEntity.Device:
+                            result = await Task.Run(() => new DevicesModel(_eventAggregator).UpdateDeviceUpdate(searchCriteria,
+                                                                                                                MappedPropertyCollection,
+                                                                                                                row,
+                                                                                                                EnumHelper.GetEnumFromDescription<DataUpdateEntity>(SelectedDestinationEntity).Value(),
+                                                                                                                out errorMessage)); break;
                     }
 
                     if (result)
@@ -914,11 +981,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     }
                     else
                     {
-                        if (ExceptionsCollection == null)
-                            ExceptionsCollection = new ObservableCollection<string>();
+                        //Creates a tempCollection to update the collection so the export button can be notified
+                        ExceptionsCollection.Add(string.Format("{0} in datasheet {1} row {2}.", errorMessage, SelectedDataSheet.SheetName, rowIdx + 2));
+                        ObservableCollection<string> tempExceptionCollection = new ObservableCollection<string>(ExceptionsCollection);
+                        ExceptionsCollection = new ObservableCollection<string>(tempExceptionCollection);
 
                         ++UpdateUpdatesFailed;
-                        ExceptionsCollection.Add(string.Format("{0} in datasheet {1} row {2}.", errorMessage, SelectedDataSheet.SheetName, rowIdx + 2));
                     }
                 }
             }

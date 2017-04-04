@@ -64,6 +64,35 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         }
 
         /// <summary>
+        /// Return required properties as a DataImportProperty collection
+        /// </summary>
+        /// <param name="Enum"></param>
+        /// <returns></returns>
+        public ObservableCollection<DataImportProperty> GetPropertiesCollection(DataImportEntity Enum)
+        {
+            using (var db = MobileManagerEntities.GetContext())
+            {
+                int enEntity = Enum.Value();
+                ObservableCollection<DataImportProperty> properties = new ObservableCollection<DataImportProperty>();
+
+                //Create the default dataImportProperty
+                DataImportProperty dataImportPorperty = new DataImportProperty();
+                dataImportPorperty.enDataEntity = 0;
+                dataImportPorperty.PropertyDescription = _defaultItem;
+                dataImportPorperty.PropertyName = "";
+                dataImportPorperty.MultipleProperty = false;
+                dataImportPorperty.Required = false;
+
+                properties.Add(dataImportPorperty);
+                foreach (DataImportProperty property in db.DataImportProperties.Where(p => p.enDataEntity == enEntity).ToList())
+                {
+                    properties.Add(property);
+                }
+                return properties;
+            }
+        }
+
+        /// <summary>
         /// Return true if property can have multiple mappings
         /// </summary>
         /// <param name="Description"></param>
