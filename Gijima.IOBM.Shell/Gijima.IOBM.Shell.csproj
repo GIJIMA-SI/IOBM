@@ -32,7 +32,7 @@
     <ProductName>Mobile Manager</ProductName>
     <PublisherName>Gijima</PublisherName>
     <SuiteName>Integrated Operational Billing Manager</SuiteName>
-    <ApplicationRevision>60</ApplicationRevision>
+    <ApplicationRevision>61</ApplicationRevision>
     <ApplicationVersion>1.0.1.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
