@@ -25,6 +25,7 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public string DataValidationValue { get; set; }
         public string ModifiedBy { get; set; }
         public System.DateTime ModifiedDate { get; set; }
+        public string CalculationParameters { get; set; }
     
         public virtual DataValidationProperty DataValidationProperty { get; set; }
     }

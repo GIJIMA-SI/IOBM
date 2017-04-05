@@ -20,6 +20,7 @@ using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.Infrastructure.Helpers;
 using Gijima.IOBM.Infrastructure.Structs;
 using System.Reflection;
+using System.Windows.Controls;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
 {
@@ -39,6 +40,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         public DelegateCommand ImportCommand { get; set; }
         public DelegateCommand MapCommand { get; set; }
         public DelegateCommand UnMapCommand { get; set; }
+        public DelegateCommand ExportCommand { get; set; }
 
         #endregion
 
@@ -114,6 +116,17 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
         private ObservableCollection<string> _exceptionsCollection = null;
 
+        /// <summary>
+        /// Client/Data import existing clients 
+        /// to know what mapping to expect
+        /// </summary>
+        public bool ExistingClients
+        {
+            get { return _existingClients; }
+            set { SetProperty(ref _existingClients, value); }
+        }
+        private bool _existingClients = false;
+
         #region View Lookup Data Collections
 
         /// <summary>
@@ -159,12 +172,22 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// The collection of data columns to import to from the DataUpdateColumn enum
         /// </summary>
-        public ObservableCollection<string> DestinationColumnCollection
+        public ObservableCollection<DataImportProperty> DestinationColumnCollection
         {
             get { return _destinationColumnCollection; }
             set { SetProperty(ref _destinationColumnCollection, value); }
         }
-        private ObservableCollection<string> _destinationColumnCollection = null;
+        private ObservableCollection<DataImportProperty> _destinationColumnCollection = null;
+
+        /// <summary>
+        /// The collection of the data columns to import as a comboboxitem
+        /// </summary>
+        public ObservableCollection<ComboBoxItem> DestinationComboBoxItemCollection
+        {
+            get { return _destinationComboBoxItemCollection; }
+            set { SetProperty(ref _destinationComboBoxItemCollection, value); }
+        }
+        private ObservableCollection<ComboBoxItem> _destinationComboBoxItemCollection;
 
         /// <summary>
         /// The collection of data entities to import to from the DataUpdateEntities enum
@@ -189,12 +212,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Collection of columns that can be maped more than once
         /// </summary>
-        public ObservableCollection<MultipleEntry> MultipleEntriesColection
+        public ObservableCollection<MultipleEntry> MultipleEntriesCollection
         {
-            get { return _multipleEntriesColection; }
-            set { SetProperty(ref _multipleEntriesColection, value); }
+            get { return _multipleEntriesCollection; }
+            set { SetProperty(ref _multipleEntriesCollection, value); }
         }
-        private ObservableCollection<MultipleEntry> _multipleEntriesColection;
+        private ObservableCollection<MultipleEntry> _multipleEntriesCollection;
 
         #endregion
 
@@ -236,15 +259,23 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 DestinationSearchCollection = new ObservableCollection<string>();
                 if (value != null && value != _defaultItem)
                 {
-                    MultipleEntriesColection = new ObservableCollection<MultipleEntry>();
+                    //Ask if the users already exist within the system
+                    MessageBoxResult result;
+                    if (value == EnumHelper.GetDescriptionFromEnum(DataImportEntity.Client))
+                    {
+                        result = MessageBox.Show("Do the clients in the importing list already exist in the system?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                        ExistingClients = result == MessageBoxResult.Yes ? true : false; 
+                    }
+
+                    MultipleEntriesCollection = new ObservableCollection<MultipleEntry>();
                     ReadDataDestinationInfo();
 
                     //Add all the properties that can have multiple entires to the collection
-                    foreach (string column in DestinationColumnCollection)
+                    foreach (DataImportProperty dataImportProperty in DestinationColumnCollection)
                     {
-                        if (new DataImportPropertyModel(_eventAggregator).HasMultipleProperty(column, EnumHelper.GetEnumFromDescription<DataImportEntity>(value).Value()))
+                        if (dataImportProperty.MultipleProperty)
                         {
-                            MultipleEntriesColection.Add(new MultipleEntry(column));
+                            MultipleEntriesCollection.Add(new MultipleEntry(dataImportProperty.PropertyDescription, dataImportProperty.Required));
                         }
                     }
                 }
@@ -265,12 +296,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// The selected destination column to import to
         /// </summary>
-        public string SelectedDestinationProperty
+        public ComboBoxItem SelectedDestinationProperty
         {
             get { return _selectedDestinationProperty; }
             set { SetProperty(ref _selectedDestinationProperty, value); }
         }
-        private string _selectedDestinationProperty;
+        private ComboBoxItem _selectedDestinationProperty;
 
         /// <summary>
         /// The selected column to search on
@@ -289,24 +320,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     if (value != _defaultItem)
                     {
                         if (MappedPropertyCollection != null)
-                        {
-                            foreach (string property in MappedPropertyCollection)
-                            {
-                                string[] mappedProperties = property.Split('=');
-                                SourceColumnCollection.Add(mappedProperties[0].Trim());
-                                //Test the selected option for multiple entries
-                                if (new DataImportPropertyModel(_eventAggregator).HasMultipleProperty(mappedProperties[1].Trim(), EnumHelper.GetEnumFromDescription<DataImportEntity>(SelectedDestinationEntity).Value()))
-                                {  MultipleEntriesColection.Where(p => p.Name == mappedProperties[1].Trim()).FirstOrDefault().NumberMappings--; }
-                                else
-                                {  DestinationColumnCollection.Add(mappedProperties[1].Trim()); }
-
-                                SelectedMappedProperty = null;
-                                CanStartImport();
-                            }
                             MappedPropertyCollection.Clear();
-                        }
+
+                        SourceColumnCollection = new ObservableCollection<string>();
                         SourceColumnCollection = new ObservableCollection<string>(SourceSearchCollection);
-                        SourceColumnCollection.Remove(value);
+
+                        if (value != _defaultItem)
+                            SourceColumnCollection.Remove(value);
+
+                        SelectedDestinationSearch = SelectedDestinationSearch;
+
                     }
                 }
                 catch (Exception ex)
@@ -532,10 +555,11 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
             // Initialise the view commands
             OpenFileCommand = new DelegateCommand(ExecuteOpenFileCommand);
-            ImportCommand = new DelegateCommand(ExecuteUpdate);
+            ImportCommand = new DelegateCommand(ExecuteImport);
             MapCommand = new DelegateCommand(ExecuteMap, CanMap).ObservesProperty(() => SelectedSourceProperty)
                                                                 .ObservesProperty(() => SelectedDestinationProperty);
             UnMapCommand = new DelegateCommand(ExecuteUnMap, CanUnMap).ObservesProperty(() => SelectedMappedProperty);
+            ExportCommand = new DelegateCommand(ExecuteExport, CanExecuteExport).ObservesProperty(() => ExceptionsCollection);
 
             // Load the view data
             ReadDataUpdateRulesAsync();
@@ -646,22 +670,59 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             {
                 if (MappedPropertyCollection != null)
                 {
-                    //Test if all multiple entries is selcted
-                    bool mulitpleEntriesTest = true;
-                    if (MultipleEntriesColection.Count > 0)
+                    //Test if required fields are used
+                    bool allRequiredFields = true;
+                    if (DestinationComboBoxItemCollection.Count > 0)
                     {
-                        foreach (MultipleEntry multipleEntry in MultipleEntriesColection)
+                        foreach (ComboBoxItem comboBoxItem in DestinationComboBoxItemCollection)
                         {
-                            if (multipleEntry.NumberMappings == 0)
+                            if (DestinationColumnCollection.Where(p => p.PropertyDescription == comboBoxItem.Content.ToString()).FirstOrDefault().MultipleProperty)
                             {
-                                mulitpleEntriesTest = false;
+                                //Check if the existing clients option was used
+                                if (ExistingClients)
+                                {
+                                    if (MultipleEntriesCollection.Where(p => p.Name == comboBoxItem.Content.ToString()).FirstOrDefault().NumberMappings == 0 &&
+                                    MultipleEntriesCollection.Where(p => p.Name == comboBoxItem.Content.ToString()).FirstOrDefault().Required == true)
+                                    {
+                                        allRequiredFields = false;
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    if (MultipleEntriesCollection.Where(p => p.Name == comboBoxItem.Content.ToString()).FirstOrDefault().NumberMappings == 0 &&
+                                    MultipleEntriesCollection.Where(p => p.Name == comboBoxItem.Content.ToString()).FirstOrDefault().Required == true)
+                                    {
+                                        allRequiredFields = false;
+                                        break;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                //Check if the existing clients option was used
+                                if (ExistingClients)
+                                {
+                                    if (DestinationColumnCollection.Where(p => p.PropertyDescription == comboBoxItem.Content.ToString() && p.ExistingClientRequired == true).FirstOrDefault().Required)
+                                    {
+                                        allRequiredFields = false;
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    if (DestinationColumnCollection.Where(p => p.PropertyDescription == comboBoxItem.Content.ToString()).FirstOrDefault().Required)
+                                    {
+                                        allRequiredFields = false;
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
 
-                    CanImport = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem && DestinationColumnCollection.Count <= MultipleEntriesColection.Count + 1 && mulitpleEntriesTest ? true : false;
-                    ValidMapping = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem &&
-                           DestinationColumnCollection.Count <= MultipleEntriesColection.Count + 1 && mulitpleEntriesTest ? Brushes.Silver : Brushes.Red;
+                    CanImport = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem && allRequiredFields ? true : false;
+                    ValidMapping = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem && allRequiredFields ? Brushes.Silver : Brushes.Red;
                 }
             }
         }
@@ -680,7 +741,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 {
                     DestinationEntityCollection.Add(EnumHelper.GetDescriptionFromEnum(dataUpdateEntity));
                 }
-                
+
                 SelectedDestinationEntity = _defaultItem;
             }
             catch (Exception ex)
@@ -723,10 +784,31 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             DataImportEntity destinationEntity = EnumHelper.GetEnumFromDescription<DataImportEntity>(SelectedDestinationEntity);
 
             DestinationSearchCollection = new DataImportSearchPropertyModel(_eventAggregator).GetSearchProperties(destinationEntity);
-            DestinationColumnCollection = new DataImportPropertyModel(_eventAggregator).GetPropertiesDescription(destinationEntity);
+            DestinationColumnCollection = new DataImportPropertyModel(_eventAggregator).GetPropertiesCollection(destinationEntity);
+
+            //Creates a new collection of required fields
+            DestinationComboBoxItemCollection = new ObservableCollection<ComboBoxItem>();
+            foreach (DataImportProperty dataImportProperty in DestinationColumnCollection)
+            {
+                //Check client/contract detail if selected
+                if (ExistingClients)
+                {
+                    ComboBoxItem item = new ComboBoxItem();
+                    item.Content = dataImportProperty.PropertyDescription;
+                    item.Foreground = dataImportProperty.Required == true && dataImportProperty.ExistingClientRequired == true ? Brushes.Red : Brushes.Black;
+                    DestinationComboBoxItemCollection.Add(item);
+                }
+                else
+                {
+                    ComboBoxItem item = new ComboBoxItem();
+                    item.Content = dataImportProperty.PropertyDescription;
+                    item.Foreground = dataImportProperty.Required == true ? Brushes.Red : Brushes.Black;
+                    DestinationComboBoxItemCollection.Add(item);
+                }
+            }
 
             SelectedDestinationSearch = _defaultItem;
-            SelectedDestinationProperty = _defaultItem;
+            SelectedDestinationProperty = DestinationComboBoxItemCollection.Where(p => p.Content.ToString() == _defaultItem).FirstOrDefault();
         }
 
         #endregion
@@ -782,7 +864,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private bool CanMap()
         {
             return SelectedSourceProperty != null && SelectedSourceProperty != _defaultItem &&
-                   SelectedDestinationProperty != null && SelectedDestinationProperty != _defaultItem;
+                   SelectedDestinationProperty != null && SelectedDestinationProperty.Content.ToString() != _defaultItem;
         }
 
         /// <summary>
@@ -795,21 +877,22 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 if (MappedPropertyCollection == null)
                     MappedPropertyCollection = new ObservableCollection<string>();
 
-                SelectedMappedProperty = string.Format("{0} = {1}", SelectedSourceProperty, SelectedDestinationProperty);
+                SelectedMappedProperty = string.Format("{0} = {1}", SelectedSourceProperty, SelectedDestinationProperty.Content.ToString());
                 MappedPropertyCollection.Add(SelectedMappedProperty);
                 SourceColumnCollection.Remove(SelectedSourceProperty);
 
                 //Test if the item selected my have multiple mappings
-                if (new DataImportPropertyModel(_eventAggregator).HasMultipleProperty(SelectedDestinationProperty, EnumHelper.GetEnumFromDescription<DataImportEntity>(SelectedDestinationEntity).Value()))
+                if (DestinationColumnCollection.Where(p => p.PropertyDescription == SelectedDestinationProperty.Content.ToString()).FirstOrDefault().MultipleProperty)
                 {
-                    MultipleEntriesColection.Where(p => p.Name == SelectedDestinationProperty).FirstOrDefault().NumberMappings++;
+                    MultipleEntriesCollection.Where(p => p.Name == SelectedDestinationProperty.Content.ToString()).FirstOrDefault().NumberMappings++;
                 }
                 else
                 {
-                    DestinationColumnCollection.Remove(SelectedDestinationProperty);
+                    DestinationComboBoxItemCollection.Remove(SelectedDestinationProperty);
                 }
 
-                SelectedSourceProperty = SelectedDestinationProperty = _defaultItem;
+                //SelectedSourceProperty = _defaultItem;
+                //SelectedDestinationProperty = DestinationComboBoxItemCollection.Where(p => p.Content.ToString() == _defaultItem).FirstOrDefault();
                 CanStartImport();
             }
             catch (Exception ex)
@@ -833,6 +916,56 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
 
         /// <summary>
+        /// Check if the ExportToExcel button may be enabled
+        /// </summary>
+        /// <returns></returns>
+        public bool CanExecuteExport()
+        {
+            return ExceptionsCollection != null && ExceptionsCollection.Count() > 0 ? true : false;
+        }
+
+        /// <summary>
+        /// Execute when the export to excel command button is clicked 
+        /// </summary>
+        private void ExecuteExport()
+        {
+            try
+            {
+                System.Windows.Forms.FolderBrowserDialog dialog = new System.Windows.Forms.FolderBrowserDialog();
+                //dialog.RootFolder = Environment.SpecialFolder.MyDocuments;
+                dialog.ShowNewFolderButton = true;
+                System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+
+                if (result.ToString() == "OK")
+                {
+                    MSOfficeHelper officeHelper = new MSOfficeHelper();
+                    string fileName = string.Format("{0}\\Data Update Errors - {1}.xlsx", dialog.SelectedPath, String.Format("{0:dd MMM yyyy HH.mm}", DateTime.Now));
+
+                    //Creates a temp datatable to collect the errors and export
+                    DataTable tempDataTable = new DataTable();
+                    tempDataTable.Columns.Add("Exception List");
+                    foreach (string myError in ExceptionsCollection)
+                    {
+                        tempDataTable.Rows.Add(myError);
+                    }
+
+                    officeHelper.ExportDataTableToExcel(tempDataTable, fileName);
+                }
+
+                MessageBox.Show("Results exported successfully!", "Saved", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                    .Publish(new ApplicationMessage(this.GetType().Name,
+                                             string.Format("Error! {0}, {1}.",
+                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                             MethodBase.GetCurrentMethod().Name,
+                                             ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
+
+        /// <summary>
         /// Execute when the UnMap command button is clicked 
         /// </summary>
         private void ExecuteUnMap()
@@ -845,13 +978,17 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 SelectedMappedProperty = null;
 
                 //Test the selected option for multiple entries
-                if (new DataImportPropertyModel(_eventAggregator).HasMultipleProperty(mappedProperties[1].Trim(), EnumHelper.GetEnumFromDescription<DataImportEntity>(SelectedDestinationEntity).Value()))
+                if (DestinationColumnCollection.Where(p => p.PropertyDescription == mappedProperties[1].Trim()).FirstOrDefault().MultipleProperty)
                 {
-                    MultipleEntriesColection.Where(p => p.Name == mappedProperties[1].Trim()).FirstOrDefault().NumberMappings--;
+                    MultipleEntriesCollection.Where(p => p.Name == mappedProperties[1].Trim()).FirstOrDefault().NumberMappings--;
                 }
                 else
                 {
-                    DestinationColumnCollection.Add(mappedProperties[1].Trim());
+                    //Create a new combox item to add mapped item
+                    ComboBoxItem item = new ComboBoxItem();
+                    item.Content = mappedProperties[1].Trim();
+                    item.Foreground = DestinationColumnCollection.Where(p => p.PropertyDescription == mappedProperties[1].Trim()).FirstOrDefault().Required == true ? Brushes.Red : Brushes.Black;
+                    DestinationComboBoxItemCollection.Add(item);
                 }
                 CanStartImport();
             }
@@ -869,10 +1006,13 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Execute when the start command button is clicked 
         /// </summary>
-        private async void ExecuteUpdate()
+        private async void ExecuteImport()
         {
             try
             {
+                //Clear the previous error list
+                ExceptionsCollection = new ObservableCollection<string>();
+
                 ImportUpdateDescription = string.Format("Importing {0} - {1} of {2}", "", 0, 0);
                 ImportUpdateProgress = ImportUpdatesPassed = ImportUpdatesFailed = 0;
                 ImportUpdateCount = ImportedDataCollection.Rows.Count;
@@ -882,7 +1022,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 int rowIdx = 1;
 
                 // Convert enum description back to the enum
-                SearchEntity searchEntity = ((SearchEntity)Enum.Parse(typeof(SearchEntity), SelectedDestinationSearch));
+                //SearchEntity searchEntity = ((SearchEntity)Enum.Parse(typeof(SearchEntity), SelectedDestinationSearch.Replace(" ","")));
 
                 foreach (DataRow row in ImportedDataCollection.Rows)
                 {
@@ -905,6 +1045,18 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                                                                  row,
                                                                                                                  EnumHelper.GetEnumFromDescription<DataImportEntity>(SelectedDestinationEntity).Value(),
                                                                                                                  out errorMessage)); break;
+                        case DataImportEntity.Client:
+                            result = await Task.Run(() => new SimCardModel(_eventAggregator).CreateSimCardImport(searchCriteria,
+                                                                                                                 MappedPropertyCollection,
+                                                                                                                 row,
+                                                                                                                 EnumHelper.GetEnumFromDescription<DataImportEntity>(SelectedDestinationEntity).Value(),
+                                                                                                                 out errorMessage)); break;
+                        case DataImportEntity.ClientBilling:
+                            result = await Task.Run(() => new ClientBillingModel(_eventAggregator).CreateBillingImport(searchCriteria,
+                                                                                                                 MappedPropertyCollection,
+                                                                                                                 row,
+                                                                                                                 EnumHelper.GetEnumFromDescription<DataImportEntity>(SelectedDestinationEntity).Value(),
+                                                                                                                 out errorMessage)); break;
                     }
 
                     if (result)
@@ -913,11 +1065,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     }
                     else
                     {
-                        if (ExceptionsCollection == null)
-                            ExceptionsCollection = new ObservableCollection<string>();
+                        //Creates a tempCollection to update the collection so the export button can be notified
+                        ExceptionsCollection.Add(string.Format("{0} in datasheet {1} row {2}.", errorMessage, SelectedDataSheet.SheetName, rowIdx + 2));
+                        ObservableCollection<string> tempExceptionCollection = new ObservableCollection<string>(ExceptionsCollection);
+                        ExceptionsCollection = new ObservableCollection<string>(tempExceptionCollection);
 
                         ++ImportUpdatesFailed;
-                        ExceptionsCollection.Add(string.Format("{0} in datasheet {1} row {2}.", errorMessage, SelectedDataSheet.SheetName, rowIdx + 2));
                     }
                 }
             }
@@ -952,21 +1105,34 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { _name = value; }
         }
         private string _name;
-
+        /// <summary>
+        /// Number of times mapping used
+        /// To know when enable disable imprt button
+        /// </summary>
         public short NumberMappings
         {
             get { return _numberMappings; }
             set { _numberMappings = value; }
         }
         private short _numberMappings;
+        /// <summary>
+        /// If the field is required
+        /// </summary>
+        public bool Required
+        {
+            get { return _required; }
+            set { _required = value; }
+        }
+        private bool _required;
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public MultipleEntry(string Name)
+        public MultipleEntry(string Name, bool Required)
         {
             this.Name = Name;
             NumberMappings = 0;
+            this.Required = Required;
         }
     }
 }

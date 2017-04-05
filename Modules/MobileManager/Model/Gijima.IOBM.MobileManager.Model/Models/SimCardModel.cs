@@ -175,12 +175,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             }
             catch (Exception ex)
             {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                    .Publish(new ApplicationMessage(this.GetType().Name,
-                                             string.Format("Error! {0}, {1}.",
-                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                             MethodBase.GetCurrentMethod().Name,
-                                             ApplicationMessage.MessageTypes.SystemError));
+                errorMessage = ex.Message;
                 return false;
             }
         }
@@ -565,7 +560,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             bool mustImport = false;
             bool dataChanged = false;
             bool state = true;
-
+            
             try
             {
                 using (var db = MobileManagerEntities.GetContext())
@@ -620,6 +615,9 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                             if (mustImport)
                             {
+                                //If an error occur it will tell in what column what value
+                                errorMessage = $"Error column '{sourceProperty.ToString()}' with value '{sourceValue.ToString()}' ";
+
                                 // Validate the source status and get
                                 // the value for the fkStatusID
                                 if (property.Name == "fkStatusID")
@@ -681,7 +679,8 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                         if (dataChanged)
                         {
-                            CreateSimCard(simCardToImport, db, ref errorMessage);
+                            if (!CreateSimCard(simCardToImport, db, ref errorMessage))
+                                return false;
                             // Add the data activity log
                             //result = _activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<SimCard>(existingSimCard, simCardToImport, simCardToImport.fkContractID.Value, db));
 
@@ -690,19 +689,10 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         }
                     }
                 }
-                if (errorMessage == string.Empty)
-                    return true;
-                else
-                    return false;
+                return true;
             }
             catch (Exception ex)
             {
-                _eventAggregator.GetEvent<ApplicationMessageEvent>()
-                                    .Publish(new ApplicationMessage(this.GetType().Name,
-                                             string.Format("Error! {0}, {1}.",
-                                             ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
-                                             MethodBase.GetCurrentMethod().Name,
-                                             ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }
         }

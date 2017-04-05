@@ -41,6 +41,7 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public virtual DbSet<DataImportRule> DataImportRules { get; set; }
         public virtual DbSet<DataUpdateRule> DataUpdateRules { get; set; }
         public virtual DbSet<DataValidationProperty> DataValidationProperties { get; set; }
+        public virtual DbSet<DataValidationRule> DataValidationRules { get; set; }
         public virtual DbSet<DeviceMake> DeviceMakes { get; set; }
         public virtual DbSet<DeviceModel> DeviceModels { get; set; }
         public virtual DbSet<Invoice> Invoices { get; set; }
@@ -66,13 +67,12 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public virtual DbSet<Device> Devices { get; set; }
         public virtual DbSet<SimCard> SimCards { get; set; }
         public virtual DbSet<DataImportSearchProperty> DataImportSearchProperties { get; set; }
-        public virtual DbSet<DataImportProperty> DataImportProperties { get; set; }
         public virtual DbSet<DataUpdateProperty> DataUpdateProperties { get; set; }
         public virtual DbSet<DataUpdateSearchProperty> DataUpdateSearchProperties { get; set; }
         public virtual DbSet<AdvancedSearchMap> AdvancedSearchMaps { get; set; }
         public virtual DbSet<AdvancedSearchField> AdvancedSearchFields { get; set; }
         public virtual DbSet<ExternalBillingData> ExternalBillingDatas { get; set; }
-        public virtual DbSet<DataValidationRule> DataValidationRules { get; set; }
+        public virtual DbSet<DataImportProperty> DataImportProperties { get; set; }
     
         public virtual ObjectResult<sp_report_Invoice_Result> sp_report_Invoice(Nullable<int> invoiceID)
         {

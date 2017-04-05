@@ -20,5 +20,6 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public string PropertyName { get; set; }
         public bool MultipleProperty { get; set; }
         public bool Required { get; set; }
+        public bool ExistingClientRequired { get; set; }
     }
 }

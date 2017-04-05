@@ -178,7 +178,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             PackageSetup packageSetupToImport = null;
             bool mustUpdate = false;
             bool dataChanged = false;
-            bool result = false;
+            bool result = true;
             bool state = true;
             string errorHelp = "";
 

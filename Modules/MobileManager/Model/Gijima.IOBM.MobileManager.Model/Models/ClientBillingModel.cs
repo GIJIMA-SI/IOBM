@@ -172,7 +172,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             string sourceProperty = string.Empty;
             object sourceValue = null;
             ClientBilling existingClientBilling = null;
-            ClientBilling clientBillingToImport = null;
+            ClientBilling clientBillingToUpdate = null;
             bool mustUpdate = false;
             bool dataChanged = false;
             bool result = false;
@@ -200,7 +200,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                     using (var db = MobileManagerEntities.GetContext())
                     {
-                        clientBillingToImport = db.ClientBillings.Where(p => p.pkClientBillingID == existingClientBilling.pkClientBillingID).FirstOrDefault();
+                        clientBillingToUpdate = db.ClientBillings.Where(p => p.pkClientBillingID == existingClientBilling.pkClientBillingID).FirstOrDefault();
                         
                         // Get the sql table structure of the entity
                         PropertyDescriptor[] properties = EDMHelper.GetEntityStructure<ClientBilling>();
@@ -231,6 +231,157 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                             if (mustUpdate)
                             {
+                                //If an error occur it will tell in what column what value
+                                errorMessage = $"Error column '{sourceProperty.ToString()}' with value '{sourceValue.ToString()}' ";
+
+                                // Validate the source billing level and get
+                                // the value for the fkCompanyBillingLevelID
+                                if (property.Name == "fkCompanyBillingLevelID")
+                                {
+                                    BillingLevel billingLevel = db.BillingLevels.Where(p => p.LevelDescription.ToUpper() == sourceValue.ToString().ToUpper().Trim()).FirstOrDefault();
+
+                                    if (billingLevel == null)
+                                        sourceValue = null;
+                                    else
+                                        sourceValue = billingLevel.pkBillingLevelID;
+                                }
+
+                                // Set the default values
+                                if (property.Name == "ModifiedBy")
+                                    sourceValue = SecurityHelper.LoggedInFullName;
+                                if (property.Name == "ModifiedDate")
+                                    sourceValue = DateTime.Now;
+                                if (property.Name == "IsActive")
+                                    sourceValue = state;
+
+                                // Convert the db type into the type of the property in our entity
+                                if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                                {
+                                    try
+                                    { sourceValue = Convert.ChangeType(sourceValue, property.PropertyType.GetGenericArguments()[0]); }
+                                    catch
+                                    { sourceValue = null; }
+                                }
+                                else if (property.PropertyType == typeof(System.Guid))
+                                    sourceValue = new Guid(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Byte[]))
+                                    sourceValue = Convert.FromBase64String(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.DateTime))
+                                {
+                                    try
+                                    { sourceValue = Convert.ToDateTime(DateTime.FromOADate(Convert.ToDouble(sourceValue.ToString()))); }
+                                    catch
+                                    { sourceValue = Convert.ToDateTime(Convert.ToDateTime(sourceValue.ToString())); }
+                                }
+                                else if (property.PropertyType == typeof(System.Boolean))
+                                {
+                                    try
+                                    { sourceValue = Convert.ToBoolean(Convert.ToInt32(sourceValue.ToString())); }
+                                    catch { sourceValue = Convert.ToBoolean(sourceValue.ToString()); }
+                                }
+                                else if (property.PropertyType == typeof(System.Int32))
+                                    sourceValue = Convert.ToInt32(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Decimal))
+                                    sourceValue = Convert.ToDecimal(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Double))
+                                    sourceValue = Convert.ToDouble(sourceValue.ToString());
+                                else
+                                    sourceValue = Convert.ChangeType(sourceValue, property.PropertyType);
+
+                                // Set the value of the property with the value from the db
+                                property.SetValue(clientBillingToUpdate, sourceValue);
+                            }
+                        }
+
+                        if (dataChanged)
+                        {
+                            // Add the data activity log
+                            result = _activityLogger.CreateDataChangeAudits<ClientBilling>(_dataActivityHelper.GetDataChangeActivities<ClientBilling>(existingClientBilling,
+                                                                                                                                                      clientBillingToUpdate,
+                                                                                                                                                      db.Clients.Where(p => p.PrimaryCellNumber == searchCriteria).FirstOrDefault().fkContractID,
+                                                                                                                                                      db));
+                            db.SaveChanges();
+                            tc.Complete();
+                        }
+                    }
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public bool CreateBillingImport(string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, short enSelectedEntity, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            string[] importProperties = null;
+            string sourceProperty = string.Empty;
+            object sourceValue = null;
+            ClientBilling existingClientBilling = null;
+            ClientBilling clientBillingToImport = null;
+            bool mustUpdate = false;
+            bool dataChanged = false;
+            bool result = false;
+            bool state = true;
+            string errorHelp = "";
+
+            try
+            {
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    try
+                    {
+                        int clientBillingID = db.Clients.Where(p => p.PrimaryCellNumber == searchCriteria).FirstOrDefault().fkClientBillingID;
+                        existingClientBilling = db.ClientBillings.Where(p => p.pkClientBillingID == clientBillingID).FirstOrDefault();
+                    }
+                    catch
+                    {
+                        errorMessage = string.Format("Client with cell number {0} not found.", searchCriteria);
+                        return false;
+                    }
+                }
+
+                using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
+                {
+
+                    using (var db = MobileManagerEntities.GetContext())
+                    {
+                        clientBillingToImport = db.ClientBillings.Where(p => p.pkClientBillingID == existingClientBilling.pkClientBillingID).FirstOrDefault();
+
+                        // Get the sql table structure of the entity
+                        PropertyDescriptor[] properties = EDMHelper.GetEntityStructure<ClientBilling>();
+
+                        foreach (PropertyDescriptor property in properties)
+                        {
+                            mustUpdate = false;
+                            errorHelp = property.Name.ToString();
+                            // Get the source property and source value 
+                            // mapped the client billing entity property
+                            foreach (string mappedProperty in mappedProperties)
+                            {
+                                string[] arrMappedProperty = mappedProperty.Split('=');
+                                string propertyName = new DataUpdatePropertyModel(_eventAggregator).GetPropertyName(arrMappedProperty[1].Trim(), enSelectedEntity);
+                                if (propertyName == property.Name)
+                                {
+                                    importProperties = mappedProperty.Split('=');
+                                    sourceProperty = importProperties[0].Trim();
+                                    sourceValue = importValues[sourceProperty];
+                                    dataChanged = mustUpdate = true;
+                                    break;
+                                }
+                            }
+
+                            // Always update these values
+                            if (dataChanged && (property.Name == "ModifiedBy" || property.Name == "ModifiedDate" || property.Name == "IsActive"))
+                                mustUpdate = true;
+
+                            if (mustUpdate)
+                            {
+                                //If an error occur it will tell in what column what value
+                                errorMessage = $"Error column '{sourceProperty.ToString()}' with value '{sourceValue.ToString()}' ";
+
                                 // Validate the source billing level and get
                                 // the value for the fkCompanyBillingLevelID
                                 if (property.Name == "fkCompanyBillingLevelID")
@@ -292,23 +443,15 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                         if (dataChanged)
                         {
-                            // Add the data activity log
-                            result = _activityLogger.CreateDataChangeAudits<ClientBilling>(_dataActivityHelper.GetDataChangeActivities<ClientBilling>(existingClientBilling, 
-                                                                                                                                                      clientBillingToImport,
-                                                                                                                                                      db.Clients.Where(p => p.PrimaryCellNumber == searchCriteria).FirstOrDefault().fkContractID,
-                                                                                                                                                      db));
-
                             db.SaveChanges();
                             tc.Complete();
                         }
                     }
                 }
-
                 return result;
             }
             catch (Exception ex)
             {
-                errorMessage = errorHelp + ": " + ex.Message;
                 return false;
             }
         }

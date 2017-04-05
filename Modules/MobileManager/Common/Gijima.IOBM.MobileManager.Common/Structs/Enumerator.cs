@@ -592,14 +592,19 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
     {
         [Description("-- Please Select --")]
         None = 0,
-        [Description("Client Billing")]
+        [Description("Client Billing Data")]
         ClientBilling = 1,
-        [Description("Client Contract")]
+        [Description("Client Contract Data")]
         Contract = 2,
-        [Description("Client Detail")]
+        [Description("Client Detail Data")]
         Client = 3,
         [Description("Sim Data")]
-        SimCard = 4
+        SimCard = 4,
+        [Description("Package Data")]
+        Package = 5,
+        [Description("Device Data")]
+        Device = 6
+
     }
 
     /// <summary>

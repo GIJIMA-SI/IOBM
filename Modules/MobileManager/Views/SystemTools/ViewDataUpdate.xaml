@@ -173,13 +173,22 @@
             </Grid.ColumnDefinitions>
             <TextBlock x:Name="TextBlockUpdateUpdateProgress" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Bottom" Style="{StaticResource UXLabelTextStyle}"                
                 Text="{Binding UpdateUpdateDescription, UpdateSourceTrigger=PropertyChanged}"/>
-            <Button x:Name="ButtonStartUpdate" Grid.Row="0" Grid.Column="4" HorizontalAlignment="Right" ToolTip="Update the data from the selected data sheet." TabIndex="12"
-                IsEnabled="{Binding CanUpdate}" Width="80" Style="{StaticResource UXImageTextButtonStyle}" Margin="0,0,0,3" Command="{Binding UpdateCommand}">
-                <StackPanel Orientation="Horizontal" ToolTip="Update the selected data.">
-                    <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/374.png" Margin="0,1,10,1"/>
-                    <TextBlock Text="Update" VerticalAlignment="Center"/>
-                </StackPanel>
-            </Button>
+            <StackPanel x:Name="UpdateStackPanel" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="4" Orientation="Horizontal" Margin="0,0,0,4">
+                <Button x:Name="ButtonExport" ToolTip="Export the exceptions to Excel." TabIndex="11" 
+                    Style="{StaticResource UXImageTextButtonStyle}" Width="120" Command="{Binding ExportCommand}" Margin="0,0,4,0">
+                    <StackPanel Orientation="Horizontal" Width="118">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/Excel-icon.png" Margin="0,1,10,1"/>
+                        <TextBlock Text="Export to Excel" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="ButtonStartUpdate" ToolTip="Update the data from the selected data sheet." TabIndex="12"
+                    IsEnabled="{Binding CanUpdate}" Width="80" Style="{StaticResource UXImageTextButtonStyle}" Command="{Binding UpdateCommand}">
+                    <StackPanel Orientation="Horizontal" ToolTip="Update the selected data.">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/374.png" Margin="0,1,10,1"/>
+                        <TextBlock Text="Update" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
             <TextBlock Grid.Row="0" Grid.Column="4" Text="Update Exceptions" Margin="0,0,100,0" VerticalAlignment="Bottom"/>
             <ListView  Grid.Row="1" Grid.Column="4" Grid.RowSpan="4" TabIndex="4"
                 ItemsSource="{Binding ExceptionsCollection, UpdateSourceTrigger=PropertyChanged}">
