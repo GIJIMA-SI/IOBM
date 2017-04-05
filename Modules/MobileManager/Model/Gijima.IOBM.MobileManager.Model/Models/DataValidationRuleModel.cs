@@ -95,6 +95,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 var rules = (dynamic)null;
                 short processID = validationProcess.Value();
                 short entityID = validationEntity.Value();
+                string propertyName = string.Empty;
                 DataValidationRule newDataRule = null;
 
                 using (var db = MobileManagerEntities.GetContext())
@@ -195,6 +196,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                          enDataType = validationProperty.enDataType,
                                          enOperatorType = validationRule.enOperatorType,
                                          enOperator = validationRule.enOperator,
+                                         CalculationParameters = validationRule.CalculationParameters,
                                          DataValidationValue = validationRule.DataValidationValue,
                                          ModifiedBy = validationRule.ModifiedBy,
                                          ModifiedDate = validationRule.ModifiedDate
@@ -210,9 +212,28 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     {
                         newDataRule = new DataValidationRule();
                         if ((DataValidationGroupName)rule.enDataValidationGroupName == DataValidationGroupName.ExternalData)
-                        { 
-                            newDataRule.PropertyName = rule.ExtDataValidationProperty;
-                            newDataRule.PropertyDescription = rule.ExtDataValidationProperty;
+                        {
+                            if ((RuleOperator)rule.enOperator == RuleOperator.Sum)
+                            {
+                                string[] properties = rule.CalculationParameters.Split(';');
+
+                                foreach (string property in properties)
+                                {
+                                    propertyName = ReadExternalPropertyName(Convert.ToInt32(property));
+                                    newDataRule.PropertyName += string.Format("{0};", propertyName);
+                                    newDataRule.PropertyDescription += string.Format("{0};", propertyName);
+                                }
+                            }
+                            else
+                            {
+                                propertyName = ReadExternalPropertyName(rule.fkDataValidationPropertyID);
+                                newDataRule.PropertyName += string.Format("{0};", propertyName);
+                                newDataRule.PropertyDescription += string.Format("{0};", propertyName);
+                            }
+
+                            newDataRule.PropertyName = newDataRule.PropertyName.TrimEnd(';');
+                            newDataRule.PropertyDescription = newDataRule.PropertyDescription.TrimEnd(';');
+                            newDataRule.CalculationParameters = rule.CalculationParameters;
                         }
                         else
                         {
@@ -290,6 +311,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         existingValidationRule.fkDataValidationPropertyID = validationRule.fkDataValidationPropertyID;
                         existingValidationRule.enOperatorType = validationRule.enOperatorType;
                         existingValidationRule.enOperator = validationRule.enOperator;
+                        existingValidationRule.CalculationParameters = validationRule.CalculationParameters;
                         existingValidationRule.DataValidationValue = validationRule.DataValidationValue;
                         existingValidationRule.ModifiedBy = validationRule.ModifiedBy;
                         existingValidationRule.ModifiedDate = validationRule.ModifiedDate;
@@ -991,6 +1013,33 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                                 "ValidateExternalBillingData",
                                                                 ApplicationMessage.MessageTypes.SystemError));
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Get the external data property name
+        /// </summary>
+        /// <param name="propertyID">The property ID to get.</param>
+        /// <returns>Property name</returns>
+        private string ReadExternalPropertyName(int propertyID)
+        {
+            try
+            {
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    DataValidationProperty property = db.DataValidationProperties.Where(p => p.pkDataValidationPropertyID == propertyID).FirstOrDefault();
+                    return property != null ? property.ExtDataValidationProperty : string.Empty;
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("DataValidationRuleModel",
+                                                                string.Format("Error! {0} {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ReadPropertyName",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+                return string.Empty;
             }
         }
     }

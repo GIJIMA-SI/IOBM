@@ -32,7 +32,7 @@
     <ProductName>Mobile Manager</ProductName>
     <PublisherName>Gijima</PublisherName>
     <SuiteName>Integrated Operational Billing Manager</SuiteName>
-    <ApplicationRevision>59</ApplicationRevision>
+    <ApplicationRevision>60</ApplicationRevision>
     <ApplicationVersion>1.0.1.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -59,7 +59,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>EC0413419AB835F0FA4D0014A17C6B2B1DA60AB4</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>2A4892FA6D61DE6D8329324DE285F59AF25F563A</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestKeyFile>Gijima.IOBM.Shell_TemporaryKey.pfx</ManifestKeyFile>

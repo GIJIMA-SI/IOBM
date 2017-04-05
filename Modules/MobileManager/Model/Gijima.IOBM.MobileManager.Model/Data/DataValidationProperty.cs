@@ -17,8 +17,8 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public DataValidationProperty()
         {
-            this.DataValidationRules = new HashSet<DataValidationRule>();
             this.DataValidationExceptions = new HashSet<DataValidationException>();
+            this.DataValidationRules = new HashSet<DataValidationRule>();
         }
     
         public int pkDataValidationPropertyID { get; set; }
@@ -32,8 +32,8 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public bool IsActive { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<DataValidationRule> DataValidationRules { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<DataValidationException> DataValidationExceptions { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<DataValidationRule> DataValidationRules { get; set; }
     }
 }
