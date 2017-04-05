@@ -116,6 +116,17 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
         private ObservableCollection<string> _exceptionsCollection = null;
 
+        /// <summary>
+        /// Client/Data import existing clients 
+        /// to know what mapping to expect
+        /// </summary>
+        public bool ExistingClients
+        {
+            get { return _existingClients; }
+            set { SetProperty(ref _existingClients, value); }
+        }
+        private bool _existingClients = false;
+
         #region View Lookup Data Collections
 
         /// <summary>
@@ -248,6 +259,14 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 DestinationSearchCollection = new ObservableCollection<string>();
                 if (value != null && value != _defaultItem)
                 {
+                    //Ask if the users already exist within the system
+                    MessageBoxResult result;
+                    if (value == EnumHelper.GetDescriptionFromEnum(DataImportEntity.Client))
+                    {
+                        result = MessageBox.Show("Do the clients in the importing list already exist in the system?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                        ExistingClients = result == MessageBoxResult.Yes ? true : false; 
+                    }
+
                     MultipleEntriesCollection = new ObservableCollection<MultipleEntry>();
                     ReadDataDestinationInfo();
 
@@ -651,7 +670,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             {
                 if (MappedPropertyCollection != null)
                 {
-                    //Test required fields are used
+                    //Test if required fields are used
                     bool allRequiredFields = true;
                     if (DestinationComboBoxItemCollection.Count > 0)
                     {
@@ -659,19 +678,44 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         {
                             if (DestinationColumnCollection.Where(p => p.PropertyDescription == comboBoxItem.Content.ToString()).FirstOrDefault().MultipleProperty)
                             {
-                                if (MultipleEntriesCollection.Where(p => p.Name == comboBoxItem.Content.ToString()).FirstOrDefault().NumberMappings == 0 &&
-                                    MultipleEntriesCollection.Where(p => p.Name == comboBoxItem.Content.ToString()).FirstOrDefault().Required == true)
+                                //Check if the existing clients option was used
+                                if (ExistingClients)
                                 {
-                                    allRequiredFields = false;
-                                    break;
+                                    if (MultipleEntriesCollection.Where(p => p.Name == comboBoxItem.Content.ToString()).FirstOrDefault().NumberMappings == 0 &&
+                                    MultipleEntriesCollection.Where(p => p.Name == comboBoxItem.Content.ToString()).FirstOrDefault().Required == true)
+                                    {
+                                        allRequiredFields = false;
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    if (MultipleEntriesCollection.Where(p => p.Name == comboBoxItem.Content.ToString()).FirstOrDefault().NumberMappings == 0 &&
+                                    MultipleEntriesCollection.Where(p => p.Name == comboBoxItem.Content.ToString()).FirstOrDefault().Required == true)
+                                    {
+                                        allRequiredFields = false;
+                                        break;
+                                    }
                                 }
                             }
                             else
                             {
-                                if (DestinationColumnCollection.Where(p => p.PropertyDescription == comboBoxItem.Content.ToString()).FirstOrDefault().Required)
+                                //Check if the existing clients option was used
+                                if (ExistingClients)
                                 {
-                                    allRequiredFields = false;
-                                    break;
+                                    if (DestinationColumnCollection.Where(p => p.PropertyDescription == comboBoxItem.Content.ToString() && p.ExistingClientRequired == true).FirstOrDefault().Required)
+                                    {
+                                        allRequiredFields = false;
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    if (DestinationColumnCollection.Where(p => p.PropertyDescription == comboBoxItem.Content.ToString()).FirstOrDefault().Required)
+                                    {
+                                        allRequiredFields = false;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -746,10 +790,21 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             DestinationComboBoxItemCollection = new ObservableCollection<ComboBoxItem>();
             foreach (DataImportProperty dataImportProperty in DestinationColumnCollection)
             {
-                ComboBoxItem item = new ComboBoxItem();
-                item.Content = dataImportProperty.PropertyDescription;
-                item.Foreground = dataImportProperty.Required == true ? Brushes.Red : Brushes.Black;
-                DestinationComboBoxItemCollection.Add(item);
+                //Check client/contract detail if selected
+                if (ExistingClients)
+                {
+                    ComboBoxItem item = new ComboBoxItem();
+                    item.Content = dataImportProperty.PropertyDescription;
+                    item.Foreground = dataImportProperty.Required == true && dataImportProperty.ExistingClientRequired == true ? Brushes.Red : Brushes.Black;
+                    DestinationComboBoxItemCollection.Add(item);
+                }
+                else
+                {
+                    ComboBoxItem item = new ComboBoxItem();
+                    item.Content = dataImportProperty.PropertyDescription;
+                    item.Foreground = dataImportProperty.Required == true ? Brushes.Red : Brushes.Black;
+                    DestinationComboBoxItemCollection.Add(item);
+                }
             }
 
             SelectedDestinationSearch = _defaultItem;
