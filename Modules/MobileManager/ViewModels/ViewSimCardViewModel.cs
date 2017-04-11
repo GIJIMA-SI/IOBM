@@ -270,6 +270,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             try
             {
+                InitialiseViewControls();
                 await ReadContractSimCardsAsync();
             }
             catch (Exception ex)

@@ -19,6 +19,7 @@ using Gijima.IOBM.Infrastructure.Helpers;
 using Gijima.IOBM.Infrastructure.Structs;
 using System.Reflection;
 using Gijima.DataImport.MSOffice;
+using Gijima.IOBM.MobileManager.Model.Data;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
 {
@@ -114,7 +115,47 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
         private ObservableCollection<string> _exceptionsCollection = null;
 
+        /// <summary>
+        /// Dropdown visible or not
+        /// </summary>
+        public string CompanyVisible
+        {
+            get { return _companyVisible; }
+            set { SetProperty(ref _companyVisible, value); }
+        }
+        private string _companyVisible = "Hidden";
+
+        /// <summary>
+        /// Dropdown visible or not
+        /// </summary>
+        public string CompanyGroupVisible
+        {
+            get { return _companyGroupVisible; }
+            set { SetProperty(ref _companyGroupVisible, value); }
+        }
+        private string _companyGroupVisible = "Hidden";
+
         #region View Lookup Data Collections
+
+        /// <summary>
+        /// Collection of copmanies
+        /// </summary>
+        public ObservableCollection<Company> CompanyCollection
+        {
+            get { return _companyCollection; }
+            set { SetProperty(ref _companyCollection, value); }
+        }
+        private ObservableCollection<Company> _companyCollection = null;
+
+        /// <summary>
+        /// Collection of copmany groups
+        /// </summary>
+        public ObservableCollection<CompanyGroup> CompanyGroupCollection
+        {
+            get { return _companyGroupCollection; }
+            set { SetProperty(ref _companyGroupCollection, value); }
+        }
+        private ObservableCollection<CompanyGroup> _companyGroupCollection = null;
 
         /// <summary>
         /// The collection of data sheets from the selected Excel file
@@ -253,12 +294,43 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private string _selectedDestinationEntity;
 
         /// <summary>
+        /// The Selected Company
+        /// </summary>
+        public Company SelectedCompany
+        {
+            get { return _selectedCompany; }
+            set { SetProperty(ref _selectedCompany, value); }
+        }
+        private Company _selectedCompany;
+
+        /// <summary>
+        /// The Selected CompanyGroup
+        /// </summary>
+        public CompanyGroup SelectedCompanyGroup
+        {
+            get { return _selectedCompanyGroup; }
+            set { SetProperty(ref _selectedCompanyGroup, value); }
+        }
+        private CompanyGroup _selectedCompanyGroup;
+
+        /// <summary>
         /// The selected entity to search on
         /// </summary>
         public string SelectedDestinationSearch
         {
             get { return _selectedDestinationSearch; }
-            set { SetProperty(ref _selectedDestinationSearch, value); }
+            set
+            {
+                SetProperty(ref _selectedDestinationSearch, value);
+                if (value != null)
+                {
+                    //Test if the companies options should be enabled
+                    if (value.Replace(" ", "") == "EmployeeNumber")
+                        LoadCompanyData(true);
+                    else
+                        LoadCompanyData(false);
+                }
+            }
         }
         private string _selectedDestinationSearch;
 
@@ -398,6 +470,40 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private bool _canUpdate = false;
 
         /// <summary>
+        /// Check if the search entity require
+        /// companies to filter through
+        /// </summary>
+        public bool UseCompanies
+        {
+            get { return _useCompanies; }
+            set { SetProperty(ref _useCompanies, value); }
+        }
+        private bool _useCompanies = false;
+
+        /// <summary>
+        /// Display the companies as single or a group
+        /// </summary>
+        public bool GroupCompanies
+        {
+            get { return _groupCompanies; }
+            set
+            {
+                SetProperty(ref _groupCompanies, value);
+                if (value)
+                {
+                    CompanyVisible = "Hidden";
+                    CompanyGroupVisible = "Visible";
+                }
+                else
+                {
+                    CompanyVisible = "Visible";
+                    CompanyGroupVisible = "Hidden";
+                }
+            }
+        }
+        private bool _groupCompanies = false;
+
+        /// <summary>
         /// Set the required field border colour
         /// </summary>
         public Brush ValidUpdateFile
@@ -458,6 +564,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private Brush _validMapping = Brushes.Red;
 
         /// <summary>
+        /// Set the required field border colour
+        /// </summary>
+        public Brush ValidCompanySelection
+        {
+            get { return _validCompanySelection; }
+            set { SetProperty(ref _validCompanySelection, value); }
+        }
+        private Brush _validCompanySelection = Brushes.Silver;
+
+        /// <summary>
         /// Input validate error message
         /// </summary>
         public string Error
@@ -495,6 +611,26 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     case "SelectedDestinationSearch":
                         ValidDestinationSearch = string.IsNullOrEmpty(SelectedDestinationSearch) || SelectedDestinationSearch == _defaultItem ? Brushes.Red : Brushes.Silver;
                         CanStartUpdate(); break;
+                    case "SelectedCompanyGroup":
+                        ValidCompanySelection = UseCompanies && SelectedCompanyGroup != null && SelectedCompanyGroup.GroupName == _defaultItem ? Brushes.Red : Brushes.Silver;
+                        CanStartUpdate();
+                        break;
+                    case "SelectedCompany":
+                        ValidCompanySelection = UseCompanies && SelectedCompany != null && SelectedCompany.CompanyName == _defaultItem ? Brushes.Red : Brushes.Silver;
+                        CanStartUpdate();
+                        break;
+                    case "GroupCompanies":
+                        if (GroupCompanies)
+                        {
+                            ValidCompanySelection = UseCompanies && SelectedCompanyGroup != null && SelectedCompanyGroup.GroupName == _defaultItem ? Brushes.Red : Brushes.Silver;
+                            CanStartUpdate();
+                        }
+                        else
+                        {
+                            ValidCompanySelection = UseCompanies && SelectedCompany != null && SelectedCompany.CompanyName == _defaultItem ? Brushes.Red : Brushes.Silver;
+                            CanStartUpdate();
+                        }
+                        break;
                 }
 
                 return result;
@@ -648,9 +784,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             {
                 if (MappedPropertyCollection != null)
                 {
-                    CanUpdate = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem && MappedPropertyCollection.Count > 0 ? true : false;
-                    
-                    ValidMapping = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem &&  MappedPropertyCollection.Count > 0 ? Brushes.Silver : Brushes.Red;
+                    ValidMapping = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem && MappedPropertyCollection.Count > 0 ? Brushes.Silver : Brushes.Red;
+
+                    CanUpdate = SelectedSourceSearch != _defaultItem && SelectedDestinationSearch != _defaultItem && MappedPropertyCollection.Count > 0 &&
+                        ValidCompanySelection == Brushes.Silver  && ValidMapping == Brushes.Silver ? true : false;
                 }
             }
         }
@@ -716,6 +853,31 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             
             SelectedDestinationSearch = _defaultItem;
             SelectedDestinationProperty = _defaultItem;
+        }
+
+        /// <summary>
+        /// Enables the company options and load the data
+        /// </summary>
+        /// <param name="load"></param>
+        public void LoadCompanyData(bool load)
+        {
+            if (load)
+            {
+                UseCompanies = true;
+                GroupCompanies = true;
+                CompanyCollection = new ObservableCollection<Company>(new CompanyModel(_eventAggregator).ReadCompanies(true));
+                CompanyGroupCollection = new ObservableCollection<CompanyGroup>(new CompanyGroupModel(_eventAggregator).ReadCompanyGroups(true));
+                SelectedCompany = CompanyCollection.First();
+                SelectedCompanyGroup = CompanyGroupCollection.First();
+            }
+            else
+            {
+                UseCompanies = false;
+                GroupCompanies = false;
+                CompanyVisible = CompanyGroupVisible = "Hidden";
+                SelectedCompany = null;
+                SelectedCompanyGroup = null;
+            }
         }
 
         #endregion
@@ -949,14 +1111,23 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                                                                    EnumHelper.GetEnumFromDescription<DataUpdateEntity>(SelectedDestinationEntity).Value(),
                                                                                                                    out errorMessage)); break;
                         case DataUpdateEntity.Client:
+                            //If filter by company used gather needed information
+                            string selectedCompany = "";
+                            if (UseCompanies)
+                                selectedCompany = GroupCompanies ? SelectedCompanyGroup.GroupName : SelectedCompany.CompanyName;
+                            else
+                                selectedCompany = GroupCompanies ? SelectedCompanyGroup.GroupName : SelectedCompany.CompanyName;
+
                             result = await Task.Run(() => new ClientModel(_eventAggregator).UpdateClientUpdate(searchCriteria,
                                                                                                                  MappedPropertyCollection,
                                                                                                                  row,
                                                                                                                  EnumHelper.GetEnumFromDescription<DataUpdateEntity>(SelectedDestinationEntity).Value(),
                                                                                                                  SelectedDestinationSearch,
+                                                                                                                 GroupCompanies,
+                                                                                                                 selectedCompany,
                                                                                                                  out errorMessage)); break;
                         case DataUpdateEntity.SimCard:
-                            result = await Task.Run(() => new SimCardModel(_eventAggregator).CreateSimCardImport(searchCriteria,
+                            result = await Task.Run(() => new SimCardModel(_eventAggregator).UpdateSimCardUpdate(searchCriteria,
                                                                                                                  MappedPropertyCollection,
                                                                                                                  row,
                                                                                                                  EnumHelper.GetEnumFromDescription<DataUpdateEntity>(SelectedDestinationEntity).Value(),

@@ -435,16 +435,18 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             bool mustUpdate = false;
             bool dataChanged = false;
             bool result = false;
+            int deviceID;
 
             try
             {
                 using (var db = MobileManagerEntities.GetContext())
                 {
-                    existingDevice = db.Devices.Where(p => p.fkContractID == db.Contracts.Where(x => x.CellNumber == searchCriteria).FirstOrDefault().pkContractID).FirstOrDefault();
+                    deviceID = new DeviceIMENumberModel(_eventAggregator).ReadDeviceIDByIMENumber(searchCriteria, db, ref errorMessage);
+                    existingDevice = db.Devices.Where(p => p.pkDeviceID == deviceID).FirstOrDefault();
 
                     if (existingDevice == null)
                     {
-                        errorMessage = string.Format("Device not found on cell number {0}.", searchCriteria);
+                        errorMessage = string.Format("Device not found on IME number {0}.", searchCriteria);
                         return false;
                     }
                 }
@@ -454,8 +456,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                     using (var db = MobileManagerEntities.GetContext())
                     {
-                        deviceToUpdate = db.Devices.Where(p => p.fkContractID == db.Contracts.Where(x => x.CellNumber == searchCriteria).FirstOrDefault().pkContractID).FirstOrDefault();
-
+                        deviceToUpdate = db.Devices.Where(p => p.pkDeviceID == deviceID).FirstOrDefault();
 
                         // Get the sql table structure of the entity
                         PropertyDescriptor[] properties = EDMHelper.GetEntityStructure<Device>();
@@ -503,37 +504,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                                     sourceValue = status.pkStatusID;
                                 }
-
-                                // Validate the source device make and get
-                                // the value for the fkDeviceMakeID
-                                if (property.Name == "fkDeviceMakeID")
-                                {
-                                    ServiceProvider serviceProvider = db.ServiceProviders.Where(p => p.ServiceProviderName.ToUpper() == sourceValue.ToString().ToUpper()).FirstOrDefault();
-
-                                    if (serviceProvider == null)
-                                    {
-                                        errorMessage = $"Service provider {sourceValue.ToString()} not found.";
-                                        return false;
-                                    }
-
-                                    sourceValue = serviceProvider.pkServiceProviderID;
-                                }
-
-                                // Validate the source package type and get
-                                // the value for the enPackageType
-                                if (property.Name == "enPackageType")
-                                {
-                                    int packageType = -1;
-                                    packageType = EnumHelper.GetEnumFromDescription<PackageType>(sourceValue.ToString().ToUpper()).Value();
-
-                                    if (packageType == -1)
-                                    {
-                                        errorMessage = $"Package type {sourceValue.ToString()} not found.";
-                                        return false;
-                                    }
-                                    sourceValue = packageType.ToString(); ;
-                                }
-
+                                
                                 // Set the default values
                                 if (property.Name == "ModifiedBy")
                                     sourceValue = SecurityHelper.LoggedInFullName;
@@ -550,7 +521,12 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                 else if (property.PropertyType == typeof(System.Byte[]))
                                     sourceValue = Convert.FromBase64String(sourceValue.ToString());
                                 else if (property.PropertyType == typeof(System.DateTime))
-                                    sourceValue = Convert.ToDateTime(sourceValue.ToString());
+                                {
+                                    try
+                                    { sourceValue = Convert.ToDateTime(DateTime.FromOADate(Convert.ToDouble(sourceValue.ToString()))); }
+                                    catch
+                                    { sourceValue = Convert.ToDateTime(Convert.ToDateTime(sourceValue.ToString())); }
+                                }
                                 else if (property.PropertyType == typeof(System.Boolean))
                                     sourceValue = Convert.ToBoolean(sourceValue.ToString());
                                 else if (property.PropertyType == typeof(System.Int32))
@@ -561,25 +537,28 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                     sourceValue = Convert.ChangeType(sourceValue, property.PropertyType);
 
                                 // Set the value of the property with the value from the db
-                                property.SetValue(deviceToUpdate, existingDevice);
+                                property.SetValue(deviceToUpdate, sourceValue);
                             }
                         }
 
                         if (dataChanged)
                         {
+                            errorMessage = "Error with data logging if persist contact developer ";
                             // Add the data activity log
-                            //result = _activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<SimCard>(existingSimCard, packageToUpdate, packageToUpdate, db));
+                            object item = _activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<SimCard>(existingDevice, deviceToUpdate, deviceToUpdate.fkContractID, db));
 
-                            db.SaveChanges();
-                            tc.Complete();
-                            result = true;
+                            if (item != null)
+                            {
+                                db.SaveChanges();
+                                tc.Complete();
+                                result = true;
+                            }
                         }
                     }
                 }
-
                 return result;
             }
-            catch
+            catch (Exception ex)
             {
                 return false;
             }

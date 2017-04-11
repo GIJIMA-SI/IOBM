@@ -140,6 +140,7 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
         PackageName,
         CellNumber,
         AccountNumber,
+        IMENumber,
         Other
     }
 

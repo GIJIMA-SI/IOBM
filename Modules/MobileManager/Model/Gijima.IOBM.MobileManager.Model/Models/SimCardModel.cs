@@ -698,6 +698,197 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         }
 
         /// <summary>
+        /// Updates a simcard (data update)
+        /// </summary>
+        /// <param name="searchCriteria"></param>
+        /// <param name="mappedProperties"></param>
+        /// <param name="importValues"></param>
+        /// <param name="enSelectedEntity"></param>
+        /// <param name="errorMessage"></param>
+        /// <returns></returns>
+        public bool UpdateSimCardUpdate(string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, short enSelectedEntity, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            string[] importProperties = null;
+            string sourceProperty = string.Empty;
+            object sourceValue = null;
+            SimCard existingSimcard = null;
+            SimCard simcardToUpdate = null;
+            Contract existingContract = null;
+            Contract contractToUpdate = null;
+            Client existingClient = null;
+            Client clientToUpdate = null;
+            bool mustUpdate = false;
+            bool dataChanged = false;
+            bool state = true;
+            
+            try
+            {
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    //Check if number is linked to a contract
+                    existingSimcard = db.SimCards.Where(p => p.CellNumber == searchCriteria).FirstOrDefault();
+                    if (existingSimcard == null)
+                    {
+                        errorMessage = string.Format("Simcard with number {0} not found", searchCriteria);
+                        return false;
+                    }
+                    else
+                    {
+                        //If the cell number should change update the contract and client
+                        existingContract = db.Contracts.Where(p => p.pkContractID == existingSimcard.fkContractID).FirstOrDefault();
+                        existingClient = db.Clients.Where(p => p.fkContractID == existingContract.pkContractID).FirstOrDefault();
+
+                        if (existingContract == null || existingClient == null)
+                        {
+                            errorMessage = $"Contract/Client not found for cell number {searchCriteria} ";
+                            return false;
+                        }
+                    }
+                }
+
+                using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
+                {
+                    using (var db = MobileManagerEntities.GetContext())
+                    {
+                        simcardToUpdate = db.SimCards.Where(p => p.CellNumber == searchCriteria).FirstOrDefault();
+                        
+                        // Get the sql table structure of the entity
+                        PropertyDescriptor[] properties = EDMHelper.GetEntityStructure<SimCard>();
+
+                        foreach (PropertyDescriptor property in properties)
+                        {
+                            mustUpdate = false;
+
+                            // Get the source property and source value 
+                            // mapped the simcard entity property
+                            foreach (string mappedProperty in mappedProperties)
+                            {
+                                string[] arrMappedProperty = mappedProperty.Split('=');
+                                string propertyName = new DataUpdatePropertyModel(_eventAggregator).GetPropertyName(arrMappedProperty[1].Trim(), enSelectedEntity);
+                                if (propertyName == property.Name)
+                                {
+                                    importProperties = mappedProperty.Split('=');
+                                    sourceProperty = importProperties[0].Trim();
+                                    sourceValue = importValues[sourceProperty];
+                                    dataChanged = mustUpdate = true;
+                                    break;
+                                }
+                            }
+
+                            // Always update these values
+                            if (dataChanged && (property.Name == "ModifiedBy" || property.Name == "ModifiedDate" || property.Name == "IsActive"))
+                                mustUpdate = true;
+
+                            if (mustUpdate)
+                            {
+                                //new number are updated and not set back at the end
+                                bool updateNumber = false;
+
+                                //If an error occur it will tell in what column what value
+                                errorMessage = $"Error column '{sourceProperty.ToString()}' with value '{sourceValue.ToString()}' ";
+
+                                // Validate the source status and get
+                                // the value for the fkStatusID
+                                if (property.Name == "fkStatusID")
+                                {
+                                    Status status = db.Status.Where(p => p.StatusDescription.ToUpper() == sourceValue.ToString().ToUpper()).FirstOrDefault();
+
+                                    if (status == null)
+                                    {
+                                        return false;
+                                    }
+
+                                    // Set the simcard to in-active 
+                                    // if the status is not issued
+                                    if (status.StatusDescription != "ISSUED")
+                                        state = false;
+
+                                    sourceValue = status.pkStatusID;
+                                }
+                                //Test the excel spreadsheet date for actual date or numbers
+                                if (property.Name == "ReceiveDate")
+                                {
+                                    try
+                                    { sourceValue = Convert.ToDateTime(DateTime.FromOADate(Convert.ToDouble(sourceValue.ToString()))); }
+                                    catch
+                                    { sourceValue = Convert.ToDateTime(Convert.ToDateTime(sourceValue.ToString())); }
+                                }
+                                //Update the contract and the clinet primary cell number
+                                if (property.Name == "CellNumber")
+                                {
+                                    contractToUpdate = db.Contracts.Where(p => p.pkContractID == existingSimcard.fkContractID).FirstOrDefault();
+                                    clientToUpdate = db.Clients.Where(p => p.fkContractID == existingContract.pkContractID).FirstOrDefault();
+
+                                    if (contractToUpdate.CellNumber == searchCriteria)
+                                        contractToUpdate.CellNumber = sourceValue.ToString();
+                                    if (clientToUpdate.PrimaryCellNumber == searchCriteria)
+                                        clientToUpdate.PrimaryCellNumber = sourceValue.ToString();
+
+                                    simcardToUpdate.CellNumber = sourceValue.ToString();
+                                    updateNumber = true;
+                                }
+
+                                // Set the default values
+                                if (property.Name == "ModifiedBy")
+                                    sourceValue = SecurityHelper.LoggedInFullName;
+                                if (property.Name == "ModifiedDate")
+                                    sourceValue = DateTime.Now;
+                                if (property.Name == "IsActive")
+                                    sourceValue = state;
+
+                                if (updateNumber == false)
+                                {
+                                    // Convert the db type into the type of the property in our entity
+                                    if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                                        sourceValue = Convert.ChangeType(sourceValue, property.PropertyType.GetGenericArguments()[0]);
+                                    else if (property.PropertyType == typeof(System.Guid))
+                                        sourceValue = new Guid(sourceValue.ToString());
+                                    else if (property.PropertyType == typeof(System.Byte[]))
+                                        sourceValue = Convert.FromBase64String(sourceValue.ToString());
+                                    else if (property.PropertyType == typeof(System.DateTime))
+                                        sourceValue = Convert.ToDateTime(Convert.ToDateTime(sourceValue.ToString()));
+                                    else if (property.PropertyType == typeof(System.Boolean))
+                                        sourceValue = Convert.ToBoolean(sourceValue.ToString());
+                                    else
+                                        sourceValue = Convert.ChangeType(sourceValue, property.PropertyType);
+
+                                    // Set the value of the property with the value from the db
+                                    property.SetValue(simcardToUpdate, sourceValue);
+                                }
+                            }
+                        }
+
+                        if (dataChanged)
+                        {
+                            errorMessage = "Data logging error, if persist contact developer";
+                            // Add the data activity log
+                            object itemSimcard = _activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<SimCard>(existingSimcard, simcardToUpdate, simcardToUpdate.fkContractID.Value, db));
+                            if (contractToUpdate != null && clientToUpdate != null)
+                            {
+                                object itemContract = _activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<Contract>(existingContract, contractToUpdate, contractToUpdate.pkContractID, db));
+                                object itemClient = _activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<Client>(existingClient, clientToUpdate, clientToUpdate.fkContractID, db));
+                                if (itemContract == null || itemClient == null)
+                                    return false;
+                            }
+
+                            if (itemSimcard == null)
+                                return false;
+
+                            db.SaveChanges();
+                            tc.Complete();
+                        }
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Sets the linked simcards inactive
         /// </summary>
         /// <param name="contractID">The contract linked to the simcards</param>

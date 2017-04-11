@@ -555,7 +555,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <summary>
         /// Initialise all the view dependencies
         /// </summary>
-        private async void InitialiseDataUpdateView()
+        private void InitialiseDataUpdateView()
         {
             InitialiseViewControls();
 
