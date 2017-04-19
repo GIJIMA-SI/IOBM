@@ -6,8 +6,9 @@
              xmlns:mm="clr-namespace:Gijima.IOBM.MobileManager.Common.Helpers;assembly=Gijima.IOBM.MobileManager.Common"
              xmlns:prism="http://prismlibrary.com/"
              prism:ViewModelLocator.AutoWireViewModel="True"             
-             mc:Ignorable="d" 
-             Height="255" Width="400">
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="400"
+             Height="Auto" Width="Auto">
 
     <UserControl.Resources>
         <mm:UIDataConvertionHelper x:Key="UIDataConvertionHelper"/>

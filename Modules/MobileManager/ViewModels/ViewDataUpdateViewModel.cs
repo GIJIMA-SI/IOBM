@@ -1010,7 +1010,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     DestinationColumnCollection.Remove(SelectedDestinationProperty);
                 }
                 
-                //SelectedSourceProperty = SelectedDestinationProperty = _defaultItem;
+                SelectedSourceProperty = SelectedDestinationProperty = _defaultItem;
                 CanStartUpdate();
             }
             catch (Exception ex)

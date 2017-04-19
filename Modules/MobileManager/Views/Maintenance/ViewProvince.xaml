@@ -7,7 +7,8 @@
              xmlns:prism="http://prismlibrary.com/"
              prism:ViewModelLocator.AutoWireViewModel="True"             
              mc:Ignorable="d" 
-             Height="255" Width="400">
+             d:DesignHeight="280" d:DesignWidth="380"
+             Height="Auto" Width="Auto">
 
     <UserControl.Resources>
         <mm:UIDataConvertionHelper x:Key="UIDataConvertionHelper"/>

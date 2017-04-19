@@ -6,8 +6,9 @@
              xmlns:mm="clr-namespace:Gijima.IOBM.MobileManager.Common.Helpers;assembly=Gijima.IOBM.MobileManager.Common"
              xmlns:prism="http://prismlibrary.com/"
              prism:ViewModelLocator.AutoWireViewModel="True"             
-             mc:Ignorable="d" 
-             Height="350">
+             mc:Ignorable="d"
+             d:DesignHeight="400" d:DesignWidth="640"
+             Height="Auto" Width="Auto">
 
     <UserControl.Resources>
         <mm:UIDataConvertionHelper x:Key="UIDataConvertionHelper"/>
@@ -27,16 +28,16 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="95" />
-            <ColumnDefinition Width="70" />
+            <ColumnDefinition Width="*" />
             <ColumnDefinition Width="10" />
             <ColumnDefinition Width="55" />
-            <ColumnDefinition Width="70" />
+            <ColumnDefinition Width="*" />
             <ColumnDefinition Width="10" />
             <ColumnDefinition Width="70" />
-            <ColumnDefinition Width="70" />
+            <ColumnDefinition Width="*" />
             <ColumnDefinition Width="10" />
             <ColumnDefinition Width="75" />
-            <ColumnDefinition Width="70" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <TextBlock Grid.Row="0" Grid.Column="0" Text="Description:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
         <TextBox x:Name="TextBoxPackageName" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="4" TabIndex="1" ToolTip="Enter the package description." Style="{StaticResource UXTextBoxStyle}"

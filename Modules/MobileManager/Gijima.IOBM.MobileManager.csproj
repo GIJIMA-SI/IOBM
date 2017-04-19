@@ -151,6 +151,7 @@
     <Compile Include="ViewModels\ViewMobileManagerViewModel.cs" />
     <Compile Include="ViewModels\ViewCellularViewModel.cs" />
     <Compile Include="ViewModels\ViewDeviceViewModel.cs" />
+    <Compile Include="ViewModels\ViewReferenceDataCFViewModel.cs" />
     <Compile Include="ViewModels\ViewReportsViewModel.cs" />
     <Compile Include="Views\Billing\ViewBillingDataExport.xaml.cs">
       <DependentUpon>ViewBillingDataExport.xaml</DependentUpon>
@@ -163,6 +164,9 @@
     </Compile>
     <Compile Include="Views\Common\ViewReports.xaml.cs">
       <DependentUpon>ViewReports.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Configuration\ViewReferenceDataCF.xaml.cs">
+      <DependentUpon>ViewReferenceDataCF.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Maintenance\ViewContractService.xaml.cs">
       <DependentUpon>ViewContractService.xaml</DependentUpon>
@@ -293,6 +297,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Common\ViewReports.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Configuration\ViewReferenceDataCF.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

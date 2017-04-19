@@ -3,6 +3,7 @@ using Gijima.IOBM.Infrastructure.Structs;
 using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.MobileManager.Security;
 using Gijima.IOBM.MobileManager.Views;
+using Gijima.IOBM.MobileManager.Views.Configuration;
 using Prism.Events;
 using Prism.Mvvm;
 using System.Collections.ObjectModel;
@@ -81,7 +82,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         //SelectedTab.Content = new ViewAccount(_eventAggregator);
                         break;
                     case "Reference Data":
-                        //SelectedTab.Content = new ViewConfig();
+                        SelectedTab.Content = new ViewReferenceDataCF();
                         break;
                 }
 

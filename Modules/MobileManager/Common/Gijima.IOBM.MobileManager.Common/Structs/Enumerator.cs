@@ -609,7 +609,7 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
     }
 
     /// <summary>
-    /// The <see cref="DataUpdateEntity"/> enumeration a list of 
+    /// The <see cref="DataImportEntity"/> enumeration a list of 
     /// data import entities options.
     /// </summary>
     public enum DataImportEntity
@@ -623,7 +623,46 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
         [Description("Client & Contract Data")]
         Client = 3,
         [Description("Billing Data")]
-        ClientBilling = 4
+        ClientBilling = 4,
+        [Description("Package Data")]
+        Package = 5
+    }
+
+    /// <summary>
+    /// Refrence Data Screen options
+    /// </summary>
+    public enum ReferenceDataOption
+    {
+        [Description("-- Please Select --")]
+        None = 0,
+        [Description("Billing Level")]
+        ViewBillingLevel = 1,
+        [Description("City")]
+        ViewCity = 2,
+        [Description("Client Site")]
+        ViewClientSite = 3,
+        [Description("Company")]
+        ViewCompany = 4,
+        [Description("Company Billing Level")]
+        ViewCompanyBillingLevel = 5,
+        [Description("Company Group")]
+        ViewCompanyGroup = 6,
+        [Description("Contract Service")]
+        ViewContractService = 7,
+        [Description("Device Make")]
+        ViewDeviceMake = 8,
+        [Description("Device Model")]
+        ViewDeviceModel = 9,
+        [Description("Package")]
+        ViewPackage = 10,
+        [Description("Province")]
+        ViewProvince = 11,
+        [Description("Service Provider")]
+        ViewServiceProvider = 12,
+        [Description("Status")]
+        ViewStatus = 13,
+        [Description("Suburb")]
+        ViewSuburb = 14
     }
 
     #endregion

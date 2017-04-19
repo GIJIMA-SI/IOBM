@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Linq;
 using Gijima.IOBM.Infrastructure.Events;
 using Gijima.IOBM.MobileManager.Security;
+using System.Windows;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
 {
@@ -350,6 +351,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private async void ExecuteShowCityView()
         {
             PopupWindow popupWindow = new PopupWindow(new ViewCity(), "City Maintenance", PopupWindow.PopupButtonType.Close);
+            //So width and heigh can be set auto for referencedata
+            popupWindow.MaxHeight = popupWindow.MinHeight = 300;
+            popupWindow.MaxWidth = popupWindow.MinWidth = 400;
+            popupWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             popupWindow.ShowDialog();
             await ReadCitiesAsync();
         }

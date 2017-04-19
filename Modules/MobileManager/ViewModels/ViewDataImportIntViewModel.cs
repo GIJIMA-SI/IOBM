@@ -898,8 +898,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     DestinationComboBoxItemCollection.Remove(SelectedDestinationProperty);
                 }
 
-                //SelectedSourceProperty = _defaultItem;
-                //SelectedDestinationProperty = DestinationComboBoxItemCollection.Where(p => p.Content.ToString() == _defaultItem).FirstOrDefault();
+                SelectedSourceProperty = _defaultItem;
+                SelectedDestinationProperty = DestinationComboBoxItemCollection.Where(p => p.Content.ToString() == _defaultItem).FirstOrDefault();
                 CanStartImport();
             }
             catch (Exception ex)
@@ -1061,6 +1061,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                                                                out errorMessage)); break;
                         case DataImportEntity.ClientBilling:
                             result = await Task.Run(() => new ClientBillingModel(_eventAggregator).CreateBillingImport(searchCriteria,
+                                                                                                                       MappedPropertyCollection,
+                                                                                                                       row,
+                                                                                                                       EnumHelper.GetEnumFromDescription<DataImportEntity>(SelectedDestinationEntity).Value(),
+                                                                                                                       out errorMessage)); break;
+                        case DataImportEntity.Package:
+                            result = await Task.Run(() => new PackageModel(_eventAggregator).CreatePackageImport(searchCriteria,
                                                                                                                  MappedPropertyCollection,
                                                                                                                  row,
                                                                                                                  EnumHelper.GetEnumFromDescription<DataImportEntity>(SelectedDestinationEntity).Value(),

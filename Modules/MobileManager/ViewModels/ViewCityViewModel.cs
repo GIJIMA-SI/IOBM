@@ -12,6 +12,7 @@ using Gijima.IOBM.Infrastructure.Events;
 using Gijima.IOBM.MobileManager.Model.Models;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Gijima.IOBM.MobileManager.Security;
+using System.Windows;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
 {
@@ -319,6 +320,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private async void ExecuteShowProvinceView()
         {
             PopupWindow popupWindow = new PopupWindow(new ViewProvince(), "Province Maintenance", PopupWindow.PopupButtonType.Close);
+            //So width and heigh can be set auto for referencedata
+            popupWindow.MaxHeight = popupWindow.MinHeight = 280;
+            popupWindow.MaxWidth = popupWindow.MinWidth = 380;
+            popupWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             popupWindow.ShowDialog();
             await ReadProvincesAsync();
         }
