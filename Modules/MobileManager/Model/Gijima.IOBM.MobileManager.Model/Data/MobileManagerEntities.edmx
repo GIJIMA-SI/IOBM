@@ -2149,9 +2149,9 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <EntitySet Name="DataUpdateProperties" EntityType="MobileManagerModel.DataUpdateProperty" />
           <EntitySet Name="DataUpdateSearchProperties" EntityType="MobileManagerModel.DataUpdateSearchProperty" />
           <EntitySet Name="AdvancedSearchMaps" EntityType="MobileManagerModel.AdvancedSearchMap" />
-          <EntitySet Name="AdvancedSearchFields" EntityType="MobileManagerModel.AdvancedSearchField" />
           <EntitySet Name="ExternalBillingDatas" EntityType="MobileManagerModel.ExternalBillingData" />
           <EntitySet Name="DataImportProperties" EntityType="MobileManagerModel.DataImportProperty" />
+          <EntitySet Name="AdvancedSearchFields" EntityType="MobileManagerModel.AdvancedSearchField" />
           </EntityContainer>
         <ComplexType Name="sp_report_Invoice_Result">
           <Property Type="String" Name="ClientName" Nullable="false" MaxLength="100" />
@@ -2562,28 +2562,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="FromEntity" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
           <Property Name="ToEntity" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="AdvancedSearchField">
-          <Key>
-            <PropertyRef Name="pkAdvancedSearchField" />
-            <PropertyRef Name="enSearchCategory" />
-            <PropertyRef Name="EntityName" />
-            <PropertyRef Name="ColumnName" />
-            <PropertyRef Name="DisplayName" />
-            <PropertyRef Name="DataType" />
-            <PropertyRef Name="ControlType" />
-            <PropertyRef Name="OtherEntityColumnName" />
-            <PropertyRef Name="FinalEntityColumnName" />
-          </Key>
-          <Property Name="pkAdvancedSearchField" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="enSearchCategory" Type="Int32" Nullable="false" />
-          <Property Name="EntityName" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
-          <Property Name="ColumnName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="DisplayName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="DataType" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="ControlType" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
-          <Property Name="OtherEntityColumnName" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
-          <Property Name="FinalEntityColumnName" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="ExternalBillingData">
           <Key>
             <PropertyRef Name="pkExternalBillingDataID" />
@@ -2610,6 +2588,28 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="MultipleProperty" Type="Boolean" Nullable="false" />
           <Property Name="Required" Type="Boolean" Nullable="false" />
           <Property Name="ExistingClientRequired" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="AdvancedSearchField">
+          <Key>
+            <PropertyRef Name="pkAdvancedSearchField" />
+            <PropertyRef Name="enSearchCategory" />
+            <PropertyRef Name="EntityName" />
+            <PropertyRef Name="ColumnName" />
+            <PropertyRef Name="DisplayName" />
+            <PropertyRef Name="DataType" />
+            <PropertyRef Name="ControlType" />
+            <PropertyRef Name="OtherEntityColumnName" />
+            <PropertyRef Name="FinalEntityColumnName" />
+          </Key>
+          <Property Name="pkAdvancedSearchField" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="enSearchCategory" Type="Int32" Nullable="false" />
+          <Property Name="EntityName" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="ColumnName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DisplayName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DataType" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="ControlType" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="OtherEntityColumnName" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="FinalEntityColumnName" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -3232,21 +3232,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="AdvancedSearchFields">
-            <EntityTypeMapping TypeName="MobileManagerModel.AdvancedSearchField">
-              <MappingFragment StoreEntitySet="AdvancedSearchField">
-                <ScalarProperty Name="FinalEntityColumnName" ColumnName="FinalEntityColumnName" />
-                <ScalarProperty Name="OtherEntityColumnName" ColumnName="OtherEntityColumnName" />
-                <ScalarProperty Name="ControlType" ColumnName="ControlType" />
-                <ScalarProperty Name="DataType" ColumnName="DataType" />
-                <ScalarProperty Name="DisplayName" ColumnName="DisplayName" />
-                <ScalarProperty Name="ColumnName" ColumnName="ColumnName" />
-                <ScalarProperty Name="EntityName" ColumnName="EntityName" />
-                <ScalarProperty Name="enSearchCategory" ColumnName="enSearchCategory" />
-                <ScalarProperty Name="pkAdvancedSearchField" ColumnName="pkAdvancedSearchField" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="ExternalBillingDatas">
             <EntityTypeMapping TypeName="MobileManagerModel.ExternalBillingData">
               <MappingFragment StoreEntitySet="ExternalBillingData">
@@ -3273,6 +3258,21 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
                 <ScalarProperty Name="PropertyDescription" ColumnName="PropertyDescription" />
                 <ScalarProperty Name="enDataEntity" ColumnName="enDataEntity" />
                 <ScalarProperty Name="pkDataImportPropertyID" ColumnName="pkDataImportPropertyID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AdvancedSearchFields">
+            <EntityTypeMapping TypeName="MobileManagerModel.AdvancedSearchField">
+              <MappingFragment StoreEntitySet="AdvancedSearchField">
+                <ScalarProperty Name="FinalEntityColumnName" ColumnName="FinalEntityColumnName" />
+                <ScalarProperty Name="OtherEntityColumnName" ColumnName="OtherEntityColumnName" />
+                <ScalarProperty Name="ControlType" ColumnName="ControlType" />
+                <ScalarProperty Name="DataType" ColumnName="DataType" />
+                <ScalarProperty Name="DisplayName" ColumnName="DisplayName" />
+                <ScalarProperty Name="ColumnName" ColumnName="ColumnName" />
+                <ScalarProperty Name="EntityName" ColumnName="EntityName" />
+                <ScalarProperty Name="enSearchCategory" ColumnName="enSearchCategory" />
+                <ScalarProperty Name="pkAdvancedSearchField" ColumnName="pkAdvancedSearchField" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

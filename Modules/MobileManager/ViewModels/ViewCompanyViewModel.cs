@@ -500,8 +500,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             int selectedGroupID = SelectedGroup.pkCompanyGroupID;
             PopupWindow popupWindow = new PopupWindow(new ViewCompanyGroup(), "Company Group Maintenance", PopupWindow.PopupButtonType.Close);
             //So width and heigh can be set auto for referencedata
-            popupWindow.MaxHeight = popupWindow.MinHeight = 300;
-            popupWindow.MaxWidth = popupWindow.MinWidth = 450;
+            popupWindow.MaxHeight = popupWindow.MinHeight = 400;
+            popupWindow.MaxWidth = popupWindow.MinWidth = 550;
             popupWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             popupWindow.ShowDialog();
             await ReadCompanyGroupsAsync();

@@ -164,9 +164,6 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 case ReferenceDataOption.ViewCompany:
                     SelectedView = new ViewCompany();
                     break;
-                case ReferenceDataOption.ViewCompanyBillingLevel:
-                    SelectedView = new ViewCompanyBillingLevel();
-                    break;
                 case ReferenceDataOption.ViewCompanyGroup:
                     SelectedView = new ViewCompanyGroup();
                     break;

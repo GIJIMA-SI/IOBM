@@ -10,7 +10,8 @@
 namespace Gijima.IOBM.MobileManager.Model.Data
 {
     using System;
-
+    using System.Collections.Generic;
+    
     public partial class DataValidationRule
     {
         public int pkDataValidationRuleID { get; set; }
@@ -20,10 +21,11 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public int fkDataValidationPropertyID { get; set; }
         public short enOperatorType { get; set; }
         public short enOperator { get; set; }
-        public string CalculationParameters { get; set; }
         public string DataValidationValue { get; set; }
         public string ModifiedBy { get; set; }
-        public DateTime ModifiedDate { get; set; }  
+        public System.DateTime ModifiedDate { get; set; }
+        public string CalculationParameters { get; set; }
+    
         public virtual DataValidationProperty DataValidationProperty { get; set; }
     }
 }

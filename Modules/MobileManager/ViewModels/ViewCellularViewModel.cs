@@ -46,7 +46,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         public DelegateCommand ContractServiceCommand { get; set; }
         public DelegateCommand ContractPackageCommand { get; set; }
         public DelegateCommand ContractSuburbCommand { get; set; }
-
+        
         #endregion
 
         #region Properties
@@ -1515,7 +1515,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             ContractStatusCommand = new DelegateCommand(ExecuteShowStatusView, CanExecuteMaintenace);
             ContractServiceCommand = new DelegateCommand(ExecuteShowContractServiceView, CanExecuteMaintenace);
             ContractPackageCommand = new DelegateCommand(ExecuteShowPackageView, CanExecuteMaintenace);
-
+            
             // Subscribe to this event to read the client data based on the search results
             _eventAggregator.GetEvent<SearchResultEvent>().Subscribe(SearchResult_Event, true);
 
@@ -2269,7 +2269,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                 ApplicationMessage.MessageTypes.SystemError));
             }
         }
-
+        
         /// <summary>
         /// Validate if the maintenace functionality can be executed
         /// </summary>
@@ -2346,7 +2346,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             await ReadClientLocationsAsync();
             SelectedClientLocation = ClientLocationCollection.Where(p => p.pkClientLocationID == selectedSiteID).FirstOrDefault();
         }
-
+        
         /// <summary>
         /// Execute show package maintenace view
         /// </summary>

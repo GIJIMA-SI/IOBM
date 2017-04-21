@@ -13,6 +13,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -293,6 +294,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             ViewCompanyBillingLevelViewModel viewModel = new ViewCompanyBillingLevelViewModel(_eventAggregator, SelectedGroup.pkCompanyGroupID);
             view.DataContext = viewModel;
             PopupWindow popupWindow = new PopupWindow(view, "Company Billing Level Maintenance", PopupWindow.PopupButtonType.Close);
+            //So width and heigh can be set auto for referencedata
+            popupWindow.MaxHeight = popupWindow.MinHeight = 400;
+            popupWindow.MaxWidth = popupWindow.MinWidth = 500;
+            popupWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             popupWindow.ShowDialog();
             ReadCompanyBillingLevelsAsync();
         }

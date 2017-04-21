@@ -573,8 +573,20 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     if (searchField.ColumnName.StartsWith("fk"))
                     {
                         string entityName = searchField.ColumnName.Replace("fk", "").Replace("ID", "");
-                        string currentJoin = $"INNER JOIN {entityName} ON {searchField.EntityName}.fk{entityName}ID = {entityName}.pk{entityName}ID ";
-                        JoinCollection.Add(currentJoin);
+
+                        //If Entity name is client then there will only be one join
+                        if (searchField.EntityName != "Client")
+                        {   
+                            string currentJoin = $"INNER JOIN {entityName} ON {searchField.EntityName}.fk{entityName}ID = {entityName}.pk{entityName}ID ";
+                            JoinCollection.Add(currentJoin);
+                        }
+                        else
+                        {
+                            CalculateMapping("Client", searchField.EntityName);
+                            string currentJoin = $"INNER JOIN {entityName} ON {searchField.EntityName}.fk{entityName}ID = {entityName}.pk{entityName}ID ";
+                            if (!JoinCollection.Any(p => p.StartsWith(currentJoin.Substring(0, currentJoin.IndexOf(" ON ")))))
+                                JoinCollection.Add(currentJoin);
+                        }
                     }
                 }
             }
@@ -1112,6 +1124,14 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         {
                             case "Status":
                                 ComboBoxValidationCollection = await Task.Run(() => new StatusModel(_eventAggregator).ReadStatuseOptions(StatusLink.Sim));
+                                break;
+                        }
+                        break;
+                    case "Company":
+                        switch (displayName)
+                        {
+                            case "Company Group":
+                                ComboBoxValidationCollection = await Task.Run(() => new CompanyModel(_eventAggregator).ReadCompanyGroupNames(true));
                                 break;
                         }
                         break;

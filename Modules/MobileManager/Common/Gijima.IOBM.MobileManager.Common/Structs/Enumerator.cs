@@ -643,8 +643,6 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
         ViewClientSite = 3,
         [Description("Company")]
         ViewCompany = 4,
-        [Description("Company Billing Level")]
-        ViewCompanyBillingLevel = 5,
         [Description("Company Group")]
         ViewCompanyGroup = 6,
         [Description("Contract Service")]

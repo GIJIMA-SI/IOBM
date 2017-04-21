@@ -1115,9 +1115,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                             string selectedCompany = "";
                             if (UseCompanies)
                                 selectedCompany = GroupCompanies ? SelectedCompanyGroup.GroupName : SelectedCompany.CompanyName;
-                            else
-                                selectedCompany = GroupCompanies ? SelectedCompanyGroup.GroupName : SelectedCompany.CompanyName;
-
+                           
                             result = await Task.Run(() => new ClientModel(_eventAggregator).UpdateClientUpdate(searchCriteria,
                                                                                                                  MappedPropertyCollection,
                                                                                                                  row,
