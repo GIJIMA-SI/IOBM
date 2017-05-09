@@ -40,11 +40,12 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             {
                 using (var db = MobileManagerEntities.GetContext())
                 {
-                    if (!db.Invoices.Any(p => p.fkClientID == invoice.fkClientID &&
-                                              p.fkServiceID == invoice.fkServiceID &&
-                                              p.InvoicePeriod == invoice.InvoicePeriod &&
-                                              p.PrivateDue == invoice.PrivateDue &&
-                                              p.CompanyDue == invoice.CompanyDue))
+                    //if (!db.Invoices.Any(p => p.fkClientID == invoice.fkClientID &&
+                    //                          p.fkServiceID == invoice.fkServiceID &&
+                    //                          p.InvoiceDate == invoice.InvoiceDate &&
+                    //                          p.PrivateDue == invoice.PrivateDue &&
+                    //                          p.CompanyDue == invoice.CompanyDue))
+                    if (true)
                     {
                         // Create the invoice entity before any invoice items can be created
                         invoice.InvoiceNumber = GenerateInvoiceNumber(servicePrefix);
