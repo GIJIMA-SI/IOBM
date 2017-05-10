@@ -67,6 +67,40 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         }
 
         /// <summary>
+        /// Create a new client service entity in the database using ref context
+        /// </summary>
+        /// <param name="clientService">The client service entity to add.</param>
+        /// <returns>True if successfull</returns>
+        public bool CreateClientService(ClientService clientService, MobileManagerEntities db)
+        {
+            try
+            {
+                if (!db.ClientServices.Any(p => p.fkContractID == clientService.fkContractID && p.fkContractServiceID == clientService.fkContractServiceID))
+                {
+                    db.ClientServices.Add(clientService);
+                    db.SaveChanges();
+                    return true;
+                }
+                else
+                {
+                    MessageBoxResult msgResult = MessageBox.Show("Error: The client service already exist!",
+                                                             "Client Service Create", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                //_eventAggregator.GetEvent<ApplicationMessageEvent>()
+                //                .Publish(new ApplicationMessage("ClientServiceModel",
+                //                                                string.Format("Error! {0}, {1}.",
+                //                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                //                                                "CreateClientService",
+                //                                                ApplicationMessage.MessageTypes.SystemError));
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Read all client services from the database
         /// </summary>
         /// <param name="contractID">The contract id linked to the contract services.</param>

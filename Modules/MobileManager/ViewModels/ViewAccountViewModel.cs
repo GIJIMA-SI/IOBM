@@ -999,6 +999,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private async void ExecuteShowSPView()
         {
             PopupWindow popupWindow = new PopupWindow(new ViewServiceProvider(), "Service Provider Maintenance", PopupWindow.PopupButtonType.Close);
+            //So width and heigh can be set auto for referencedata
+            popupWindow.MaxHeight = popupWindow.MinHeight = 300;
+            popupWindow.MaxWidth = popupWindow.MinWidth = 400;
+            popupWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             popupWindow.ShowDialog();
             await ReadServiceProvidersAsync();
         }

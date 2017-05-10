@@ -13,6 +13,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -498,6 +499,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             int selectedGroupID = SelectedGroup.pkCompanyGroupID;
             PopupWindow popupWindow = new PopupWindow(new ViewCompanyGroup(), "Company Group Maintenance", PopupWindow.PopupButtonType.Close);
+            //So width and heigh can be set auto for referencedata
+            popupWindow.MaxHeight = popupWindow.MinHeight = 400;
+            popupWindow.MaxWidth = popupWindow.MinWidth = 550;
+            popupWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             popupWindow.ShowDialog();
             await ReadCompanyGroupsAsync();
             SelectedGroup = GroupCollection.Where(p => p.pkCompanyGroupID == selectedGroupID).FirstOrDefault();

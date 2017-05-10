@@ -15,6 +15,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
@@ -805,6 +806,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private async void ExecuteShowMakeView()
         {
             PopupWindow popupWindow = new PopupWindow(new ViewDeviceMake(), "Device Make Maintenance", PopupWindow.PopupButtonType.Close);
+            //So width and heigh can be set auto for referencedata
+            popupWindow.MaxHeight = popupWindow.MinHeight = 300;
+            popupWindow.MaxWidth = popupWindow.MinWidth = 450;
+            popupWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             popupWindow.ShowDialog();
             await ReadDeviceMakesAsync();
         }
@@ -815,6 +820,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private async void ExecuteShowModelView()
         {
             PopupWindow popupWindow = new PopupWindow(new ViewDeviceModel(), "Device Model Maintenance", PopupWindow.PopupButtonType.Close);
+            //So width and heigh can be set auto for referencedata
+            popupWindow.MaxHeight = popupWindow.MinHeight = 350;
+            popupWindow.MaxWidth = popupWindow.MinWidth = 600;
+            popupWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             popupWindow.ShowDialog();
             await ReadDeviceMakesAsync();
             ReadDeviceMakeModelsAsync();
@@ -826,6 +835,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private async void ExecuteShowStatusView()
         {
             PopupWindow popupWindow = new PopupWindow(new ViewStatus(), "Status Maintenance", PopupWindow.PopupButtonType.Close);
+            //So width and heigh can be set auto for referencedata
+            popupWindow.MaxHeight = popupWindow.MinHeight = 350;
+            popupWindow.MaxWidth = popupWindow.MinWidth = 600;
+            popupWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             popupWindow.ShowDialog();
             await ReadStatusesAsync();
         }

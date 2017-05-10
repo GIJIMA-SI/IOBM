@@ -16,6 +16,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         #region Properties and Attributes
 
         private IEventAggregator _eventAggregator;
+        private string _defaultItem = "-- Please Select --";
 
         #endregion
 
@@ -78,14 +79,21 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         {
             try
             {
-                IEnumerable<CompanyGroup> groups = null;
-
+                List<CompanyGroup> groups = null;
+                
                 using (var db = MobileManagerEntities.GetContext())
                 {
                     groups = ((DbQuery<CompanyGroup>)(from companyGroup in db.CompanyGroups
                                                       where activeOnly ? companyGroup.IsActive : true &&
                                                             excludeDefault ? companyGroup.pkCompanyGroupID > 0 : true
                                                       select companyGroup)).OrderBy(p => p.GroupName).ToList();
+
+                    if (!excludeDefault)
+                    {
+                        CompanyGroup defaultGroup = new CompanyGroup();
+                        defaultGroup.GroupName = _defaultItem;
+                        groups.Insert(0, defaultGroup);
+                    }
 
                     return new ObservableCollection<CompanyGroup>(groups);
                 }

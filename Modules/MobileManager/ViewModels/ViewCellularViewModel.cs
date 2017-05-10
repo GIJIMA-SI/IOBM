@@ -46,7 +46,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         public DelegateCommand ContractServiceCommand { get; set; }
         public DelegateCommand ContractPackageCommand { get; set; }
         public DelegateCommand ContractSuburbCommand { get; set; }
-
+        
         #endregion
 
         #region Properties
@@ -702,7 +702,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                               || (SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA && SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString())
                                                                               ? Brushes.Silver : Brushes.Red;
                 SelectedClientState = SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString()
-                                                             || (SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA && SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString())
+                                                             //|| (SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA && SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString())
                                                              ? true : false;
                 if (SelectedStatus != null && (SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString() || (SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString() && SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA)))
                     SelectedBillingYear = SelectedBillingMonth = string.Empty;
@@ -722,9 +722,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 SetProperty(ref _selectedPackage, value);
                 SetPackageDefaults();
                 ReadCompanyBillingLevels();
-                //ValidPaymentYear = ValidPaymentMonth = SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString()
-                //|| (SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA && SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString())
-                //? Brushes.Silver : Brushes.Red;
+
                 ValidPaymentYear = ValidPaymentMonth = SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString()
                                                                               || (SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA && SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString())
                                                                               ? Brushes.Silver : Brushes.Red;
@@ -1517,7 +1515,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             ContractStatusCommand = new DelegateCommand(ExecuteShowStatusView, CanExecuteMaintenace);
             ContractServiceCommand = new DelegateCommand(ExecuteShowContractServiceView, CanExecuteMaintenace);
             ContractPackageCommand = new DelegateCommand(ExecuteShowPackageView, CanExecuteMaintenace);
-
+            
             // Subscribe to this event to read the client data based on the search results
             _eventAggregator.GetEvent<SearchResultEvent>().Subscribe(SearchResult_Event, true);
 
@@ -2271,7 +2269,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                 ApplicationMessage.MessageTypes.SystemError));
             }
         }
-
+        
         /// <summary>
         /// Validate if the maintenace functionality can be executed
         /// </summary>
@@ -2288,6 +2286,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             int selectedCompanyID = SelectedCompany.pkCompanyID;
             PopupWindow popupWindow = new PopupWindow(new ViewCompany(), "Company Maintenance", PopupWindow.PopupButtonType.Close);
+            //So width and heigh can be set auto for referencedata
+            popupWindow.MaxHeight = popupWindow.MinHeight = 400;
+            popupWindow.MaxWidth = popupWindow.MinWidth = 600;
+            popupWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             popupWindow.ShowDialog();
             await ReadCompaniesAsync();
             SelectedCompany = CompanyCollection.Where(p => p.pkCompanyID == selectedCompanyID).FirstOrDefault();
@@ -2298,11 +2300,21 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// </summary>
         private async void ExecuteShowStatusView()
         {
-            int selectedStatusID = SelectedStatus.pkStatusID;
+            int selectedStatusID = 0;
+
+            if (SelectedStatus != null)
+                selectedStatusID = SelectedStatus.pkStatusID;
+
             PopupWindow popupWindow = new PopupWindow(new ViewStatus(), "Status Maintenance", PopupWindow.PopupButtonType.Close);
+            //So width and heigh can be set auto for referencedata
+            popupWindow.MaxHeight = popupWindow.MinHeight = 350;
+            popupWindow.MaxWidth = popupWindow.MinWidth = 600;
+            popupWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             popupWindow.ShowDialog();
             await ReadStatusesAsync();
-            SelectedStatus = StatusCollection.Where(p => p.pkStatusID == selectedStatusID).FirstOrDefault();
+
+            if (SelectedStatus != null)
+                SelectedStatus = StatusCollection.Where(p => p.pkStatusID == selectedStatusID).FirstOrDefault();
         }
 
         /// <summary>
@@ -2311,6 +2323,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private async void ExecuteShowContractServiceView()
         {
             PopupWindow popupWindow = new PopupWindow(new ViewContractService(), "Contract Service Maintenance", PopupWindow.PopupButtonType.Close);
+            //So width and heigh can be set auto for referencedata
+            popupWindow.MaxHeight = popupWindow.MinHeight = 300;
+            popupWindow.MaxWidth = popupWindow.MinWidth = 400;
+            popupWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             popupWindow.ShowDialog();
             await ReadContractServicesAsync();
         }
@@ -2322,11 +2338,15 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             int selectedSiteID = SelectedClientLocation.pkClientLocationID;
             PopupWindow popupWindow = new PopupWindow(new ViewClientSite(), "Client Location Maintenance", PopupWindow.PopupButtonType.Close);
+            //So width and heigh can be set auto for referencedata
+            popupWindow.MaxHeight = popupWindow.MinHeight = 255;
+            popupWindow.MaxWidth = popupWindow.MinWidth = 400;
+            popupWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             popupWindow.ShowDialog();
             await ReadClientLocationsAsync();
             SelectedClientLocation = ClientLocationCollection.Where(p => p.pkClientLocationID == selectedSiteID).FirstOrDefault();
         }
-
+        
         /// <summary>
         /// Execute show package maintenace view
         /// </summary>
@@ -2334,6 +2354,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             int selectedPackageID = SelectedPackage.pkPackageID;
             PopupWindow popupWindow = new PopupWindow(new ViewPackage(), "Package Maintenance", PopupWindow.PopupButtonType.Close);
+            //So width and heigh can be set auto for referencedata
+            popupWindow.MaxHeight = popupWindow.MinHeight = 400;
+            popupWindow.MaxWidth = popupWindow.MinWidth = 640;
+            popupWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             popupWindow.ShowDialog();
             await ReadPackagesAsync();
             SelectedPackage = PackageCollection.Where(p => p.pkPackageID == selectedPackageID).FirstOrDefault();
@@ -2346,6 +2370,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             int selectedSuburbID = SelectedSuburb.pkSuburbID;
             PopupWindow popupWindow = new PopupWindow(new ViewSuburb(), "Suburb Maintenance", PopupWindow.PopupButtonType.Close);
+            //So width and heigh can be set auto for referencedata
+            popupWindow.MaxHeight = popupWindow.MinHeight = 350;
+            popupWindow.MaxWidth = popupWindow.MinWidth = 600;
+            popupWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             popupWindow.ShowDialog();
             await ReadSuburbsAsync();
             SelectedSuburb = SuburbCollection.Where(p => p.pkSuburbID == selectedSuburbID).FirstOrDefault();

@@ -50,7 +50,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="105" />
+                    <ColumnDefinition Width="100" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Destination entity:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
@@ -59,13 +59,44 @@
                         ItemsSource="{Binding DestinationEntityCollection}" 
                         SelectedItem="{Binding SelectedDestinationEntity, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
                 </Border>
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="Search entity:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <Border Grid.Row="2" Grid.Column="1" BorderThickness="1" BorderBrush="{Binding ValidDestinationSearch}">
-                    <ComboBox ToolTip="Select the destination column to search on." TabIndex="2" IsSynchronizedWithCurrentItem="True"
+                <Grid Grid.Row="2" Grid.ColumnSpan="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="2*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Search entity:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                    <Border Grid.Column="1" BorderThickness="1" BorderBrush="{Binding ValidDestinationSearch}">
+                        <ComboBox ToolTip="Select the destination column to search on." TabIndex="2" IsSynchronizedWithCurrentItem="True"
                         IsEnabled="{Binding ValidSelectedDestinationEntity}" ItemsSource="{Binding DestinationSearchCollection}" 
                         SelectedItem="{Binding SelectedDestinationSearch, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Height="22" >
-                    </ComboBox>
-                </Border>
+                        </ComboBox>
+                    </Border>
+                    <TextBlock Grid.Column="2" Text="Group Companies:" Style="{StaticResource UXLabelTextStyle}" Margin="3,0,3,0"></TextBlock>
+                    <CheckBox Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" IsEnabled="{Binding UseCompanies}" 
+                                IsChecked="{Binding GroupCompanies, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"></CheckBox>
+                    <TextBlock Grid.Column="4" Text="Companies:" Style="{StaticResource UXLabelTextStyle}" Margin="3,0,3,0"></TextBlock>
+                    <Border Grid.Column="5" BorderThickness="1" BorderBrush="{Binding ValidCompanySelection}">
+                        <Grid>
+                            <ComboBox ToolTip="Select the destination column to search on." TabIndex="2" IsSynchronizedWithCurrentItem="True"
+                            IsEnabled="{Binding UseCompanies}" ItemsSource="{Binding CompanyGroupCollection}" Visibility="{Binding CompanyGroupVisible}"
+                            SelectedItem="{Binding SelectedCompanyGroup, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Height="22" 
+                            DisplayMemberPath="GroupName">
+                            </ComboBox>
+                            <ComboBox ToolTip="Select the destination column to search on." TabIndex="2" IsSynchronizedWithCurrentItem="True"
+                            IsEnabled="{Binding UseCompanies}" ItemsSource="{Binding CompanyCollection}" DisplayMemberPath="CompanyName" 
+                            Visibility="{Binding CompanyVisible}" 
+                            SelectedItem="{Binding SelectedCompany, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Height="22" >
+                        </ComboBox>
+                        </Grid>
+                    </Border>
+                </Grid>
             </Grid>
         </GroupBox>
         <GroupBox Grid.Row="1" Grid.Column="0" Header="Source Parametes" Margin="5" Style="{StaticResource UXGroupBoxStyle}">

@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.Entity;
 using System.Linq;
 using System.Reflection;
 using System.Transactions;
@@ -454,6 +455,20 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             {
                 return false;
             }
+        }
+
+
+        /// <summary>
+        /// Creates an empty ClientBilling instance in the
+        /// database for the client / contract import and 
+        /// returns the primary key
+        /// </summary>
+        /// <param name="clientBilling"></param>
+        /// <param name="db"></param>
+        /// <returns></returns>
+        public int CreateEmptyBilling(ClientBilling clientBilling, DbContext context)
+        {
+            return 0;
         }
     }
 }

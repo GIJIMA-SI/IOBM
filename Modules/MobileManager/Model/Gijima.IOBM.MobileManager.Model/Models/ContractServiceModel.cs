@@ -100,7 +100,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 return null;
             }
         }
-        
+
         /// <summary>
         /// Read contract service names from the database
         /// </summary>
@@ -181,6 +181,19 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                                 ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Returns the contract service PK (Import purpouse)
+        /// </summary>
+        /// <param name="serviceDescription"></param>
+        /// <param name="db"></param>
+        /// <param name="errorMessage"></param>
+        /// <returns></returns>
+        public int ReadContractServiceID(string serviceDescription, MobileManagerEntities db)
+        {
+            int contractServiceID = db.ContractServices.Where(x => x.ServiceDescription == serviceDescription).FirstOrDefault().pkContractServiceID;
+            return contractServiceID;
         }
     }
 }

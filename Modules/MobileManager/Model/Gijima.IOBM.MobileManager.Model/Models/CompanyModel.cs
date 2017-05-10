@@ -23,6 +23,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         private IEventAggregator _eventAggregator;
         private AuditLogModel _activityLogger = null;
         private DataActivityHelper _dataActivityHelper = null;
+        private string _defaultItem = "-- Please Select --";
 
         #endregion
 
@@ -201,6 +202,46 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         companyGroups = companyGroups.Where(p => p.IsActive);
 
                     return new ObservableCollection<CompanyGroup>(companyGroups);
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("CompanyModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ReadCompanyGroups",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Read all or active only company groups names from the database (Advanced Search)
+        /// </summary>
+        /// <param name="activeOnly">Flag to load all or active only entities.</param>
+        /// <returns>Collection of Company Groups</returns>
+        public ObservableCollection<string> ReadCompanyGroupNames(bool activeOnly)
+        {
+            try
+            {
+                IEnumerable<CompanyGroup> companyGroups = null;
+                List<string> companyGroupNames = new List<string>();
+                companyGroupNames.Add(_defaultItem);
+
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    companyGroups = db.CompanyGroups.OrderBy(p => p.GroupName);
+
+                    if (activeOnly)
+                        companyGroups = companyGroups.Where(p => p.IsActive);
+
+                    foreach (CompanyGroup companyGroup in companyGroups)
+                    {
+                        companyGroupNames.Add(companyGroup.GroupName);
+                    }
+
+                    return new ObservableCollection<string>(companyGroupNames);
                 }
             }
             catch (Exception ex)

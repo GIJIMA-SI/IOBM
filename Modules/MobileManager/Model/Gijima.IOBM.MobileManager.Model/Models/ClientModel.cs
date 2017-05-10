@@ -61,10 +61,10 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     {
                         // Get the available status ID to be used in re-allaction valdation
                         int availableSatusID = db.Status.Where(p => p.StatusDescription == "AVAILABLE").First().pkStatusID;
-                        
+
 
                         Client existingClient = ((DbQuery<Client>)(from exClient in db.Clients
-                                                                   where exClient.PrimaryCellNumber == client.PrimaryCellNumber && 
+                                                                   where exClient.PrimaryCellNumber == client.PrimaryCellNumber &&
                                                                          exClient.IsActive == true
                                                                    select exClient)).Include("Contract").FirstOrDefault();
 
@@ -81,10 +81,10 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         {
                             Client existingClientForReAllocation = ((DbQuery<Client>)(from exClient in db.Clients
                                                                                       join exContract in db.Contracts
-                                                                                      on exClient.fkContractID equals exContract.pkContractID 
-                                                                       where exClient.PrimaryCellNumber == client.PrimaryCellNumber &&
-                                                                             exContract.fkStatusID == availableSatusID
-                                                                       select exClient)).FirstOrDefault();
+                                                                                      on exClient.fkContractID equals exContract.pkContractID
+                                                                                      where exClient.PrimaryCellNumber == client.PrimaryCellNumber &&
+                                                                                            exContract.fkStatusID == availableSatusID
+                                                                                      select exClient)).FirstOrDefault();
 
                             if (existingClientForReAllocation != null) // Re-allocation check
                             {
@@ -265,7 +265,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         Client existingClient = ReadClient(client.pkClientID);
 
                         // Check to see if the client name already exist for another entity 
-                        if (existingClient != null && 
+                        if (existingClient != null &&
                             existingClient.ClientName != client.ClientName &&
                             existingClient.EmployeeNumber != client.EmployeeNumber &&
                             existingClient.IDNumber != client.IDNumber &&
@@ -286,7 +286,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                             // devices and simcards for client in-active
                             if (!client.IsActive)
                             {
-                                new DevicesModel(_eventAggregator).ChangeDevicesStatusForClient(client.fkContractID, client.Contract.fkStatusID ,db);
+                                new DevicesModel(_eventAggregator).ChangeDevicesStatusForClient(client.fkContractID, client.Contract.fkStatusID, db);
                                 new SimCardModel(_eventAggregator).ChangeSimcardsStatusForClient(client.fkContractID, client.Contract.fkStatusID, db);
                             }
 
@@ -296,7 +296,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                             db.Clients.Attach(client);
                             db.Entry(client).State = System.Data.Entity.EntityState.Modified;
-                            
+
                             db.Contracts.Attach(client.Contract);
                             db.Entry(client.Contract).State = System.Data.Entity.EntityState.Modified;
 
@@ -477,7 +477,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                     {
                         //Remove all previous entries
                         db.ClientServices.RemoveRange(db.ClientServices.Where(x => x.fkContractID == client.fkContractID));
-                        
+
                         //Create new entry for each selected service
                         foreach (KeyValuePair<string, object> service in clientServices)
                         {
@@ -510,7 +510,19 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             }
         }
 
-        public bool UpdateClientUpdate(string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, short enSelectedEntity, string selectedDestinationSearch, out string errorMessage)
+        /// <summary>
+        /// Update the client details in data update
+        /// </summary>
+        /// <param name="searchCriteria"></param>
+        /// <param name="mappedProperties"></param>
+        /// <param name="importValues"></param>
+        /// <param name="enSelectedEntity"></param>
+        /// <param name="selectedDestinationSearch"></param>
+        /// <param name="useCompanies"></param>
+        /// <param name="selectedCompany"></param>
+        /// <param name="errorMessage"></param>
+        /// <returns></returns>
+        public bool UpdateClientUpdate(string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, short enSelectedEntity, string selectedDestinationSearch, bool groupCompanies, string selectedCompany, out string errorMessage)
         {
             errorMessage = string.Empty;
             string[] importProperties = null;
@@ -522,10 +534,15 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             bool dataChanged = false;
             bool result = false;
             bool state = true;
-            
+            Company company;
+            CompanyGroup companyGroup;
+            //A list of clients since emplyee number can 
+            //be linked to more than one contract
+            List<Client> clients = new List<Client>();
+
             try
             {
-                
+
                 using (var db = MobileManagerEntities.GetContext())
                 {
                     if (selectedDestinationSearch.Replace(" ", "") == "PrimaryCellNumber")
@@ -536,6 +553,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                             errorMessage = string.Format("Client with cell number {0} not found.", searchCriteria);
                             return false;
                         }
+                        clients.Add(existingClient);
                     }
                     else
                     {
@@ -544,8 +562,30 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         {
                             searchCriteria = "0" + searchCriteria;
                         }
-                        existingClient = db.Clients.Where(p => p.EmployeeNumber == searchCriteria).FirstOrDefault();
-                        if (existingClient == null)
+
+                        //Determine if the client is part of the company/group
+                        if (groupCompanies)
+                        {
+                            companyGroup = db.CompanyGroups.Where(p => p.GroupName == selectedCompany).FirstOrDefault();
+                            List<Company> validCompanies = new CompanyModel(_eventAggregator).ReadCompanies(true).Where(p => p.fkCompanyGroupID == companyGroup.pkCompanyGroupID).ToList();
+                            List<Client> tempClients = db.Clients.Where(p => p.EmployeeNumber == searchCriteria).ToList();
+
+                            foreach (Client tempClient in tempClients)
+                            {
+                                foreach (Company tempCompany in validCompanies)
+                                {
+                                    if (tempCompany.pkCompanyID == tempClient.fkCompanyID)
+                                        clients.Add(tempClient);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            company = db.Companies.Where(p => p.CompanyName == selectedCompany).FirstOrDefault();
+                            clients = db.Clients.Where(p => p.EmployeeNumber == searchCriteria && p.fkCompanyID == company.pkCompanyID).ToList();
+                        }
+                        
+                        if (clients.Count() == 0)
                         {
                             errorMessage = string.Format("Client with employee number {0} not found.", searchCriteria);
                             return false;
@@ -554,15 +594,236 @@ namespace Gijima.IOBM.MobileManager.Model.Models
 
                 }
 
+                foreach (Client client in clients)
+                {
+                    using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
+                    {
+
+                        using (var db = MobileManagerEntities.GetContext())
+                        {
+                            clientToUpdate = db.Clients.Where(p => p.pkClientID == client.pkClientID).FirstOrDefault();
+
+                            // Get the sql table structure of the entity
+                            PropertyDescriptor[] properties = EDMHelper.GetEntityStructure<Client>();
+
+                            foreach (PropertyDescriptor property in properties)
+                            {
+                                mustUpdate = false;
+                                // Get the source property and source value 
+                                // mapped the simcard entity property
+                                foreach (string mappedProperty in mappedProperties)
+                                {
+                                    string[] arrMappedProperty = mappedProperty.Split('=');
+                                    string propertyName = new DataUpdatePropertyModel(_eventAggregator).GetPropertyName(arrMappedProperty[1].Trim(), enSelectedEntity);
+                                    if (propertyName == property.Name)
+                                    {
+                                        importProperties = mappedProperty.Split('=');
+                                        sourceProperty = importProperties[0].Trim();
+                                        sourceValue = importValues[sourceProperty];
+                                        dataChanged = mustUpdate = true;
+                                        break;
+                                    }
+                                }
+
+                                // Always update these values
+                                if (dataChanged && (property.Name == "ModifiedBy" || property.Name == "ModifiedDate" || property.Name == "IsActive"))
+                                    mustUpdate = true;
+
+                                if (mustUpdate)
+                                {
+                                    //If an error occur it will tell in what column what value
+                                    errorMessage = $"Error column '{sourceProperty.ToString()}' with value '{sourceValue.ToString()}' ";
+
+                                    // Validate the source suburb and get
+                                    // the value for the fkSuburbID
+                                    if (property.Name == "fkSuburbID")
+                                    {
+                                        Suburb suburb = db.Suburbs.Where(p => p.SuburbName == sourceValue.ToString().ToUpper()).FirstOrDefault();
+
+                                        if (suburb == null)
+                                        {
+                                            errorMessage = "Suburb not found for nr." + searchCriteria;
+                                            return false;
+                                        }
+                                        sourceValue = suburb.pkSuburbID;
+                                    }
+                                    //Validate the source company
+                                    //and validate te value for the fkCompanyID
+                                    if (property.Name == "fkCompanyID")
+                                    {
+                                        Company companyID = db.Companies.Where(p => p.CompanyName == sourceValue.ToString()).FirstOrDefault();
+                                        if (companyID == null)
+                                        {
+                                            errorMessage = "Company not found for nr." + searchCriteria;
+                                            return false;
+                                        }
+                                        sourceValue = companyID.pkCompanyID;
+                                    }
+                                    //Validate the source location and set the fkClientLocationID
+                                    // to the location ID
+                                    if (property.Name == "fkClientLocationID")
+                                    {
+                                        ClientLocation clientLocation = db.ClientLocations.Where(p => p.LocationDescription == sourceValue.ToString()).FirstOrDefault();
+                                        if (clientLocation == null)
+                                        {
+                                            errorMessage = "Location not found for nr." + searchCriteria;
+                                            return false;
+                                        }
+                                        sourceValue = clientLocation.pkClientLocationID;
+                                    }
+                                    //Validate the IsPrivate value
+                                    //and conver string to bool
+                                    if (property.Name == "IsPrivate")
+                                    {
+                                        if (sourceValue.ToString().ToUpper() == "PRIVATE")
+                                            sourceValue = true;
+                                        else if (sourceValue.ToString().ToUpper() == "Company")
+                                            sourceValue = false;
+                                        else
+                                        {
+                                            errorMessage = "Type not found (Should be 'Private' or 'Company'). ";
+                                            return false;
+                                        }
+                                    }
+
+                                    // Set the default values
+                                    if (property.Name == "ModifiedBy")
+                                        sourceValue = SecurityHelper.LoggedInFullName;
+                                    if (property.Name == "ModifiedDate")
+                                        sourceValue = DateTime.Now;
+                                    if (property.Name == "IsActive")
+                                        sourceValue = client.IsActive;
+
+                                    // Convert the db type into the type of the property in our entity
+                                    if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                                    {
+                                        try
+                                        { sourceValue = Convert.ChangeType(sourceValue, property.PropertyType.GetGenericArguments()[0]); }
+                                        catch
+                                        { sourceValue = null; }
+                                    }
+                                    else if (property.PropertyType == typeof(System.DateTime))
+                                    {
+                                        //Excel date format convertion
+                                        try
+                                        { sourceValue = Convert.ToDateTime(DateTime.FromOADate(Convert.ToDouble(sourceValue.ToString()))); }
+                                        catch { }
+                                        try
+                                        { sourceValue = Convert.ToDateTime(Convert.ToDateTime(sourceValue.ToString())); }
+                                        catch
+                                        { return false; }
+                                    }
+                                    else if (property.PropertyType == typeof(System.Guid))
+                                        sourceValue = new Guid(sourceValue.ToString());
+                                    else if (property.PropertyType == typeof(System.Byte[]))
+                                        sourceValue = Convert.FromBase64String(sourceValue.ToString());
+                                    else if (property.PropertyType == typeof(System.Boolean))
+                                        sourceValue = Convert.ToBoolean(sourceValue.ToString());
+                                    else if (property.PropertyType == typeof(System.Int32))
+                                        sourceValue = Convert.ToInt32(sourceValue.ToString());
+                                    else if (property.PropertyType == typeof(System.Decimal))
+                                        sourceValue = Convert.ToDecimal(sourceValue.ToString());
+                                    else if (property.PropertyType == typeof(System.Double))
+                                        sourceValue = Convert.ToDouble(sourceValue.ToString());
+                                    else
+                                        sourceValue = Convert.ChangeType(sourceValue, property.PropertyType);
+
+                                    // Set the value of the property with the value from the db
+                                    property.SetValue(clientToUpdate, sourceValue);
+                                }
+                            }
+
+                            if (dataChanged)
+                            {
+                                errorMessage = "Logging error please try the update again if error persist contact the development team.";
+
+                                // Add the data activity log
+                                result = _activityLogger.CreateDataChangeAudits<Client>(_dataActivityHelper.GetDataChangeActivities<Client>(client,
+                                                                                                                                            clientToUpdate,
+                                                                                                                                            clientToUpdate.fkContractID,
+                                                                                                                                            db));
+                                db.SaveChanges();
+                                tc.Complete();
+                            }
+                        }
+                    }
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public bool CreateClientImport(string searchCriteria, IEnumerable<string> mappedProperties, DataRow importValues, short enSelectedEntity, bool ExistingClient, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            string[] importProperties = null;
+            string sourceProperty = string.Empty;
+            object sourceValue = null;
+            Client existingClient = null;
+            Client clientToCreate = null;
+            bool mustUpdate = false;
+            bool dataChanged = false;
+            bool state = true;
+            //List to keep the information on all the client services
+            List<int> contractServiceIDs = new List<int>();
+            
+            try
+            {
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    //If existing client get the client to get the clients' details
+                    if (ExistingClient)
+                    {
+                        existingClient = db.Clients.OrderByDescending(p => p.PrimaryCellNumber == searchCriteria).FirstOrDefault();
+
+                        if (existingClient == null)
+                        {
+                            errorMessage = string.Format("Client with cell number {0} not found.", searchCriteria);
+                            return false;
+                        }
+                    }
+                }
+
                 using (TransactionScope tc = TransactionHelper.CreateTransactionScope())
                 {
+                    if (ExistingClient)
+                    {
+                        clientToCreate = (Client)existingClient;
+                        clientToCreate.pkClientID = 0;
+                        clientToCreate.fkClientBillingID = clientToCreate.fkContractID = 0;
+                    }
+                    else
+                    {
+                        clientToCreate = new Client();
+                        clientToCreate.PrimaryCellNumber = searchCriteria;
+                    }
+
+                    //Creates the empty client billing
+                    clientToCreate.ClientBilling = new ClientBilling();
+                    clientToCreate.ClientBilling.pkClientBillingID = 0;
+                    clientToCreate.ClientBilling.IsBillable = false;
+                    clientToCreate.ClientBilling.IsSplitBilling = false;
+                    clientToCreate.ClientBilling.SplitBillingException = false;
+                    clientToCreate.ClientBilling.VoiceAllowance = 0;
+                    clientToCreate.ClientBilling.InternationalDailing = false;
+                    clientToCreate.ClientBilling.PermanentIntDailing = false;
+                    clientToCreate.ClientBilling.InternationalRoaming = false;
+                    clientToCreate.ClientBilling.PermanentIntRoaming = false;
+                    clientToCreate.ClientBilling.ModifiedBy = SecurityHelper.LoggedInFullName;
+                    clientToCreate.ClientBilling.ModifiedDate = DateTime.Now;
+                    clientToCreate.ClientBilling.IsActive = true;
+
+                    //Creates an empty contract
+                    clientToCreate.Contract = new Contract();
+                    clientToCreate.Contract.pkContractID = 0;
 
                     using (var db = MobileManagerEntities.GetContext())
                     {
-                        clientToUpdate = db.Clients.Where(p => p.pkClientID == existingClient.pkClientID).FirstOrDefault();
-
                         // Get the sql table structure of the entity
-                        PropertyDescriptor[] properties = EDMHelper.GetEntityStructure <Client>();
+                        PropertyDescriptor[] properties = EDMHelper.GetEntityStructure<Client>();
 
                         foreach (PropertyDescriptor property in properties)
                         {
@@ -572,7 +833,14 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                             foreach (string mappedProperty in mappedProperties)
                             {
                                 string[] arrMappedProperty = mappedProperty.Split('=');
-                                string propertyName = new DataUpdatePropertyModel(_eventAggregator).GetPropertyName(arrMappedProperty[1].Trim(), enSelectedEntity);
+                                string propertyName = new DataImportPropertyModel(_eventAggregator).GetPropertyName(arrMappedProperty[1].Trim(), enSelectedEntity);
+                                if (arrMappedProperty[1].Trim() == "Service")
+                                {
+                                    try
+                                    { contractServiceIDs.Add(new ContractServiceModel(_eventAggregator).ReadContractServiceID(Convert.ToString(importValues[importProperties[0].Trim()]), db));}
+                                    catch
+                                    { errorMessage = "Service description not found"; }
+                                }
                                 if (propertyName == property.Name)
                                 {
                                     importProperties = mappedProperty.Split('=');
@@ -635,7 +903,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                 {
                                     if (sourceValue.ToString().ToUpper() == "PRIVATE")
                                         sourceValue = true;
-                                    else if (sourceValue.ToString().ToUpper() == "Company")
+                                    else if (sourceValue.ToString().ToUpper() == "COMPANY")
                                         sourceValue = false;
                                     else
                                     {
@@ -643,7 +911,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                         return false;
                                     }
                                 }
-                                
+
                                 // Set the default values
                                 if (property.Name == "ModifiedBy")
                                     sourceValue = SecurityHelper.LoggedInFullName;
@@ -669,7 +937,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                     try
                                     { sourceValue = Convert.ToDateTime(Convert.ToDateTime(sourceValue.ToString())); }
                                     catch
-                                    { return false;}
+                                    { return false; }
                                 }
                                 else if (property.PropertyType == typeof(System.Guid))
                                     sourceValue = new Guid(sourceValue.ToString());
@@ -687,25 +955,250 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                     sourceValue = Convert.ChangeType(sourceValue, property.PropertyType);
 
                                 // Set the value of the property with the value from the db
-                                property.SetValue(clientToUpdate, sourceValue);
+                                property.SetValue(clientToCreate, sourceValue);
+                            }
+                        }
+                        
+                        //--------------------------------------------------------------------------------------------------------------------------------------
+
+                        //Create the clients contract information
+                        
+                        
+
+                        //Updates the package setup for the client
+                        PackageSetup packageSetupComplete = new PackageSetupModel(_eventAggregator).ImportPackageSetupImport(searchCriteria,
+                                                                                         mappedProperties,
+                                                                                         importValues,
+                                                                                         enSelectedEntity,
+                                                                                         db,
+                                                                                         out errorMessage);
+                        clientToCreate.Contract.PackageSetup = packageSetupComplete;
+                        if (errorMessage != "Success")
+                            return false;
+
+                        errorMessage = $"Error column '{sourceProperty.ToString()}' with value '{sourceValue.ToString()}' ";
+
+                        //Check if services are being updated
+                        bool newServices = true;
+                        //Create the Services for the contract
+                        foreach (string mapping in mappedProperties)
+                        {
+                            if (mapping.Contains("Service"))
+                            {
+                                if (newServices)
+                                {
+                                    new ClientServiceModel(_eventAggregator).DeleteClientServices(clientToCreate.Contract.pkContractID, db);
+                                    newServices = false;
+                                }
+                                string[] arrMapping = mapping.Split('=');
+                                string sheetHeader = arrMapping[0].Trim();
+                                int serviceID = 0;
+
+                                try
+                                {
+                                    string tmpValue = importValues[sheetHeader].ToString().ToUpper();
+                                    ContractService tmpValueCS = db.ContractServices.Where(p => p.ServiceDescription == tmpValue).FirstOrDefault();
+                                    serviceID = tmpValueCS.pkContractServiceID;
+                                }
+                                catch
+                                {
+                                    errorMessage = string.Format("Service not found for cell nr. {0}", searchCriteria);
+                                    return false;
+                                }
+
+                                ClientService clientService = new ClientService();
+                                clientService.fkContractID = clientToCreate.Contract.pkContractID;
+                                clientService.fkContractServiceID = serviceID;
+                                clientService.ModifiedBy = SecurityHelper.LoggedInFullName;
+                                clientService.ModifiedDate = DateTime.Now;
+                                clientToCreate.Contract.ClientServices.Add(clientService);
                             }
                         }
 
+                        // Get the sql table structure of the entity
+                        properties = EDMHelper.GetEntityStructure<Contract>();
+
+                        foreach (PropertyDescriptor property in properties)
+                        {
+                            mustUpdate = false;
+                            // Get the source property and source value 
+                            // mapped the simcard entity property
+                            foreach (string mappedProperty in mappedProperties)
+                            {
+                                string[] arrMappedProperty = mappedProperty.Split('=');
+                                string propertyName = new DataImportPropertyModel(_eventAggregator).GetPropertyName(arrMappedProperty[1].Trim(), enSelectedEntity);
+                                if (propertyName == property.Name)
+                                {
+                                    importProperties = mappedProperty.Split('=');
+                                    sourceProperty = importProperties[0].Trim();
+                                    sourceValue = importValues[sourceProperty];
+                                    dataChanged = mustUpdate = true;
+                                    break;
+                                }
+                            }
+
+                            // Always update these values
+                            if (dataChanged && (property.Name == "ModifiedBy" || property.Name == "ModifiedDate" || property.Name == "IsActive"))
+                                mustUpdate = true;
+
+                            if (mustUpdate)
+                            {
+                                //If an error occur it will tell in what column what value
+                                errorMessage = $"Error column '{sourceProperty.ToString()}' with value '{sourceValue.ToString()}' ";
+
+                                // Validate the source status and get
+                                // the value for the fkStatusID
+                                if (property.Name == "fkStatusID")
+                                {
+                                    Status status = db.Status.Where(p => p.StatusDescription.ToUpper() == sourceValue.ToString().ToUpper()).FirstOrDefault();
+
+                                    if (status == null)
+                                    {
+                                        errorMessage = "Status not found for nr." + searchCriteria;
+                                        return false;
+                                    }
+
+                                    // Set the contract and client to in-active 
+                                    // if the status is not active
+                                    if (status.StatusDescription != "ACTIVE")
+                                    {
+                                        state = false;
+                                        clientToCreate.IsActive = state;
+                                    }
+                                    else
+                                        clientToCreate.IsActive = state;
+
+                                    sourceValue = status.pkStatusID;
+                                }
+                                // Validate the source package and get
+                                // the value for the fkPackageID
+                                if (property.Name == "fkPackageID")
+                                {
+                                    Package package = db.Packages.Where(p => p.PackageName.ToUpper() == sourceValue.ToString().ToUpper()).FirstOrDefault();
+
+                                    if (package == null)
+                                    {
+                                        errorMessage = "Package not found for nr." + searchCriteria;
+                                        return false;
+                                    }
+
+                                    sourceValue = package.pkPackageID;
+                                    
+                                }
+                                // Validate the CostType and get
+                                // the value for the enCostType
+                                if (property.Name == "enCostType")
+                                {
+                                    sourceValue = EnumHelper.GetEnumFromDescription<CostType>(sourceValue.ToString().ToUpper()).Value();
+                                }
+                                // Validate the date and get
+                                // the correct date format
+                                if (property.Name == "ContractStartDate" || property.Name == "ContractEndDate" || property.Name == "ContractUpgradeDate")
+                                {
+                                    bool validDate = false;
+                                    try
+                                    { int temp = Convert.ToInt32(sourceValue); }
+                                    catch
+                                    { validDate = true; }
+
+                                    if (validDate)
+                                        sourceValue = Convert.ToDateTime(Convert.ToDateTime(sourceValue.ToString()));
+                                    else
+                                        sourceValue = Convert.ToDateTime(DateTime.FromOADate(Convert.ToDouble(sourceValue.ToString())));
+                                }
+                                //Check when a payment cancel period is provider
+                                //that it is in the correct format.
+                                if (property.Name == "PaymentCancelPeriod")
+                                {
+                                    try
+                                    {
+                                        int year = Convert.ToInt32(sourceValue.ToString().Substring(0, 4));
+                                        int month = Convert.ToInt32(sourceValue.ToString().Substring(5, 2));
+                                        sourceValue = $"{sourceValue.ToString().Substring(0, 4)}/{sourceValue.ToString().Substring(5, 2)}";
+                                    }
+                                    catch
+                                    {
+                                        errorMessage = "Error: Payment cancel should be in format yyyy/mm (2050/09). ";
+                                        return false;
+                                    }
+                                }
+
+                                // Set the default values
+                                if (property.Name == "ModifiedBy")
+                                    sourceValue = SecurityHelper.LoggedInFullName;
+                                if (property.Name == "ModifiedDate")
+                                    sourceValue = DateTime.Now;
+                                if (property.Name == "IsActive")
+                                    sourceValue = state;
+
+                                // Convert the db type into the type of the property in our entity
+                                if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                                {
+                                    try
+                                    { sourceValue = Convert.ChangeType(sourceValue, property.PropertyType.GetGenericArguments()[0]); }
+                                    catch
+                                    { sourceValue = null; }
+                                }
+                                else if (property.PropertyType == typeof(System.DateTime))
+                                {
+                                    //Excel date format convertion
+                                    try
+                                    { sourceValue = Convert.ToDateTime(DateTime.FromOADate(Convert.ToDouble(sourceValue.ToString()))); }
+                                    catch { }
+                                    try
+                                    { sourceValue = Convert.ToDateTime(Convert.ToDateTime(sourceValue.ToString())); }
+                                    catch
+                                    { return false; }
+                                }
+                                else if (property.PropertyType == typeof(System.Guid))
+                                    sourceValue = new Guid(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Byte[]))
+                                    sourceValue = Convert.FromBase64String(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Boolean))
+                                    sourceValue = Convert.ToBoolean(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Int32))
+                                    sourceValue = Convert.ToInt32(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Decimal))
+                                    sourceValue = Convert.ToDecimal(sourceValue.ToString());
+                                else if (property.PropertyType == typeof(System.Double))
+                                    sourceValue = Convert.ToDouble(sourceValue.ToString());
+                                else
+                                    sourceValue = Convert.ChangeType(sourceValue, property.PropertyType);
+
+                                // Set the value of the property with the value from the db
+                                property.SetValue(clientToCreate.Contract, sourceValue);
+                            }
+                        }
+                        
                         if (dataChanged)
                         {
-                            errorMessage = "Logging error please try the update again if error persist contact the development team.";
-                            
-                            // Add the data activity log
-                            result = _activityLogger.CreateDataChangeAudits<Client>(_dataActivityHelper.GetDataChangeActivities<Client>(existingClient,
-                                                                                                                                        clientToUpdate,
-                                                                                                                                        clientToUpdate.fkContractID,
-                                                                                                                                        db));
+                            errorMessage = "Error: Saving Error if persist contact developer.";
+                            db.ClientBillings.Add(clientToCreate.ClientBilling);
+                            db.PackageSetups.Add(clientToCreate.Contract.PackageSetup);
                             db.SaveChanges();
+                            db.Contracts.Add(clientToCreate.Contract);
+                            db.SaveChanges();
+                            db.Clients.Add(clientToCreate);
+                            db.SaveChanges();
+
+                            errorMessage = "Creating client contract service error";
+                            //Add all the contract services
+                            foreach (int contractServiceID in contractServiceIDs)
+                            {
+                                ClientService clientService = new ClientService();
+                                clientService.pkClientServiceID = 0;
+                                clientService.fkContractID = clientToCreate.Contract.pkContractID;
+                                clientService.fkContractServiceID = contractServiceID;
+                                clientService.ModifiedBy = SecurityHelper.LoggedInFullName;
+                                clientService.ModifiedDate = DateTime.Now;
+                                new ClientServiceModel(_eventAggregator).CreateClientService(clientService, db);
+                            }
+                            
                             tc.Complete();
                         }
                     }
                 }
-                return result;
+                return true;
             }
             catch (Exception ex)
             {

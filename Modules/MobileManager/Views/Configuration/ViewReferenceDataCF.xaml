@@ -1,0 +1,84 @@
+﻿<UserControl x:Class="Gijima.IOBM.MobileManager.Views.ViewReferenceDataCF"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Gijima.IOBM.MobileManager.Views"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             mc:Ignorable="d"
+             d:DesignHeight="720" d:DesignWidth="1280" >
+    <UserControl.Resources>
+        <!--All the possible views-->
+        <DataTemplate DataType="{x:Type local:ViewBillingLevel}">
+            <local:ViewBillingLevel Width="Auto" Height="Auto"/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type local:ViewCity}">
+            <local:ViewCity Width="Auto" Height="Auto" />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type local:ViewClientSite}">
+            <local:ViewClientSite Width="Auto" Height="Auto" />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type local:ViewCompany}">
+            <local:ViewCompany Width="Auto" Height="Auto" />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type local:ViewCompanyBillingLevel}">
+            <local:ViewCompanyBillingLevel Width="Auto" Height="Auto" />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type local:ViewCompanyGroup}">
+            <local:ViewCompanyGroup Width="Auto" Height="Auto" />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type local:ViewContractService}">
+            <local:ViewContractService Width="Auto" Height="Auto" />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type local:ViewDeviceMake}">
+            <local:ViewDeviceMake Width="Auto" Height="Auto" />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type local:ViewDeviceModel}">
+            <local:ViewDeviceModel Width="Auto" Height="Auto" />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type local:ViewPackage}">
+            <local:ViewPackage Width="Auto" Height="Auto" />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type local:ViewProvince}">
+            <local:ViewProvince Width="Auto" Height="Auto" />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type local:ViewServiceProvider}">
+            <local:ViewServiceProvider Width="Auto" Height="Auto" />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type local:ViewStatus}">
+            <local:ViewStatus Width="Auto" Height="Auto" />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type local:ViewSuburb}">
+            <local:ViewSuburb Width="Auto" Height="Auto" />
+        </DataTemplate>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource UXHeaderStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Reference Data View" Margin="10,3,0,0" Style="{StaticResource UXHeaderTextStyle}"></TextBlock>
+            </Grid>
+        </Border>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5,5,0,7">
+            <TextBlock HorizontalAlignment="Center" Text="Reference Data to Display:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+            <Border BorderThickness="1" Margin="5,0,0,0" Grid.Row="2" BorderBrush="{Binding ValidReferenceOption, UpdateSourceTrigger=PropertyChanged}">    
+                <ComboBox MinWidth="200" SelectedItem="{Binding SelectedViewName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                          ItemsSource="{Binding ReferenceOptionCollection, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"></ComboBox>
+            </Border>
+        </StackPanel>
+        <ContentControl Grid.Row="2" Content="{Binding SelectedView, UpdateSourceTrigger=PropertyChanged}" Margin="10" />
+    </Grid>
+</UserControl>

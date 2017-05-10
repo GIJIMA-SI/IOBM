@@ -28,7 +28,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         {
             _eventAggregator = eventAggreagator;
         }
-                
+
         /// <summary>
         /// Read all device IME numbers from the database
         /// </summary>
@@ -79,7 +79,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         //Remove all previous entries
                         db.DeviceIMENumbers.RemoveRange(db.DeviceIMENumbers.Where(x => x.fkDeviceID == DeviceID));
                         db.SaveChanges();
-                        
+
                         foreach (DeviceIMENumber deviceIMENumber in deviceIMENumbers)
                         {
                             deviceIMENumber.pkDeviceIMENumberID = 0;
@@ -101,6 +101,26 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                                 "UpdateDeviceIMENumber",
                                                                 ApplicationMessage.MessageTypes.SystemError));
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Returns a devices ID when the IME number is 
+        /// given (Device Update)
+        /// </summary>
+        /// <param name="IMENumber"></param>
+        /// <returns></returns>
+        public int ReadDeviceIDByIMENumber(string IMENumber, MobileManagerEntities db, ref string errorMessage)
+        {
+            try
+            {
+                int deviceID = db.DeviceIMENumbers.Where(p => p.IMENumber == IMENumber).FirstOrDefault().fkDeviceID;
+                return deviceID;
+            }
+            catch
+            {
+                errorMessage = $"Device with IME number: {IMENumber} not found.";
+                return -1;
             }
         }
     }
