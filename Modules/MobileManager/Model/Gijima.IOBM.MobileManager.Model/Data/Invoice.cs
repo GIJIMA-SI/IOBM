@@ -37,6 +37,8 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public Nullable<bool> IsPeriodClosed { get; set; }
         public string ModifiedBy { get; set; }
         public Nullable<System.DateTime> ModifiedDate { get; set; }
+        public bool IsActive { get; set; }
+        public string DeleteComment { get; set; }
     
         public virtual Client Client { get; set; }
         public virtual Service Service1 { get; set; }

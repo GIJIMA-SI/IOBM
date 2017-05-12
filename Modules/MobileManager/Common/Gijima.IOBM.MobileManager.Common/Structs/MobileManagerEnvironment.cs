@@ -45,7 +45,7 @@ namespace Gijima.IOBM.Infrastructure.Structs
         /// The current billing period.
         /// </summary>
         public static string BillingPeriod { get; set; }
-
+        
         /// <summary>
         /// Indicate if the billing period is open.
         /// </summary>

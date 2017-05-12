@@ -42,6 +42,10 @@
                             Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding CancelInvoiceCommand}">
                         <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico" Margin="2"/>
                     </Button>
+                    <Button x:Name="ButtonDeleteInvoice" TabIndex="14" Style="{StaticResource UXImageButtonStyle}" Margin="0,0,2,0"
+                        ToolTip="Delete the selected invoice." Command="{Binding DeleteInvoiceCommand}">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/278.png"  />
+                    </Button>
                     <Button x:Name="ButtonCellularAdd" ToolTip="Add a new invoice." TabIndex="2" Margin="0,0,2,0"
                             Style="{StaticResource UXHeaderImageButtonStyle}" Command="{Binding AddInvoiceCommand}">
                         <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/508.png" Margin="2,2,2,2"/>
@@ -86,6 +90,9 @@
                     <RadioButton x:Name="RadioButtonService" Content="Service" GroupName="FilterGroup" Margin="0,0,10,0" TabIndex="17" Foreground="White"
                         IsChecked="{Binding SelectedServiceGroup, UpdateSourceTrigger=PropertyChanged}">
                     </RadioButton>
+                    <RadioButton x:Name="RadioButtonActive" Content="Active / Deleted" GroupName="FilterGroup" Margin="0,0,10,0" TabIndex="17" Foreground="White"
+                        IsChecked="{Binding SelectedActive, UpdateSourceTrigger=PropertyChanged}">
+                    </RadioButton>
                 </StackPanel>
                 <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Visibility="{Binding ShowPeriodFilter}">
                     <ComboBox ToolTip="Select the account month." TabIndex="18" Height="20" Margin="0,3,2,2" IsSynchronizedWithCurrentItem="True" Width="50"
@@ -97,6 +104,9 @@
                 </StackPanel>
                 <ComboBox Grid.Column="3" ToolTip="Select the service." TabIndex="19" Height="20" Margin="0,3,2,2" IsSynchronizedWithCurrentItem="True" Width="200" VerticalAlignment="Center" 
                     ItemsSource="{Binding ServiceCollection}" SelectedItem="{Binding SelectedServiceFilter}" DisplayMemberPath="ServiceDescription" Visibility="{Binding ShowServiceFilter}">
+                </ComboBox>
+                <ComboBox Grid.Column="3" ToolTip="Select the active option." TabIndex="19" Height="20" Margin="0,3,2,2" IsSynchronizedWithCurrentItem="True" Width="125" VerticalAlignment="Center" 
+                    ItemsSource="{Binding ActiveCollection}" SelectedItem="{Binding SelectedActiveFilter}" Visibility="{Binding ShowActiveFilter}">
                 </ComboBox>
                 <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,1,10,0">
                     <Button x:Name="ButtonCancelFilter" Grid.Column="4" ToolTip="Clear the selected filer." TabIndex="20" Margin="0,0,2,0" 
@@ -112,7 +122,8 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="5" />
-                    <RowDefinition Height="Auto" />                    
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{Binding GridRowDeleteCommentHeight, UpdateSourceTrigger=PropertyChanged}" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="5" />
@@ -146,10 +157,14 @@
                         ItemsSource="{Binding ServiceCollection}" DisplayMemberPath="ServiceDescription" Height="22" 
                         SelectedItem="{Binding SelectedService, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
                     </ComboBox>
-                </Border>                
-                <Border Grid.Row="3" Grid.Column="0" Height="1" Grid.ColumnSpan="8" Background="Gray" Margin="0,10,0,10"></Border>
-                <TextBlock Grid.Row="4" Grid.Column="0" Text="Supplier:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1" BorderThickness="1" BorderBrush="{Binding ValidSupplier}">
+                </Border>
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="Delete Comment:" Style="{StaticResource UXLabelTextStyle}" Grid.ColumnSpan="2" Margin="0,5,0,0"></TextBlock>
+                <Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="7" BorderThickness="1" Margin="25,5,0,0" BorderBrush="{Binding ValidDeleteComment, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox x:Name="TextBoxDeleteComment" IsTabStop="False" Text="{Binding SelectedDeleteComment, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource UXTextBoxStyle}" Grid.ColumnSpan="7"></TextBox>
+                </Border>
+                <Border Grid.Row="4" Grid.Column="0" Height="1" Grid.ColumnSpan="8" Background="Gray" Margin="0,10,0,10"></Border>
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="Supplier:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <Border Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="1" BorderThickness="1" BorderBrush="{Binding ValidSupplier}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -165,7 +180,7 @@
                         </Button>
                     </Grid>
                 </Border>
-                <StackPanel Grid.Row="4" Grid.Column="6" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                <StackPanel Grid.Row="5" Grid.Column="6" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button x:Name="ButtonCancel" TabIndex="13" Style="{StaticResource UXImageButtonStyle}"
                         ToolTip="Cancel the current operation." Command="{Binding CancelItemCommand}">
                         <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico"  />
@@ -179,22 +194,22 @@
                         <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/508.png"  />
                     </Button>
                 </StackPanel>
-                <TextBlock Grid.Row="6" Grid.Column="0" Text="Description:" Style="{StaticResource UXLabelTextStyle}" Margin="0,0,0,3" VerticalAlignment="Bottom"></TextBlock>
-                <TextBox x:Name="TextBoxDescription" Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="1" TabIndex="9" ToolTip="Enter the invoice item description." Style="{StaticResource UXTextBoxStyle}"
+                <TextBlock Grid.Row="7" Grid.Column="0" Text="Description:" Style="{StaticResource UXLabelTextStyle}" Margin="0,0,0,3" VerticalAlignment="Bottom"></TextBlock>
+                <TextBox x:Name="TextBoxDescription" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="1" TabIndex="9" ToolTip="Enter the invoice item description." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedItemDescription, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidItemDescription}">
                 </TextBox>
-                <TextBlock Grid.Row="4" Grid.Column="3" Text="Private:" Margin="0,0,5,0" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <CheckBox x:Name="CheckBoxPrivate" Grid.Row="4" Grid.Column="4" VerticalAlignment="Center" TabIndex="8" IsChecked="{Binding SelectedPrivateBilling, UpdateSourceTrigger=PropertyChanged}"/>
-                <TextBlock Grid.Row="6" Grid.Column="3" Text="Reference:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxReference" Grid.Row="6" Grid.Column="4" TabIndex="10" ToolTip="Enter the invoice item reference." Style="{StaticResource UXTextBoxStyle}"
+                <TextBlock Grid.Row="5" Grid.Column="3" Text="Private:" Margin="0,0,5,0" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <CheckBox x:Name="CheckBoxPrivate" Grid.Row="5" Grid.Column="4" VerticalAlignment="Center" TabIndex="8" IsChecked="{Binding SelectedPrivateBilling, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="7" Grid.Column="3" Text="Reference:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <TextBox x:Name="TextBoxReference" Grid.Row="7" Grid.Column="4" TabIndex="10" ToolTip="Enter the invoice item reference." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedItemReference, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidItemReference}">
                 </TextBox>
-                <TextBlock Grid.Row="6" Grid.Column="6" Text="Amt Incl VAT:" Style="{StaticResource UXLabelTextStyle}" ></TextBlock>
-                <TextBox x:Name="TextBoxItemInclVat" Grid.Row="6" Grid.Column="7" TabIndex="11" ToolTip="Enter the invoice item amount." Style="{StaticResource UXTextBoxStyle}"
+                <TextBlock Grid.Row="7" Grid.Column="6" Text="Amt Incl VAT:" Style="{StaticResource UXLabelTextStyle}" ></TextBlock>
+                <TextBox x:Name="TextBoxItemInclVat" Grid.Row="7" Grid.Column="7" TabIndex="11" ToolTip="Enter the invoice item amount." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedItemAmount, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidItemAmount}">
                 </TextBox>
-                <TextBlock Grid.Row="7" Grid.Column="0" Text="Invoice Items" VerticalAlignment="Bottom" Style="{StaticResource UXLabelTextStyle}"/>
-                <DataGrid x:Name="DataGridInvoiceItems" Grid.Row="8" Grid.ColumnSpan="8" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True" ScrollViewer.CanContentScroll="True"
+                <TextBlock Grid.Row="8" Grid.Column="0" Text="Invoice Items" VerticalAlignment="Bottom" Style="{StaticResource UXLabelTextStyle}"/>
+                <DataGrid x:Name="DataGridInvoiceItems" Grid.Row="9" Grid.ColumnSpan="8" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True" ScrollViewer.CanContentScroll="True"
                     IsReadOnly="True" TabIndex="12" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" IsSynchronizedWithCurrentItem="True"  ScrollViewer.HorizontalScrollBarVisibility="Auto"
                     ItemsSource="{Binding InvoiceItemsCollection, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding SelectedInvoiceItem, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"
                     SelectedIndex="{Binding SelectedInvoiceItemIndex, UpdateSourceTrigger=PropertyChanged}">

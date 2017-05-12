@@ -24,7 +24,7 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public string ModifiedBy { get; set; }
         public System.DateTime ModifiedDate { get; set; }
     
-        public virtual Invoice Invoice { get; set; }
         public virtual ServiceProvider ServiceProvider { get; set; }
+        public virtual Invoice Invoice { get; set; }
     }
 }

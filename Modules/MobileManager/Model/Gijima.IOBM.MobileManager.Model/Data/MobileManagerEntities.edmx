@@ -445,6 +445,8 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="IsPeriodClosed" Type="bit" />
           <Property Name="ModifiedBy" Type="varchar" MaxLength="50" />
           <Property Name="ModifiedDate" Type="datetime" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
+          <Property Name="DeleteComment" Type="varchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="InvoiceDetail">
           <Key>
@@ -1380,9 +1382,9 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <NavigationProperty Name="ClientBilling" Relationship="Self.FK_Client_ClientBilling" FromRole="Client" ToRole="ClientBilling" />
           <NavigationProperty Name="ClientLocation" Relationship="Self.FK_Client_ClientLocation" FromRole="Client" ToRole="ClientLocation" />
           <NavigationProperty Name="Suburb" Relationship="Self.FK_Client_Suburb" FromRole="Client" ToRole="Suburb" />
-          <NavigationProperty Name="Invoices" Relationship="Self.FK_Invoice_Client" FromRole="Client" ToRole="Invoice" />
           <NavigationProperty Name="Contract" Relationship="MobileManagerModel.FK_Client_Contract" FromRole="Client" ToRole="Contract" />
           <NavigationProperty Name="Company" Relationship="MobileManagerModel.FK_Client_Company" FromRole="Client" ToRole="Company" />
+          <NavigationProperty Name="Invoices" Relationship="MobileManagerModel.FK_Invoice_Client" FromRole="Client" ToRole="Invoice" />
         </EntityType>
         <EntityType Name="ClientBilling">
           <Key>
@@ -1532,31 +1534,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <NavigationProperty Name="DeviceMake" Relationship="Self.FK_DeviceModel_DeviceMake" FromRole="DeviceModel" ToRole="DeviceMake" />
           <NavigationProperty Name="Devices" Relationship="MobileManagerModel.FK_Device_DeviceModel" FromRole="DeviceModel" ToRole="Device" />
         </EntityType>
-        <EntityType Name="Invoice">
-          <Key>
-            <PropertyRef Name="pkInvoiceID" />
-          </Key>
-          <Property Name="pkInvoiceID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="AccID" Type="Decimal" Precision="18" Scale="0" />
-          <Property Name="CellNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="EmpNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="Service" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="ImeNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="fkClientID" Type="Int32" />
-          <Property Name="fkServiceID" Type="Int32" />
-          <Property Name="InvoicePeriod" Type="String" MaxLength="9" FixedLength="false" Unicode="false" />
-          <Property Name="InvoiceNumber" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
-          <Property Name="InvoiceDate" Type="DateTime" Precision="3" />
-          <Property Name="CompanyDue" Type="Decimal" Precision="18" Scale="2" />
-          <Property Name="PrivateDue" Type="Decimal" Precision="18" Scale="2" />
-          <Property Name="InvoiceTotal" Type="Decimal" Precision="18" Scale="2" />
-          <Property Name="IsPeriodClosed" Type="Boolean" />
-          <Property Name="ModifiedBy" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
-          <NavigationProperty Name="Client" Relationship="Self.FK_Invoice_Client" FromRole="Invoice" ToRole="Client" />
-          <NavigationProperty Name="Service1" Relationship="Self.FK_Invoice_Service" FromRole="Invoice" ToRole="Service" />
-          <NavigationProperty Name="InvoiceDetails" Relationship="Self.FK_InvoiceDetail_Invoice" FromRole="Invoice" ToRole="InvoiceDetail" />
-        </EntityType>
         <EntityType Name="InvoiceDetail">
           <Key>
             <PropertyRef Name="pkInvoiceItemID" />
@@ -1570,8 +1547,8 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="IsPrivate" Type="Boolean" Nullable="false" />
           <Property Name="ModifiedBy" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
-          <NavigationProperty Name="Invoice" Relationship="Self.FK_InvoiceDetail_Invoice" FromRole="InvoiceDetail" ToRole="Invoice" />
           <NavigationProperty Name="ServiceProvider" Relationship="Self.FK_InvoiceDetail_ServiceProvider" FromRole="InvoiceDetail" ToRole="ServiceProvider" />
+          <NavigationProperty Name="Invoice" Relationship="MobileManagerModel.FK_InvoiceDetail_Invoice" FromRole="InvoiceDetail" ToRole="Invoice" />
         </EntityType>
         <EntityType Name="Package">
           <Key>
@@ -1652,7 +1629,7 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="ModifiedBy" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="Invoices" Relationship="Self.FK_Invoice_Service" FromRole="Service" ToRole="Invoice" />
+          <NavigationProperty Name="Invoices" Relationship="MobileManagerModel.FK_Invoice_Service" FromRole="Service" ToRole="Invoice" />
         </EntityType>
         <EntityType Name="ServiceProvider">
           <Key>
@@ -1810,18 +1787,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_Invoice_Client">
-          <End Role="Client" Type="Self.Client" Multiplicity="0..1" />
-          <End Role="Invoice" Type="Self.Invoice" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Client">
-              <PropertyRef Name="pkClientID" />
-            </Principal>
-            <Dependent Role="Invoice">
-              <PropertyRef Name="fkClientID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_ClientBilling_CompanyBillingLevel">
           <End Role="CompanyBillingLevel" Type="Self.CompanyBillingLevel" Multiplicity="0..1" />
           <End Role="ClientBilling" Type="Self.ClientBilling" Multiplicity="*" />
@@ -1867,30 +1832,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             </Principal>
             <Dependent Role="DeviceModel">
               <PropertyRef Name="fkDeviceMakeID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_Invoice_Service">
-          <End Role="Service" Type="Self.Service" Multiplicity="0..1" />
-          <End Role="Invoice" Type="Self.Invoice" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Service">
-              <PropertyRef Name="pkServiceID" />
-            </Principal>
-            <Dependent Role="Invoice">
-              <PropertyRef Name="fkServiceID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_InvoiceDetail_Invoice">
-          <End Role="Invoice" Type="Self.Invoice" Multiplicity="1" />
-          <End Role="InvoiceDetail" Type="Self.InvoiceDetail" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Invoice">
-              <PropertyRef Name="pkInvoiceID" />
-            </Principal>
-            <Dependent Role="InvoiceDetail">
-              <PropertyRef Name="fkInvoiceID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1972,7 +1913,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <EntitySet Name="DataValidationRules" EntityType="Self.DataValidationRule" />
           <EntitySet Name="DeviceMakes" EntityType="Self.DeviceMake" />
           <EntitySet Name="DeviceModels" EntityType="Self.DeviceModel" />
-          <EntitySet Name="Invoices" EntityType="Self.Invoice" />
           <EntitySet Name="InvoiceDetails" EntityType="Self.InvoiceDetail" />
           <EntitySet Name="Packages" EntityType="Self.Package" />
           <EntitySet Name="PackageSetups" EntityType="Self.PackageSetup" />
@@ -2014,10 +1954,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             <End Role="Suburb" EntitySet="Suburbs" />
             <End Role="Client" EntitySet="Clients" />
           </AssociationSet>
-          <AssociationSet Name="FK_Invoice_Client" Association="Self.FK_Invoice_Client">
-            <End Role="Client" EntitySet="Clients" />
-            <End Role="Invoice" EntitySet="Invoices" />
-          </AssociationSet>
           <AssociationSet Name="FK_ClientBilling_CompanyBillingLevel" Association="Self.FK_ClientBilling_CompanyBillingLevel">
             <End Role="CompanyBillingLevel" EntitySet="CompanyBillingLevels" />
             <End Role="ClientBilling" EntitySet="ClientBillings" />
@@ -2033,14 +1969,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <AssociationSet Name="FK_DeviceModel_DeviceMake" Association="Self.FK_DeviceModel_DeviceMake">
             <End Role="DeviceMake" EntitySet="DeviceMakes" />
             <End Role="DeviceModel" EntitySet="DeviceModels" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Invoice_Service" Association="Self.FK_Invoice_Service">
-            <End Role="Service" EntitySet="Services" />
-            <End Role="Invoice" EntitySet="Invoices" />
-          </AssociationSet>
-          <AssociationSet Name="FK_InvoiceDetail_Invoice" Association="Self.FK_InvoiceDetail_Invoice">
-            <End Role="Invoice" EntitySet="Invoices" />
-            <End Role="InvoiceDetail" EntitySet="InvoiceDetails" />
           </AssociationSet>
           <AssociationSet Name="FK_InvoiceDetail_ServiceProvider" Association="Self.FK_InvoiceDetail_ServiceProvider">
             <End Role="ServiceProvider" EntitySet="ServiceProviders" />
@@ -2152,6 +2080,19 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <EntitySet Name="ExternalBillingDatas" EntityType="MobileManagerModel.ExternalBillingData" />
           <EntitySet Name="DataImportProperties" EntityType="MobileManagerModel.DataImportProperty" />
           <EntitySet Name="AdvancedSearchFields" EntityType="MobileManagerModel.AdvancedSearchField" />
+          <EntitySet Name="Invoices" EntityType="MobileManagerModel.Invoice" />
+          <AssociationSet Name="FK_Invoice_Client" Association="MobileManagerModel.FK_Invoice_Client">
+            <End Role="Client" EntitySet="Clients" />
+            <End Role="Invoice" EntitySet="Invoices" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Invoice_Service" Association="MobileManagerModel.FK_Invoice_Service">
+            <End Role="Service" EntitySet="Services" />
+            <End Role="Invoice" EntitySet="Invoices" />
+          </AssociationSet>
+          <AssociationSet Name="FK_InvoiceDetail_Invoice" Association="MobileManagerModel.FK_InvoiceDetail_Invoice">
+            <End Role="Invoice" EntitySet="Invoices" />
+            <End Role="InvoiceDetail" EntitySet="InvoiceDetails" />
+          </AssociationSet>
           </EntityContainer>
         <ComplexType Name="sp_report_Invoice_Result">
           <Property Type="String" Name="ClientName" Nullable="false" MaxLength="100" />
@@ -2611,6 +2552,69 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="OtherEntityColumnName" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
           <Property Name="FinalEntityColumnName" Type="String" Nullable="false" MaxLength="25" FixedLength="false" Unicode="false" />
         </EntityType>
+        <EntityType Name="Invoice">
+          <Key>
+            <PropertyRef Name="pkInvoiceID" />
+          </Key>
+          <Property Name="pkInvoiceID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="AccID" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="CellNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="EmpNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Service" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ImeNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="fkClientID" Type="Int32" />
+          <Property Name="fkServiceID" Type="Int32" />
+          <Property Name="InvoicePeriod" Type="String" MaxLength="9" FixedLength="false" Unicode="false" />
+          <Property Name="InvoiceNumber" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="InvoiceDate" Type="DateTime" Precision="3" />
+          <Property Name="CompanyDue" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="PrivateDue" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="InvoiceTotal" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="IsPeriodClosed" Type="Boolean" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <Property Name="DeleteComment" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Client" Relationship="MobileManagerModel.FK_Invoice_Client" FromRole="Invoice" ToRole="Client" />
+          <NavigationProperty Name="Service1" Relationship="MobileManagerModel.FK_Invoice_Service" FromRole="Invoice" ToRole="Service" />
+          <NavigationProperty Name="InvoiceDetails" Relationship="MobileManagerModel.FK_InvoiceDetail_Invoice" FromRole="Invoice" ToRole="InvoiceDetail" />
+        </EntityType>
+        <Association Name="FK_Invoice_Client">
+          <End Type="MobileManagerModel.Client" Role="Client" Multiplicity="0..1" />
+          <End Type="MobileManagerModel.Invoice" Role="Invoice" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Client">
+              <PropertyRef Name="pkClientID" />
+            </Principal>
+            <Dependent Role="Invoice">
+              <PropertyRef Name="fkClientID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Invoice_Service">
+          <End Type="MobileManagerModel.Service" Role="Service" Multiplicity="0..1" />
+          <End Type="MobileManagerModel.Invoice" Role="Invoice" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Service">
+              <PropertyRef Name="pkServiceID" />
+            </Principal>
+            <Dependent Role="Invoice">
+              <PropertyRef Name="fkServiceID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_InvoiceDetail_Invoice">
+          <End Type="MobileManagerModel.Invoice" Role="Invoice" Multiplicity="1" />
+          <End Type="MobileManagerModel.InvoiceDetail" Role="InvoiceDetail" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Invoice">
+              <PropertyRef Name="pkInvoiceID" />
+            </Principal>
+            <Dependent Role="InvoiceDetail">
+              <PropertyRef Name="fkInvoiceID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2861,29 +2865,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
                 <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
                 <ScalarProperty Name="ModfiedDate" ColumnName="ModfiedDate" />
                 <ScalarProperty Name="IsActive" ColumnName="IsActive" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Invoices">
-            <EntityTypeMapping TypeName="MobileManagerModel.Invoice">
-              <MappingFragment StoreEntitySet="Invoice">
-                <ScalarProperty Name="pkInvoiceID" ColumnName="pkInvoiceID" />
-                <ScalarProperty Name="AccID" ColumnName="AccID" />
-                <ScalarProperty Name="CellNo" ColumnName="CellNo" />
-                <ScalarProperty Name="EmpNo" ColumnName="EmpNo" />
-                <ScalarProperty Name="Service" ColumnName="Service" />
-                <ScalarProperty Name="ImeNo" ColumnName="ImeNo" />
-                <ScalarProperty Name="fkClientID" ColumnName="fkClientID" />
-                <ScalarProperty Name="fkServiceID" ColumnName="fkServiceID" />
-                <ScalarProperty Name="InvoicePeriod" ColumnName="InvoicePeriod" />
-                <ScalarProperty Name="InvoiceNumber" ColumnName="InvoiceNumber" />
-                <ScalarProperty Name="InvoiceDate" ColumnName="InvoiceDate" />
-                <ScalarProperty Name="CompanyDue" ColumnName="CompanyDue" />
-                <ScalarProperty Name="PrivateDue" ColumnName="PrivateDue" />
-                <ScalarProperty Name="InvoiceTotal" ColumnName="InvoiceTotal" />
-                <ScalarProperty Name="IsPeriodClosed" ColumnName="IsPeriodClosed" />
-                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
-                <ScalarProperty Name="ModifiedDate" ColumnName="ModifiedDate" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -3273,6 +3254,31 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
                 <ScalarProperty Name="EntityName" ColumnName="EntityName" />
                 <ScalarProperty Name="enSearchCategory" ColumnName="enSearchCategory" />
                 <ScalarProperty Name="pkAdvancedSearchField" ColumnName="pkAdvancedSearchField" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Invoices">
+            <EntityTypeMapping TypeName="MobileManagerModel.Invoice">
+              <MappingFragment StoreEntitySet="Invoice">
+                <ScalarProperty Name="DeleteComment" ColumnName="DeleteComment" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="ModifiedDate" ColumnName="ModifiedDate" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="IsPeriodClosed" ColumnName="IsPeriodClosed" />
+                <ScalarProperty Name="InvoiceTotal" ColumnName="InvoiceTotal" />
+                <ScalarProperty Name="PrivateDue" ColumnName="PrivateDue" />
+                <ScalarProperty Name="CompanyDue" ColumnName="CompanyDue" />
+                <ScalarProperty Name="InvoiceDate" ColumnName="InvoiceDate" />
+                <ScalarProperty Name="InvoiceNumber" ColumnName="InvoiceNumber" />
+                <ScalarProperty Name="InvoicePeriod" ColumnName="InvoicePeriod" />
+                <ScalarProperty Name="fkServiceID" ColumnName="fkServiceID" />
+                <ScalarProperty Name="fkClientID" ColumnName="fkClientID" />
+                <ScalarProperty Name="ImeNo" ColumnName="ImeNo" />
+                <ScalarProperty Name="Service" ColumnName="Service" />
+                <ScalarProperty Name="EmpNo" ColumnName="EmpNo" />
+                <ScalarProperty Name="CellNo" ColumnName="CellNo" />
+                <ScalarProperty Name="AccID" ColumnName="AccID" />
+                <ScalarProperty Name="pkInvoiceID" ColumnName="pkInvoiceID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

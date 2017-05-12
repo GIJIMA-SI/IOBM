@@ -1,4 +1,5 @@
 ﻿using Gijima.IOBM.Infrastructure.Events;
+using Gijima.IOBM.Infrastructure.Helpers;
 using Gijima.IOBM.Infrastructure.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Prism.Events;
@@ -15,6 +16,8 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         #region Properties and Attributes
 
         private IEventAggregator _eventAggregator;
+        private AuditLogModel _activityLogger = null;
+        private DataActivityHelper _dataActivityHelper = null;
 
         #endregion
 
@@ -25,6 +28,8 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         public InvoiceModel(IEventAggregator eventAggreagator)
         {
             _eventAggregator = eventAggreagator;
+            _activityLogger = new AuditLogModel(_eventAggregator);
+            _dataActivityHelper = new DataActivityHelper(_eventAggregator);
         }
 
         /// <summary>
@@ -124,7 +129,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         /// <param name="accPeriodFilter">The selected account period to filter on..</param>
         /// <param name="serviceFilter">The selected serive to filter on.</param>
         /// <returns>Collection of Invoices</returns>
-        public ObservableCollection<Invoice> ReadInvoicesForClient(int clientID, string accPeriodFilter = "None", int serviceFilter = 0)
+        public ObservableCollection<Invoice> ReadInvoicesForClient(int clientID, string accPeriodFilter = "None", int serviceFilter = 0, string activeFilter = "Active")
         {
             try
             {
@@ -140,12 +145,24 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                                    .OrderByDescending(p => p.InvoicePeriod)
                                                                    .ThenByDescending(p => p.InvoiceNumber).ToList();
 
+                    switch (activeFilter)
+                    {
+                        case "All":
+                            break;
+                        case "Active": invoices = invoices.Where(x => x.IsActive).ToList();
+                            break;
+                        case "Deleted": invoices = invoices.Where(x => !x.IsActive).ToList();
+                            break;
+                        default: invoices = invoices.Where(x => x.IsActive).ToList();
+                            break;
+                    }
+
                     if (accPeriodFilter != "None")
                         invoices = invoices.Where(p => p.InvoicePeriod == accPeriodFilter);
 
                     if (serviceFilter > 0)
                         invoices = invoices.Where(p => p.fkServiceID == serviceFilter);
-
+                    
                     return new ObservableCollection<Invoice>(invoices);
                 }
             }
@@ -320,6 +337,12 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         {
             try
             {
+                Invoice oldInvoice;
+                using (var logDB = MobileManagerEntities.GetContext())
+                {
+                    oldInvoice = logDB.Invoices.Where(x => x.pkInvoiceID == invoice.pkInvoiceID).FirstOrDefault();
+                }
+
                 using (var db = MobileManagerEntities.GetContext())
                 {
                     Invoice existingInvoice = db.Invoices.Where(p => p.pkInvoiceID == invoice.pkInvoiceID).FirstOrDefault();
@@ -333,6 +356,11 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         existingInvoice.InvoiceTotal = invoice.PrivateDue + invoice.CompanyDue;
                         existingInvoice.ModifiedBy = invoice.ModifiedBy;
                         existingInvoice.ModifiedDate = invoice.ModifiedDate;
+                        existingInvoice.DeleteComment = invoice.DeleteComment;
+                        existingInvoice.IsActive = invoice.IsActive;
+
+                        _activityLogger.CreateDataChangeAudits<SimCard>(_dataActivityHelper.GetDataChangeActivities<Invoice>(oldInvoice, invoice, invoice.pkInvoiceID, db));
+
                         db.SaveChanges();
 
                         // Update the invoice detail
@@ -388,7 +416,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         db.InvoiceDetails.Remove(item);
                     }
                 }
-
+                
                 db.SaveChanges();
             }
             catch (Exception ex)

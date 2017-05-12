@@ -174,6 +174,27 @@ namespace Gijima.IOBM.MobileManager.Model.Models
         }
 
         /// <summary>
+        /// Read the current billing process's first billing porcess 
+        /// start date history from the database
+        /// </summary>
+        /// <returns>BillingProcessHistory</returns>
+        public DateTime ReadCurrentBillingProcessFirstBillingProcess(string billingPeriod)
+        {
+            try
+            {
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    return Convert.ToDateTime(db.BillingProcessHistories.Where(p => p.BillingPeriod == billingPeriod && p.fkBillingProcessID == 1).FirstOrDefault());
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                return DateTime.MinValue;
+            }
+        }
+
+        /// <summary>
         /// Set a billing history entity for the specified process as completed in the database
         /// </summary>
         /// <param name="billingProcess">The billing process to complete.</param>

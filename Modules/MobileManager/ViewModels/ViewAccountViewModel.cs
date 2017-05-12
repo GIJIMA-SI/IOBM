@@ -15,6 +15,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -33,6 +34,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private DateTime _validBillingDate = DateTime.ParseExact(string.Format("01/{0}/{1}", MobileManagerEnvironment.BillingPeriod.Substring(5, 2)
                                                                                            , MobileManagerEnvironment.BillingPeriod.Substring(0, 4))
                                                                                            , "dd/MM/yyyy", CultureInfo.InvariantCulture);
+        private DateTime _billingPeriodFirstProcessDate = DateTime.Now;
 
         #region Commands
 
@@ -42,6 +44,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         public DelegateCommand CancelItemCommand { get; set; }
         public DelegateCommand AddItemCommand { get; set; }
         public DelegateCommand DeleteItemCommand { get; set; }
+        public DelegateCommand DeleteInvoiceCommand { get; set; }
         public DelegateCommand SupplierCommand { get; set; }
         public DelegateCommand CancelFilterCommand { get; set; }
 
@@ -82,6 +85,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     SelectedCompanyDue = value != null && value.CompanyDue != null ? value.CompanyDue.Value : 0;
                     SelectedService = value != null && ServiceCollection != null && value.Service1 != null ? ServiceCollection.Where(p => p.pkServiceID == value.fkServiceID).FirstOrDefault() :
                                       ServiceCollection != null ? ServiceCollection.Where(p => p.pkServiceID == 0).FirstOrDefault() : null;
+                    GridRowDeleteCommentHeight = "0";
+                    SelectedDeleteComment = null;
 
                     // Publish the event to execute the ShowInvoiceReport method on the Accounts View
                     InvoiceReportEventArgs eventArgs = new InvoiceReportEventArgs();
@@ -186,6 +191,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 if (value)
                 {
                     ShowPeriodFilter = Visibility.Collapsed;
+                    ShowServiceFilter = Visibility.Collapsed;
                     ShowServiceFilter = Visibility.Visible;
                 }
                 else
@@ -195,6 +201,34 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
         }
         private bool _selectedServiceGroup = false;
+
+        /// <summary>
+        /// The active filter option
+        /// </summary>
+        public bool SelectedActive
+        {
+            get { return _selectedActive; }
+            set
+            {
+                SetProperty(ref _selectedActive, value);
+
+                if (value)
+                {
+                    ShowPeriodFilter = Visibility.Collapsed;
+                    ShowServiceFilter = Visibility.Collapsed;
+                    ShowActiveFilter = Visibility.Visible;
+
+                    // Populate the ACtive filters
+                    ReadActiveCollection();
+                }
+                else
+                {
+                    SelectedActiveFilter = "Active";
+                    ShowActiveFilter = Visibility.Collapsed;
+                }
+            }
+        }
+        private bool _selectedActive = false;
 
         /// <summary>
         /// The account period filter option
@@ -208,6 +242,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 if (value)
                 {
                     ShowPeriodFilter = Visibility.Visible;
+                    ShowActiveFilter = Visibility.Collapsed;
                     ShowServiceFilter = Visibility.Collapsed;
 
                     // Populate the account period filters
@@ -230,6 +265,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _showServiceFilter, value); }
         }
         private Visibility _showServiceFilter = Visibility.Collapsed;
+
+        /// <summary>
+        /// The flag to hide or show the active filter
+        /// </summary>
+        public Visibility ShowActiveFilter
+        {
+            get { return _showActiveFilter; }
+            set { SetProperty(ref _showActiveFilter, value); }
+        }
+        private Visibility _showActiveFilter = Visibility.Collapsed;
 
         /// <summary>
         /// The flag to hide or show the period filter
@@ -261,10 +306,14 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         public string SelectedAccountMonth
         {
             get { return _selectedAccountMonth; }
-            set { SetProperty(ref _selectedAccountMonth, value); }
+            set
+            {
+                SetProperty(ref _selectedAccountMonth, value);
+                Task.Run(() => ReadClientInvoicesAsync());
+            }
         }
         private string _selectedAccountMonth = string.Empty;
-        
+
         /// <summary>
         /// The entered reference
         /// </summary>
@@ -278,6 +327,20 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
         }
         private string _selectedAccountYear = string.Empty;
+
+        /// <summary>
+        /// The selected Active collection option
+        /// </summary>
+        public string SelectedActiveFilter
+        {
+            get { return _selectedActiveFilter; }
+            set
+            {
+                SetProperty(ref _selectedActiveFilter, value);
+                Task.Run(() => ReadClientInvoicesAsync());
+            }
+        }
+        private string _selectedActiveFilter = string.Empty;
 
         /// <summary>
         /// The collection of invoices from the database
@@ -341,6 +404,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
         private List<string> _accountYearCollection = null;
 
+        /// <summary>
+        /// The collection of active/delete options
+        /// </summary>
+        public List<string> ActiveCollection
+        {
+            get { return _activeCollection; }
+            set { SetProperty(ref _activeCollection, value); }
+        }
+        private List<string> _activeCollection = null;
+
         #endregion
 
         #region Required Fields
@@ -351,7 +424,21 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         public DateTime SelectedInvoiceDate
         {
             get { return _selectedInvoiceDate; }
-            set { SetProperty(ref _selectedInvoiceDate, value); }
+            set
+            {
+                if (value < _billingPeriodFirstProcessDate)
+                {
+                    MessageBox.Show($"Date can't be earlier than {_billingPeriodFirstProcessDate.Date}.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    SelectedInvoiceDate = new DateTime(_billingPeriodFirstProcessDate.Year,
+                                                       _billingPeriodFirstProcessDate.Month,
+                                                       _billingPeriodFirstProcessDate.Day,
+                                                       DateTime.Now.Hour,
+                                                       DateTime.Now.Minute,
+                                                       DateTime.Now.Second);
+                }
+                else
+                    SetProperty(ref _selectedInvoiceDate, value);
+            }
         }
         private DateTime _selectedInvoiceDate;
 
@@ -404,6 +491,26 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _selectedItemAmount, value); }
         }
         private string _selectedItemAmount = "0";
+
+        /// <summary>
+        /// The entered delete comment
+        /// </summary>
+        public string SelectedDeleteComment
+        {
+            get { return _selectedDeleteComment; }
+            set { SetProperty(ref _selectedDeleteComment, value); }
+        }
+        private string _selectedDeleteComment;
+
+        /// <summary>
+        /// The delete comment row height
+        /// </summary>
+        public string GridRowDeleteCommentHeight
+        {
+            get { return _gridRowDeleteCommentHeight; }
+            set { SetProperty(ref _gridRowDeleteCommentHeight, value); }
+        }
+        private string _gridRowDeleteCommentHeight = "0";
 
         #endregion
 
@@ -470,6 +577,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private Brush _validItemAmount = Brushes.Red;
 
         /// <summary>
+        /// Set the required field border colour
+        /// </summary>
+        public Brush ValidDeleteComment
+        {
+            get { return _validDeleteComment; }
+            set { SetProperty(ref _validDeleteComment, value); }
+        }
+        private Brush _validDeleteComment = Brushes.Red;
+
+        /// <summary>
         /// Input validate error message
         /// </summary>
         public string Error
@@ -493,7 +610,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 switch (columnName)
                 {
                     case "SelectedInvoiceDate":
-                        ValidInvoiceDate = SelectedInvoiceDate.Date < _validBillingDate.Date ? Brushes.Red : Brushes.Silver; break;
+                        ValidInvoiceDate = SelectedInvoiceDate.Date < _billingPeriodFirstProcessDate.Date ? Brushes.Red : Brushes.Silver; break;
                     case "SelectedService":
                         ValidService = SelectedService != null && SelectedService.pkServiceID > 0 && SelectedService.ServicePreFix == "EQP" ? Brushes.Silver : Brushes.Red; break;
                     case "SelectedSupplier":
@@ -504,6 +621,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         ValidItemReference = string.IsNullOrEmpty(SelectedItemReference) ? Brushes.Red : Brushes.Silver; break;
                     case "SelectedItemAmount":
                         ValidItemAmount = string.IsNullOrWhiteSpace(SelectedItemAmount) && Convert.ToDecimal(SelectedItemAmount) <= 0 ? Brushes.Red : Brushes.Silver; break;
+                    case "SelectedDeleteComment":
+                        ValidDeleteComment = string.IsNullOrWhiteSpace(SelectedDeleteComment) ? Brushes.Red : Brushes.Silver; break;
 
                 }
                 return result;
@@ -542,6 +661,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             _eventAggregator = eventAggreagator;
             _securityHelper = new SecurityHelper(_eventAggregator);
             InitialiseInvoiceView();
+            ReadBillingPeriodFirstProcessDate();
         }
 
         /// <summary>
@@ -564,16 +684,23 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                                    .ObservesProperty(() => SelectedItemReference)
                                                                                    .ObservesProperty(() => SelectedItemAmount);
             DeleteItemCommand = new DelegateCommand(ExecuteItemDelete, CanExecuteItemDelete).ObservesProperty(() => SelectedInvoiceItem);
+            DeleteInvoiceCommand = new DelegateCommand(ExecuteInvoiceDelete, CanExecuteInvoiceDelete).ObservesProperty(() => SelectedInvoice)
+                                                                                                     .ObservesProperty(() => SelectedDeleteComment)
+                                                                                                     .ObservesProperty(() => GridRowDeleteCommentHeight)
+                                                                                                     .ObservesProperty(() => ValidDeleteComment);
             SupplierCommand = new DelegateCommand(ExecuteShowSPView, CanExecuteMaintenace);
             CancelFilterCommand = new DelegateCommand(ExecuteCancelFilter);
 
             // Subscribe to this event to read invoices linked to selectede client
             _eventAggregator.GetEvent<ReadInvoicesEvent>().Subscribe(ReadClientInvoices_Event, true);
-
+            
             // Load the view data
             await ReadClientInvoicesAsync();
             await ReadServiceProvidersAsync();
             await ReadServicesAsync();
+            
+            //Populate the default values;
+            ReadAccountPeriodsAsync();
         }
 
         /// <summary>
@@ -581,13 +708,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// </summary>
         private void InitialiseInvoiceControls()
         {
+            ReadBillingPeriodFirstProcessDate();
             SelectedInvoiceNumber = string.Empty;
-            SelectedInvoiceDate = DateTime.Now.Date < _validBillingDate.Date ? _validBillingDate : DateTime.Now;
+            SelectedInvoiceDate = DateTime.Now.Date < _billingPeriodFirstProcessDate.Date ? _billingPeriodFirstProcessDate : DateTime.Now;
             SelectedService = ServiceCollection != null ? ServiceCollection.Where(p => p.pkServiceID == 0).FirstOrDefault() : null;
             SelectedServiceGroup = SelectedPeriodGroup = false;
             SelectedPrivateDue = SelectedCompanyDue = 0;
             InvoiceItemsCollection = null;
             _isNewInvoice = false;
+            SelectedDeleteComment = null;
+            GridRowDeleteCommentHeight = "0";
             InitialiseInvoiceItemsControls();
         }
 
@@ -621,7 +751,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     serviceFilter = SelectedServiceFilter.pkServiceID;
 
                 SelectedClientID = MobileManagerEnvironment.ClientID;
-                InvoiceCollection = await Task.Run(() => _model.ReadInvoicesForClient(MobileManagerEnvironment.ClientID, accPeriodFilter, serviceFilter));
+                InvoiceCollection = await Task.Run(() => _model.ReadInvoicesForClient(MobileManagerEnvironment.ClientID, accPeriodFilter, serviceFilter, SelectedActiveFilter));
             }
             catch (Exception ex)
             {
@@ -656,6 +786,23 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
 
         #region Lookup Data Loading
+
+        public void ReadBillingPeriodFirstProcessDate()
+        {
+            try
+            {
+                _billingPeriodFirstProcessDate = new BillingProcessModel(_eventAggregator).ReadCurrentBillingProcessFirstBillingProcess($"{_validBillingDate}");
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ViewAccountViewModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ReadBillingPeriodFirstProcessDate",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
 
         /// <summary>
         /// Load all the service providers from the database
@@ -711,7 +858,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 if (InvoiceCollection.Count > 0)
                 {
                     List<string> accountMonths = new List<string>();
- 
+
                     for (int i = 1; i <= 12; i++)
                     {
                         accountMonths.Add(i.ToString().PadLeft(2, '0'));
@@ -734,6 +881,33 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
                                                                 "ReadAccountPeriodsAsync",
                                                                 ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
+
+        /// <summary>
+        /// Populates the ActiveCollection with the needed option
+        /// </summary>
+        public void ReadActiveCollection()
+        {
+            try
+            {
+                List<string> tempOptions = new List<string>();
+
+                tempOptions.Add("Active");
+                tempOptions.Add("All");
+                tempOptions.Add("Deleted");
+
+                ActiveCollection = tempOptions;
+                SelectedActiveFilter = "All";
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                     .Publish(new ApplicationMessage(this.GetType().Name,
+                                              string.Format("Error! {0}, {1}.",
+                                              ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                              MethodBase.GetCurrentMethod().Name,
+                                              ApplicationMessage.MessageTypes.SystemError));
             }
         }
 
@@ -775,6 +949,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             _isNewInvoice = true;
             SelectedInvoice = new Invoice();
+
+            //For new saving and deleting pupouses
+            SelectedInvoice.IsActive = true;
         }
 
         /// <summary>
@@ -789,9 +966,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             result = SelectedClientID > 0 && _securityHelper.IsUserInCompany(MobileManagerEnvironment.ClientCompanyID) ? true : false;
 
             if (result)
-                result= SelectedInvoiceDate.Date > DateTime.MinValue.Date && InvoiceItemsCollection != null &&
+                result = InvoiceItemsCollection != null &&
                         InvoiceItemsCollection.Count > 0 && SelectedService != null && SelectedService.pkServiceID > 0 && SelectedService.ServicePreFix == "EQP" &&
-                        (SelectedInvoice != null && SelectedInvoice.pkInvoiceID > 0 ? SelectedInvoice.IsPeriodClosed != null && !SelectedInvoice.IsPeriodClosed.Value : true);
+                        (SelectedInvoice != null && SelectedInvoice.pkInvoiceID > 0 ? SelectedInvoice.IsPeriodClosed != null && !SelectedInvoice.IsPeriodClosed.Value : true) &&
+                        SelectedInvoice.IsActive;
 
             return result;
         }
@@ -835,7 +1013,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                 "ExecuteSave",
                                                                 ApplicationMessage.MessageTypes.SystemError));
             }
-}
+        }
 
         /// <summary>
         /// Validate the invoice item cancel process can be executed
@@ -873,12 +1051,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
 
         /// <summary>
-        /// Execute when the save command button is clicked 
+        /// Execute when the delete item command button is clicked 
         /// </summary>
         private void ExecuteItemDelete()
         {
             try
-            { 
+            {
                 if (InvoiceItemsCollection.Contains(SelectedInvoiceItem))
                     InvoiceItemsCollection.Remove(SelectedInvoiceItem);
 
@@ -899,6 +1077,60 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
 
         /// <summary>
+        /// Validate if the invoice delete process can be executed
+        /// </summary>
+        /// <returns>True if can execute</returns>
+        private bool CanExecuteInvoiceDelete()
+        {
+            bool result = false;
+
+            // Validate if the logged-in user can administrate the company the client is linked to
+            result = SelectedClientID > 0 && _securityHelper.IsUserInCompany(MobileManagerEnvironment.ClientCompanyID) ? true : false;
+
+            //Test if there is a selected invoice to delete
+            result = !string.IsNullOrEmpty(SelectedInvoiceNumber) ? true : false;
+
+            if (result)
+                result = SelectedInvoice != null &&
+                            ((ValidDeleteComment == Brushes.Silver && GridRowDeleteCommentHeight == "Auto") || (ValidDeleteComment == Brushes.Red && GridRowDeleteCommentHeight == "0")) &&
+                            (SelectedInvoice.pkInvoiceID > 0 ? SelectedInvoice.IsPeriodClosed != null && !SelectedInvoice.IsPeriodClosed.Value : true) &&
+                            SelectedInvoice.IsActive;
+            return result;
+        }
+
+        /// <summary>
+        /// Execute when the delete invoice button is clicked
+        /// </summary>
+        private void ExecuteInvoiceDelete()
+        {
+            try
+            {
+                //Determine to show the delete row or proceed with the delete
+                if (GridRowDeleteCommentHeight == "0")
+                    GridRowDeleteCommentHeight = "Auto";
+                else
+                {
+                    SelectedInvoice.IsActive = false;
+                    SelectedInvoice.DeleteComment = SelectedDeleteComment;
+                    SelectedInvoice.ModifiedBy = SecurityHelper.LoggedInUserFullName;
+                    SelectedInvoice.ModifiedDate = DateTime.Now;
+                    new InvoiceModel(_eventAggregator).UpdateInvoice(SelectedInvoice, InvoiceItemsCollection);
+                    InitialiseInvoiceControls();
+                    MessageBox.Show("Invoice Deleted", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                .Publish(new ApplicationMessage("ViewAccountViewModel",
+                                                                string.Format("Error! {0}, {1}.",
+                                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                                "ExecuteInvoiceDelete",
+                                                                ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
+
+        /// <summary>
         /// Validate if the add invoice item data can be executed
         /// </summary>
         /// <returns>True if can execute</returns>
@@ -912,7 +1144,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             if (result)
                 result = SelectedSupplier != null && SelectedSupplier.pkServiceProviderID > 0 && !string.IsNullOrEmpty(SelectedItemDescription) &&
                          !string.IsNullOrEmpty(SelectedItemReference) && (!string.IsNullOrWhiteSpace(SelectedItemAmount) && Convert.ToDecimal(SelectedItemAmount) > 0) &&
-                         (SelectedInvoice !=null && SelectedInvoice.pkInvoiceID > 0 ? SelectedInvoice.IsPeriodClosed != null && !SelectedInvoice.IsPeriodClosed.Value : true);
+                         (SelectedInvoice != null && SelectedInvoice.pkInvoiceID > 0 ? SelectedInvoice.IsPeriodClosed != null && !SelectedInvoice.IsPeriodClosed.Value : true);
 
             return result;
         }
@@ -923,7 +1155,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private void ExecuteItemAdd()
         {
             try
-            { 
+            {
                 int invoiceItemID = 0;
 
                 if (SelectedInvoiceItem == null)
@@ -942,7 +1174,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     InvoiceItemsCollection.Remove(SelectedInvoiceItem);
                     SelectedInvoiceItem = new InvoiceDetail();
                     SelectedInvoiceItem.pkInvoiceItemID = invoiceItemID;
-                }          
+                }
 
                 SelectedInvoiceItem.fkInvoiceID = 0;
                 SelectedInvoiceItem.fkServiceProviderID = SelectedSupplier.pkServiceProviderID;
