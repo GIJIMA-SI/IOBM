@@ -33,5 +33,16 @@ namespace Gijima.IOBM.MobileManager.Properties {
                 return ((string)(this["MobileManagerConnectionString"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=SRD-NB23659;Initial Catalog=IOBM-MobileManager_Dev;Integrated Securit" +
+            "y=True")]
+        public string IOBM_MobileManager_DevConnectionString {
+            get {
+                return ((string)(this["IOBM_MobileManager_DevConnectionString"]));
+            }
+        }
     }
 }
