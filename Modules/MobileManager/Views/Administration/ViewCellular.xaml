@@ -283,8 +283,8 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <ComboBox x:Name="ComboBoxContractStatus" Grid.Column="0" ToolTip="Select the contract status." TabIndex="24" IsSynchronizedWithCurrentItem="False" Height="20"
-                            ItemsSource="{Binding StatusCollection}" DisplayMemberPath="StatusDescription" 
+                        <ComboBox x:Name="ComboBoxContractStatus" Grid.Column="0" ToolTip="Select the contract status." TabIndex="24" IsSynchronizedWithCurrentItem="True" Height="20"
+                            ItemsSource="{Binding StatusCollection}" DisplayMemberPath="StatusDescription"
                             SelectedItem="{Binding SelectedStatus, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" BorderBrush="{Binding RequiredFieldColour}" >
                         </ComboBox>
                         <Button x:Name="ButtonContractStatusCrud" Grid.Column="1" Margin="2,0,0,0" ToolTip="Add, edit or delete contract statuses." TabIndex="25" Height="20"

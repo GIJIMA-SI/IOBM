@@ -65,6 +65,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
                     if (value != null && value.pkClientID > 0)
                     {
+                        //Set the flag true so reallocation can be selected
+                        ReallocationStatus = true;
+                        
                         // Set the client properties
                         if (CompanyCollection != null)
                             SelectedCompany = value.fkCompanyID > 0 ? CompanyCollection.Where(p => p.pkCompanyID == value.fkCompanyID).FirstOrDefault()
@@ -96,6 +99,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         if (StatusCollection != null)
                             SelectedStatus = value.Contract != null ? StatusCollection.Where(p => p.pkStatusID == value.Contract.fkStatusID).FirstOrDefault()
                                                                     : StatusCollection.Where(p => p.pkStatusID == 0).FirstOrDefault();
+                        //Set the flag false so reallocation cant be selected
+                        ReallocationStatus = false;
+
                         if (PackageCollection != null)
                             SelectedPackage = value.Contract != null ? PackageCollection.Where(p => p.pkPackageID == value.Contract.fkPackageID).FirstOrDefault()
                                                                      : PackageCollection.Where(p => p.pkPackageID == 0).FirstOrDefault();
@@ -158,6 +164,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
         }
         private Client _selectedClient = new Client();
+        
+        /// <summary>
+        /// Determine if the Reallocation state can be selected
+        /// </summary>
+        public bool ReallocationStatus
+        {
+            get { return _reallocationStatus; }
+            set { SetProperty(ref _reallocationStatus, value); }
+        }
+        private bool _reallocationStatus = false;
 
         /// <summary>
         /// The selected client (Contract) state
@@ -688,7 +704,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _selectedContract, value); }
         }
         private Contract _selectedContract;
-
+        
         /// <summary>
         /// The selected status
         /// </summary>
@@ -697,16 +713,39 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             get { return _selectedStatus; }
             set
             {
-                SetProperty(ref _selectedStatus, value);
-                ValidPaymentYear = ValidPaymentMonth = SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString()
-                                                                              || (SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA && SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString())
-                                                                              ? Brushes.Silver : Brushes.Red;
-                SelectedClientState = SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString()
-                                                             //|| (SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA && SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString())
-                                                             ? true : false;
-                if (SelectedStatus != null && (SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString() || (SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString() && SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA)))
-                    SelectedBillingYear = SelectedBillingMonth = string.Empty;
+                if (SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.REALLOCATED.ToString() && value.StatusDescription != "-- Please Select --")
+                {
+                    //UI update purposes
+                    ObservableCollection<Status> tmpCollection = new ObservableCollection<Status>(StatusCollection);
+                    StatusCollection = tmpCollection;
+                    SelectedStatus = StatusCollection.First();
+                    ReallocationStatus = true;
+                    SelectedStatus = StatusCollection.Where(x => x.StatusDescription == Statuses.REALLOCATED.ToString()).FirstOrDefault();
+                    ReallocationStatus = false;
 
+                    MessageBox.Show("The status is set to re-allocated and can't be set to something else.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else if (SelectedStatus != null && value.StatusDescription == Statuses.REALLOCATED.ToString() && !ReallocationStatus)
+                {
+                    //UI update purposes
+                    ObservableCollection<Status> tmpCollection = new ObservableCollection<Status>(StatusCollection);
+                    StatusCollection = tmpCollection;
+                    SelectedStatus = StatusCollection.First();
+
+                    MessageBox.Show("This status option can't be selected!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    SetProperty(ref _selectedStatus, value);
+                    ValidPaymentYear = ValidPaymentMonth = SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString()
+                                                                                  || (SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA && SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString())
+                                                                                  ? Brushes.Silver : Brushes.Red;
+                    SelectedClientState = SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString()
+                                                                 //|| (SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA && SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString())
+                                                                 ? true : false;
+                    if (SelectedStatus != null && (SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString() || (SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString() && SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA)))
+                        SelectedBillingYear = SelectedBillingMonth = string.Empty;
+                }
             }
         }
         private Status _selectedStatus;
@@ -1550,7 +1589,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// Set default values to view properties
         /// </summary>
         private async void InitialiseViewControls()
-        {
+        {           
             SelectedClient = null;
             SelectedContract = null;
             SelectedCompany = CompanyCollection != null ? CompanyCollection.Where(p => p.pkCompanyID == 0).FirstOrDefault() : null;

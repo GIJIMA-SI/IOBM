@@ -14,7 +14,7 @@
     <UserControl.Resources>
         <mm:UIDataConvertionHelper x:Key="UIDataConvertionHelper"/>
     </UserControl.Resources>
-    
+
     <Grid x:Name="LayouControlView" Grid.Row="1" Grid.Column="0" >
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -133,38 +133,43 @@
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="75" />
-                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="49*" />
+                    <ColumnDefinition Width="48*"/>
                     <ColumnDefinition Width="10" />
                     <ColumnDefinition Width="70" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="49*" />
                     <ColumnDefinition Width="10" />
                     <ColumnDefinition Width="85" />
                     <ColumnDefinition Width="80" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Invoice no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxInvoiceNumber" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="1" IsTabStop="False" IsReadOnly="True" Text="{Binding SelectedInvoiceNumber}" Style="{StaticResource UXTextBoxStyle}"></TextBox>
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="Invoice date:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <DatePicker x:Name="DatePickerInvoice" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="1" TabIndex="4" ToolTip="Select the invoice date."
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Invoice no:" Style="{StaticResource UXLabelTextStyle}" Margin="0,3"></TextBlock>
+                <TextBox x:Name="TextBoxInvoiceNumber" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" IsTabStop="False" IsReadOnly="True" Text="{Binding SelectedInvoiceNumber}" Style="{StaticResource UXTextBoxStyle}"></TextBox>
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Invoice date:" Style="{StaticResource UXLabelTextStyle}" Margin="0,5"></TextBlock>
+                <!--<DatePicker x:Name="DatePickerInvoice" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" TabIndex="4" ToolTip="Select the invoice date."
                     SelectedDate="{Binding SelectedInvoiceDate, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidInvoiceDate}">
-                </DatePicker>
-                <TextBlock Grid.Row="0" Grid.Column="3" Text="Private due:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxPrivateDue" Grid.Row="0" Grid.Column="4" IsTabStop="False" IsReadOnly="True" Text="{Binding SelectedPrivateDue}" Style="{StaticResource UXTextBoxStyle}"></TextBox>
-                <TextBlock Grid.Row="0" Grid.Column="6" Text="Company due:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                </DatePicker>-->
+                <ComboBox x:Name="ComboBoxBillingPeriod" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" ToolTip="Select the period for the invoice to be billed in."
+                           ItemsSource="{Binding BillingPeriodCollection, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding SelectedBillingPeriod, UpdateSourceTrigger=PropertyChanged}"
+                          IsSynchronizedWithCurrentItem="True">
+                </ComboBox>
+                <TextBlock Grid.Row="0" Grid.Column="4" Text="Private due:" Style="{StaticResource UXLabelTextStyle}" Margin="0,3"></TextBlock>
+                <TextBox x:Name="TextBoxPrivateDue" Grid.Row="0" Grid.Column="5" IsTabStop="False" IsReadOnly="True" Text="{Binding SelectedPrivateDue}" Style="{StaticResource UXTextBoxStyle}"></TextBox>
+                <TextBlock Grid.Row="0" Grid.Column="7" Text="Company due:" Style="{StaticResource UXLabelTextStyle}" Margin="0,3"></TextBlock>
                 <TextBox x:Name="TextBoxCompanyDue" Grid.Row="0" Grid.Column="8" IsTabStop="False" IsReadOnly="True" Text="{Binding SelectedCompanyDue}" Style="{StaticResource UXTextBoxStyle}"></TextBox>
-                <TextBlock Grid.Row="2" Grid.Column="3" Text="Service:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <Border Grid.Row="2" Grid.Column="4" Grid.ColumnSpan="4" BorderThickness="1" BorderBrush="{Binding ValidService}">
+                <TextBlock Grid.Row="2" Grid.Column="4" Text="Service:" Style="{StaticResource UXLabelTextStyle}" Margin="0,5"></TextBlock>
+                <Border Grid.Row="2" Grid.Column="5" Grid.ColumnSpan="4" BorderThickness="1" BorderBrush="{Binding ValidService}">
                     <ComboBox x:Name="ComboBoxService" Grid.Column="0" ToolTip="Select the service." TabIndex="5" IsSynchronizedWithCurrentItem="True"
                         ItemsSource="{Binding ServiceCollection}" DisplayMemberPath="ServiceDescription" Height="22" 
                         SelectedItem="{Binding SelectedService, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
                     </ComboBox>
                 </Border>
-                <TextBlock Grid.Row="3" Grid.Column="0" Text="Delete Comment:" Style="{StaticResource UXLabelTextStyle}" Grid.ColumnSpan="2" Margin="0,5,0,0"></TextBlock>
-                <Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="7" BorderThickness="1" Margin="25,5,0,0" BorderBrush="{Binding ValidDeleteComment, UpdateSourceTrigger=PropertyChanged}">
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="Delete Comment:" Style="{StaticResource UXLabelTextStyle}" Grid.ColumnSpan="3" Margin="0,10,0,4"></TextBlock>
+                <Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="8" BorderThickness="1" Margin="25,5,0,0" BorderBrush="{Binding ValidDeleteComment, UpdateSourceTrigger=PropertyChanged}">
                     <TextBox x:Name="TextBoxDeleteComment" IsTabStop="False" Text="{Binding SelectedDeleteComment, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource UXTextBoxStyle}" Grid.ColumnSpan="7"></TextBox>
                 </Border>
-                <Border Grid.Row="4" Grid.Column="0" Height="1" Grid.ColumnSpan="8" Background="Gray" Margin="0,10,0,10"></Border>
-                <TextBlock Grid.Row="5" Grid.Column="0" Text="Supplier:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <Border Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="1" BorderThickness="1" BorderBrush="{Binding ValidSupplier}">
+                <Border Grid.Row="4" Grid.Column="0" Height="1" Grid.ColumnSpan="9" Background="Gray" Margin="0,10,0,10"></Border>
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="Supplier:" Style="{StaticResource UXLabelTextStyle}" Margin="0,5"></TextBlock>
+                <Border Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" BorderThickness="1" BorderBrush="{Binding ValidSupplier}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -180,7 +185,7 @@
                         </Button>
                     </Grid>
                 </Border>
-                <StackPanel Grid.Row="5" Grid.Column="6" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                <StackPanel Grid.Row="5" Grid.Column="7" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button x:Name="ButtonCancel" TabIndex="13" Style="{StaticResource UXImageButtonStyle}"
                         ToolTip="Cancel the current operation." Command="{Binding CancelItemCommand}">
                         <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico"  />
@@ -195,21 +200,21 @@
                     </Button>
                 </StackPanel>
                 <TextBlock Grid.Row="7" Grid.Column="0" Text="Description:" Style="{StaticResource UXLabelTextStyle}" Margin="0,0,0,3" VerticalAlignment="Bottom"></TextBlock>
-                <TextBox x:Name="TextBoxDescription" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="1" TabIndex="9" ToolTip="Enter the invoice item description." Style="{StaticResource UXTextBoxStyle}"
+                <TextBox x:Name="TextBoxDescription" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2" TabIndex="9" ToolTip="Enter the invoice item description." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedItemDescription, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidItemDescription}">
                 </TextBox>
-                <TextBlock Grid.Row="5" Grid.Column="3" Text="Private:" Margin="0,0,5,0" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <CheckBox x:Name="CheckBoxPrivate" Grid.Row="5" Grid.Column="4" VerticalAlignment="Center" TabIndex="8" IsChecked="{Binding SelectedPrivateBilling, UpdateSourceTrigger=PropertyChanged}"/>
-                <TextBlock Grid.Row="7" Grid.Column="3" Text="Reference:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <TextBox x:Name="TextBoxReference" Grid.Row="7" Grid.Column="4" TabIndex="10" ToolTip="Enter the invoice item reference." Style="{StaticResource UXTextBoxStyle}"
+                <TextBlock Grid.Row="5" Grid.Column="4" Text="Private:" Margin="0,5,5,5" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                <CheckBox x:Name="CheckBoxPrivate" Grid.Row="5" Grid.Column="5" VerticalAlignment="Center" TabIndex="8" IsChecked="{Binding SelectedPrivateBilling, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+                <TextBlock Grid.Row="7" Grid.Column="4" Text="Reference:" Style="{StaticResource UXLabelTextStyle}" Margin="0,3"></TextBlock>
+                <TextBox x:Name="TextBoxReference" Grid.Row="7" Grid.Column="5" TabIndex="10" ToolTip="Enter the invoice item reference." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedItemReference, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidItemReference}">
                 </TextBox>
-                <TextBlock Grid.Row="7" Grid.Column="6" Text="Amt Incl VAT:" Style="{StaticResource UXLabelTextStyle}" ></TextBlock>
-                <TextBox x:Name="TextBoxItemInclVat" Grid.Row="7" Grid.Column="7" TabIndex="11" ToolTip="Enter the invoice item amount." Style="{StaticResource UXTextBoxStyle}"
+                <TextBlock Grid.Row="7" Grid.Column="7" Text="Amt Incl VAT:" Style="{StaticResource UXLabelTextStyle}" Margin="0,3" ></TextBlock>
+                <TextBox x:Name="TextBoxItemInclVat" Grid.Row="7" Grid.Column="8" TabIndex="11" ToolTip="Enter the invoice item amount." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedItemAmount, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidItemAmount}">
                 </TextBox>
                 <TextBlock Grid.Row="8" Grid.Column="0" Text="Invoice Items" VerticalAlignment="Bottom" Style="{StaticResource UXLabelTextStyle}"/>
-                <DataGrid x:Name="DataGridInvoiceItems" Grid.Row="9" Grid.ColumnSpan="8" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True" ScrollViewer.CanContentScroll="True"
+                <DataGrid x:Name="DataGridInvoiceItems" Grid.Row="9" Grid.ColumnSpan="9" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True" ScrollViewer.CanContentScroll="True"
                     IsReadOnly="True" TabIndex="12" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" IsSynchronizedWithCurrentItem="True"  ScrollViewer.HorizontalScrollBarVisibility="Auto"
                     ItemsSource="{Binding InvoiceItemsCollection, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding SelectedInvoiceItem, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"
                     SelectedIndex="{Binding SelectedInvoiceItemIndex, UpdateSourceTrigger=PropertyChanged}">
@@ -292,10 +297,10 @@
                                 <Style TargetType="TextBlock">
                                     <Setter Property="HorizontalAlignment" Value="Center" />
                                 </Style>
-                            </DataGridTextColumn.ElementStyle>                            
+                            </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
                         <DataGridTextColumn Header="Modified By" Binding="{Binding ModifiedBy}" Width="Auto" />
-                        <DataGridTextColumn Header="Modified Date" Binding="{Binding ModifiedDate, StringFormat='{}{0: dd/MM/yyyy hh:mm tt}'}" Width="Auto" />                        
+                        <DataGridTextColumn Header="Modified Date" Binding="{Binding ModifiedDate, StringFormat='{}{0: dd/MM/yyyy hh:mm tt}'}" Width="Auto" />
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>

@@ -313,6 +313,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
         }
         private string _selectedAccountMonth = string.Empty;
+        
+        /// <summary>
+        /// The entered reference
+        /// </summary>
+        public string SelectedBillingPeriod
+        {
+            get { return _selectedBillingPeriod; }
+            set { SetProperty(ref _selectedBillingPeriod, value); }
+        }
+        private string _selectedBillingPeriod = string.Empty;
 
         /// <summary>
         /// The entered reference
@@ -363,6 +373,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private ObservableCollection<InvoiceDetail> _invoiceItemsCollection = null;
 
         #region View Lookup Data Collections
+
+        /// <summary>
+        /// The collection of the billing periods
+        /// </summary>
+        public ObservableCollection<string> BillingPeriodCollection
+        {
+            get { return _billingPeriodCollection; }
+            set { SetProperty(ref _billingPeriodCollection, value); }
+        }
+        private ObservableCollection<string> _billingPeriodCollection = null;
 
         /// <summary>
         /// The collection of service providers from the database
@@ -645,7 +665,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             if (MobileManagerEnvironment.ClientID == 0)
                 MobileManagerEnvironment.ClientID = sender;
-
+            SelectedBillingPeriod = BillingPeriodCollection.FirstOrDefault();
             await ReadClientInvoicesAsync();
         }
 
@@ -698,7 +718,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             await ReadClientInvoicesAsync();
             await ReadServiceProvidersAsync();
             await ReadServicesAsync();
-            
+            LoadBillingPeriods();
+
             //Populate the default values;
             ReadAccountPeriodsAsync();
         }
@@ -726,6 +747,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// </summary>
         private void InitialiseInvoiceItemsControls()
         {
+            SelectedBillingPeriod = BillingPeriodCollection.FirstOrDefault();
             SelectedInvoiceItemIndex = -1;
             SelectedSupplier = SupplierCollection != null ? SupplierCollection.Where(p => p.pkServiceProviderID == 0).FirstOrDefault() : null;
             SelectedItemDescription = SelectedItemReference = string.Empty;
@@ -787,6 +809,36 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
         #region Lookup Data Loading
 
+        /// <summary>
+        /// Creates the next few billing periods
+        /// </summary>
+        public void LoadBillingPeriods()
+        {
+            ObservableCollection<string>  tmpBillingCollection = new ObservableCollection<string>();
+
+            int billingYear = _validBillingDate.Year;
+            int billingMonth = _validBillingDate.Month;
+
+            for (int i = 0; i < 7; i++)
+            {
+                if (billingMonth == 13)
+                {
+                    billingYear++;
+                    billingMonth = 1;
+                }
+
+                string month = Convert.ToString(billingMonth).Length == 1 ? $"0{billingMonth}" : $"{billingMonth}";
+                tmpBillingCollection.Add($"{billingYear}/{month}");
+                billingMonth++;
+            }
+
+            BillingPeriodCollection = tmpBillingCollection;
+            SelectedBillingPeriod = BillingPeriodCollection.FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Read the billing periods first process start date
+        /// </summary>
         public void ReadBillingPeriodFirstProcessDate()
         {
             try
@@ -961,7 +1013,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private bool CanExecuteSave()
         {
             bool result = false;
-
+            
             // Validate if the logged-in user can administrate the company the client is linked to
             result = SelectedClientID > 0 && _securityHelper.IsUserInCompany(MobileManagerEnvironment.ClientCompanyID) ? true : false;
 
@@ -970,6 +1022,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         InvoiceItemsCollection.Count > 0 && SelectedService != null && SelectedService.pkServiceID > 0 && SelectedService.ServicePreFix == "EQP" &&
                         (SelectedInvoice != null && SelectedInvoice.pkInvoiceID > 0 ? SelectedInvoice.IsPeriodClosed != null && !SelectedInvoice.IsPeriodClosed.Value : true) &&
                         SelectedInvoice.IsActive;
+
+            if (SelectedInvoice != null && SelectedInvoice.pkInvoiceID != 0)
+                result = false;
 
             return result;
         }
@@ -988,8 +1043,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 SelectedInvoice.fkServiceID = SelectedService.pkServiceID;
                 SelectedInvoice.PrivateDue = SelectedPrivateDue;
                 SelectedInvoice.CompanyDue = _selectedCompanyDue;
-                SelectedInvoice.InvoiceDate = SelectedInvoiceDate;
-                SelectedInvoice.InvoicePeriod = string.Format("{0}/{1}", SelectedInvoiceDate.Year.ToString(), SelectedInvoiceDate.Month.ToString().PadLeft(2, '0'));
+                SelectedInvoice.InvoiceDate = DateTime.Now;
+                SelectedInvoice.InvoicePeriod = SelectedBillingPeriod;//string.Format("{0}/{1}", SelectedInvoiceDate.Year.ToString(), SelectedInvoiceDate.Month.ToString().PadLeft(2, '0'));
                 SelectedInvoice.ModifiedBy = SecurityHelper.LoggedInUserFullName;
                 SelectedInvoice.ModifiedDate = DateTime.Now;
 
@@ -1095,6 +1150,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                             ((ValidDeleteComment == Brushes.Silver && GridRowDeleteCommentHeight == "Auto") || (ValidDeleteComment == Brushes.Red && GridRowDeleteCommentHeight == "0")) &&
                             (SelectedInvoice.pkInvoiceID > 0 ? SelectedInvoice.IsPeriodClosed != null && !SelectedInvoice.IsPeriodClosed.Value : true) &&
                             SelectedInvoice.IsActive;
+            if (SelectedInvoice != null && SelectedInvoice.IsPeriodClosed == true)
+                result = false;
+
             return result;
         }
 

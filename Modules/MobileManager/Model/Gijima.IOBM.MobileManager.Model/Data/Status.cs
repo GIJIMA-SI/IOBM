@@ -9,7 +9,6 @@
 
 namespace Gijima.IOBM.MobileManager.Model.Data
 {
-    using System;
     using System.Collections.Generic;
     
     public partial class Status

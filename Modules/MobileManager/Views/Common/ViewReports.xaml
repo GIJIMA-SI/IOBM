@@ -6,6 +6,7 @@
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
             xmlns:prism="http://prismlibrary.com/"
             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"  x:Class="Gijima.IOBM.MobileManager.Views.ViewReports"
+            xmlns:report="clr-namespace:Microsoft.Reporting.WinForms;assembly=Microsoft.ReportViewer.WinForms" 
             prism:ViewModelLocator.AutoWireViewModel="True"      
             mc:Ignorable="d" 
             d:DesignHeight="600" d:DesignWidth="1200">
@@ -102,7 +103,7 @@
                     <ToolKit:AccordionItem.Header>
                         <TextBlock Text="Report Results" Style="{StaticResource UXHeaderTextStyle}" Foreground="Maroon" Margin="10,0,0,3"/>
                     </ToolKit:AccordionItem.Header>
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="White" 
+                    <!--<Grid x:Name="Test" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="White" 
                         Width="{Binding ActualWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}}"
                         Height="{Binding ActualHeight, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}}">
                         <Grid.RowDefinitions>
@@ -111,8 +112,30 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <ScrollViewer x:Name="ScrollViewerReportViewer"/>
+                        -->
+                    <!--<ScrollViewer x:Name="ScrollViewerReportViewer">
+                            <WindowsFormsHost>
+                                <report:ReportViewer x:Name="ReportViewer" BorderStyle="None" TabIndex="22" AutoScroll="True" />
+                            </WindowsFormsHost>
+                        </ScrollViewer>-->
+                    <!--
+                    </Grid>-->
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="White"
+                        Width="{Binding ActualWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}}"
+                        Height="{Binding ActualHeight, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <ScrollViewer x:Name="ScrollViewerReportViewer" Margin="0,0,0,50">
+                            <WindowsFormsHost>
+                                <report:ReportViewer x:Name="ReportViewer" BorderStyle="None" TabIndex="22" AutoScroll="True" />
+                            </WindowsFormsHost>
+                        </ScrollViewer>
                     </Grid>
+
                 </ToolKit:AccordionItem>
             </ToolKit:Accordion>
         </Grid>
