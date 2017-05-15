@@ -547,7 +547,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                             result = _dataComparer.CompareStringValues((StringOperator)validationRule.enOperator,
                                                                                        entityValue,
                                                                                        validationRule.DataValidationValue);
-                                            // If the operator is 'Equal' the the rule can be auto applied to fixed failures
+                                            // If the operator is 'Equal' the rule can be auto applied to fixed failures
                                             canApplyRule = (StringOperator)validationRule.enOperator == StringOperator.Equal ? true : false;
                                             break;
                                         case OperatorType.DateOperator:
@@ -562,7 +562,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                             result = _dataComparer.CompareNumericValues((NumericOperator)validationRule.enOperator,
                                                                                         entityValue,
                                                                                         validationRule.DataValidationValue);
-                                            // If the operator is 'Equal' the the rule can be auto applied to fixed failures
+                                            // If the operator is 'Equal' the rule can be auto applied to fixed failures
                                             canApplyRule = (NumericOperator)validationRule.enOperator == NumericOperator.Equal ? true : false;
                                             break;
                                         case OperatorType.BooleanOperator:

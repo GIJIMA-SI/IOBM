@@ -284,6 +284,11 @@
     <Compile Include="Views\Maintenance\ViewSuburb.xaml.cs">
       <DependentUpon>ViewSuburb.xaml</DependentUpon>
     </Compile>
+    <Compile Include="_IOBM_MobileManager_DevDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>_IOBM_MobileManager_DevDataSet.xsd</DependentUpon>
+    </Compile>
     <Page Include="Views\Billing\ViewBillingDataExport.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -476,6 +481,17 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <None Include="_IOBM_MobileManager_DevDataSet.xsc">
+      <DependentUpon>_IOBM_MobileManager_DevDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="_IOBM_MobileManager_DevDataSet.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>_IOBM_MobileManager_DevDataSet.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="_IOBM_MobileManager_DevDataSet.xss">
+      <DependentUpon>_IOBM_MobileManager_DevDataSet.xsd</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

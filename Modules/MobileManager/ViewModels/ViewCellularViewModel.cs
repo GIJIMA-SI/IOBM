@@ -701,9 +701,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 ValidPaymentYear = ValidPaymentMonth = SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString()
                                                                               || (SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA && SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString())
                                                                               ? Brushes.Silver : Brushes.Red;
-                SelectedClientState = SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString()
-                                                             //|| (SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA && SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString())
-                                                             ? true : false;
+                SelectedClientState = SelectedStatus != null && SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString() ? true : false;
                 if (SelectedStatus != null && (SelectedStatus.StatusDescription == Statuses.ACTIVE.ToString() || (SelectedStatus.StatusDescription == Statuses.AVAILABLE.ToString() && SelectedPackageType != null && (PackageType)Enum.Parse(typeof(PackageType), SelectedPackageType) == PackageType.DATA)))
                     SelectedBillingYear = SelectedBillingMonth = string.Empty;
 
