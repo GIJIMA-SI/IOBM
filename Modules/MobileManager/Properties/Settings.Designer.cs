@@ -12,7 +12,7 @@ namespace Gijima.IOBM.MobileManager.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "14.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.1.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -42,6 +42,17 @@ namespace Gijima.IOBM.MobileManager.Properties {
         public string IOBM_MobileManager_DevConnectionString {
             get {
                 return ((string)(this["IOBM_MobileManager_DevConnectionString"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=ELMER-LAPTOP;Initial Catalog=IOBM-MobileManager;Integrated Security=T" +
+            "rue")]
+        public string IOBM_MobileManagerConnectionString {
+            get {
+                return ((string)(this["IOBM_MobileManagerConnectionString"]));
             }
         }
     }

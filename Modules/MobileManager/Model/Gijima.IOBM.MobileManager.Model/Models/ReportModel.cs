@@ -105,5 +105,26 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                 return null;
             }
         }
+
+        /// <summary>
+        /// Read the company due data for the requested report
+        /// </summary>
+        /// <param name="CompanyName"></param>
+        /// <param name="Period"></param>
+        /// <returns></returns>
+        public List<sp_Company_Due_Result> ReadyCompanyDueData(string CompanyName, DateTime Period)
+        {
+            try
+            {
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    return db.sp_Company_Due(CompanyName, Period).ToList();
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }

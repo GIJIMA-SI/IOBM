@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Reflection;
 
 namespace Gijima.IOBM.MobileManager.Model.Models
 {
@@ -323,6 +324,31 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             }
             catch
             {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Read the invoice data for the selected invoice
+        /// </summary>
+        /// <param name="invoiceID">The primary key for the selected invoice.</param>
+        public Invoice ReadInvoice(string InvoiceNumber)
+        {
+            try
+            {
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    return db.Invoices.Where(x => x.InvoiceNumber == InvoiceNumber).FirstOrDefault();
+                }
+            }
+            catch
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                     .Publish(new ApplicationMessage(this.GetType().Name,
+                                              string.Format("Error! {0}",
+                                              "Error retrieving report!"),
+                                              MethodBase.GetCurrentMethod().Name,
+                                              ApplicationMessage.MessageTypes.SystemError));
                 return null;
             }
         }

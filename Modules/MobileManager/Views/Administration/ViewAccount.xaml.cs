@@ -1,4 +1,6 @@
-﻿using Gijima.IOBM.Infrastructure.Helpers;
+﻿using Gijima.IOBM.Infrastructure.Events;
+using Gijima.IOBM.Infrastructure.Helpers;
+using Gijima.IOBM.Infrastructure.Structs;
 using Gijima.IOBM.MobileManager.Common.Events;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Gijima.IOBM.MobileManager.Model.Models;
@@ -7,6 +9,7 @@ using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 
@@ -65,7 +68,12 @@ namespace Gijima.IOBM.MobileManager.Views
             }
             catch (Exception  ex)
             {
-
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                     .Publish(new ApplicationMessage(this.GetType().Name,
+                                              string.Format("Error! {0}, {1}.",
+                                              ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                              MethodBase.GetCurrentMethod().Name,
+                                              ApplicationMessage.MessageTypes.SystemError));
             }
         }
 

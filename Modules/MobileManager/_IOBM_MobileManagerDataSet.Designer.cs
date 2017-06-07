@@ -20,17 +20,17 @@ namespace Gijima.IOBM.MobileManager {
     [global::System.ComponentModel.DesignerCategoryAttribute("code")]
     [global::System.ComponentModel.ToolboxItem(true)]
     [global::System.Xml.Serialization.XmlSchemaProviderAttribute("GetTypedDataSetSchema")]
-    [global::System.Xml.Serialization.XmlRootAttribute("_IOBM_MobileManager_DevDataSet")]
+    [global::System.Xml.Serialization.XmlRootAttribute("_IOBM_MobileManagerDataSet")]
     [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.DataSet")]
-    public partial class _IOBM_MobileManager_DevDataSet : global::System.Data.DataSet {
+    public partial class _IOBM_MobileManagerDataSet : global::System.Data.DataSet {
         
-        private sp_report_InvoiceDataTable tablesp_report_Invoice;
+        private sp_Company_DueDataTable tablesp_Company_Due;
         
         private global::System.Data.SchemaSerializationMode _schemaSerializationMode = global::System.Data.SchemaSerializationMode.IncludeSchema;
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-        public _IOBM_MobileManager_DevDataSet() {
+        public _IOBM_MobileManagerDataSet() {
             this.BeginInit();
             this.InitClass();
             global::System.ComponentModel.CollectionChangeEventHandler schemaChangedHandler = new global::System.ComponentModel.CollectionChangeEventHandler(this.SchemaChanged);
@@ -41,7 +41,7 @@ namespace Gijima.IOBM.MobileManager {
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-        protected _IOBM_MobileManager_DevDataSet(global::System.Runtime.Serialization.SerializationInfo info, global::System.Runtime.Serialization.StreamingContext context) : 
+        protected _IOBM_MobileManagerDataSet(global::System.Runtime.Serialization.SerializationInfo info, global::System.Runtime.Serialization.StreamingContext context) : 
                 base(info, context, false) {
             if ((this.IsBinarySerialized(info, context) == true)) {
                 this.InitVars(false);
@@ -54,8 +54,8 @@ namespace Gijima.IOBM.MobileManager {
             if ((this.DetermineSchemaSerializationMode(info, context) == global::System.Data.SchemaSerializationMode.IncludeSchema)) {
                 global::System.Data.DataSet ds = new global::System.Data.DataSet();
                 ds.ReadXmlSchema(new global::System.Xml.XmlTextReader(new global::System.IO.StringReader(strSchema)));
-                if ((ds.Tables["sp_report_Invoice"] != null)) {
-                    base.Tables.Add(new sp_report_InvoiceDataTable(ds.Tables["sp_report_Invoice"]));
+                if ((ds.Tables["sp_Company_Due"] != null)) {
+                    base.Tables.Add(new sp_Company_DueDataTable(ds.Tables["sp_Company_Due"]));
                 }
                 this.DataSetName = ds.DataSetName;
                 this.Prefix = ds.Prefix;
@@ -79,9 +79,9 @@ namespace Gijima.IOBM.MobileManager {
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         [global::System.ComponentModel.Browsable(false)]
         [global::System.ComponentModel.DesignerSerializationVisibility(global::System.ComponentModel.DesignerSerializationVisibility.Content)]
-        public sp_report_InvoiceDataTable sp_report_Invoice {
+        public sp_Company_DueDataTable sp_Company_Due {
             get {
-                return this.tablesp_report_Invoice;
+                return this.tablesp_Company_Due;
             }
         }
         
@@ -127,7 +127,7 @@ namespace Gijima.IOBM.MobileManager {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         public override global::System.Data.DataSet Clone() {
-            _IOBM_MobileManager_DevDataSet cln = ((_IOBM_MobileManager_DevDataSet)(base.Clone()));
+            _IOBM_MobileManagerDataSet cln = ((_IOBM_MobileManagerDataSet)(base.Clone()));
             cln.InitVars();
             cln.SchemaSerializationMode = this.SchemaSerializationMode;
             return cln;
@@ -152,8 +152,8 @@ namespace Gijima.IOBM.MobileManager {
                 this.Reset();
                 global::System.Data.DataSet ds = new global::System.Data.DataSet();
                 ds.ReadXml(reader);
-                if ((ds.Tables["sp_report_Invoice"] != null)) {
-                    base.Tables.Add(new sp_report_InvoiceDataTable(ds.Tables["sp_report_Invoice"]));
+                if ((ds.Tables["sp_Company_Due"] != null)) {
+                    base.Tables.Add(new sp_Company_DueDataTable(ds.Tables["sp_Company_Due"]));
                 }
                 this.DataSetName = ds.DataSetName;
                 this.Prefix = ds.Prefix;
@@ -188,10 +188,10 @@ namespace Gijima.IOBM.MobileManager {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         internal void InitVars(bool initTable) {
-            this.tablesp_report_Invoice = ((sp_report_InvoiceDataTable)(base.Tables["sp_report_Invoice"]));
+            this.tablesp_Company_Due = ((sp_Company_DueDataTable)(base.Tables["sp_Company_Due"]));
             if ((initTable == true)) {
-                if ((this.tablesp_report_Invoice != null)) {
-                    this.tablesp_report_Invoice.InitVars();
+                if ((this.tablesp_Company_Due != null)) {
+                    this.tablesp_Company_Due.InitVars();
                 }
             }
         }
@@ -199,18 +199,18 @@ namespace Gijima.IOBM.MobileManager {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         private void InitClass() {
-            this.DataSetName = "_IOBM_MobileManager_DevDataSet";
+            this.DataSetName = "_IOBM_MobileManagerDataSet";
             this.Prefix = "";
-            this.Namespace = "http://tempuri.org/_IOBM_MobileManager_DevDataSet.xsd";
+            this.Namespace = "http://tempuri.org/_IOBM_MobileManagerDataSet.xsd";
             this.EnforceConstraints = true;
             this.SchemaSerializationMode = global::System.Data.SchemaSerializationMode.IncludeSchema;
-            this.tablesp_report_Invoice = new sp_report_InvoiceDataTable();
-            base.Tables.Add(this.tablesp_report_Invoice);
+            this.tablesp_Company_Due = new sp_Company_DueDataTable();
+            base.Tables.Add(this.tablesp_Company_Due);
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-        private bool ShouldSerializesp_report_Invoice() {
+        private bool ShouldSerializesp_Company_Due() {
             return false;
         }
         
@@ -225,7 +225,7 @@ namespace Gijima.IOBM.MobileManager {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         public static global::System.Xml.Schema.XmlSchemaComplexType GetTypedDataSetSchema(global::System.Xml.Schema.XmlSchemaSet xs) {
-            _IOBM_MobileManager_DevDataSet ds = new _IOBM_MobileManager_DevDataSet();
+            _IOBM_MobileManagerDataSet ds = new _IOBM_MobileManagerDataSet();
             global::System.Xml.Schema.XmlSchemaComplexType type = new global::System.Xml.Schema.XmlSchemaComplexType();
             global::System.Xml.Schema.XmlSchemaSequence sequence = new global::System.Xml.Schema.XmlSchemaSequence();
             global::System.Xml.Schema.XmlSchemaAny any = new global::System.Xml.Schema.XmlSchemaAny();
@@ -270,51 +270,33 @@ namespace Gijima.IOBM.MobileManager {
         }
         
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-        public delegate void sp_report_InvoiceRowChangeEventHandler(object sender, sp_report_InvoiceRowChangeEvent e);
+        public delegate void sp_Company_DueRowChangeEventHandler(object sender, sp_Company_DueRowChangeEvent e);
         
         /// <summary>
         ///Represents the strongly named DataTable class.
         ///</summary>
         [global::System.Serializable()]
         [global::System.Xml.Serialization.XmlSchemaProviderAttribute("GetTypedTableSchema")]
-        public partial class sp_report_InvoiceDataTable : global::System.Data.TypedTableBase<sp_report_InvoiceRow> {
-            
-            private global::System.Data.DataColumn columnClientName;
+        public partial class sp_Company_DueDataTable : global::System.Data.TypedTableBase<sp_Company_DueRow> {
             
             private global::System.Data.DataColumn columnPrimaryCellNumber;
             
-            private global::System.Data.DataColumn columnAddressLine1;
+            private global::System.Data.DataColumn columnClientName;
             
-            private global::System.Data.DataColumn columnAddressLine2;
+            private global::System.Data.DataColumn columnEmployeeNumber;
             
-            private global::System.Data.DataColumn columnSuburbName;
+            private global::System.Data.DataColumn columnCostCode;
             
-            private global::System.Data.DataColumn columnPostalCode;
+            private global::System.Data.DataColumn columnAllowanceLimit;
             
-            private global::System.Data.DataColumn columnCityName;
+            private global::System.Data.DataColumn columnPackageName;
             
-            private global::System.Data.DataColumn columnProvinceName;
-            
-            private global::System.Data.DataColumn columnCompanyName;
-            
-            private global::System.Data.DataColumn columnServiceProviderName;
-            
-            private global::System.Data.DataColumn columnInvoiceNumber;
-            
-            private global::System.Data.DataColumn columnInvoiceDate;
-            
-            private global::System.Data.DataColumn columnItemDescription;
-            
-            private global::System.Data.DataColumn columnReferenceNumber;
-            
-            private global::System.Data.DataColumn columnItemAmount;
-            
-            private global::System.Data.DataColumn columnIsPrivate;
+            private global::System.Data.DataColumn columnContractEndDate;
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public sp_report_InvoiceDataTable() {
-                this.TableName = "sp_report_Invoice";
+            public sp_Company_DueDataTable() {
+                this.TableName = "sp_Company_Due";
                 this.BeginInit();
                 this.InitClass();
                 this.EndInit();
@@ -322,7 +304,7 @@ namespace Gijima.IOBM.MobileManager {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            internal sp_report_InvoiceDataTable(global::System.Data.DataTable table) {
+            internal sp_Company_DueDataTable(global::System.Data.DataTable table) {
                 this.TableName = table.TableName;
                 if ((table.CaseSensitive != table.DataSet.CaseSensitive)) {
                     this.CaseSensitive = table.CaseSensitive;
@@ -339,17 +321,9 @@ namespace Gijima.IOBM.MobileManager {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            protected sp_report_InvoiceDataTable(global::System.Runtime.Serialization.SerializationInfo info, global::System.Runtime.Serialization.StreamingContext context) : 
+            protected sp_Company_DueDataTable(global::System.Runtime.Serialization.SerializationInfo info, global::System.Runtime.Serialization.StreamingContext context) : 
                     base(info, context) {
                 this.InitVars();
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn ClientNameColumn {
-                get {
-                    return this.columnClientName;
-                }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -362,113 +336,49 @@ namespace Gijima.IOBM.MobileManager {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn AddressLine1Column {
+            public global::System.Data.DataColumn ClientNameColumn {
                 get {
-                    return this.columnAddressLine1;
+                    return this.columnClientName;
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn AddressLine2Column {
+            public global::System.Data.DataColumn EmployeeNumberColumn {
                 get {
-                    return this.columnAddressLine2;
+                    return this.columnEmployeeNumber;
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn SuburbNameColumn {
+            public global::System.Data.DataColumn CostCodeColumn {
                 get {
-                    return this.columnSuburbName;
+                    return this.columnCostCode;
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn PostalCodeColumn {
+            public global::System.Data.DataColumn AllowanceLimitColumn {
                 get {
-                    return this.columnPostalCode;
+                    return this.columnAllowanceLimit;
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn CityNameColumn {
+            public global::System.Data.DataColumn PackageNameColumn {
                 get {
-                    return this.columnCityName;
+                    return this.columnPackageName;
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn ProvinceNameColumn {
+            public global::System.Data.DataColumn ContractEndDateColumn {
                 get {
-                    return this.columnProvinceName;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn CompanyNameColumn {
-                get {
-                    return this.columnCompanyName;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn ServiceProviderNameColumn {
-                get {
-                    return this.columnServiceProviderName;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn InvoiceNumberColumn {
-                get {
-                    return this.columnInvoiceNumber;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn InvoiceDateColumn {
-                get {
-                    return this.columnInvoiceDate;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn ItemDescriptionColumn {
-                get {
-                    return this.columnItemDescription;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn ReferenceNumberColumn {
-                get {
-                    return this.columnReferenceNumber;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn ItemAmountColumn {
-                get {
-                    return this.columnItemAmount;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn IsPrivateColumn {
-                get {
-                    return this.columnIsPrivate;
+                    return this.columnContractEndDate;
                 }
             }
             
@@ -483,76 +393,51 @@ namespace Gijima.IOBM.MobileManager {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public sp_report_InvoiceRow this[int index] {
+            public sp_Company_DueRow this[int index] {
                 get {
-                    return ((sp_report_InvoiceRow)(this.Rows[index]));
+                    return ((sp_Company_DueRow)(this.Rows[index]));
                 }
             }
             
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public event sp_report_InvoiceRowChangeEventHandler sp_report_InvoiceRowChanging;
+            public event sp_Company_DueRowChangeEventHandler sp_Company_DueRowChanging;
             
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public event sp_report_InvoiceRowChangeEventHandler sp_report_InvoiceRowChanged;
+            public event sp_Company_DueRowChangeEventHandler sp_Company_DueRowChanged;
             
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public event sp_report_InvoiceRowChangeEventHandler sp_report_InvoiceRowDeleting;
+            public event sp_Company_DueRowChangeEventHandler sp_Company_DueRowDeleting;
             
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public event sp_report_InvoiceRowChangeEventHandler sp_report_InvoiceRowDeleted;
+            public event sp_Company_DueRowChangeEventHandler sp_Company_DueRowDeleted;
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public void Addsp_report_InvoiceRow(sp_report_InvoiceRow row) {
+            public void Addsp_Company_DueRow(sp_Company_DueRow row) {
                 this.Rows.Add(row);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public sp_report_InvoiceRow Addsp_report_InvoiceRow(
-                        string ClientName, 
-                        string PrimaryCellNumber, 
-                        string AddressLine1, 
-                        string AddressLine2, 
-                        string SuburbName, 
-                        string PostalCode, 
-                        string CityName, 
-                        string ProvinceName, 
-                        string CompanyName, 
-                        string ServiceProviderName, 
-                        string InvoiceNumber, 
-                        System.DateTime InvoiceDate, 
-                        string ItemDescription, 
-                        string ReferenceNumber, 
-                        decimal ItemAmount, 
-                        bool IsPrivate) {
-                sp_report_InvoiceRow rowsp_report_InvoiceRow = ((sp_report_InvoiceRow)(this.NewRow()));
+            public sp_Company_DueRow Addsp_Company_DueRow(string PrimaryCellNumber, string ClientName, string EmployeeNumber, string CostCode, decimal AllowanceLimit, string PackageName, System.DateTime ContractEndDate) {
+                sp_Company_DueRow rowsp_Company_DueRow = ((sp_Company_DueRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
-                        ClientName,
                         PrimaryCellNumber,
-                        AddressLine1,
-                        AddressLine2,
-                        SuburbName,
-                        PostalCode,
-                        CityName,
-                        ProvinceName,
-                        CompanyName,
-                        ServiceProviderName,
-                        InvoiceNumber,
-                        InvoiceDate,
-                        ItemDescription,
-                        ReferenceNumber,
-                        ItemAmount,
-                        IsPrivate};
-                rowsp_report_InvoiceRow.ItemArray = columnValuesArray;
-                this.Rows.Add(rowsp_report_InvoiceRow);
-                return rowsp_report_InvoiceRow;
+                        ClientName,
+                        EmployeeNumber,
+                        CostCode,
+                        AllowanceLimit,
+                        PackageName,
+                        ContractEndDate};
+                rowsp_Company_DueRow.ItemArray = columnValuesArray;
+                this.Rows.Add(rowsp_Company_DueRow);
+                return rowsp_Company_DueRow;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public override global::System.Data.DataTable Clone() {
-                sp_report_InvoiceDataTable cln = ((sp_report_InvoiceDataTable)(base.Clone()));
+                sp_Company_DueDataTable cln = ((sp_Company_DueDataTable)(base.Clone()));
                 cln.InitVars();
                 return cln;
             }
@@ -560,115 +445,73 @@ namespace Gijima.IOBM.MobileManager {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             protected override global::System.Data.DataTable CreateInstance() {
-                return new sp_report_InvoiceDataTable();
+                return new sp_Company_DueDataTable();
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             internal void InitVars() {
-                this.columnClientName = base.Columns["ClientName"];
                 this.columnPrimaryCellNumber = base.Columns["PrimaryCellNumber"];
-                this.columnAddressLine1 = base.Columns["AddressLine1"];
-                this.columnAddressLine2 = base.Columns["AddressLine2"];
-                this.columnSuburbName = base.Columns["SuburbName"];
-                this.columnPostalCode = base.Columns["PostalCode"];
-                this.columnCityName = base.Columns["CityName"];
-                this.columnProvinceName = base.Columns["ProvinceName"];
-                this.columnCompanyName = base.Columns["CompanyName"];
-                this.columnServiceProviderName = base.Columns["ServiceProviderName"];
-                this.columnInvoiceNumber = base.Columns["InvoiceNumber"];
-                this.columnInvoiceDate = base.Columns["InvoiceDate"];
-                this.columnItemDescription = base.Columns["ItemDescription"];
-                this.columnReferenceNumber = base.Columns["ReferenceNumber"];
-                this.columnItemAmount = base.Columns["ItemAmount"];
-                this.columnIsPrivate = base.Columns["IsPrivate"];
+                this.columnClientName = base.Columns["ClientName"];
+                this.columnEmployeeNumber = base.Columns["EmployeeNumber"];
+                this.columnCostCode = base.Columns["CostCode"];
+                this.columnAllowanceLimit = base.Columns["AllowanceLimit"];
+                this.columnPackageName = base.Columns["PackageName"];
+                this.columnContractEndDate = base.Columns["ContractEndDate"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             private void InitClass() {
-                this.columnClientName = new global::System.Data.DataColumn("ClientName", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnClientName);
                 this.columnPrimaryCellNumber = new global::System.Data.DataColumn("PrimaryCellNumber", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnPrimaryCellNumber);
-                this.columnAddressLine1 = new global::System.Data.DataColumn("AddressLine1", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnAddressLine1);
-                this.columnAddressLine2 = new global::System.Data.DataColumn("AddressLine2", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnAddressLine2);
-                this.columnSuburbName = new global::System.Data.DataColumn("SuburbName", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnSuburbName);
-                this.columnPostalCode = new global::System.Data.DataColumn("PostalCode", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnPostalCode);
-                this.columnCityName = new global::System.Data.DataColumn("CityName", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnCityName);
-                this.columnProvinceName = new global::System.Data.DataColumn("ProvinceName", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnProvinceName);
-                this.columnCompanyName = new global::System.Data.DataColumn("CompanyName", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnCompanyName);
-                this.columnServiceProviderName = new global::System.Data.DataColumn("ServiceProviderName", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnServiceProviderName);
-                this.columnInvoiceNumber = new global::System.Data.DataColumn("InvoiceNumber", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnInvoiceNumber);
-                this.columnInvoiceDate = new global::System.Data.DataColumn("InvoiceDate", typeof(global::System.DateTime), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnInvoiceDate);
-                this.columnItemDescription = new global::System.Data.DataColumn("ItemDescription", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnItemDescription);
-                this.columnReferenceNumber = new global::System.Data.DataColumn("ReferenceNumber", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnReferenceNumber);
-                this.columnItemAmount = new global::System.Data.DataColumn("ItemAmount", typeof(decimal), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnItemAmount);
-                this.columnIsPrivate = new global::System.Data.DataColumn("IsPrivate", typeof(bool), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnIsPrivate);
-                this.columnClientName.AllowDBNull = false;
-                this.columnClientName.MaxLength = 100;
+                this.columnClientName = new global::System.Data.DataColumn("ClientName", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnClientName);
+                this.columnEmployeeNumber = new global::System.Data.DataColumn("EmployeeNumber", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnEmployeeNumber);
+                this.columnCostCode = new global::System.Data.DataColumn("CostCode", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnCostCode);
+                this.columnAllowanceLimit = new global::System.Data.DataColumn("AllowanceLimit", typeof(decimal), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnAllowanceLimit);
+                this.columnPackageName = new global::System.Data.DataColumn("PackageName", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnPackageName);
+                this.columnContractEndDate = new global::System.Data.DataColumn("ContractEndDate", typeof(global::System.DateTime), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnContractEndDate);
                 this.columnPrimaryCellNumber.AllowDBNull = false;
                 this.columnPrimaryCellNumber.MaxLength = 20;
-                this.columnAddressLine1.MaxLength = 50;
-                this.columnAddressLine2.MaxLength = 50;
-                this.columnSuburbName.AllowDBNull = false;
-                this.columnSuburbName.MaxLength = 100;
-                this.columnPostalCode.AllowDBNull = false;
-                this.columnPostalCode.MaxLength = 10;
-                this.columnCityName.AllowDBNull = false;
-                this.columnCityName.MaxLength = 100;
-                this.columnProvinceName.AllowDBNull = false;
-                this.columnProvinceName.MaxLength = 100;
-                this.columnCompanyName.MaxLength = 50;
-                this.columnServiceProviderName.AllowDBNull = false;
-                this.columnServiceProviderName.MaxLength = 50;
-                this.columnInvoiceNumber.MaxLength = 60;
-                this.columnItemDescription.AllowDBNull = false;
-                this.columnItemDescription.MaxLength = 50;
-                this.columnReferenceNumber.AllowDBNull = false;
-                this.columnReferenceNumber.MaxLength = 50;
-                this.columnItemAmount.AllowDBNull = false;
-                this.columnIsPrivate.AllowDBNull = false;
+                this.columnClientName.AllowDBNull = false;
+                this.columnClientName.MaxLength = 100;
+                this.columnEmployeeNumber.MaxLength = 20;
+                this.columnCostCode.AllowDBNull = false;
+                this.columnCostCode.MaxLength = 50;
+                this.columnPackageName.AllowDBNull = false;
+                this.columnPackageName.MaxLength = 50;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public sp_report_InvoiceRow Newsp_report_InvoiceRow() {
-                return ((sp_report_InvoiceRow)(this.NewRow()));
+            public sp_Company_DueRow Newsp_Company_DueRow() {
+                return ((sp_Company_DueRow)(this.NewRow()));
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             protected override global::System.Data.DataRow NewRowFromBuilder(global::System.Data.DataRowBuilder builder) {
-                return new sp_report_InvoiceRow(builder);
+                return new sp_Company_DueRow(builder);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             protected override global::System.Type GetRowType() {
-                return typeof(sp_report_InvoiceRow);
+                return typeof(sp_Company_DueRow);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             protected override void OnRowChanged(global::System.Data.DataRowChangeEventArgs e) {
                 base.OnRowChanged(e);
-                if ((this.sp_report_InvoiceRowChanged != null)) {
-                    this.sp_report_InvoiceRowChanged(this, new sp_report_InvoiceRowChangeEvent(((sp_report_InvoiceRow)(e.Row)), e.Action));
+                if ((this.sp_Company_DueRowChanged != null)) {
+                    this.sp_Company_DueRowChanged(this, new sp_Company_DueRowChangeEvent(((sp_Company_DueRow)(e.Row)), e.Action));
                 }
             }
             
@@ -676,8 +519,8 @@ namespace Gijima.IOBM.MobileManager {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             protected override void OnRowChanging(global::System.Data.DataRowChangeEventArgs e) {
                 base.OnRowChanging(e);
-                if ((this.sp_report_InvoiceRowChanging != null)) {
-                    this.sp_report_InvoiceRowChanging(this, new sp_report_InvoiceRowChangeEvent(((sp_report_InvoiceRow)(e.Row)), e.Action));
+                if ((this.sp_Company_DueRowChanging != null)) {
+                    this.sp_Company_DueRowChanging(this, new sp_Company_DueRowChangeEvent(((sp_Company_DueRow)(e.Row)), e.Action));
                 }
             }
             
@@ -685,8 +528,8 @@ namespace Gijima.IOBM.MobileManager {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             protected override void OnRowDeleted(global::System.Data.DataRowChangeEventArgs e) {
                 base.OnRowDeleted(e);
-                if ((this.sp_report_InvoiceRowDeleted != null)) {
-                    this.sp_report_InvoiceRowDeleted(this, new sp_report_InvoiceRowChangeEvent(((sp_report_InvoiceRow)(e.Row)), e.Action));
+                if ((this.sp_Company_DueRowDeleted != null)) {
+                    this.sp_Company_DueRowDeleted(this, new sp_Company_DueRowChangeEvent(((sp_Company_DueRow)(e.Row)), e.Action));
                 }
             }
             
@@ -694,14 +537,14 @@ namespace Gijima.IOBM.MobileManager {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             protected override void OnRowDeleting(global::System.Data.DataRowChangeEventArgs e) {
                 base.OnRowDeleting(e);
-                if ((this.sp_report_InvoiceRowDeleting != null)) {
-                    this.sp_report_InvoiceRowDeleting(this, new sp_report_InvoiceRowChangeEvent(((sp_report_InvoiceRow)(e.Row)), e.Action));
+                if ((this.sp_Company_DueRowDeleting != null)) {
+                    this.sp_Company_DueRowDeleting(this, new sp_Company_DueRowChangeEvent(((sp_Company_DueRow)(e.Row)), e.Action));
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public void Removesp_report_InvoiceRow(sp_report_InvoiceRow row) {
+            public void Removesp_Company_DueRow(sp_Company_DueRow row) {
                 this.Rows.Remove(row);
             }
             
@@ -710,7 +553,7 @@ namespace Gijima.IOBM.MobileManager {
             public static global::System.Xml.Schema.XmlSchemaComplexType GetTypedTableSchema(global::System.Xml.Schema.XmlSchemaSet xs) {
                 global::System.Xml.Schema.XmlSchemaComplexType type = new global::System.Xml.Schema.XmlSchemaComplexType();
                 global::System.Xml.Schema.XmlSchemaSequence sequence = new global::System.Xml.Schema.XmlSchemaSequence();
-                _IOBM_MobileManager_DevDataSet ds = new _IOBM_MobileManager_DevDataSet();
+                _IOBM_MobileManagerDataSet ds = new _IOBM_MobileManagerDataSet();
                 global::System.Xml.Schema.XmlSchemaAny any1 = new global::System.Xml.Schema.XmlSchemaAny();
                 any1.Namespace = "http://www.w3.org/2001/XMLSchema";
                 any1.MinOccurs = new decimal(0);
@@ -728,7 +571,7 @@ namespace Gijima.IOBM.MobileManager {
                 type.Attributes.Add(attribute1);
                 global::System.Xml.Schema.XmlSchemaAttribute attribute2 = new global::System.Xml.Schema.XmlSchemaAttribute();
                 attribute2.Name = "tableTypeName";
-                attribute2.FixedValue = "sp_report_InvoiceDataTable";
+                attribute2.FixedValue = "sp_Company_DueDataTable";
                 type.Attributes.Add(attribute2);
                 type.Particle = sequence;
                 global::System.Xml.Schema.XmlSchema dsSchema = ds.GetSchemaSerializable();
@@ -772,276 +615,143 @@ namespace Gijima.IOBM.MobileManager {
         /// <summary>
         ///Represents strongly named DataRow class.
         ///</summary>
-        public partial class sp_report_InvoiceRow : global::System.Data.DataRow {
+        public partial class sp_Company_DueRow : global::System.Data.DataRow {
             
-            private sp_report_InvoiceDataTable tablesp_report_Invoice;
+            private sp_Company_DueDataTable tablesp_Company_Due;
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            internal sp_report_InvoiceRow(global::System.Data.DataRowBuilder rb) : 
+            internal sp_Company_DueRow(global::System.Data.DataRowBuilder rb) : 
                     base(rb) {
-                this.tablesp_report_Invoice = ((sp_report_InvoiceDataTable)(this.Table));
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public string ClientName {
-                get {
-                    return ((string)(this[this.tablesp_report_Invoice.ClientNameColumn]));
-                }
-                set {
-                    this[this.tablesp_report_Invoice.ClientNameColumn] = value;
-                }
+                this.tablesp_Company_Due = ((sp_Company_DueDataTable)(this.Table));
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public string PrimaryCellNumber {
                 get {
-                    return ((string)(this[this.tablesp_report_Invoice.PrimaryCellNumberColumn]));
+                    return ((string)(this[this.tablesp_Company_Due.PrimaryCellNumberColumn]));
                 }
                 set {
-                    this[this.tablesp_report_Invoice.PrimaryCellNumberColumn] = value;
+                    this[this.tablesp_Company_Due.PrimaryCellNumberColumn] = value;
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public string AddressLine1 {
+            public string ClientName {
+                get {
+                    return ((string)(this[this.tablesp_Company_Due.ClientNameColumn]));
+                }
+                set {
+                    this[this.tablesp_Company_Due.ClientNameColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public string EmployeeNumber {
                 get {
                     try {
-                        return ((string)(this[this.tablesp_report_Invoice.AddressLine1Column]));
+                        return ((string)(this[this.tablesp_Company_Due.EmployeeNumberColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("The value for column \'AddressLine1\' in table \'sp_report_Invoice\' is DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("The value for column \'EmployeeNumber\' in table \'sp_Company_Due\' is DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tablesp_report_Invoice.AddressLine1Column] = value;
+                    this[this.tablesp_Company_Due.EmployeeNumberColumn] = value;
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public string AddressLine2 {
+            public string CostCode {
+                get {
+                    return ((string)(this[this.tablesp_Company_Due.CostCodeColumn]));
+                }
+                set {
+                    this[this.tablesp_Company_Due.CostCodeColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public decimal AllowanceLimit {
                 get {
                     try {
-                        return ((string)(this[this.tablesp_report_Invoice.AddressLine2Column]));
+                        return ((decimal)(this[this.tablesp_Company_Due.AllowanceLimitColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("The value for column \'AddressLine2\' in table \'sp_report_Invoice\' is DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("The value for column \'AllowanceLimit\' in table \'sp_Company_Due\' is DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tablesp_report_Invoice.AddressLine2Column] = value;
+                    this[this.tablesp_Company_Due.AllowanceLimitColumn] = value;
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public string SuburbName {
+            public string PackageName {
                 get {
-                    return ((string)(this[this.tablesp_report_Invoice.SuburbNameColumn]));
+                    return ((string)(this[this.tablesp_Company_Due.PackageNameColumn]));
                 }
                 set {
-                    this[this.tablesp_report_Invoice.SuburbNameColumn] = value;
+                    this[this.tablesp_Company_Due.PackageNameColumn] = value;
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public string PostalCode {
-                get {
-                    return ((string)(this[this.tablesp_report_Invoice.PostalCodeColumn]));
-                }
-                set {
-                    this[this.tablesp_report_Invoice.PostalCodeColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public string CityName {
-                get {
-                    return ((string)(this[this.tablesp_report_Invoice.CityNameColumn]));
-                }
-                set {
-                    this[this.tablesp_report_Invoice.CityNameColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public string ProvinceName {
-                get {
-                    return ((string)(this[this.tablesp_report_Invoice.ProvinceNameColumn]));
-                }
-                set {
-                    this[this.tablesp_report_Invoice.ProvinceNameColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public string CompanyName {
+            public System.DateTime ContractEndDate {
                 get {
                     try {
-                        return ((string)(this[this.tablesp_report_Invoice.CompanyNameColumn]));
+                        return ((global::System.DateTime)(this[this.tablesp_Company_Due.ContractEndDateColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("The value for column \'CompanyName\' in table \'sp_report_Invoice\' is DBNull.", e);
+                        throw new global::System.Data.StrongTypingException("The value for column \'ContractEndDate\' in table \'sp_Company_Due\' is DBNull.", e);
                     }
                 }
                 set {
-                    this[this.tablesp_report_Invoice.CompanyNameColumn] = value;
+                    this[this.tablesp_Company_Due.ContractEndDateColumn] = value;
                 }
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public string ServiceProviderName {
-                get {
-                    return ((string)(this[this.tablesp_report_Invoice.ServiceProviderNameColumn]));
-                }
-                set {
-                    this[this.tablesp_report_Invoice.ServiceProviderNameColumn] = value;
-                }
+            public bool IsEmployeeNumberNull() {
+                return this.IsNull(this.tablesp_Company_Due.EmployeeNumberColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public string InvoiceNumber {
-                get {
-                    try {
-                        return ((string)(this[this.tablesp_report_Invoice.InvoiceNumberColumn]));
-                    }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("The value for column \'InvoiceNumber\' in table \'sp_report_Invoice\' is DBNull.", e);
-                    }
-                }
-                set {
-                    this[this.tablesp_report_Invoice.InvoiceNumberColumn] = value;
-                }
+            public void SetEmployeeNumberNull() {
+                this[this.tablesp_Company_Due.EmployeeNumberColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public System.DateTime InvoiceDate {
-                get {
-                    try {
-                        return ((global::System.DateTime)(this[this.tablesp_report_Invoice.InvoiceDateColumn]));
-                    }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("The value for column \'InvoiceDate\' in table \'sp_report_Invoice\' is DBNull.", e);
-                    }
-                }
-                set {
-                    this[this.tablesp_report_Invoice.InvoiceDateColumn] = value;
-                }
+            public bool IsAllowanceLimitNull() {
+                return this.IsNull(this.tablesp_Company_Due.AllowanceLimitColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public string ItemDescription {
-                get {
-                    return ((string)(this[this.tablesp_report_Invoice.ItemDescriptionColumn]));
-                }
-                set {
-                    this[this.tablesp_report_Invoice.ItemDescriptionColumn] = value;
-                }
+            public void SetAllowanceLimitNull() {
+                this[this.tablesp_Company_Due.AllowanceLimitColumn] = global::System.Convert.DBNull;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public string ReferenceNumber {
-                get {
-                    return ((string)(this[this.tablesp_report_Invoice.ReferenceNumberColumn]));
-                }
-                set {
-                    this[this.tablesp_report_Invoice.ReferenceNumberColumn] = value;
-                }
+            public bool IsContractEndDateNull() {
+                return this.IsNull(this.tablesp_Company_Due.ContractEndDateColumn);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public decimal ItemAmount {
-                get {
-                    return ((decimal)(this[this.tablesp_report_Invoice.ItemAmountColumn]));
-                }
-                set {
-                    this[this.tablesp_report_Invoice.ItemAmountColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public bool IsPrivate {
-                get {
-                    return ((bool)(this[this.tablesp_report_Invoice.IsPrivateColumn]));
-                }
-                set {
-                    this[this.tablesp_report_Invoice.IsPrivateColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public bool IsAddressLine1Null() {
-                return this.IsNull(this.tablesp_report_Invoice.AddressLine1Column);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public void SetAddressLine1Null() {
-                this[this.tablesp_report_Invoice.AddressLine1Column] = global::System.Convert.DBNull;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public bool IsAddressLine2Null() {
-                return this.IsNull(this.tablesp_report_Invoice.AddressLine2Column);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public void SetAddressLine2Null() {
-                this[this.tablesp_report_Invoice.AddressLine2Column] = global::System.Convert.DBNull;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public bool IsCompanyNameNull() {
-                return this.IsNull(this.tablesp_report_Invoice.CompanyNameColumn);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public void SetCompanyNameNull() {
-                this[this.tablesp_report_Invoice.CompanyNameColumn] = global::System.Convert.DBNull;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public bool IsInvoiceNumberNull() {
-                return this.IsNull(this.tablesp_report_Invoice.InvoiceNumberColumn);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public void SetInvoiceNumberNull() {
-                this[this.tablesp_report_Invoice.InvoiceNumberColumn] = global::System.Convert.DBNull;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public bool IsInvoiceDateNull() {
-                return this.IsNull(this.tablesp_report_Invoice.InvoiceDateColumn);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public void SetInvoiceDateNull() {
-                this[this.tablesp_report_Invoice.InvoiceDateColumn] = global::System.Convert.DBNull;
+            public void SetContractEndDateNull() {
+                this[this.tablesp_Company_Due.ContractEndDateColumn] = global::System.Convert.DBNull;
             }
         }
         
@@ -1049,22 +759,22 @@ namespace Gijima.IOBM.MobileManager {
         ///Row event argument class
         ///</summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-        public class sp_report_InvoiceRowChangeEvent : global::System.EventArgs {
+        public class sp_Company_DueRowChangeEvent : global::System.EventArgs {
             
-            private sp_report_InvoiceRow eventRow;
+            private sp_Company_DueRow eventRow;
             
             private global::System.Data.DataRowAction eventAction;
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public sp_report_InvoiceRowChangeEvent(sp_report_InvoiceRow row, global::System.Data.DataRowAction action) {
+            public sp_Company_DueRowChangeEvent(sp_Company_DueRow row, global::System.Data.DataRowAction action) {
                 this.eventRow = row;
                 this.eventAction = action;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public sp_report_InvoiceRow Row {
+            public sp_Company_DueRow Row {
                 get {
                     return this.eventRow;
                 }
@@ -1080,7 +790,7 @@ namespace Gijima.IOBM.MobileManager {
         }
     }
 }
-namespace Gijima.IOBM.MobileManager._IOBM_MobileManager_DevDataSetTableAdapters {
+namespace Gijima.IOBM.MobileManager._IOBM_MobileManagerDataSetTableAdapters {
     
     
     /// <summary>
@@ -1092,7 +802,7 @@ namespace Gijima.IOBM.MobileManager._IOBM_MobileManager_DevDataSetTableAdapters 
     [global::System.ComponentModel.DesignerAttribute("Microsoft.VSDesigner.DataSource.Design.TableAdapterDesigner, Microsoft.VSDesigner" +
         ", Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
     [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
-    public partial class sp_report_InvoiceTableAdapter : global::System.ComponentModel.Component {
+    public partial class sp_Company_DueTableAdapter : global::System.ComponentModel.Component {
         
         private global::System.Data.SqlClient.SqlDataAdapter _adapter;
         
@@ -1106,7 +816,7 @@ namespace Gijima.IOBM.MobileManager._IOBM_MobileManager_DevDataSetTableAdapters 
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-        public sp_report_InvoiceTableAdapter() {
+        public sp_Company_DueTableAdapter() {
             this.ClearBeforeFill = true;
         }
         
@@ -1203,23 +913,14 @@ namespace Gijima.IOBM.MobileManager._IOBM_MobileManager_DevDataSetTableAdapters 
             this._adapter = new global::System.Data.SqlClient.SqlDataAdapter();
             global::System.Data.Common.DataTableMapping tableMapping = new global::System.Data.Common.DataTableMapping();
             tableMapping.SourceTable = "Table";
-            tableMapping.DataSetTable = "sp_report_Invoice";
-            tableMapping.ColumnMappings.Add("ClientName", "ClientName");
+            tableMapping.DataSetTable = "sp_Company_Due";
             tableMapping.ColumnMappings.Add("PrimaryCellNumber", "PrimaryCellNumber");
-            tableMapping.ColumnMappings.Add("AddressLine1", "AddressLine1");
-            tableMapping.ColumnMappings.Add("AddressLine2", "AddressLine2");
-            tableMapping.ColumnMappings.Add("SuburbName", "SuburbName");
-            tableMapping.ColumnMappings.Add("PostalCode", "PostalCode");
-            tableMapping.ColumnMappings.Add("CityName", "CityName");
-            tableMapping.ColumnMappings.Add("ProvinceName", "ProvinceName");
-            tableMapping.ColumnMappings.Add("CompanyName", "CompanyName");
-            tableMapping.ColumnMappings.Add("ServiceProviderName", "ServiceProviderName");
-            tableMapping.ColumnMappings.Add("InvoiceNumber", "InvoiceNumber");
-            tableMapping.ColumnMappings.Add("InvoiceDate", "InvoiceDate");
-            tableMapping.ColumnMappings.Add("ItemDescription", "ItemDescription");
-            tableMapping.ColumnMappings.Add("ReferenceNumber", "ReferenceNumber");
-            tableMapping.ColumnMappings.Add("ItemAmount", "ItemAmount");
-            tableMapping.ColumnMappings.Add("IsPrivate", "IsPrivate");
+            tableMapping.ColumnMappings.Add("ClientName", "ClientName");
+            tableMapping.ColumnMappings.Add("EmployeeNumber", "EmployeeNumber");
+            tableMapping.ColumnMappings.Add("CostCode", "CostCode");
+            tableMapping.ColumnMappings.Add("AllowanceLimit", "AllowanceLimit");
+            tableMapping.ColumnMappings.Add("PackageName", "PackageName");
+            tableMapping.ColumnMappings.Add("ContractEndDate", "ContractEndDate");
             this._adapter.TableMappings.Add(tableMapping);
         }
         
@@ -1227,7 +928,7 @@ namespace Gijima.IOBM.MobileManager._IOBM_MobileManager_DevDataSetTableAdapters 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         private void InitConnection() {
             this._connection = new global::System.Data.SqlClient.SqlConnection();
-            this._connection.ConnectionString = global::Gijima.IOBM.MobileManager.Properties.Settings.Default.IOBM_MobileManager_DevConnectionString;
+            this._connection.ConnectionString = global::Gijima.IOBM.MobileManager.Properties.Settings.Default.IOBM_MobileManagerConnectionString;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1236,23 +937,30 @@ namespace Gijima.IOBM.MobileManager._IOBM_MobileManager_DevDataSetTableAdapters 
             this._commandCollection = new global::System.Data.SqlClient.SqlCommand[1];
             this._commandCollection[0] = new global::System.Data.SqlClient.SqlCommand();
             this._commandCollection[0].Connection = this.Connection;
-            this._commandCollection[0].CommandText = "dbo.sp_report_Invoice";
+            this._commandCollection[0].CommandText = "dbo.sp_Company_Due";
             this._commandCollection[0].CommandType = global::System.Data.CommandType.StoredProcedure;
             this._commandCollection[0].Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@RETURN_VALUE", global::System.Data.SqlDbType.Int, 4, global::System.Data.ParameterDirection.ReturnValue, 10, 0, null, global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
-            this._commandCollection[0].Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@invoiceID", global::System.Data.SqlDbType.Int, 4, global::System.Data.ParameterDirection.Input, 10, 0, null, global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._commandCollection[0].Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@CompanyName", global::System.Data.SqlDbType.VarChar, 50, global::System.Data.ParameterDirection.Input, 0, 0, null, global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._commandCollection[0].Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Period", global::System.Data.SqlDbType.Date, 3, global::System.Data.ParameterDirection.Input, 10, 0, null, global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
         [global::System.ComponentModel.DataObjectMethodAttribute(global::System.ComponentModel.DataObjectMethodType.Fill, true)]
-        public virtual int Fill(_IOBM_MobileManager_DevDataSet.sp_report_InvoiceDataTable dataTable, global::System.Nullable<int> invoiceID) {
+        public virtual int Fill(_IOBM_MobileManagerDataSet.sp_Company_DueDataTable dataTable, string CompanyName, global::System.Nullable<global::System.DateTime> Period) {
             this.Adapter.SelectCommand = this.CommandCollection[0];
-            if ((invoiceID.HasValue == true)) {
-                this.Adapter.SelectCommand.Parameters[1].Value = ((int)(invoiceID.Value));
+            if ((CompanyName == null)) {
+                this.Adapter.SelectCommand.Parameters[1].Value = global::System.DBNull.Value;
             }
             else {
-                this.Adapter.SelectCommand.Parameters[1].Value = global::System.DBNull.Value;
+                this.Adapter.SelectCommand.Parameters[1].Value = ((string)(CompanyName));
+            }
+            if ((Period.HasValue == true)) {
+                this.Adapter.SelectCommand.Parameters[2].Value = ((System.DateTime)(Period.Value));
+            }
+            else {
+                this.Adapter.SelectCommand.Parameters[2].Value = global::System.DBNull.Value;
             }
             if ((this.ClearBeforeFill == true)) {
                 dataTable.Clear();
@@ -1265,15 +973,21 @@ namespace Gijima.IOBM.MobileManager._IOBM_MobileManager_DevDataSetTableAdapters 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
         [global::System.ComponentModel.DataObjectMethodAttribute(global::System.ComponentModel.DataObjectMethodType.Select, true)]
-        public virtual _IOBM_MobileManager_DevDataSet.sp_report_InvoiceDataTable GetData(global::System.Nullable<int> invoiceID) {
+        public virtual _IOBM_MobileManagerDataSet.sp_Company_DueDataTable GetData(string CompanyName, global::System.Nullable<global::System.DateTime> Period) {
             this.Adapter.SelectCommand = this.CommandCollection[0];
-            if ((invoiceID.HasValue == true)) {
-                this.Adapter.SelectCommand.Parameters[1].Value = ((int)(invoiceID.Value));
-            }
-            else {
+            if ((CompanyName == null)) {
                 this.Adapter.SelectCommand.Parameters[1].Value = global::System.DBNull.Value;
             }
-            _IOBM_MobileManager_DevDataSet.sp_report_InvoiceDataTable dataTable = new _IOBM_MobileManager_DevDataSet.sp_report_InvoiceDataTable();
+            else {
+                this.Adapter.SelectCommand.Parameters[1].Value = ((string)(CompanyName));
+            }
+            if ((Period.HasValue == true)) {
+                this.Adapter.SelectCommand.Parameters[2].Value = ((System.DateTime)(Period.Value));
+            }
+            else {
+                this.Adapter.SelectCommand.Parameters[2].Value = global::System.DBNull.Value;
+            }
+            _IOBM_MobileManagerDataSet.sp_Company_DueDataTable dataTable = new _IOBM_MobileManagerDataSet.sp_Company_DueDataTable();
             this.Adapter.Fill(dataTable);
             return dataTable;
         }
@@ -1347,7 +1061,7 @@ namespace Gijima.IOBM.MobileManager._IOBM_MobileManager_DevDataSetTableAdapters 
         ///</summary>
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-        private int UpdateUpdatedRows(_IOBM_MobileManager_DevDataSet dataSet, global::System.Collections.Generic.List<global::System.Data.DataRow> allChangedRows, global::System.Collections.Generic.List<global::System.Data.DataRow> allAddedRows) {
+        private int UpdateUpdatedRows(_IOBM_MobileManagerDataSet dataSet, global::System.Collections.Generic.List<global::System.Data.DataRow> allChangedRows, global::System.Collections.Generic.List<global::System.Data.DataRow> allAddedRows) {
             int result = 0;
             return result;
         }
@@ -1357,7 +1071,7 @@ namespace Gijima.IOBM.MobileManager._IOBM_MobileManager_DevDataSetTableAdapters 
         ///</summary>
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-        private int UpdateInsertedRows(_IOBM_MobileManager_DevDataSet dataSet, global::System.Collections.Generic.List<global::System.Data.DataRow> allAddedRows) {
+        private int UpdateInsertedRows(_IOBM_MobileManagerDataSet dataSet, global::System.Collections.Generic.List<global::System.Data.DataRow> allAddedRows) {
             int result = 0;
             return result;
         }
@@ -1367,7 +1081,7 @@ namespace Gijima.IOBM.MobileManager._IOBM_MobileManager_DevDataSetTableAdapters 
         ///</summary>
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-        private int UpdateDeletedRows(_IOBM_MobileManager_DevDataSet dataSet, global::System.Collections.Generic.List<global::System.Data.DataRow> allChangedRows) {
+        private int UpdateDeletedRows(_IOBM_MobileManagerDataSet dataSet, global::System.Collections.Generic.List<global::System.Data.DataRow> allChangedRows) {
             int result = 0;
             return result;
         }
@@ -1401,7 +1115,7 @@ namespace Gijima.IOBM.MobileManager._IOBM_MobileManager_DevDataSetTableAdapters 
         ///</summary>
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-        public virtual int UpdateAll(_IOBM_MobileManager_DevDataSet dataSet) {
+        public virtual int UpdateAll(_IOBM_MobileManagerDataSet dataSet) {
             if ((dataSet == null)) {
                 throw new global::System.ArgumentNullException("dataSet");
             }

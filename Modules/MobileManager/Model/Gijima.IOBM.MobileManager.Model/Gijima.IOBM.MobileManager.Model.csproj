@@ -218,6 +218,9 @@
     <Compile Include="Data\SimCard.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Data\sp_Company_Due_Result.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="Data\sp_report_Invoice_Result.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>

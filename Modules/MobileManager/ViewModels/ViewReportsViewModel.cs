@@ -1,6 +1,8 @@
 ﻿using Gijima.IOBM.Infrastructure.Events;
 using Gijima.IOBM.Infrastructure.Helpers;
 using Gijima.IOBM.Infrastructure.Structs;
+using Gijima.IOBM.MobileManager.Common.Events;
+using Gijima.IOBM.MobileManager.Common.Helpers;
 using Gijima.IOBM.MobileManager.Common.Structs;
 using Gijima.IOBM.MobileManager.Model.Data;
 using Gijima.IOBM.MobileManager.Model.Models;
@@ -27,12 +29,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private string _defaultItem = "-- Please Select --";
 
         #region Commands
-
-        public DelegateCommand CancelCommand { get; set; }
-        public DelegateCommand AddCommand { get; set; }
-        public DelegateCommand SaveCommand { get; set; }
-        public DelegateCommand CityCommand { get; set; }
-        public DelegateCommand ProvinceCommand { get; set; }
+        
+        public DelegateCommand ReportParametersCommand { get; set; }
+        public DelegateCommand ReportResultsCommand { get; set; }
+        public DelegateCommand GenerateReportCommand { get; set; }
 
         #endregion
 
@@ -108,6 +108,56 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
         private Visibility _usageLimitVisible = Visibility.Collapsed;
 
+        /// <summary>
+        /// Property for the grid row height
+        /// </summary>
+        public string ReportParametersHeight
+        {
+            get { return _reportParametersHeight; }
+            set { SetProperty(ref _reportParametersHeight, value); }
+        }
+        private string _reportParametersHeight;
+
+        /// <summary>
+        /// Property for the grid row height
+        /// </summary>
+        public string ReportResultsHeight
+        {
+            get { return _reportResultsHeight; }
+            set { SetProperty(ref _reportResultsHeight, value); }
+        }
+        private string _reportResultsHeight;
+
+        /// <summary>
+        /// Property for the expander state
+        /// </summary>
+        public bool ReportParameterExpand
+        {
+            get { return _reportParameterExpand; }
+            set { SetProperty(ref _reportParameterExpand, value); }
+        }
+        private bool _reportParameterExpand;
+
+        /// <summary>
+        /// Property for the expander state
+        /// </summary>
+        public bool ReportResultExpand
+        {
+            get { return _reportResultExpand; }
+            set { SetProperty(ref _reportResultExpand, value); }
+        }
+        private bool _reportResultExpand;
+
+        /// <summary>
+        /// Property for the windows form width
+        /// </summary>
+        public string WindowsFormWidth
+        {
+            get { return _windowsFormWidth; }
+            set { SetProperty(ref _windowsFormWidth, value); }
+        }
+        private string _windowsFormWidth = "*";
+        
         #region Required Fields
 
         /// <summary>
@@ -122,6 +172,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
                 if (value != _defaultItem)
                     ReadReportsAsync();
+
+                //Switch view to show reportparameters
+                if (ReportParametersHeight == "0")
+                    ExecuteReportParameters();
             }
         }
         private string _selectedReportCategory = string.Empty;
@@ -181,6 +235,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         ReadInvoiceNumbersAsync();
                         break;
                 }
+
+                //Switch view to show reportparameters
+                if (ReportParametersHeight == "0")
+                    ExecuteReportParameters();
             }
         }
         private string _selectedBillingPeriod;
@@ -348,13 +406,14 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private void InitialiseReportView()
         {
             _model = new ReportModel(_eventAggregator);
+            InitialiseViewControls();
+           
 
             // Initialise the view commands
-            CancelCommand = new DelegateCommand(ExecuteCancel, CanExecuteCancel).ObservesProperty(() => SelectedReportCategory);
-            //AddCommand = new DelegateCommand(ExecuteAdd);
-            //SaveCommand = new DelegateCommand(ExecuteSave, CanExecuteSave).ObservesProperty(() => SelectedCityName)
-            //                                                              .ObservesProperty(() => SelectedProvince);
-
+            ReportParametersCommand = new DelegateCommand(ExecuteReportParameters, CanExecuteReportParameters);
+            ReportResultsCommand = new DelegateCommand(ExecuteReportResults, CanExecuteReportResults);
+            GenerateReportCommand = new DelegateCommand(ExecuteGenerateReport, CanExecuteGenerateReport).ObservesProperty(() => SelectedReportCategory)
+                                                                                                        .ObservesProperty(() => SelectedReport);
             // Load the view data
             ReadReportCategories();
         }
@@ -366,6 +425,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         {
             SelectedReport = null;
             SelectedUsageLimit = 1;
+            ReportParametersHeight = "*";
+            ReportResultsHeight = "0";
+            ReportParameterExpand = true;
+            ReportResultExpand = false;
         }
 
         #region Lookup Data Loading
@@ -486,62 +549,124 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         #region Command Execution
 
         /// <summary>
-        /// Validate if the cancel functionality can be executed
+        /// Validate if the functionality can be executed
         /// </summary>
-        /// <returns>True if can execute</returns>
-        private bool CanExecuteCancel()
+        /// <returns></returns>
+        public bool CanExecuteReportParameters()
         {
-            return !string.IsNullOrWhiteSpace(SelectedReportCategory);
+            return true;
         }
 
         /// <summary>
-        /// Execute when the cancel command button is clicked 
+        /// Execute when the Report Paramaters are clicked
         /// </summary>
-        private void ExecuteCancel()
+        public void ExecuteReportParameters()
         {
-            InitialiseViewControls();
+            if (ReportParametersHeight == "0")
+            {
+                ReportParametersHeight = "*";
+                ReportResultsHeight = "0";
+                ReportParameterExpand = true;
+                ReportResultExpand = false;
+            }
+            else
+                ExecuteReportResults();
         }
 
         /// <summary>
-        /// Validate if the save functionality can be executed
+        /// Validate if the functionality can be executed
         /// </summary>
-        /// <returns>True if can execute</returns>
-        //private bool CanExecuteSave()
-        //{
-        //    return !string.IsNullOrWhiteSpace(SelectedCityName) && SelectedProvince.pkProvinceID > 0;
-        //}
-
-        ///// <summary>
-        ///// Execute when the save command button is clicked 
-        ///// </summary>
-        //private async void ExecuteSave()
-        //{
-        //    bool result = false;
-
-        //    SelectedCity.CityName = SelectedCityName.ToUpper();
-        //    SelectedCity.fkProvinceID = SelectedProvince.pkProvinceID;
-        //    SelectedCity.ModifiedBy = SecurityHelper.LoggedInDomainName;
-        //    SelectedCity.ModifiedDate = DateTime.Now;
-        //    SelectedCity.IsActive = CityState;
-
-        //    if (SelectedCity.pkCityID == 0)
-        //        result = _model.CreateCity(SelectedCity);
-        //    else
-        //        result = _model.UpdateCity(SelectedCity);
-
-        //    if (result)
-        //    {
-        //        InitialiseViewControls();
-        //        await ReadCitysAsync();
-        //    }
-        //}
+        /// <returns></returns>
+        public bool CanExecuteReportResults()
+        {
+            return true;
+        }
 
         /// <summary>
-        /// Execute when the add command button is clicked 
+        /// Execute when the Report Paramaters are clicked
         /// </summary>
-        private void ExecuteAdd()
+        public void ExecuteReportResults()
         {
-            InitialiseViewControls();
+            if (ReportResultsHeight == "0")
+            {
+                ReportParametersHeight = "0";
+                ReportResultsHeight = "*";
+                ReportParameterExpand = false;
+                ReportResultExpand = true;
+            }
+            else
+                ExecuteReportParameters();
+        }
+        
+        /// <summary>
+        /// Validate if the functionality can be executed
+        /// </summary>
+        /// <returns></returns>
+        public bool CanExecuteGenerateReport()
+        {
+            if (SelectedReportCategory != null)
+            {
+                switch (EnumHelper.GetEnumFromDescription<ReportType>(SelectedReportCategory))
+                {
+                    case ReportType.None:
+                        return false;
+                    case ReportType.Accounts:
+                        return SelectedReportCategory != null && SelectedReport != null && SelectedReportCategory != _defaultItem && SelectedReport.ReportName != _defaultItem ? true : false;
+                    case ReportType.Usage:
+                        return false;
+                    case ReportType.CompanyDue:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+            else
+                return false;
+        }
+
+        /// <summary>
+        /// Execute when the Report Paramaters are clicked
+        /// </summary>
+        public void ExecuteGenerateReport()
+        {
+            //Switch view to show report
+            if (ReportResultsHeight == "0")
+            {
+                ExecuteReportResults();
+                System.Threading.Thread.Sleep(500);
+            }
+
+            UIConvertionHelper convertionHelper = new UIConvertionHelper();
+
+            switch (EnumHelper.GetEnumFromDescription<ReportType>(SelectedReportCategory))
+            {
+                case ReportType.None:
+                    break;
+                case ReportType.Accounts:
+
+                    // Publish the event to execute the ShowInvoiceReport method on the Accounts View
+                    InvoiceReportEventArgs eventArgsInvoice = new InvoiceReportEventArgs();
+                    Invoice tmpInvoice = new InvoiceModel(_eventAggregator).ReadInvoice(SelectedInvoiceNumber);
+                    eventArgsInvoice.InvoiceID = tmpInvoice.pkInvoiceID;
+                    eventArgsInvoice.ServiceDescription = tmpInvoice.Service;
+                    _eventAggregator.GetEvent<ShowInvoiceReportEvent>().Publish(eventArgsInvoice);
+                    WindowsFormWidth = convertionHelper.ConvertCmToPixels(eventArgsInvoice.WindowsFormWidth);
+
+                    break;
+                case ReportType.Usage:
+                    break;
+                case ReportType.CompanyDue:
+
+                    // Publish the event to execute the ShowCompanyDueReport method on the Accounts View
+                    CompanyDueReportEventArgs eventArgsCompanyDue = new CompanyDueReportEventArgs();
+                    eventArgsCompanyDue.CompanyName = "DCD DORBYL";
+                    _eventAggregator.GetEvent<ShowCompanyDueReportEvent>().Publish(eventArgsCompanyDue);
+                    WindowsFormWidth = convertionHelper.ConvertCmToPixels(eventArgsCompanyDue.WindowsFormWidth);
+
+                    break;
+            }
+
+            
         }
 
         #endregion

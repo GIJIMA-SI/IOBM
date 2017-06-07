@@ -82,5 +82,18 @@ namespace Gijima.IOBM.MobileManager.Model.Data
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<sp_report_Invoice_Result>("sp_report_Invoice", invoiceIDParameter);
         }
+    
+        public virtual ObjectResult<sp_Company_Due_Result> sp_Company_Due(string companyName, Nullable<System.DateTime> period)
+        {
+            var companyNameParameter = companyName != null ?
+                new ObjectParameter("CompanyName", companyName) :
+                new ObjectParameter("CompanyName", typeof(string));
+    
+            var periodParameter = period.HasValue ?
+                new ObjectParameter("Period", period) :
+                new ObjectParameter("Period", typeof(System.DateTime));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<sp_Company_Due_Result>("sp_Company_Due", companyNameParameter, periodParameter);
+        }
     }
 }

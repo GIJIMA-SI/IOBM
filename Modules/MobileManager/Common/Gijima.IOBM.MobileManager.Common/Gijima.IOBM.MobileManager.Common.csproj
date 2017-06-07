@@ -68,6 +68,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Events\CompanyDueReportEventArgs.cs" />
+    <Compile Include="Helpers\UIConvertionHelper.cs" />
     <Compile Include="Structs\Enumerator.cs" />
     <Compile Include="Events\EventHandlers.cs" />
     <Compile Include="Helpers\TransactionHelper.cs" />

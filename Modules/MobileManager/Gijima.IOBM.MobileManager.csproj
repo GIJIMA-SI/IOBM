@@ -284,10 +284,10 @@
     <Compile Include="Views\Maintenance\ViewSuburb.xaml.cs">
       <DependentUpon>ViewSuburb.xaml</DependentUpon>
     </Compile>
-    <Compile Include="_IOBM_MobileManager_DevDataSet.Designer.cs">
+    <Compile Include="_IOBM_MobileManagerDataSet.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>_IOBM_MobileManager_DevDataSet.xsd</DependentUpon>
+      <DependentUpon>_IOBM_MobileManagerDataSet.xsd</DependentUpon>
     </Compile>
     <Page Include="Views\Billing\ViewBillingDataExport.xaml">
       <SubType>Designer</SubType>
@@ -472,6 +472,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Reports\CompanyDueReport.rdlc">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Reports\Invoice.rdlc">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -481,16 +484,16 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
-    <None Include="_IOBM_MobileManager_DevDataSet.xsc">
-      <DependentUpon>_IOBM_MobileManager_DevDataSet.xsd</DependentUpon>
+    <None Include="_IOBM_MobileManagerDataSet.xsc">
+      <DependentUpon>_IOBM_MobileManagerDataSet.xsd</DependentUpon>
     </None>
-    <None Include="_IOBM_MobileManager_DevDataSet.xsd">
+    <None Include="_IOBM_MobileManagerDataSet.xsd">
       <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>_IOBM_MobileManager_DevDataSet.Designer.cs</LastGenOutput>
+      <LastGenOutput>_IOBM_MobileManagerDataSet.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </None>
-    <None Include="_IOBM_MobileManager_DevDataSet.xss">
-      <DependentUpon>_IOBM_MobileManager_DevDataSet.xsd</DependentUpon>
+    <None Include="_IOBM_MobileManagerDataSet.xss">
+      <DependentUpon>_IOBM_MobileManagerDataSet.xsd</DependentUpon>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -568,6 +571,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets\Styles\" />
+    <Folder Include="Properties\DataSources\" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Images\arrow-next.png" />
@@ -595,6 +599,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Images\Excel-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

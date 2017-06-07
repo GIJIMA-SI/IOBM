@@ -244,6 +244,8 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
         Accounts = 1,
         [Description("Usage")]
         Usage = 2,
+        [Description("Company Due")]
+        CompanyDue = 3,
     }
 
     /// <summary>

@@ -1056,6 +1056,10 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Function Name="sp_Company_Due" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="CompanyName" Type="varchar" Mode="In" />
+          <Parameter Name="Period" Type="date" Mode="In" />
+        </Function>
         <Function Name="sp_report_Invoice" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="invoiceID" Type="int" Mode="In" />
         </Function>
@@ -2093,6 +2097,10 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             <End Role="Invoice" EntitySet="Invoices" />
             <End Role="InvoiceDetail" EntitySet="InvoiceDetails" />
           </AssociationSet>
+          <FunctionImport Name="sp_Company_Due" ReturnType="Collection(MobileManagerModel.sp_Company_Due_Result)">
+            <Parameter Name="CompanyName" Mode="In" Type="String" />
+            <Parameter Name="Period" Mode="In" Type="DateTime" />
+          </FunctionImport>
           </EntityContainer>
         <ComplexType Name="sp_report_Invoice_Result">
           <Property Type="String" Name="ClientName" Nullable="false" MaxLength="100" />
@@ -2615,6 +2623,15 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <ComplexType Name="sp_Company_Due_Result">
+          <Property Type="String" Name="PrimaryCellNumber" Nullable="false" MaxLength="20" />
+          <Property Type="String" Name="ClientName" Nullable="false" MaxLength="100" />
+          <Property Type="String" Name="EmployeeNumber" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="CostCode" Nullable="false" MaxLength="50" />
+          <Property Type="Decimal" Name="AllowanceLimit" Nullable="true" Precision="18" Scale="2" />
+          <Property Type="String" Name="PackageName" Nullable="false" MaxLength="50" />
+          <Property Type="DateTime" Name="ContractEndDate" Nullable="true" Precision="23" />
+        </ComplexType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -3282,6 +3299,19 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="sp_Company_Due" FunctionName="MobileManagerModel.Store.sp_Company_Due">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="MobileManagerModel.sp_Company_Due_Result">
+                <ScalarProperty Name="PrimaryCellNumber" ColumnName="PrimaryCellNumber" />
+                <ScalarProperty Name="ClientName" ColumnName="ClientName" />
+                <ScalarProperty Name="EmployeeNumber" ColumnName="EmployeeNumber" />
+                <ScalarProperty Name="CostCode" ColumnName="CostCode" />
+                <ScalarProperty Name="AllowanceLimit" ColumnName="AllowanceLimit" />
+                <ScalarProperty Name="PackageName" ColumnName="PackageName" />
+                <ScalarProperty Name="ContractEndDate" ColumnName="ContractEndDate" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
           </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

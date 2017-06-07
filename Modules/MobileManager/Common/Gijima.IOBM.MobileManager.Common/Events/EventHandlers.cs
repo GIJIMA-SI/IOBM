@@ -15,6 +15,7 @@ namespace Gijima.IOBM.MobileManager.Common.Events
     public class SearchResultEvent : PubSubEvent<int> {}
     public class SetActivityLogProcessEvent : PubSubEvent<object> {}
     public class ShowInvoiceReportEvent : PubSubEvent<object> {}
+    public class ShowCompanyDueReportEvent : PubSubEvent<object> {}
     public class MobileManagerSecurityEvent : PubSubEvent<object> {}
     public class BillingProcessEvent : PubSubEvent<BillingExecutionState> {}
     public class BillingProcessHistoryEvent : PubSubEvent<bool> {}

@@ -382,7 +382,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     break;
                 case "Reports":
                     if (tabItem.Content == null)
-                        SelectedTab.Content = new ViewReports();
+                        SelectedTab.Content = new ViewReports(_eventAggregator);
                     break;
                 case "System Tools":
                     if (tabItem.Content == null)
