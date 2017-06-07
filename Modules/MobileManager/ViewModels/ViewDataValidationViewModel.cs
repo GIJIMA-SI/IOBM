@@ -303,7 +303,15 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         public bool SelectAllExceptions
         {
             get { return _selectAllExceptions; }
-            set { SetProperty(ref _selectAllExceptions, value); }
+            set
+            {
+                SetProperty(ref _selectAllExceptions, value);
+
+                if (value)
+                { }
+                else
+                { }
+            }
         }
         private bool _selectAllExceptions = false;
 
@@ -484,7 +492,8 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                                                     .ObservesProperty(() => CanStartBillingProcess);
             StopValidationCommand = new DelegateCommand(ExecuteStopValidation, CanStopValidation).ObservesProperty(() => ValidationStarted)
                                                                                                  .ObservesProperty(() => ValidationRuleEntitiesFailed);
-            ExportCommand = new DelegateCommand(ExecuteExport, CanExport).ObservesProperty(() => ExceptionsToFix);
+            ExportCommand = new DelegateCommand(ExecuteExport, CanExport).ObservesProperty(() => ExceptionsToFix)
+                                                                         .ObservesProperty(() => SelectAllExceptions);
             ApplyRuleFixCommand = new DelegateCommand(ExecuteApplyRuleFix, CanApplyRuleFix).ObservesProperty(() => ExceptionsToFix);
             ManualFixCommand = new DelegateCommand(ExecuteManualFix, CanManualFix).ObservesProperty(() => ExceptionsToFix);
             _validationProcess = MobileManagerEnvironment.SelectedProcessMenu == ProcessMenuOption.SystemTools ? DataValidationProcess.System :
@@ -697,7 +706,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                 ApplicationMessage.MessageTypes.SystemError));
             }
         }
-
+        
         /// <summary>
         /// Create a new billing process history entry
         /// </summary>
@@ -949,7 +958,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// <returns></returns>
         private bool CanExport()
         {
-            return ExceptionsToFix != null && ExceptionsToFix.Count > 0;
+            return ExceptionsToFix != null && ExceptionsToFix.Count > 0 || (ValidationErrorCollection != null && ValidationErrorCollection.Count > 0 && SelectAllExceptions);
         }
 
         /// <summary>
@@ -970,13 +979,31 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     DataTable dt = new DataTable();
                     DataRow dataRow = null;
                     dt.Columns.Add("Exception Description");
-                    string fileName = string.Format("{0}\\ValidationExceptions - {1}.xlsx", dialog.SelectedPath, DateTime.Now.ToShortDateString());
 
-                    // Add all the exceptions to a data table              
-                    foreach (DataValidationException exception in ExceptionsToFix)
+                    //Fix the date string so file can be saved
+                    string dateNow = DateTime.Now.ToShortDateString();
+                    dateNow = dateNow.Replace('/','-');
+
+                    string fileName = string.Format("{0}\\ValidationExceptions - {1}.xlsx", dialog.SelectedPath, dateNow);
+
+                    //Determine if all exceptions should be exported
+                    if (SelectAllExceptions)
                     {
-                        dataRow = dt.NewRow();
-                        dt.Rows.Add(exception.Message);
+                        // Add all the exceptions to a data table              
+                        foreach (DataValidationException exception in ValidationErrorCollection)
+                        {
+                            dataRow = dt.NewRow();
+                            dt.Rows.Add(exception.Message);
+                        }
+                    }
+                    else
+                    {
+                        // Add all the exceptions to a data table              
+                        foreach (DataValidationException exception in ExceptionsToFix)
+                        {
+                            dataRow = dt.NewRow();
+                            dt.Rows.Add(exception.Message);
+                        }
                     }
 
                     officeHelper.ExportDataTableToExcel(dt, fileName);
