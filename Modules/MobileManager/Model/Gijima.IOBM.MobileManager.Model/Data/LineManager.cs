@@ -12,27 +12,27 @@ namespace Gijima.IOBM.MobileManager.Model.Data
     using System;
     using System.Collections.Generic;
     
-    public partial class CompanyGroup
+    public partial class LineManager
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public CompanyGroup()
+        public LineManager()
         {
-            this.CompanyBillingLevels = new HashSet<CompanyBillingLevel>();
-            this.Companies = new HashSet<Company>();
-            this.Departments = new HashSet<Department>();
+            this.ClientDepartmentManagers = new HashSet<ClientDepartmentManager>();
         }
     
-        public int pkCompanyGroupID { get; set; }
-        public string GroupName { get; set; }
+        public int pkLineManagerID { get; set; }
+        public int fkDepartmentID { get; set; }
+        public string Name { get; set; }
+        public string Surname { get; set; }
+        public string PhoneNumber { get; set; }
+        public string CellNumber { get; set; }
+        public string LineManagerEmail { get; set; }
         public string ModifiedBy { get; set; }
         public System.DateTime ModifiedDate { get; set; }
         public bool IsActive { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CompanyBillingLevel> CompanyBillingLevels { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Company> Companies { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Department> Departments { get; set; }
+        public virtual ICollection<ClientDepartmentManager> ClientDepartmentManagers { get; set; }
+        public virtual Department Department { get; set; }
     }
 }

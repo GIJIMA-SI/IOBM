@@ -100,6 +100,9 @@
     <Compile Include="Data\ClientBilling.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Data\ClientDepartmentManager.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="Data\ClientLocation.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
@@ -148,6 +151,9 @@
     <Compile Include="Data\DataValidationRule.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Data\Department.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="Data\Device.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
@@ -175,6 +181,9 @@
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\InvoiceDetail.cs">
+      <DependentUpon>MobileManagerEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\LineManager.cs">
       <DependentUpon>MobileManagerEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Data\Mapping.cs" />
@@ -250,6 +259,7 @@
     <Compile Include="Models\BillingProcessModel.cs" />
     <Compile Include="Models\CityModel.cs" />
     <Compile Include="Models\ClientBillingModel.cs" />
+    <Compile Include="Models\ClientDepartmentManagerModel.cs" />
     <Compile Include="Models\ClientLocationModel.cs" />
     <Compile Include="Models\ClientModel.cs" />
     <Compile Include="Models\ClientServiceModel.cs" />
@@ -263,11 +273,13 @@
     <Compile Include="Models\DataImportSearchPropertyModel.cs" />
     <Compile Include="Models\DataUpdatePropertyModel.cs" />
     <Compile Include="Models\DataUpdateSearchPropertyModel.cs" />
+    <Compile Include="Models\DepartmentModel.cs" />
     <Compile Include="Models\DeviceIMENumberModel.cs" />
     <Compile Include="Models\DevicesMakeModel.cs" />
     <Compile Include="Models\DevicesModel.cs" />
     <Compile Include="Models\DevicesModelModel.cs" />
     <Compile Include="Models\ExternalBillingDataModel.cs" />
+    <Compile Include="Models\LineManagerModel.cs" />
     <Compile Include="Models\PackageSetupModel.cs" />
     <Compile Include="Models\DataUpdateRuleModel.cs" />
     <Compile Include="Models\InvoiceModel.cs" />

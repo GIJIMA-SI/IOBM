@@ -576,7 +576,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
                         //If Entity name is client then there will only be one join
                         if (searchField.EntityName != "Client")
-                        {   
+                        {
                             string currentJoin = $"INNER JOIN {entityName} ON {searchField.EntityName}.fk{entityName}ID = {entityName}.pk{entityName}ID ";
                             JoinCollection.Add(currentJoin);
                         }
@@ -626,7 +626,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     }
                     else
                         WhereCollection.Add($" {whereCriteria.SearchField.EntityName}.{whereCriteria.SearchField.ColumnName} {GetSqlStatement(whereCriteria.SearchField.DataType, whereCriteria.OperatorValue, whereCriteria.SearchValue)} ");
-                    
+
                 }
             }
         }
@@ -1132,6 +1132,17 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         {
                             case "Company Group":
                                 ComboBoxValidationCollection = await Task.Run(() => new CompanyModel(_eventAggregator).ReadCompanyGroupNames(true));
+                                break;
+                        }
+                        break;
+                    case "ClientDepartmentManager":
+                        switch (displayName)
+                        {
+                            case "Department":
+                                ComboBoxValidationCollection = await Task.Run(() => new DepartmentModel(_eventAggregator).ReadDepartmentNames());
+                                break;
+                            case "Line Manager Email":
+                                ComboBoxValidationCollection = await Task.Run(() => new LineManagerModel(_eventAggregator).ReadLineManagerEmails());
                                 break;
                         }
                         break;

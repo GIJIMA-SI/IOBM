@@ -85,44 +85,92 @@
                 <TextBox x:Name="TextBoxCellNumber" Grid.Row="0" Grid.Column="1" TabIndex="0" ToolTip="Enter the cellular number." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedCellNumber, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidCellNumber}">
                 </TextBox>
-                <TextBlock Grid.Row="0" Grid.Column="3" Text="Company:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <Border Grid.Row="0" Grid.Column="4" Grid.ColumnSpan="7" BorderThickness="1" BorderBrush="{Binding ValidCompany}">
-                    <Grid>
+                <Grid Grid.Row="0" Grid.Column="3" Grid.RowSpan="3" Grid.ColumnSpan="8" Margin="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="1.2*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Company:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                    <Border Grid.Row="0" Grid.Column="2" BorderThickness="1" BorderBrush="{Binding ValidCompany}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="148*" />
+                                <ColumnDefinition Width="149*"/>
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ComboBox x:Name="ComboBoxCompany" Grid.Column="0" ToolTip="Select the company linked to the cellular number." TabIndex="1" IsSynchronizedWithCurrentItem="True"
+                            ItemsSource="{Binding CompanyCollection}" DisplayMemberPath="CompanyName" Height="20" 
+                            SelectedItem="{Binding SelectedCompany, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="2" >
+                            </ComboBox>
+                            <Button x:Name="ButtonCompanyCrud" Grid.Column="2" Margin="2,0,0,0" ToolTip="Add, edit or delete company data." TabIndex="2" Height="20"
+                            Style="{StaticResource UXImageButtonStyle}" Command="{Binding ClientCompanyCommand}">
+                                <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/edit_32.png" />
+                            </Button>
+                        </Grid>
+                    </Border>
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Site:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                    <Border Grid.Row="2" Grid.Column="2" BorderThickness="1" BorderBrush="{Binding ValidLocation}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ComboBox x:Name="ComboBoxLocation" Grid.Column="0" ToolTip="Select the client's site location." TabIndex="4" IsSynchronizedWithCurrentItem="True" Height="20"
+                            ItemsSource="{Binding ClientLocationCollection}" DisplayMemberPath="LocationDescription" 
+                            SelectedItem="{Binding SelectedClientLocation, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
+                            </ComboBox>
+                            <Button x:Name="ButtonUserSiteCrud" Grid.Column="1" Margin="2,0,0,0" ToolTip="Add, edit or delete user site data." TabIndex="5" Height="20"
+                            Style="{StaticResource UXImageButtonStyle}" Command="{Binding ClientUserSiteCommand}">
+                                <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/edit_32.png" />
+                            </Button>
+                        </Grid>
+                    </Border>
+                    <TextBlock Grid.Row="0" Grid.Column="4" Text="Department:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                    <Grid Grid.Row="0" Grid.Column="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="148*" />
+                            <ColumnDefinition Width="149*"/>
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox x:Name="ComboBoxDepartment" Grid.Column="0" ToolTip="Select the company linked to the cellular number." TabIndex="1" IsSynchronizedWithCurrentItem="True"
+                            ItemsSource="{Binding DepartmentCollection}" DisplayMemberPath="Description" Height="20" 
+                            SelectedItem="{Binding SelectedDepartment, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="2" >
+                        </ComboBox>
+                        <Button x:Name="ButtonDepartmentCrud" Grid.Column="2" Margin="2,0,0,0" ToolTip="Add, edit or delete department data." TabIndex="2" Height="20"
+                            Style="{StaticResource UXImageButtonStyle}" Command="{Binding DepartmentCommand}">
+                            <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/edit_32.png" />
+                        </Button>
+                    </Grid>
+                    <TextBlock Grid.Row="2" Grid.Column="4" Text="Line Manager:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+                    <Grid Grid.Row="2" Grid.Column="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <ComboBox x:Name="ComboBoxCompany" Grid.Column="0" ToolTip="Select the company linked to the cellular number." TabIndex="1" IsSynchronizedWithCurrentItem="True"
-                            ItemsSource="{Binding CompanyCollection}" DisplayMemberPath="CompanyName" Height="20" 
-                            SelectedItem="{Binding SelectedCompany, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
+                        <ComboBox x:Name="ComboBoxLineManager" Grid.Column="0" ToolTip="Select the client's site location." TabIndex="4" IsSynchronizedWithCurrentItem="True" Height="20"
+                            ItemsSource="{Binding LineManagerCollection}" DisplayMemberPath="Name" 
+                            SelectedItem="{Binding SelectedLineManager, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
                         </ComboBox>
-                        <Button x:Name="ButtonCompanyCrud" Grid.Column="1" Margin="2,0,0,0" ToolTip="Add, edit or delete company data." TabIndex="2" Height="20"
-                            Style="{StaticResource UXImageButtonStyle}" Command="{Binding ClientCompanyCommand}">
+                        <Button x:Name="ButtonUserLineManagerCrud" Grid.Column="1" Margin="2,0,0,0" ToolTip="Add, edit or delete line manager data." TabIndex="5" Height="20"
+                            Style="{StaticResource UXImageButtonStyle}" Command="{Binding LineManagerCommand}">
                             <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/edit_32.png" />
                         </Button>
                     </Grid>
-                </Border>
+                </Grid>
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="Empl no:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
                 <TextBox x:Name="TextBoxEmployeeNumber" Grid.Row="2" Grid.Column="1" TabIndex="3" ToolTip="Enter the employee number." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedClient.EmployeeNumber}">
                 </TextBox>
-                <TextBlock Grid.Row="2" Grid.Column="3" Text="Site:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
-                <Border Grid.Row="2" Grid.Column="4" Grid.ColumnSpan="7" BorderThickness="1"  BorderBrush="{Binding ValidLocation}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <ComboBox x:Name="ComboBoxLocation" Grid.Column="0" ToolTip="Select the client's site location." TabIndex="4" IsSynchronizedWithCurrentItem="True" Height="20"
-                            ItemsSource="{Binding ClientLocationCollection}" DisplayMemberPath="LocationDescription" 
-                            SelectedItem="{Binding SelectedClientLocation, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
-                        </ComboBox>
-                        <Button x:Name="ButtonUserSiteCrud" Grid.Column="1" Margin="2,0,0,0" ToolTip="Add, edit or delete user site data." TabIndex="5" Height="20"
-                            Style="{StaticResource UXImageButtonStyle}" Command="{Binding ClientUserSiteCommand}">
-                            <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/edit_32.png" />
-                        </Button>
-                    </Grid>
-                </Border>
                 <TextBlock Grid.Row="4" Grid.Column="0" Text="Name:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
                 <TextBox x:Name="TextBoxClientName" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="4" TabIndex="6" ToolTip="Enter the client name linked cellular number." Style="{StaticResource UXTextBoxStyle}"
                     Text="{Binding SelectedClientName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidClientName}">

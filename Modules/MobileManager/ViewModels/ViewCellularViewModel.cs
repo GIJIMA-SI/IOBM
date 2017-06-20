@@ -17,6 +17,7 @@ using Gijima.IOBM.MobileManager.Common.Events;
 using System.Collections.Generic;
 using System.Windows;
 using Gijima.IOBM.MobileManager.Security;
+using System.Reflection;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
 {
@@ -31,8 +32,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private DataActivityLog _activityLogInfo = null;
         private bool _deviceDataSaved = false;
         private bool _simCardDataSaved = false;
+        private bool _setClientDepartment = false;
         private int _currentBillingYear;
         private int _currentBillingMonth;
+        private string _defaultItem = "-- Please Select --";
 
         #region Commands
 
@@ -46,7 +49,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         public DelegateCommand ContractServiceCommand { get; set; }
         public DelegateCommand ContractPackageCommand { get; set; }
         public DelegateCommand ContractSuburbCommand { get; set; }
-        
+        public DelegateCommand DepartmentCommand { get; set; }
+        public DelegateCommand LineManagerCommand { get; set; }
+
         #endregion
 
         #region Properties
@@ -67,7 +72,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                     {
                         //Set the flag true so reallocation can be selected
                         ReallocationStatus = true;
-                        
+
                         // Set the client properties
                         if (CompanyCollection != null)
                             SelectedCompany = value.fkCompanyID > 0 ? CompanyCollection.Where(p => p.pkCompanyID == value.fkCompanyID).FirstOrDefault()
@@ -128,6 +133,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                         if (SelectedContract != null)
                             SetClientContractServices();
 
+                        //Set the client deparment if any
+                        ReadDepartments(false, true);
+
                         // Set billing properties
                         SetClientBilling(value.ClientBilling);
 
@@ -164,7 +172,35 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             }
         }
         private Client _selectedClient = new Client();
-        
+
+        /// <summary>
+        /// The selected phone number
+        /// </summary>
+        public Department SelectedDepartment
+        {
+            get { return _selectedDepartment; }
+            set
+            {
+                SetProperty(ref _selectedDepartment, value);
+
+                if (_setClientDepartment)
+                    ReadLineManagers(true, value.pkDepartmentID);
+                else
+                    ReadLineManagers(false, value.pkDepartmentID);
+            }
+        }
+        private Department _selectedDepartment;
+
+        /// <summary>
+        /// Holds the selected (current) line manager entity
+        /// </summary>
+        public LineManager SelectedLineManager
+        {
+            get { return _selectedLineManager; }
+            set { SetProperty(ref _selectedLineManager, value); }
+        }
+        private LineManager _selectedLineManager = new LineManager();
+
         /// <summary>
         /// Determine if the Reallocation state can be selected
         /// </summary>
@@ -392,6 +428,26 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         private string _selectedServiceDescription = "";
 
         /// <summary>
+        /// The collection of line managers from from the database
+        /// </summary>
+        public ObservableCollection<LineManager> LineManagerCollection
+        {
+            get { return _lineManagerCollection; }
+            set { SetProperty(ref _lineManagerCollection, value); }
+        }
+        private ObservableCollection<LineManager> _lineManagerCollection = null;
+
+        /// <summary>
+        /// The collection of departments from the database
+        /// </summary>
+        public ObservableCollection<Department> DepartmentCollection
+        {
+            get { return _departmentCollection; }
+            set { SetProperty(ref _departmentCollection, value); }
+        }
+        private ObservableCollection<Department> _departmentCollection = null;
+
+        /// <summary>
         /// The collection of companies from the database
         /// </summary>
         public ObservableCollection<Company> CompanyCollection
@@ -550,6 +606,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
                     if (SelectedClientBilling != null && SelectedPackage != null)
                     {
+                        ReadDepartments(false, false);
                         ReadCompanyBillingLevels();
                         SetClientBilling(SelectedClientBilling);
                     }
@@ -704,7 +761,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _selectedContract, value); }
         }
         private Contract _selectedContract;
-        
+
         /// <summary>
         /// The selected status
         /// </summary>
@@ -1445,7 +1502,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                             ValidPaymentYear = Brushes.Silver;
                         else
                             ValidPaymentYear = string.IsNullOrEmpty(SelectedBillingYear) ? Brushes.Red : Brushes.Silver;
-                        
+
                         break;
                 }
                 return result;
@@ -1554,7 +1611,9 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             ContractStatusCommand = new DelegateCommand(ExecuteShowStatusView, CanExecuteMaintenace);
             ContractServiceCommand = new DelegateCommand(ExecuteShowContractServiceView, CanExecuteMaintenace);
             ContractPackageCommand = new DelegateCommand(ExecuteShowPackageView, CanExecuteMaintenace);
-            
+            DepartmentCommand = new DelegateCommand(ExecuteShowDepartmentView, CanExecuteMaintenace);
+            LineManagerCommand = new DelegateCommand(ExecuteShowLineManagerView, CanExecuteMaintenace);
+
             // Subscribe to this event to read the client data based on the search results
             _eventAggregator.GetEvent<SearchResultEvent>().Subscribe(SearchResult_Event, true);
 
@@ -1581,6 +1640,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             await ReadStatusesAsync();
             await ReadContractServicesAsync();
             await ReadPackagesAsync();
+            ReadDepartments(true, false);
             ReadCostTypes();
             ReadLastPaymentPeriods();
         }
@@ -1589,7 +1649,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// Set default values to view properties
         /// </summary>
         private async void InitialiseViewControls()
-        {           
+        {
             SelectedClient = null;
             SelectedContract = null;
             SelectedCompany = CompanyCollection != null ? CompanyCollection.Where(p => p.pkCompanyID == 0).FirstOrDefault() : null;
@@ -1612,6 +1672,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             MobileManagerEnvironment.ClientContractID = 0;
             MobileManagerEnvironment.ClientPrimaryCell = string.Empty;
             await ReadContractServicesAsync();
+            ReadDepartments(true, false);
 
             // Publish the event to clear the device view
             _eventAggregator.GetEvent<ReadDevicesEvent>().Publish(0);
@@ -1817,6 +1878,87 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
 
         #region Lookup Data Loading
+
+        /// <summary>
+        /// Read all the line managers
+        /// </summary>
+        /// <returns></returns>
+        private async void ReadLineManagers(bool clientSelect, int pkDepartmentID)
+        {
+            try
+            {
+                LineManagerCollection = await Task.Run(() => new LineManagerModel(_eventAggregator).ReadDepartmentLineManagers(pkDepartmentID));
+
+                if (clientSelect && SelectedClient.ClientDepartmentManagers.Count > 0)
+                {
+                    //Select the line manager if the client has one
+                    if (new ClientDepartmentManagerModel(_eventAggregator).ClientHasLineManager(SelectedClient.pkClientID))
+                        SelectedLineManager = SelectedClient.ClientDepartmentManagers.FirstOrDefault().fkLineManagerID == 0 ? SelectedLineManager = LineManagerCollection.FirstOrDefault() : LineManagerCollection.Where(x => x.pkLineManagerID == SelectedClient.ClientDepartmentManagers.FirstOrDefault().fkLineManagerID).FirstOrDefault();
+                    else
+                        SelectedLineManager = LineManagerCollection.FirstOrDefault();
+
+                }
+                else
+                    SelectedLineManager = LineManagerCollection.FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                     .Publish(new ApplicationMessage(this.GetType().Name,
+                                              string.Format("Error! {0}, {1}.",
+                                              ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                              MethodBase.GetCurrentMethod().Name,
+                                              ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
+
+        /// <summary>
+        /// Load all the departments from the database
+        /// </summary>
+        private async void ReadDepartments(bool initialize, bool clientSelect)
+        {
+            try
+            {
+                if (initialize)
+                {
+                    DepartmentCollection = await Task.Run(() => new DepartmentModel(_eventAggregator).ReadCompanyDepartments(0));
+                    SelectedDepartment = DepartmentCollection.FirstOrDefault();
+                    //ReadLineManagers(clientSelect);
+                }
+                else
+                {
+                    DepartmentCollection = await Task.Run(() => new DepartmentModel(_eventAggregator).ReadCompanyDepartments((int)SelectedCompany.fkCompanyGroupID));
+
+                    //Test if its a client load or just change of company
+                    if (clientSelect)
+                    {
+                        if (await Task.Run(() => new ClientDepartmentManagerModel(_eventAggregator).ClientHasDepartment(SelectedClient.pkClientID)))
+                        {
+                            _setClientDepartment = true;
+                            SelectedDepartment = DepartmentCollection.Where(x => x.pkDepartmentID == SelectedClient.ClientDepartmentManagers.FirstOrDefault().fkDepartmentID).FirstOrDefault();
+                            _setClientDepartment = false;
+                        }
+                        else
+                            SelectedDepartment = DepartmentCollection.FirstOrDefault();
+                        //ReadLineManagers(clientSelect);
+                    }
+                    else
+                    {
+                        SelectedDepartment = DepartmentCollection.FirstOrDefault();
+                        //ReadLineManagers(clientSelect);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                     .Publish(new ApplicationMessage(this.GetType().Name,
+                                              string.Format("Error! {0}, {1}.",
+                                              ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                              MethodBase.GetCurrentMethod().Name,
+                                              ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
 
         /// <summary>
         /// Load all the companies from the database
@@ -2129,7 +2271,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                              ? true : !string.IsNullOrWhiteSpace(SelectedBillingYear) && !string.IsNullOrWhiteSpace(SelectedBillingMonth);
                 }
             }
-            
+
             // Validate billing data
             if (result && SplitBilling && !SelectedClient.IsPrivate)
                 result = SelectedClientBilling != null && (SplitBilling || NoSplitBilling) &&
@@ -2152,9 +2294,37 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         }
 
         /// <summary>
+        /// Execute to show the department view
+        /// </summary>
+        private async void ExecuteShowLineManagerView()
+        {
+            PopupWindow popupWindow = new PopupWindow(new ViewLineManager(), "Line Manager Maintenance", PopupWindow.PopupButtonType.Close);
+            //So width and heigh can be set auto for referencedata
+            popupWindow.MaxHeight = popupWindow.MinHeight = 500;
+            popupWindow.MaxWidth = popupWindow.MinWidth = 650;
+            popupWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            popupWindow.ShowDialog();
+            await ReadContractServicesAsync();
+        }
+
+        /// <summary>
+        /// Execute to show the department view
+        /// </summary>
+        private async void ExecuteShowDepartmentView()
+        {
+            PopupWindow popupWindow = new PopupWindow(new ViewDepartment(), "Department Maintenance", PopupWindow.PopupButtonType.Close);
+            //So width and heigh can be set auto for referencedata
+            popupWindow.MaxHeight = popupWindow.MinHeight = 400;
+            popupWindow.MaxWidth = popupWindow.MinWidth = 500;
+            popupWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            popupWindow.ShowDialog();
+            await ReadContractServicesAsync();
+        }
+
+        /// <summary>
         /// Execute when the save command button is clicked 
         /// </summary>
-        private void ExecuteSave()
+        private async void ExecuteSave()
         {
             bool result = false;
 
@@ -2253,7 +2423,21 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 else
                     result = _model.UpdateClient(SelectedClient);
 
-                // Save other linked client data 
+                //Department Data save after client has a pk
+                int? nullableInt = null;
+                if (SelectedClient.ClientDepartmentManagers.Count < 1)
+                    SelectedClient.ClientDepartmentManagers.Add(new ClientDepartmentManager());
+                SelectedClient.ClientDepartmentManagers.FirstOrDefault().fkClientID = SelectedClient.pkClientID;
+                SelectedClient.ClientDepartmentManagers.FirstOrDefault().fkDepartmentID = SelectedDepartment != null && SelectedDepartment.DepartmentDescription != _defaultItem ? SelectedDepartment.pkDepartmentID : nullableInt;
+                SelectedClient.ClientDepartmentManagers.FirstOrDefault().fkLineManagerID = SelectedLineManager != null && SelectedLineManager.Name != _defaultItem ? SelectedLineManager.pkLineManagerID : nullableInt;
+                SelectedClient.ClientDepartmentManagers.FirstOrDefault().ModifiedBy = SecurityHelper.LoggedInUserFullName;
+                SelectedClient.ClientDepartmentManagers.FirstOrDefault().ModifiedDate = DateTime.Now;
+                if (SelectedClient.ClientDepartmentManagers.FirstOrDefault().pkClientDepartmentManagerID == 0)
+                    result = await Task.Run(() => new ClientDepartmentManagerModel(_eventAggregator).CreateClientDepartmentManager(SelectedClient.ClientDepartmentManagers.FirstOrDefault()));
+                else
+                    result = await Task.Run(() => new ClientDepartmentManagerModel(_eventAggregator).UpdateClientDepartmentManager(SelectedClient.ClientDepartmentManagers.FirstOrDefault()));
+
+                // Save other linked client data
                 if (result)
                 {
                     // Set the global application properties
@@ -2308,7 +2492,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                                 ApplicationMessage.MessageTypes.SystemError));
             }
         }
-        
+
         /// <summary>
         /// Validate if the maintenace functionality can be executed
         /// </summary>
@@ -2323,15 +2507,15 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// </summary>
         private async void ExecuteShowCompanyView()
         {
-            int selectedCompanyID = SelectedCompany.pkCompanyID;
-            PopupWindow popupWindow = new PopupWindow(new ViewCompany(), "Company Maintenance", PopupWindow.PopupButtonType.Close);
+            int selectedSiteID = SelectedClientLocation.pkClientLocationID;
+            PopupWindow popupWindow = new PopupWindow(new ViewClientSite(), "Client Location Maintenance", PopupWindow.PopupButtonType.Close);
             //So width and heigh can be set auto for referencedata
-            popupWindow.MaxHeight = popupWindow.MinHeight = 400;
-            popupWindow.MaxWidth = popupWindow.MinWidth = 600;
+            popupWindow.MaxHeight = popupWindow.MinHeight = 255;
+            popupWindow.MaxWidth = popupWindow.MinWidth = 400;
             popupWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             popupWindow.ShowDialog();
-            await ReadCompaniesAsync();
-            SelectedCompany = CompanyCollection.Where(p => p.pkCompanyID == selectedCompanyID).FirstOrDefault();
+            await ReadClientLocationsAsync();
+            SelectedClientLocation = ClientLocationCollection.Where(p => p.pkClientLocationID == selectedSiteID).FirstOrDefault();
         }
 
         /// <summary>
@@ -2385,7 +2569,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             await ReadClientLocationsAsync();
             SelectedClientLocation = ClientLocationCollection.Where(p => p.pkClientLocationID == selectedSiteID).FirstOrDefault();
         }
-        
+
         /// <summary>
         /// Execute show package maintenace view
         /// </summary>

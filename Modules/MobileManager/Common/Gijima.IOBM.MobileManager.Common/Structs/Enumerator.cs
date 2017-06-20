@@ -649,20 +649,24 @@ namespace Gijima.IOBM.MobileManager.Common.Structs
         ViewCompanyGroup = 6,
         [Description("Contract Service")]
         ViewContractService = 7,
+        [Description("Department")]
+        ViewDepartment = 8,
         [Description("Device Make")]
-        ViewDeviceMake = 8,
+        ViewDeviceMake = 9,
         [Description("Device Model")]
-        ViewDeviceModel = 9,
+        ViewDeviceModel = 10,
+        [Description("Line Manager")]
+        ViewLineManager = 11,
         [Description("Package")]
-        ViewPackage = 10,
+        ViewPackage = 12,
         [Description("Province")]
-        ViewProvince = 11,
+        ViewProvince = 13,
         [Description("Service Provider")]
-        ViewServiceProvider = 12,
+        ViewServiceProvider = 14,
         [Description("Status")]
-        ViewStatus = 13,
+        ViewStatus = 15,
         [Description("Suburb")]
-        ViewSuburb = 14
+        ViewSuburb = 16
     }
 
     #endregion

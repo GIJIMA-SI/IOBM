@@ -57,14 +57,14 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                         billingYear++;
                     }
                 }
-                
+
                 using (var db = MobileManagerEntities.GetContext())
                 {
                     BillingProcessHistory currentHistory = db.BillingProcessHistories.Where(p => p.ProcessCurrent == true).FirstOrDefault();
 
                     // If a current process history entity is found and it is 
                     // the previous process make it not current and add the new process
-                    if (currentHistory != null && 
+                    if (currentHistory != null &&
                         ((BillingExecutionState)currentHistory.fkBillingProcessID == BillingExecutionState.CloseBillingProcess || currentHistory.fkBillingProcessID < processID))
                     {
                         currentHistory.ProcessCurrent = false;
@@ -230,6 +230,67 @@ namespace Gijima.IOBM.MobileManager.Model.Models
             catch (Exception ex)
             {
                 _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Resets the current Billing process;
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public bool ResetCurrentBillingProcess()
+        {
+            try
+            {
+                string billingPeriod = MobileManagerEnvironment.BillingPeriod;
+
+                using (var db = MobileManagerEntities.GetContext())
+                {
+                    int billingProcessID = ReadBillingProcessCurrentHistory().fkBillingProcessID;
+                    BillingProcessHistory processHistory = db.BillingProcessHistories.Where(p => p.BillingPeriod == billingPeriod &&
+                                                                                                 p.fkBillingProcessID == billingProcessID)
+                                                                                                 .OrderByDescending(x => x.pkBillingProcessHistoryID).FirstOrDefault();
+
+                    // If a process history entity was found and
+                    // it is current then set it as complete
+                    if (processHistory != null && processHistory.ProcessCurrent)
+                    {
+                        processHistory.ProcessEndDate = DateTime.Now;
+                        TimeSpan duration = processHistory.ProcessEndDate.Value - processHistory.ProcessStartDate;
+                        processHistory.ProcessDuration = Math.Round(duration.TotalMinutes, 2);
+                        processHistory.ProcessCurrent = false;
+                        processHistory.ProcessResult = true;
+                        processHistory.BillingComment = "Billing process reset.";
+                        processHistory.ModifiedBy = SecurityHelper.LoggedInDomainName;
+                        processHistory.DateModified = DateTime.Now;
+                        db.SaveChanges();
+
+                        //Add the start process
+                        BillingProcessHistory newProcessHistory = new BillingProcessHistory();
+                        newProcessHistory.fkBillingProcessID = (int)BillingExecutionState.StartBillingProcess;
+                        newProcessHistory.BillingPeriod = MobileManagerEnvironment.BillingPeriod;
+                        newProcessHistory.ProcessStartDate = DateTime.Now;
+                        newProcessHistory.ProcessCurrent = true;
+                        newProcessHistory.ModifiedBy = SecurityHelper.LoggedInDomainName;
+                        newProcessHistory.DateModified = DateTime.Now;
+
+                        db.BillingProcessHistories.Add(newProcessHistory);
+                        db.SaveChanges();
+
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                .Publish(new ApplicationMessage("BillingProcessModel",
+                                                string.Format("Error! {0}, {1}.",
+                                                ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                                "ResetCurrentBillingProcess",
+                                                ApplicationMessage.MessageTypes.SystemError));
                 return false;
             }
         }

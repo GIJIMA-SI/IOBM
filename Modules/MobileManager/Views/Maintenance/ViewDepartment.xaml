@@ -1,0 +1,74 @@
+﻿<UserControl x:Class="Gijima.IOBM.MobileManager.Views.ViewDepartment"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mm="clr-namespace:Gijima.IOBM.MobileManager.Common.Helpers;assembly=Gijima.IOBM.MobileManager.Common"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"             
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="500"
+             Height="Auto" Width="Auto">
+
+    <UserControl.Resources>
+        <mm:UIDataConvertionHelper x:Key="UIDataConvertionHelper"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="10px" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Department Name: " Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <Border Grid.Column="1" BorderThickness="1" BorderBrush="{Binding ValidDepartmentName}" Height="20">
+            <TextBox x:Name="TextBoxDescription" TabIndex="1" ToolTip="Enter the deparment name." Style="{StaticResource UXTextBoxStyle}"
+            Text="{Binding SelectedDepartmentName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Height="20">
+            </TextBox>
+        </Border>
+        <StackPanel Grid.Row="0" Grid.Column="3" Orientation="Horizontal">
+            <Button x:Name="ButtonCancel" TabIndex="4" Style="{StaticResource UXImageButtonStyle}"
+                ToolTip="Cancel the current operation." Command="{Binding CancelCommand}">
+                <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico"  />
+            </Button>
+            <Button x:Name="ButtonAdd" TabIndex="5" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
+                ToolTip="Add a new department." Command="{Binding AddCommand}">
+                <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/508.png"  />
+            </Button>
+            <Button x:Name="ButtonSave" TabIndex="6" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
+                ToolTip="Save the department data." Command="{Binding SaveCommand}">
+                <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/save_32.ico"  />
+            </Button>
+        </StackPanel>
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Company Group:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <Border Grid.Row="2" Grid.Column="1" BorderBrush="{Binding ValidCompanyGroup}" BorderThickness="1">
+            <ComboBox x:Name="ComboboxCompany" TabIndex="1" ToolTip="Enter the site location description."
+                    SelectedItem="{Binding SelectedCompanyGroup, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" ItemsSource="{Binding CompanyGroupCollection}" 
+                    DisplayMemberPath="GroupName">
+            </ComboBox>
+        </Border>
+        <StackPanel Grid.Row="3" Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right">
+            <TextBlock Text="Active" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom" Margin="0,0,5,0"></TextBlock>
+            <CheckBox x:Name="CkeckBoxIsActive" TabIndex="2" VerticalAlignment="Bottom" IsChecked="{Binding DepartmentState, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+        <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Text="Available Locations" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom"></TextBlock>
+        <DataGrid x:Name="DataGridLocations" Grid.Row="4" Grid.ColumnSpan="4" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True" 
+            IsReadOnly="True" TabIndex="3" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" 
+            ItemsSource="{Binding DepartmentCollection, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding SelectedDepartment, UpdateSourceTrigger=PropertyChanged}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Department Name" Binding="{Binding Description}" Width="*" />
+                <DataGridTextColumn Header="Company Group" Binding="{Binding CompanyGroup.GroupName}" Width="175" />
+                <DataGridTextColumn Header="State" Binding="{Binding IsActive, Converter={StaticResource UIDataConvertionHelper},  ConverterParameter='State'}" Width="100" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>
+

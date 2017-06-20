@@ -1,0 +1,139 @@
+﻿<UserControl x:Class="Gijima.IOBM.MobileManager.Views.ViewLineManager"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mm="clr-namespace:Gijima.IOBM.MobileManager.Common.Helpers;assembly=Gijima.IOBM.MobileManager.Common"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"             
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="550"
+             Height="Auto" Width="Auto">
+
+    <UserControl.Resources>
+        <mm:UIDataConvertionHelper x:Key="UIDataConvertionHelper"/>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="2" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="77" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Name: " Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+        <TextBox x:Name="TextBoxName" Grid.Row="0" Grid.Column="1" TabIndex="1" ToolTip="Enter line manager name." Style="{StaticResource UXTextBoxStyle}"
+            Text="{Binding SelectedName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidName}">
+        </TextBox>
+        <StackPanel Grid.Row="0" Grid.Column="3" Orientation="Horizontal">
+            <Button x:Name="ButtonCancel" TabIndex="6" Style="{StaticResource UXImageButtonStyle}"
+                ToolTip="Cancel the current operation." Command="{Binding CancelCommand}">
+                <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/stop_32.ico"  />
+            </Button>
+            <Button x:Name="ButtonAdd" TabIndex="7" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
+                ToolTip="Add new line manager." Command="{Binding AddCommand}">
+                <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/508.png"  />
+            </Button>
+            <Button x:Name="ButtonSave" TabIndex="8" Style="{StaticResource UXImageButtonStyle}" Margin="2,0,0,0"
+                ToolTip="Save the line manager data." Command="{Binding SaveCommand}">
+                <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/save_32.ico"  />
+            </Button>
+        </StackPanel>
+        <Grid Grid.Row="2" Grid.ColumnSpan="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="1.1*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Surname: " Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+            <TextBox x:Name="TextBoxSurname" Grid.Row="0" Grid.Column="1" TabIndex="1" ToolTip="Enter the line manager's surname." Style="{StaticResource UXTextBoxStyle}"
+            Text="{Binding SelectedSurname, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidSurname}">
+            </TextBox>
+            <TextBlock Grid.Row="0" Grid.Column="2" Text="Email: " Style="{StaticResource UXLabelTextStyle}" Margin="5,0,0,0"></TextBlock>
+            <TextBox x:Name="TextBoxEmail" Grid.Row="0" Grid.Column="3" TabIndex="1" ToolTip="Enter the line manager's email." Style="{StaticResource UXTextBoxStyle}"
+            Text="{Binding SelectedEmail, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidEmail}">
+            </TextBox>
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Cell Number:  " Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+            <TextBox x:Name="TextBoxCellNumber" Grid.Row="2" Grid.Column="1" TabIndex="1" ToolTip="Enter the line manager's cellphone number." Style="{StaticResource UXTextBoxStyle}"
+            Text="{Binding SelectedCellNumber, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
+            </TextBox>
+            <TextBlock Grid.Row="2" Grid.Column="2" Text="Phone Number:  " Style="{StaticResource UXLabelTextStyle}" Margin="5,0,0,0"></TextBlock>
+            <TextBox x:Name="TextBoxPhoneNumber" Grid.Row="2" Grid.Column="3" TabIndex="1" ToolTip="Enter the line manager's phone number." Style="{StaticResource UXTextBoxStyle}"
+            Text="{Binding SelectedPhoneNumber, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}">
+            </TextBox>
+            <TextBlock Grid.Row="4" Grid.Column="0" Text="Company: " Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+            <Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" BorderThickness="1" BorderBrush="{Binding ValidCompanyGroup}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="31*" />
+                        <ColumnDefinition Width="72*"/>
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ComboBox x:Name="ComboBoxCity" Grid.Column="0" ToolTip="Select the company the manager work for." TabIndex="2" IsSynchronizedWithCurrentItem="True"
+                    ItemsSource="{Binding CompanyGroupCollection, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="GroupName" 
+                    SelectedItem="{Binding SelectedCompanyGroup, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidCompanyGroup}" Grid.ColumnSpan="2"/>
+                    <Button x:Name="ButtonProvinceCrud" Grid.Column="2" Margin="2,0,0,0" ToolTip="Add, edit or delete a company group." TabIndex="3" 
+                    Style="{StaticResource UXImageButtonStyle}" Command="{Binding CompanyGroupCommand}">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/edit_32.png" />
+                    </Button>
+                </Grid>
+            </Border>
+            <TextBlock Grid.Row="6" Grid.Column="0" Text="Department: " Style="{StaticResource UXLabelTextStyle}"></TextBlock>
+            <Border Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="3" BorderThickness="1" BorderBrush="{Binding ValidDepartment}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="31*" />
+                        <ColumnDefinition Width="72*"/>
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ComboBox x:Name="ComboBoxDepartment" Grid.Column="0" ToolTip="Select the department for the line manager." TabIndex="2" IsSynchronizedWithCurrentItem="True"
+                    ItemsSource="{Binding DepartmentCollection, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Description" 
+                    SelectedItem="{Binding SelectedDepartment, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{Binding ValidDepartment}" Grid.ColumnSpan="2"/>
+                    <Button x:Name="ButtonDepartmentCrud" Grid.Column="2" Margin="2,0,0,0" ToolTip="Add, edit or delete a department." TabIndex="3" 
+                    Style="{StaticResource UXImageButtonStyle}" Command="{Binding DepartmentCommand}">
+                        <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/edit_32.png" />
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
+        <TextBlock Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Text="Available Line Managers" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom" Margin="0,0,0,3"></TextBlock>
+        <StackPanel Grid.Row="5" Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,3">
+            <TextBlock Text="Active" Style="{StaticResource UXLabelTextStyle}" VerticalAlignment="Bottom" Margin="0,0,5,0"></TextBlock>
+            <CheckBox x:Name="CkeckBoxIsActive" TabIndex="4" VerticalAlignment="Bottom" IsChecked="{Binding LineManagerState, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+        <DataGrid x:Name="DataGridCities" Grid.Row="16" Grid.ColumnSpan="4" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserSortColumns="True" 
+            IsReadOnly="True" TabIndex="5" Style="{StaticResource DataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}" 
+            ItemsSource="{Binding LineManagerCollection}" SelectedItem="{Binding SelectedLineManager}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" />
+                <DataGridTextColumn Header="Surname" Binding="{Binding Surname}" Width="*" />
+                <DataGridTextColumn Header="Department" Binding="{Binding Department.Description}" Width="*" />
+                <DataGridTextColumn Header="Cell Number" Binding="{Binding CellNumber}" Width="*" />
+                <DataGridTextColumn Header="Phone Number" Binding="{Binding PhoneNumber}" Width="*" />
+                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="1.5*" />
+                <DataGridTextColumn Header="Status" Binding="{Binding IsActive, Converter={StaticResource UIDataConvertionHelper},  ConverterParameter='State'}" Width="100" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>
+

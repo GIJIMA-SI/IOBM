@@ -160,6 +160,17 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.AdvancedSearchField' does n
           <Property Name="ModifiedDate" Type="datetime" Nullable="false" />
           <Property Name="IsActive" Type="bit" Nullable="false" />
         </EntityType>
+        <EntityType Name="ClientDepartmentManager">
+          <Key>
+            <PropertyRef Name="pkClientDepartmentManagerID" />
+          </Key>
+          <Property Name="pkClientDepartmentManagerID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="fkClientID" Type="int" Nullable="false" />
+          <Property Name="fkDepartmentID" Type="int" />
+          <Property Name="fkLineManagerID" Type="int" />
+          <Property Name="ModifiedDate" Type="datetime" Nullable="false" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="30" Nullable="false" />
+        </EntityType>
         <EntityType Name="ClientLocation">
           <Key>
             <PropertyRef Name="pkClientLocationID" />
@@ -361,6 +372,17 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="ModifiedBy" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="ModifiedDate" Type="datetime" Nullable="false" />
         </EntityType>
+        <EntityType Name="Department">
+          <Key>
+            <PropertyRef Name="pkDepartmentID" />
+          </Key>
+          <Property Name="pkDepartmentID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="fkCompanyGroupID" Type="int" Nullable="false" />
+          <Property Name="DepartmentDescription" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="ModifiedDate" Type="datetime" Nullable="false" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
+        </EntityType>
         <EntityType Name="Device">
           <Key>
             <PropertyRef Name="pkDeviceID" />
@@ -461,6 +483,21 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="IsPrivate" Type="bit" Nullable="false" />
           <Property Name="ModifiedBy" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="ModifiedDate" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="LineManager">
+          <Key>
+            <PropertyRef Name="pkLineManagerID" />
+          </Key>
+          <Property Name="pkLineManagerID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="fkDepartmentID" Type="int" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="Surname" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="PhoneNumber" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="CellNumber" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="LineManagerEmail" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="ModifiedDate" Type="datetime" Nullable="false" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="Package">
           <Key>
@@ -708,6 +745,42 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_ClientDepartmentManager_Client">
+          <End Role="Client" Type="Self.Client" Multiplicity="1" />
+          <End Role="ClientDepartmentManager" Type="Self.ClientDepartmentManager" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Client">
+              <PropertyRef Name="pkClientID" />
+            </Principal>
+            <Dependent Role="ClientDepartmentManager">
+              <PropertyRef Name="fkClientID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ClientDepartmentManager_Department">
+          <End Role="Department" Type="Self.Department" Multiplicity="0..1" />
+          <End Role="ClientDepartmentManager" Type="Self.ClientDepartmentManager" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Department">
+              <PropertyRef Name="pkDepartmentID" />
+            </Principal>
+            <Dependent Role="ClientDepartmentManager">
+              <PropertyRef Name="fkDepartmentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ClientDepartmentManager_LineManager">
+          <End Role="LineManager" Type="Self.LineManager" Multiplicity="0..1" />
+          <End Role="ClientDepartmentManager" Type="Self.ClientDepartmentManager" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LineManager">
+              <PropertyRef Name="pkLineManagerID" />
+            </Principal>
+            <Dependent Role="ClientDepartmentManager">
+              <PropertyRef Name="fkLineManagerID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_ClientService_ClientService">
           <End Role="ContractService" Type="Self.ContractService" Multiplicity="1" />
           <End Role="ClientService" Type="Self.ClientService" Multiplicity="*" />
@@ -840,6 +913,18 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Department_CompanyGroup">
+          <End Role="CompanyGroup" Type="Self.CompanyGroup" Multiplicity="1" />
+          <End Role="Department" Type="Self.Department" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CompanyGroup">
+              <PropertyRef Name="pkCompanyGroupID" />
+            </Principal>
+            <Dependent Role="Department">
+              <PropertyRef Name="fkCompanyGroupID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Device_Contract">
           <End Role="Contract" Type="Self.Contract" Multiplicity="1" />
           <End Role="Device" Type="Self.Device" Multiplicity="*" />
@@ -960,6 +1045,18 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_LineManager_Department">
+          <End Role="Department" Type="Self.Department" Multiplicity="1" />
+          <End Role="LineManager" Type="Self.LineManager" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Department">
+              <PropertyRef Name="pkDepartmentID" />
+            </Principal>
+            <Dependent Role="LineManager">
+              <PropertyRef Name="fkDepartmentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Package_ServiceProvider">
           <End Role="ServiceProvider" Type="Self.ServiceProvider" Multiplicity="0..1" />
           <End Role="Package" Type="Self.Package" Multiplicity="*" />
@@ -1073,6 +1170,7 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <EntitySet Name="City" EntityType="Self.City" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Client" EntityType="Self.Client" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ClientBilling" EntityType="Self.ClientBilling" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ClientDepartmentManager" EntityType="Self.ClientDepartmentManager" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ClientLocation" EntityType="Self.ClientLocation" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ClientService" EntityType="Self.ClientService" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Company" EntityType="Self.Company" Schema="dbo" store:Type="Tables" />
@@ -1088,6 +1186,7 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <EntitySet Name="DataValidationException" EntityType="Self.DataValidationException" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DataValidationProperty" EntityType="Self.DataValidationProperty" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DataValidationRule" EntityType="Self.DataValidationRule" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Department" EntityType="Self.Department" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Device" EntityType="Self.Device" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DeviceIMENumber" EntityType="Self.DeviceIMENumber" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DeviceMake" EntityType="Self.DeviceMake" Schema="dbo" store:Type="Tables" />
@@ -1095,6 +1194,7 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <EntitySet Name="ExternalBillingData" EntityType="Self.ExternalBillingData" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Invoice" EntityType="Self.Invoice" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="InvoiceDetail" EntityType="Self.InvoiceDetail" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LineManager" EntityType="Self.LineManager" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Package" EntityType="Self.Package" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PackageSetup" EntityType="Self.PackageSetup" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Province" EntityType="Self.Province" Schema="dbo" store:Type="Tables" />
@@ -1160,6 +1260,18 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             <End Role="CompanyBillingLevel" EntitySet="CompanyBillingLevel" />
             <End Role="ClientBilling" EntitySet="ClientBilling" />
           </AssociationSet>
+          <AssociationSet Name="FK_ClientDepartmentManager_Client" Association="Self.FK_ClientDepartmentManager_Client">
+            <End Role="Client" EntitySet="Client" />
+            <End Role="ClientDepartmentManager" EntitySet="ClientDepartmentManager" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ClientDepartmentManager_Department" Association="Self.FK_ClientDepartmentManager_Department">
+            <End Role="Department" EntitySet="Department" />
+            <End Role="ClientDepartmentManager" EntitySet="ClientDepartmentManager" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ClientDepartmentManager_LineManager" Association="Self.FK_ClientDepartmentManager_LineManager">
+            <End Role="LineManager" EntitySet="LineManager" />
+            <End Role="ClientDepartmentManager" EntitySet="ClientDepartmentManager" />
+          </AssociationSet>
           <AssociationSet Name="FK_ClientService_ClientService" Association="Self.FK_ClientService_ClientService">
             <End Role="ContractService" EntitySet="ContractService" />
             <End Role="ClientService" EntitySet="ClientService" />
@@ -1204,6 +1316,10 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             <End Role="DataValidationProperty" EntitySet="DataValidationProperty" />
             <End Role="DataValidationRule" EntitySet="DataValidationRule" />
           </AssociationSet>
+          <AssociationSet Name="FK_Department_CompanyGroup" Association="Self.FK_Department_CompanyGroup">
+            <End Role="CompanyGroup" EntitySet="CompanyGroup" />
+            <End Role="Department" EntitySet="Department" />
+          </AssociationSet>
           <AssociationSet Name="FK_Device_Contract" Association="Self.FK_Device_Contract">
             <End Role="Contract" EntitySet="Contract" />
             <End Role="Device" EntitySet="Device" />
@@ -1243,6 +1359,10 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <AssociationSet Name="FK_InvoiceDetail_ServiceProvider" Association="Self.FK_InvoiceDetail_ServiceProvider">
             <End Role="ServiceProvider" EntitySet="ServiceProvider" />
             <End Role="InvoiceDetail" EntitySet="InvoiceDetail" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LineManager_Department" Association="Self.FK_LineManager_Department">
+            <End Role="Department" EntitySet="Department" />
+            <End Role="LineManager" EntitySet="LineManager" />
           </AssociationSet>
           <AssociationSet Name="FK_Package_ServiceProvider" Association="Self.FK_Package_ServiceProvider">
             <End Role="ServiceProvider" EntitySet="ServiceProvider" />
@@ -1355,41 +1475,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <NavigationProperty Name="Province" Relationship="Self.FK_City_Province" FromRole="City" ToRole="Province" />
           <NavigationProperty Name="Suburbs" Relationship="Self.FK_Suburb_City" FromRole="City" ToRole="Suburb" />
         </EntityType>
-        <EntityType Name="Client">
-          <Key>
-            <PropertyRef Name="pkClientID" />
-          </Key>
-          <Property Name="pkClientID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="imenumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PrimaryCellNumber" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="EmployeeNumber" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="ClientName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="LandLine" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="IDNumber" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="Email" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="CostCode" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="WBSNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="AdminFee" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
-          <Property Name="IPAddress" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="fkCompanyID" Type="Int32" Nullable="false" />
-          <Property Name="fkClientLocationID" Type="Int32" Nullable="false" />
-          <Property Name="fkContractID" Type="Int32" Nullable="false" />
-          <Property Name="fkClientBillingID" Type="Int32" Nullable="false" />
-          <Property Name="fkSuburbID" Type="Int32" Nullable="false" />
-          <Property Name="AddressLine1" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="AddressLine2" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="ModifiedBy" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="IsSaIDNumber" Type="Boolean" Nullable="false" />
-          <Property Name="IsPrivate" Type="Boolean" Nullable="false" />
-          <Property Name="IsActive" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="ClientBilling" Relationship="Self.FK_Client_ClientBilling" FromRole="Client" ToRole="ClientBilling" />
-          <NavigationProperty Name="ClientLocation" Relationship="Self.FK_Client_ClientLocation" FromRole="Client" ToRole="ClientLocation" />
-          <NavigationProperty Name="Suburb" Relationship="Self.FK_Client_Suburb" FromRole="Client" ToRole="Suburb" />
-          <NavigationProperty Name="Contract" Relationship="MobileManagerModel.FK_Client_Contract" FromRole="Client" ToRole="Contract" />
-          <NavigationProperty Name="Company" Relationship="MobileManagerModel.FK_Client_Company" FromRole="Client" ToRole="Company" />
-          <NavigationProperty Name="Invoices" Relationship="MobileManagerModel.FK_Invoice_Client" FromRole="Client" ToRole="Invoice" />
-        </EntityType>
         <EntityType Name="ClientBilling">
           <Key>
             <PropertyRef Name="pkClientBillingID" />
@@ -1415,8 +1500,8 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="ModifiedBy" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="Clients" Relationship="Self.FK_Client_ClientBilling" FromRole="ClientBilling" ToRole="Client" />
           <NavigationProperty Name="CompanyBillingLevel" Relationship="Self.FK_ClientBilling_CompanyBillingLevel" FromRole="ClientBilling" ToRole="CompanyBillingLevel" />
+          <NavigationProperty Name="Clients" Relationship="MobileManagerModel.FK_Client_ClientBilling" FromRole="ClientBilling" ToRole="Client" />
         </EntityType>
         <EntityType Name="ClientLocation">
           <Key>
@@ -1427,7 +1512,7 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="ModifiedBy" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="Clients" Relationship="Self.FK_Client_ClientLocation" FromRole="ClientLocation" ToRole="Client" />
+          <NavigationProperty Name="Clients" Relationship="MobileManagerModel.FK_Client_ClientLocation" FromRole="ClientLocation" ToRole="Client" />
         </EntityType>
         <EntityType Name="CompanyBillingLevel">
           <Key>
@@ -1455,6 +1540,7 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="CompanyBillingLevels" Relationship="Self.FK_CompanyBillingLevel_CompanyGroup" FromRole="CompanyGroup" ToRole="CompanyBillingLevel" />
           <NavigationProperty Name="Companies" Relationship="MobileManagerModel.FK_Company_CompanyGroup" FromRole="CompanyGroup" ToRole="Company" />
+          <NavigationProperty Name="Departments" Relationship="MobileManagerModel.FK_Department_CompanyGroup" FromRole="CompanyGroup" ToRole="Department" />
         </EntityType>
         <EntityType Name="DataImportRule">
           <Key>
@@ -1673,7 +1759,7 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="City" Relationship="Self.FK_Suburb_City" FromRole="Suburb" ToRole="City" />
-          <NavigationProperty Name="Clients" Relationship="Self.FK_Client_Suburb" FromRole="Suburb" ToRole="Client" />
+          <NavigationProperty Name="Clients" Relationship="MobileManagerModel.FK_Client_Suburb" FromRole="Suburb" ToRole="Client" />
         </EntityType>
         <EntityType Name="User">
           <Key>
@@ -1752,42 +1838,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             </Principal>
             <Dependent Role="Suburb">
               <PropertyRef Name="fkCityID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_Client_ClientBilling">
-          <End Role="ClientBilling" Type="Self.ClientBilling" Multiplicity="1" />
-          <End Role="Client" Type="Self.Client" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ClientBilling">
-              <PropertyRef Name="pkClientBillingID" />
-            </Principal>
-            <Dependent Role="Client">
-              <PropertyRef Name="fkClientBillingID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_Client_ClientLocation">
-          <End Role="ClientLocation" Type="Self.ClientLocation" Multiplicity="1" />
-          <End Role="Client" Type="Self.Client" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ClientLocation">
-              <PropertyRef Name="pkClientLocationID" />
-            </Principal>
-            <Dependent Role="Client">
-              <PropertyRef Name="fkClientLocationID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_Client_Suburb">
-          <End Role="Suburb" Type="Self.Suburb" Multiplicity="1" />
-          <End Role="Client" Type="Self.Client" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Suburb">
-              <PropertyRef Name="pkSuburbID" />
-            </Principal>
-            <Dependent Role="Client">
-              <PropertyRef Name="fkSuburbID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1906,7 +1956,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <EntitySet Name="BillingProcesses" EntityType="Self.BillingProcess" />
           <EntitySet Name="BillingProcessHistories" EntityType="Self.BillingProcessHistory" />
           <EntitySet Name="Cities" EntityType="Self.City" />
-          <EntitySet Name="Clients" EntityType="Self.Client" />
           <EntitySet Name="ClientBillings" EntityType="Self.ClientBilling" />
           <EntitySet Name="ClientLocations" EntityType="Self.ClientLocation" />
           <EntitySet Name="CompanyBillingLevels" EntityType="Self.CompanyBillingLevel" />
@@ -1945,18 +1994,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <AssociationSet Name="FK_Suburb_City" Association="Self.FK_Suburb_City">
             <End Role="City" EntitySet="Cities" />
             <End Role="Suburb" EntitySet="Suburbs" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Client_ClientBilling" Association="Self.FK_Client_ClientBilling">
-            <End Role="ClientBilling" EntitySet="ClientBillings" />
-            <End Role="Client" EntitySet="Clients" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Client_ClientLocation" Association="Self.FK_Client_ClientLocation">
-            <End Role="ClientLocation" EntitySet="ClientLocations" />
-            <End Role="Client" EntitySet="Clients" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Client_Suburb" Association="Self.FK_Client_Suburb">
-            <End Role="Suburb" EntitySet="Suburbs" />
-            <End Role="Client" EntitySet="Clients" />
           </AssociationSet>
           <AssociationSet Name="FK_ClientBilling_CompanyBillingLevel" Association="Self.FK_ClientBilling_CompanyBillingLevel">
             <End Role="CompanyBillingLevel" EntitySet="CompanyBillingLevels" />
@@ -2007,10 +2044,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             <End Role="DataValidationException" EntitySet="DataValidationExceptions" />
           </AssociationSet>
           <EntitySet Name="Contracts" EntityType="MobileManagerModel.Contract" />
-          <AssociationSet Name="FK_Client_Contract" Association="MobileManagerModel.FK_Client_Contract">
-            <End Role="Contract" EntitySet="Contracts" />
-            <End Role="Client" EntitySet="Clients" />
-          </AssociationSet>
           <AssociationSet Name="FK_Contract_Package" Association="MobileManagerModel.FK_Contract_Package">
             <End Role="Package" EntitySet="Packages" />
             <End Role="Contract" EntitySet="Contracts" />
@@ -2034,10 +2067,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             <End Role="ClientService" EntitySet="ClientServices" />
           </AssociationSet>
           <EntitySet Name="Companies" EntityType="MobileManagerModel.Company" />
-          <AssociationSet Name="FK_Client_Company" Association="MobileManagerModel.FK_Client_Company">
-            <End Role="Company" EntitySet="Companies" />
-            <End Role="Client" EntitySet="Clients" />
-          </AssociationSet>
           <AssociationSet Name="FK_Company_CompanyGroup" Association="MobileManagerModel.FK_Company_CompanyGroup">
             <End Role="CompanyGroup" EntitySet="CompanyGroups" />
             <End Role="Company" EntitySet="Companies" />
@@ -2085,10 +2114,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <EntitySet Name="DataImportProperties" EntityType="MobileManagerModel.DataImportProperty" />
           <EntitySet Name="AdvancedSearchFields" EntityType="MobileManagerModel.AdvancedSearchField" />
           <EntitySet Name="Invoices" EntityType="MobileManagerModel.Invoice" />
-          <AssociationSet Name="FK_Invoice_Client" Association="MobileManagerModel.FK_Invoice_Client">
-            <End Role="Client" EntitySet="Clients" />
-            <End Role="Invoice" EntitySet="Invoices" />
-          </AssociationSet>
           <AssociationSet Name="FK_Invoice_Service" Association="MobileManagerModel.FK_Invoice_Service">
             <End Role="Service" EntitySet="Services" />
             <End Role="Invoice" EntitySet="Invoices" />
@@ -2101,6 +2126,54 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
             <Parameter Name="CompanyName" Mode="In" Type="String" />
             <Parameter Name="Period" Mode="In" Type="DateTime" />
           </FunctionImport>
+          <EntitySet Name="Clients" EntityType="MobileManagerModel.Client" />
+          <AssociationSet Name="FK_Client_ClientBilling" Association="MobileManagerModel.FK_Client_ClientBilling">
+            <End Role="ClientBilling" EntitySet="ClientBillings" />
+            <End Role="Client" EntitySet="Clients" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Client_ClientLocation" Association="MobileManagerModel.FK_Client_ClientLocation">
+            <End Role="ClientLocation" EntitySet="ClientLocations" />
+            <End Role="Client" EntitySet="Clients" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Client_Company" Association="MobileManagerModel.FK_Client_Company">
+            <End Role="Company" EntitySet="Companies" />
+            <End Role="Client" EntitySet="Clients" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Client_Contract" Association="MobileManagerModel.FK_Client_Contract">
+            <End Role="Contract" EntitySet="Contracts" />
+            <End Role="Client" EntitySet="Clients" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Client_Suburb" Association="MobileManagerModel.FK_Client_Suburb">
+            <End Role="Suburb" EntitySet="Suburbs" />
+            <End Role="Client" EntitySet="Clients" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Invoice_Client" Association="MobileManagerModel.FK_Invoice_Client">
+            <End Role="Client" EntitySet="Clients" />
+            <End Role="Invoice" EntitySet="Invoices" />
+          </AssociationSet>
+          <EntitySet Name="ClientDepartmentManagers" EntityType="MobileManagerModel.ClientDepartmentManager" />
+          <AssociationSet Name="FK_ClientDepartmentManager_Client" Association="MobileManagerModel.FK_ClientDepartmentManager_Client">
+            <End Role="Client" EntitySet="Clients" />
+            <End Role="ClientDepartmentManager" EntitySet="ClientDepartmentManagers" />
+          </AssociationSet>
+          <EntitySet Name="Departments" EntityType="MobileManagerModel.Department" />
+          <AssociationSet Name="FK_ClientDepartmentManager_Department" Association="MobileManagerModel.FK_ClientDepartmentManager_Department">
+            <End Role="Department" EntitySet="Departments" />
+            <End Role="ClientDepartmentManager" EntitySet="ClientDepartmentManagers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Department_CompanyGroup" Association="MobileManagerModel.FK_Department_CompanyGroup">
+            <End Role="CompanyGroup" EntitySet="CompanyGroups" />
+            <End Role="Department" EntitySet="Departments" />
+          </AssociationSet>
+          <EntitySet Name="LineManagers" EntityType="MobileManagerModel.LineManager" />
+          <AssociationSet Name="FK_ClientDepartmentManager_LineManager" Association="MobileManagerModel.FK_ClientDepartmentManager_LineManager">
+            <End Role="LineManager" EntitySet="LineManagers" />
+            <End Role="ClientDepartmentManager" EntitySet="ClientDepartmentManagers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_LineManager_Department" Association="MobileManagerModel.FK_LineManager_Department">
+            <End Role="Department" EntitySet="Departments" />
+            <End Role="LineManager" EntitySet="LineManagers" />
+          </AssociationSet>
           </EntityContainer>
         <ComplexType Name="sp_report_Invoice_Result">
           <Property Type="String" Name="ClientName" Nullable="false" MaxLength="100" />
@@ -2179,26 +2252,14 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="ModifiedBy" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="Clients" Relationship="MobileManagerModel.FK_Client_Contract" FromRole="Contract" ToRole="Client" />
           <NavigationProperty Name="Package" Relationship="MobileManagerModel.FK_Contract_Package" FromRole="Contract" ToRole="Package" />
           <NavigationProperty Name="PackageSetup" Relationship="MobileManagerModel.FK_Contract_PackageSetup" FromRole="Contract" ToRole="PackageSetup" />
           <NavigationProperty Name="Status" Relationship="MobileManagerModel.FK_Contract_Status" FromRole="Contract" ToRole="Status" />
           <NavigationProperty Name="ClientServices" Relationship="MobileManagerModel.FK_ClientService_Contract" FromRole="Contract" ToRole="ClientService" />
           <NavigationProperty Name="Devices" Relationship="MobileManagerModel.FK_Device_Contract" FromRole="Contract" ToRole="Device" />
           <NavigationProperty Name="SimCards" Relationship="MobileManagerModel.FK_SimCard_Contract" FromRole="Contract" ToRole="SimCard" />
+          <NavigationProperty Name="Clients" Relationship="MobileManagerModel.FK_Client_Contract" FromRole="Contract" ToRole="Client" />
         </EntityType>
-        <Association Name="FK_Client_Contract">
-          <End Type="MobileManagerModel.Contract" Role="Contract" Multiplicity="1" />
-          <End Type="MobileManagerModel.Client" Role="Client" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Contract">
-              <PropertyRef Name="pkContractID" />
-            </Principal>
-            <Dependent Role="Client">
-              <PropertyRef Name="fkContractID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_Contract_Package">
           <End Type="MobileManagerModel.Package" Role="Package" Multiplicity="1" />
           <End Type="MobileManagerModel.Contract" Role="Contract" Multiplicity="*" />
@@ -2299,22 +2360,10 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="ModifiedBy" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="Clients" Relationship="MobileManagerModel.FK_Client_Company" FromRole="Company" ToRole="Client" />
           <NavigationProperty Name="CompanyGroup" Relationship="MobileManagerModel.FK_Company_CompanyGroup" FromRole="Company" ToRole="CompanyGroup" />
           <NavigationProperty Name="UserInCompanies" Relationship="MobileManagerModel.FK_UserInCompany_Company" FromRole="Company" ToRole="UserInCompany" />
+          <NavigationProperty Name="Clients" Relationship="MobileManagerModel.FK_Client_Company" FromRole="Company" ToRole="Client" />
         </EntityType>
-        <Association Name="FK_Client_Company">
-          <End Type="MobileManagerModel.Company" Role="Company" Multiplicity="1" />
-          <End Type="MobileManagerModel.Client" Role="Client" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Company">
-              <PropertyRef Name="pkCompanyID" />
-            </Principal>
-            <Dependent Role="Client">
-              <PropertyRef Name="fkCompanyID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_Company_CompanyGroup">
           <End Type="MobileManagerModel.CompanyGroup" Role="CompanyGroup" Multiplicity="0..1" />
           <End Type="MobileManagerModel.Company" Role="Company" Multiplicity="*" />
@@ -2583,22 +2632,10 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
           <Property Name="DeleteComment" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="Client" Relationship="MobileManagerModel.FK_Invoice_Client" FromRole="Invoice" ToRole="Client" />
           <NavigationProperty Name="Service1" Relationship="MobileManagerModel.FK_Invoice_Service" FromRole="Invoice" ToRole="Service" />
           <NavigationProperty Name="InvoiceDetails" Relationship="MobileManagerModel.FK_InvoiceDetail_Invoice" FromRole="Invoice" ToRole="InvoiceDetail" />
+          <NavigationProperty Name="Client" Relationship="MobileManagerModel.FK_Invoice_Client" FromRole="Invoice" ToRole="Client" />
         </EntityType>
-        <Association Name="FK_Invoice_Client">
-          <End Type="MobileManagerModel.Client" Role="Client" Multiplicity="0..1" />
-          <End Type="MobileManagerModel.Invoice" Role="Invoice" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Client">
-              <PropertyRef Name="pkClientID" />
-            </Principal>
-            <Dependent Role="Invoice">
-              <PropertyRef Name="fkClientID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_Invoice_Service">
           <End Type="MobileManagerModel.Service" Role="Service" Multiplicity="0..1" />
           <End Type="MobileManagerModel.Invoice" Role="Invoice" Multiplicity="*" />
@@ -2632,6 +2669,219 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
           <Property Type="String" Name="PackageName" Nullable="false" MaxLength="50" />
           <Property Type="DateTime" Name="ContractEndDate" Nullable="true" Precision="23" />
         </ComplexType>
+        <EntityType Name="Client">
+          <Key>
+            <PropertyRef Name="pkClientID" />
+          </Key>
+          <Property Name="pkClientID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="imenumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PrimaryCellNumber" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="EmployeeNumber" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="ClientName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="LandLine" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="IDNumber" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="Email" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CostCode" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="WBSNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="AdminFee" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="IPAddress" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="fkCompanyID" Type="Int32" Nullable="false" />
+          <Property Name="fkClientLocationID" Type="Int32" Nullable="false" />
+          <Property Name="fkContractID" Type="Int32" Nullable="false" />
+          <Property Name="fkClientBillingID" Type="Int32" Nullable="false" />
+          <Property Name="fkSuburbID" Type="Int32" Nullable="false" />
+          <Property Name="AddressLine1" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="AddressLine2" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedBy" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="IsSaIDNumber" Type="Boolean" Nullable="false" />
+          <Property Name="IsPrivate" Type="Boolean" Nullable="false" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="ClientBilling" Relationship="MobileManagerModel.FK_Client_ClientBilling" FromRole="Client" ToRole="ClientBilling" />
+          <NavigationProperty Name="ClientLocation" Relationship="MobileManagerModel.FK_Client_ClientLocation" FromRole="Client" ToRole="ClientLocation" />
+          <NavigationProperty Name="Company" Relationship="MobileManagerModel.FK_Client_Company" FromRole="Client" ToRole="Company" />
+          <NavigationProperty Name="Contract" Relationship="MobileManagerModel.FK_Client_Contract" FromRole="Client" ToRole="Contract" />
+          <NavigationProperty Name="Suburb" Relationship="MobileManagerModel.FK_Client_Suburb" FromRole="Client" ToRole="Suburb" />
+          <NavigationProperty Name="Invoices" Relationship="MobileManagerModel.FK_Invoice_Client" FromRole="Client" ToRole="Invoice" />
+          <NavigationProperty Name="ClientDepartmentManagers" Relationship="MobileManagerModel.FK_ClientDepartmentManager_Client" FromRole="Client" ToRole="ClientDepartmentManager" />
+        </EntityType>
+        <Association Name="FK_Client_ClientBilling">
+          <End Type="MobileManagerModel.ClientBilling" Role="ClientBilling" Multiplicity="1" />
+          <End Type="MobileManagerModel.Client" Role="Client" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ClientBilling">
+              <PropertyRef Name="pkClientBillingID" />
+            </Principal>
+            <Dependent Role="Client">
+              <PropertyRef Name="fkClientBillingID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Client_ClientLocation">
+          <End Type="MobileManagerModel.ClientLocation" Role="ClientLocation" Multiplicity="1" />
+          <End Type="MobileManagerModel.Client" Role="Client" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ClientLocation">
+              <PropertyRef Name="pkClientLocationID" />
+            </Principal>
+            <Dependent Role="Client">
+              <PropertyRef Name="fkClientLocationID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Client_Company">
+          <End Type="MobileManagerModel.Company" Role="Company" Multiplicity="1" />
+          <End Type="MobileManagerModel.Client" Role="Client" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Company">
+              <PropertyRef Name="pkCompanyID" />
+            </Principal>
+            <Dependent Role="Client">
+              <PropertyRef Name="fkCompanyID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Client_Contract">
+          <End Type="MobileManagerModel.Contract" Role="Contract" Multiplicity="1" />
+          <End Type="MobileManagerModel.Client" Role="Client" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Contract">
+              <PropertyRef Name="pkContractID" />
+            </Principal>
+            <Dependent Role="Client">
+              <PropertyRef Name="fkContractID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Client_Suburb">
+          <End Type="MobileManagerModel.Suburb" Role="Suburb" Multiplicity="1" />
+          <End Type="MobileManagerModel.Client" Role="Client" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Suburb">
+              <PropertyRef Name="pkSuburbID" />
+            </Principal>
+            <Dependent Role="Client">
+              <PropertyRef Name="fkSuburbID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Invoice_Client">
+          <End Type="MobileManagerModel.Client" Role="Client" Multiplicity="0..1" />
+          <End Type="MobileManagerModel.Invoice" Role="Invoice" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Client">
+              <PropertyRef Name="pkClientID" />
+            </Principal>
+            <Dependent Role="Invoice">
+              <PropertyRef Name="fkClientID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="ClientDepartmentManager">
+          <Key>
+            <PropertyRef Name="pkClientDepartmentManagerID" />
+          </Key>
+          <Property Name="pkClientDepartmentManagerID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="fkClientID" Type="Int32" Nullable="false" />
+          <Property Name="fkDepartmentID" Type="Int32" />
+          <Property Name="fkLineManagerID" Type="Int32" />
+          <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Client" Relationship="MobileManagerModel.FK_ClientDepartmentManager_Client" FromRole="ClientDepartmentManager" ToRole="Client" />
+          <NavigationProperty Name="Department" Relationship="MobileManagerModel.FK_ClientDepartmentManager_Department" FromRole="ClientDepartmentManager" ToRole="Department" />
+          <NavigationProperty Name="LineManager" Relationship="MobileManagerModel.FK_ClientDepartmentManager_LineManager" FromRole="ClientDepartmentManager" ToRole="LineManager" />
+        </EntityType>
+        <Association Name="FK_ClientDepartmentManager_Client">
+          <End Type="MobileManagerModel.Client" Role="Client" Multiplicity="1" />
+          <End Type="MobileManagerModel.ClientDepartmentManager" Role="ClientDepartmentManager" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Client">
+              <PropertyRef Name="pkClientID" />
+            </Principal>
+            <Dependent Role="ClientDepartmentManager">
+              <PropertyRef Name="fkClientID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Department">
+          <Key>
+            <PropertyRef Name="pkDepartmentID" />
+          </Key>
+          <Property Name="pkDepartmentID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="fkCompanyGroupID" Type="Int32" Nullable="false" />
+          <Property Name="DepartmentDescription" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedBy" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="ClientDepartmentManagers" Relationship="MobileManagerModel.FK_ClientDepartmentManager_Department" FromRole="Department" ToRole="ClientDepartmentManager" />
+          <NavigationProperty Name="CompanyGroup" Relationship="MobileManagerModel.FK_Department_CompanyGroup" FromRole="Department" ToRole="CompanyGroup" />
+          <NavigationProperty Name="LineManagers" Relationship="MobileManagerModel.FK_LineManager_Department" FromRole="Department" ToRole="LineManager" />
+        </EntityType>
+        <Association Name="FK_ClientDepartmentManager_Department">
+          <End Type="MobileManagerModel.Department" Role="Department" Multiplicity="0..1" />
+          <End Type="MobileManagerModel.ClientDepartmentManager" Role="ClientDepartmentManager" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Department">
+              <PropertyRef Name="pkDepartmentID" />
+            </Principal>
+            <Dependent Role="ClientDepartmentManager">
+              <PropertyRef Name="fkDepartmentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Department_CompanyGroup">
+          <End Type="MobileManagerModel.CompanyGroup" Role="CompanyGroup" Multiplicity="1" />
+          <End Type="MobileManagerModel.Department" Role="Department" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CompanyGroup">
+              <PropertyRef Name="pkCompanyGroupID" />
+            </Principal>
+            <Dependent Role="Department">
+              <PropertyRef Name="fkCompanyGroupID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="LineManager">
+          <Key>
+            <PropertyRef Name="pkLineManagerID" />
+          </Key>
+          <Property Name="pkLineManagerID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="fkDepartmentID" Type="Int32" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="Surname" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="PhoneNumber" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="CellNumber" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="LineManagerEmail" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedBy" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="ClientDepartmentManagers" Relationship="MobileManagerModel.FK_ClientDepartmentManager_LineManager" FromRole="LineManager" ToRole="ClientDepartmentManager" />
+          <NavigationProperty Name="Department" Relationship="MobileManagerModel.FK_LineManager_Department" FromRole="LineManager" ToRole="Department" />
+        </EntityType>
+        <Association Name="FK_ClientDepartmentManager_LineManager">
+          <End Type="MobileManagerModel.LineManager" Role="LineManager" Multiplicity="0..1" />
+          <End Type="MobileManagerModel.ClientDepartmentManager" Role="ClientDepartmentManager" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LineManager">
+              <PropertyRef Name="pkLineManagerID" />
+            </Principal>
+            <Dependent Role="ClientDepartmentManager">
+              <PropertyRef Name="fkLineManagerID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_LineManager_Department">
+          <End Type="MobileManagerModel.Department" Role="Department" Multiplicity="1" />
+          <End Type="MobileManagerModel.LineManager" Role="LineManager" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Department">
+              <PropertyRef Name="pkDepartmentID" />
+            </Principal>
+            <Dependent Role="LineManager">
+              <PropertyRef Name="fkDepartmentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2708,36 +2958,6 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
                 <ScalarProperty Name="CityName" ColumnName="CityName" />
                 <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
                 <ScalarProperty Name="ModifiedDate" ColumnName="ModifiedDate" />
-                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Clients">
-            <EntityTypeMapping TypeName="MobileManagerModel.Client">
-              <MappingFragment StoreEntitySet="Client">
-                <ScalarProperty Name="pkClientID" ColumnName="pkClientID" />
-                <ScalarProperty Name="imenumber" ColumnName="imenumber" />
-                <ScalarProperty Name="PrimaryCellNumber" ColumnName="PrimaryCellNumber" />
-                <ScalarProperty Name="EmployeeNumber" ColumnName="EmployeeNumber" />
-                <ScalarProperty Name="ClientName" ColumnName="ClientName" />
-                <ScalarProperty Name="LandLine" ColumnName="LandLine" />
-                <ScalarProperty Name="IDNumber" ColumnName="IDNumber" />
-                <ScalarProperty Name="Email" ColumnName="Email" />
-                <ScalarProperty Name="CostCode" ColumnName="CostCode" />
-                <ScalarProperty Name="WBSNumber" ColumnName="WBSNumber" />
-                <ScalarProperty Name="AdminFee" ColumnName="AdminFee" />
-                <ScalarProperty Name="IPAddress" ColumnName="IPAddress" />
-                <ScalarProperty Name="fkCompanyID" ColumnName="fkCompanyID" />
-                <ScalarProperty Name="fkClientLocationID" ColumnName="fkClientLocationID" />
-                <ScalarProperty Name="fkContractID" ColumnName="fkContractID" />
-                <ScalarProperty Name="fkClientBillingID" ColumnName="fkClientBillingID" />
-                <ScalarProperty Name="fkSuburbID" ColumnName="fkSuburbID" />
-                <ScalarProperty Name="AddressLine1" ColumnName="AddressLine1" />
-                <ScalarProperty Name="AddressLine2" ColumnName="AddressLine2" />
-                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
-                <ScalarProperty Name="ModifiedDate" ColumnName="ModifiedDate" />
-                <ScalarProperty Name="IsSaIDNumber" ColumnName="IsSaIDNumber" />
-                <ScalarProperty Name="IsPrivate" ColumnName="IsPrivate" />
                 <ScalarProperty Name="IsActive" ColumnName="IsActive" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -3312,6 +3532,76 @@ warning 6002: The table/view 'IOBM-MobileManager.dbo.DataUpdateSearchProperty' d
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
+          <EntitySetMapping Name="Clients">
+            <EntityTypeMapping TypeName="MobileManagerModel.Client">
+              <MappingFragment StoreEntitySet="Client">
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="IsPrivate" ColumnName="IsPrivate" />
+                <ScalarProperty Name="IsSaIDNumber" ColumnName="IsSaIDNumber" />
+                <ScalarProperty Name="ModifiedDate" ColumnName="ModifiedDate" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="AddressLine2" ColumnName="AddressLine2" />
+                <ScalarProperty Name="AddressLine1" ColumnName="AddressLine1" />
+                <ScalarProperty Name="fkSuburbID" ColumnName="fkSuburbID" />
+                <ScalarProperty Name="fkClientBillingID" ColumnName="fkClientBillingID" />
+                <ScalarProperty Name="fkContractID" ColumnName="fkContractID" />
+                <ScalarProperty Name="fkClientLocationID" ColumnName="fkClientLocationID" />
+                <ScalarProperty Name="fkCompanyID" ColumnName="fkCompanyID" />
+                <ScalarProperty Name="IPAddress" ColumnName="IPAddress" />
+                <ScalarProperty Name="AdminFee" ColumnName="AdminFee" />
+                <ScalarProperty Name="WBSNumber" ColumnName="WBSNumber" />
+                <ScalarProperty Name="CostCode" ColumnName="CostCode" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="IDNumber" ColumnName="IDNumber" />
+                <ScalarProperty Name="LandLine" ColumnName="LandLine" />
+                <ScalarProperty Name="ClientName" ColumnName="ClientName" />
+                <ScalarProperty Name="EmployeeNumber" ColumnName="EmployeeNumber" />
+                <ScalarProperty Name="PrimaryCellNumber" ColumnName="PrimaryCellNumber" />
+                <ScalarProperty Name="imenumber" ColumnName="imenumber" />
+                <ScalarProperty Name="pkClientID" ColumnName="pkClientID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ClientDepartmentManagers">
+            <EntityTypeMapping TypeName="MobileManagerModel.ClientDepartmentManager">
+              <MappingFragment StoreEntitySet="ClientDepartmentManager">
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="ModifiedDate" ColumnName="ModifiedDate" />
+                <ScalarProperty Name="fkLineManagerID" ColumnName="fkLineManagerID" />
+                <ScalarProperty Name="fkDepartmentID" ColumnName="fkDepartmentID" />
+                <ScalarProperty Name="fkClientID" ColumnName="fkClientID" />
+                <ScalarProperty Name="pkClientDepartmentManagerID" ColumnName="pkClientDepartmentManagerID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Departments">
+            <EntityTypeMapping TypeName="MobileManagerModel.Department">
+              <MappingFragment StoreEntitySet="Department">
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="ModifiedDate" ColumnName="ModifiedDate" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="DepartmentDescription" ColumnName="DepartmentDescription" />
+                <ScalarProperty Name="fkCompanyGroupID" ColumnName="fkCompanyGroupID" />
+                <ScalarProperty Name="pkDepartmentID" ColumnName="pkDepartmentID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LineManagers">
+            <EntityTypeMapping TypeName="MobileManagerModel.LineManager">
+              <MappingFragment StoreEntitySet="LineManager">
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="ModifiedDate" ColumnName="ModifiedDate" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="LineManagerEmail" ColumnName="LineManagerEmail" />
+                <ScalarProperty Name="CellNumber" ColumnName="CellNumber" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+                <ScalarProperty Name="Surname" ColumnName="Surname" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="fkDepartmentID" ColumnName="fkDepartmentID" />
+                <ScalarProperty Name="pkLineManagerID" ColumnName="pkLineManagerID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

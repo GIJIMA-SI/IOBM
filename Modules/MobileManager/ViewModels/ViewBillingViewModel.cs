@@ -13,6 +13,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Gijima.IOBM.MobileManager.ViewModels
 {
@@ -28,6 +29,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         #region Commands
 
         public DelegateCommand AcceptCommand { get; set; }
+        public DelegateCommand ResetCommand { get; set; }
         public DelegateCommand NextCommand { get; set; }
         public DelegateCommand BackCommand { get; set; }
         public DelegateCommand FinishCommand { get; set; }
@@ -125,6 +127,16 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             set { SetProperty(ref _billingWizardPageInstruction, value); }
         }
         private string _billingWizardPageInstruction = string.Empty;
+
+        /// <summary>
+        /// The instruction to display on billing wizard page
+        /// </summary>
+        public string ShowReset
+        {
+            get { return _showReset; }
+            set { SetProperty(ref _showReset, value); }
+        }
+        private string _showReset = "Collapsed";
 
         /// <summary>
         /// The selected billing month
@@ -300,11 +312,15 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// </summary>
         private async void InitialiseBillingView()
         {
+            // Int the security helper for user validation for the reset button
+            _securityHelper = new SecurityHelper(_eventAggregator);
+
             //_model = new ValidationRuleModel(_eventAggregator);
             InitialiseViewControls();
 
             // Initialise the view commands
             AcceptCommand = new DelegateCommand(ExecuteAccept, CanExecuteAccept).ObservesProperty(() => CanStartBillingProcess);
+            ResetCommand = new DelegateCommand(ExecuteReset, CanExecuteReset);
             NextCommand = new DelegateCommand(ExecuteNextPage); 
             BackCommand = new DelegateCommand(ExecutePreviousPage);
 
@@ -316,7 +332,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
 
             // Subscribe to this event to update the billing process history on the wizard's Info content
             _eventAggregator.GetEvent<BillingProcessHistoryEvent>().Subscribe(BillingProcessHistory_Event, true);
-
+            
             // Load the view data
             await ReadBillingProcessesAsync();
         }
@@ -331,6 +347,10 @@ namespace Gijima.IOBM.MobileManager.ViewModels
             SelectedBillingPeriod = MobileManagerEnvironment.BillingPeriod;
             SelectedBillingMonth = Convert.ToInt32(MobileManagerEnvironment.BillingPeriod.Substring(5, 2));
             SelectedBillingYear =  Convert.ToInt32(MobileManagerEnvironment.BillingPeriod.Substring(0, 4));
+
+            //Determines if the user is an administrator and can see the reset button
+            if (_securityHelper.IsUserInRole((int)SecurityRole.Administrator))
+                ShowReset = "Visible";
         }
 
         /// <summary>
@@ -484,6 +504,28 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                                                 ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
                                                 "ExecuteAccept",
                                                 ApplicationMessage.MessageTypes.SystemError));
+            }
+        }
+
+        /// <summary>
+        /// Validate if the Reset Button can be Clicked
+        /// </summary>
+        /// <returns></returns>
+        private bool CanExecuteReset()
+        {
+            return CanStartBillingProcess ? false : true;
+        }
+
+        /// <summary>
+        /// Execute when the reset command can be clicked
+        /// </summary>
+        /// <returns></returns>
+        private async void ExecuteReset()
+        {
+            if (MessageBox.Show("Are you sure you want to reset the current billing process?", "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                await Task.Run(() => new BillingProcessModel(_eventAggregator).ResetCurrentBillingProcess());
+                InitialiseBillingView();
             }
         }
 

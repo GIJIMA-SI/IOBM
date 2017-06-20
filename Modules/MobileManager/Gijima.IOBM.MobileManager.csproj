@@ -131,11 +131,13 @@
     <Compile Include="ViewModels\ViewBasicSearchViewModel.cs" />
     <Compile Include="ViewModels\ViewBillingLevelViewModel.cs" />
     <Compile Include="ViewModels\ViewBillingViewModel.cs" />
+    <Compile Include="ViewModels\ViewLineManagerViewModel.cs" />
     <Compile Include="ViewModels\ViewCityViewModel.cs" />
     <Compile Include="ViewModels\ViewClientSiteViewModel.cs" />
     <Compile Include="ViewModels\ViewCompanyBillingLevelViewModel.cs" />
     <Compile Include="ViewModels\ViewCompanyGroupViewModel.cs" />
     <Compile Include="ViewModels\ViewContractServiceViewModel.cs" />
+    <Compile Include="ViewModels\ViewDepartmentViewModel.cs" />
     <Compile Include="ViewModels\ViewExtDataImportViewModel.cs" />
     <Compile Include="ViewModels\ViewDataUpdateViewModel.cs" />
     <Compile Include="ViewModels\ViewDataImportIntViewModel.cs" />
@@ -167,6 +169,12 @@
     </Compile>
     <Compile Include="Views\Configuration\ViewReferenceDataCF.xaml.cs">
       <DependentUpon>ViewReferenceDataCF.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Maintenance\ViewLineManager.xaml.cs">
+      <DependentUpon>ViewLineManager.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Maintenance\ViewDepartment.xaml.cs">
+      <DependentUpon>ViewDepartment.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Maintenance\ViewContractService.xaml.cs">
       <DependentUpon>ViewContractService.xaml</DependentUpon>
@@ -303,6 +311,14 @@
     <Page Include="Views\Configuration\ViewReferenceDataCF.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Maintenance\ViewLineManager.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Maintenance\ViewDepartment.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Maintenance\ViewContractService.xaml">
       <Generator>MSBuild:Compile</Generator>

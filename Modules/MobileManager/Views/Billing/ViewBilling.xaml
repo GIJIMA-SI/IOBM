@@ -114,8 +114,8 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="132" />
-                        <ColumnDefinition Width="80" />
-                        <ColumnDefinition Width="80" />
+                        <ColumnDefinition Width="85" />
+                        <ColumnDefinition Width="85" />
                         <ColumnDefinition Width="2*" />
                     </Grid.ColumnDefinitions>
                     <TextBox  Grid.Row="2" Grid.Column="1" Grid.RowSpan="6" Margin="0,0,15,1" BorderThickness="0"
@@ -127,8 +127,15 @@
                     <TextBox Grid.Row="2" Grid.Column="3" IsTabStop="False" IsReadOnly="True" HorizontalContentAlignment="Center" Text="{Binding SelectedBillingYear, UpdateSourceTrigger=PropertyChanged}"/>
                     <TextBlock Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="2" Text="Billing processes:" Style="{StaticResource UXLabelTextStyle}"></TextBlock>
                     <ListBox Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="2" IsTabStop="False" DisplayMemberPath="ProcessDescription" ItemsSource="{Binding BillingProcessCollection, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button x:Name="ButtonReset" Grid.Row="7" Grid.Column="2" ToolTip="Restart The Billing Process" TabIndex="2"
+                        Style="{StaticResource UXImageTextButtonStyle}" Width="Auto" Command="{Binding ResetCommand}" Visibility="{Binding ShowReset}" Margin="1">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/289.png" Margin="0,1,5,1"/>
+                            <TextBlock Text="Reset" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                     <Button x:Name="ButtonStart" Grid.Row="7" Grid.Column="3" ToolTip="Cancel the current operation." TabIndex="1"
-                        Style="{StaticResource UXImageTextButtonStyle}" Width="Auto" Command="{Binding AcceptCommand}">
+                        Style="{StaticResource UXImageTextButtonStyle}" Width="Auto" Command="{Binding AcceptCommand}" Margin="1">
                         <StackPanel Orientation="Horizontal">
                             <Image Source="/Gijima.IOBM.MobileManager;component/Assets/Images/277.png" Margin="0,1,5,1"/>
                             <TextBlock Text="Accept" VerticalAlignment="Center"/>

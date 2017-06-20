@@ -136,6 +136,7 @@ namespace Gijima.IOBM.MobileManager.Model.Models
                                                                select client)).Include("Contract")
                                                                               .Include("Contract.PackageSetup")
                                                                               .Include("Contract.ClientServices")
+                                                                              .Include("ClientDepartmentManagers")
                                                                               .Include("ClientBilling").FirstOrDefault();
 
                     return selectedClient;

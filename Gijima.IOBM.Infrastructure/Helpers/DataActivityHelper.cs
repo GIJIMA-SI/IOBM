@@ -9,6 +9,7 @@ using System.Data.Entity.Core.EntityClient;
 using Gijima.IOBM.Infrastructure.Events;
 using System.Data.Entity.Infrastructure;
 using Gijima.IOBM.Infrastructure.Structs;
+using System.Reflection;
 
 namespace Gijima.IOBM.Infrastructure.Helpers
 {
@@ -75,6 +76,12 @@ namespace Gijima.IOBM.Infrastructure.Helpers
             }
             catch (Exception ex)
             {
+                _eventAggregator.GetEvent<ApplicationMessageEvent>()
+                                     .Publish(new ApplicationMessage(this.GetType().Name,
+                                              string.Format("Error! {0}, {1}.",
+                                              ex.Message, ex.InnerException != null ? ex.InnerException.Message : string.Empty),
+                                              MethodBase.GetCurrentMethod().Name,
+                                              ApplicationMessage.MessageTypes.SystemError));
                 _eventAggregator.GetEvent<ApplicationMessageEvent>().Publish(null);
                 return null;
             }

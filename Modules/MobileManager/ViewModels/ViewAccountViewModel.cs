@@ -747,7 +747,7 @@ namespace Gijima.IOBM.MobileManager.ViewModels
         /// </summary>
         private void InitialiseInvoiceItemsControls()
         {
-            SelectedBillingPeriod = BillingPeriodCollection.FirstOrDefault();
+            SelectedBillingPeriod = SelectedBillingPeriod != null ? SelectedBillingPeriod : BillingPeriodCollection.FirstOrDefault();
             SelectedInvoiceItemIndex = -1;
             SelectedSupplier = SupplierCollection != null ? SupplierCollection.Where(p => p.pkServiceProviderID == 0).FirstOrDefault() : null;
             SelectedItemDescription = SelectedItemReference = string.Empty;

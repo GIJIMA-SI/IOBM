@@ -40,9 +40,9 @@ namespace Gijima.IOBM.MobileManager.Model.Data
         public bool IsActive { get; set; }
         public string DeleteComment { get; set; }
     
-        public virtual Client Client { get; set; }
         public virtual Service Service1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<InvoiceDetail> InvoiceDetails { get; set; }
+        public virtual Client Client { get; set; }
     }
 }

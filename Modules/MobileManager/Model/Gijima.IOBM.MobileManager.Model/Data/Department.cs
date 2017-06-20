@@ -12,33 +12,26 @@ namespace Gijima.IOBM.MobileManager.Model.Data
     using System;
     using System.Collections.Generic;
     
-    public partial class Company
+    public partial class Department
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Company()
+        public Department()
         {
-            this.UserInCompanies = new HashSet<UserInCompany>();
-            this.Clients = new HashSet<Client>();
+            this.ClientDepartmentManagers = new HashSet<ClientDepartmentManager>();
+            this.LineManagers = new HashSet<LineManager>();
         }
     
-        public int pkCompanyID { get; set; }
-        public Nullable<int> fkCompanyGroupID { get; set; }
-        public string CompanyName { get; set; }
-        public string WBSNumber { get; set; }
-        public string CostCode { get; set; }
-        public string PONumber { get; set; }
-        public Nullable<System.DateTime> POExpiryDate { get; set; }
-        public decimal AdminFee { get; set; }
-        public string IPAddress { get; set; }
-        public bool HasSpitBilling { get; set; }
+        public int pkDepartmentID { get; set; }
+        public int fkCompanyGroupID { get; set; }
+        public string DepartmentDescription { get; set; }
         public string ModifiedBy { get; set; }
         public System.DateTime ModifiedDate { get; set; }
         public bool IsActive { get; set; }
     
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ClientDepartmentManager> ClientDepartmentManagers { get; set; }
         public virtual CompanyGroup CompanyGroup { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<UserInCompany> UserInCompanies { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Client> Clients { get; set; }
+        public virtual ICollection<LineManager> LineManagers { get; set; }
     }
 }

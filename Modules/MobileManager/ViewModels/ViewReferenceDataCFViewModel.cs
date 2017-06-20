@@ -191,6 +191,12 @@ namespace Gijima.IOBM.MobileManager.ViewModels
                 case ReferenceDataOption.ViewSuburb:
                     SelectedView = new ViewSuburb();
                     break;
+                case ReferenceDataOption.ViewDepartment:
+                    SelectedView = new ViewDepartment();
+                    break;
+                case ReferenceDataOption.ViewLineManager:
+                    SelectedView = new ViewLineManager();
+                    break;
                 default:
                     SelectedView = null;
                     break;
